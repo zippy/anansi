@@ -51,3 +51,17 @@
       (is (= "created" (receive membrane {:from "from_address.some_aspect", :to "to_address.create", :body {:name "simple1",:type "Simple"}})))
       (is (= "I got 'the message' from: from_address.some_aspect"
              (receive membrane {:from "from_address.some_aspect", :to "simple1.simple", :body "the message"}))))))
+
+(deftest user-recptor
+  (let [user (create-user "eric")]
+    (testing "user aspects"
+      (is (= #{:get-attributes :set-attributes :receive-object :release-object} (get-aspects user))))
+    (testing "users attributes"
+      (is (= (receive user {:to "eric.set-attributes", :body {:thing "one", :dog "two"}})
+             {:thing "one", :dog "two"}))
+      (is (= (receive user {:to "eric.get-attributes", :body ""})
+             {:thing "one", :dog "two"}))
+      (is (= (receive user {:to "eric.get-attributes", :body {:keys [:thing]}})
+             {:thing "one"}))
+      )
+    ))

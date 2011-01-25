@@ -82,3 +82,22 @@
   []
   (MembraneReceptor. (ref {})))
 
+(defrecord UserReceptor [user-name attributes]
+  Receptor
+  (get-aspects [this] #{:get-attributes :set-attributes :receive-object :release-object})
+  (receive [this signal] 
+    (let [parsed-signal (parse-signal signal)
+          {:keys [from to body]} parsed-signal]
+      (condp = (:aspect to)
+        :get-attributes (let [{:keys [keys]} body] (if (nil? keys) @attributes (select-keys @attributes keys))) 
+        :set-attributes (dosync (alter attributes merge body))
+        :receive-object "not-implemented"
+        :release-object "not-implemented"
+        )
+)))
+
+(defn create-user
+  "Utility function to create a user receptor"
+  [user-name]
+  (UserReceptor. user-name (ref {})))
+
