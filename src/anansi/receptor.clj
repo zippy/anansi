@@ -82,7 +82,7 @@
   []
   (MembraneReceptor. (ref {})))
 
-(defrecord UserReceptor [user-name attributes]
+(defrecord PersonReceptor [name attributes]
   Receptor
   (get-aspects [this] #{:get-attributes :set-attributes :receive-object :release-object})
   (receive [this signal] 
@@ -96,8 +96,8 @@
         )
 )))
 
-(defn create-user
-  "Utility function to create a user receptor"
-  [user-name]
-  (UserReceptor. user-name (ref {})))
+(defn create-person
+  "Utility function to create a person receptor"
+  [name]
+  (PersonReceptor. name (ref {})))
 
