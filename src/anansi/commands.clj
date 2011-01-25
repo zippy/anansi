@@ -1,7 +1,7 @@
 (ns anansi.commands
   (:use [anansi.user]
         [anansi.server]
-        [anansi.receptor :only [receive]])
+        [anansi.receptor :only [receive parse-signal]])
   (:use [clojure.string :only [join]]))
 
 (defn exit
@@ -25,10 +25,10 @@
 
 (defn
   #^{ :doc "Send a signal to a receptor.", :command-name "send"}
-   send-signal
-  [& signal]
-  (receive *server-receptor* (join " " signal))
-  )
+  send-signal
+   ([& signal]
+      (receive *server-receptor* (assoc (parse-signal (join " " signal)) :from {:id *user-name* :aspect "?"})))
+     )
 
 ;; Command data
 

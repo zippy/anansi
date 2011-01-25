@@ -14,8 +14,8 @@
 
 (def-command-test send-test
   (testing "sending a message"
-    (is (= "created" (send-signal "{:from \"user.conjure\", :to \"server.create\", :body {:name \"simple2\"}}")))
-    (is (= "I got 'message' from: user.?" (send-signal "{:from \"user.?\", :to \"simple2.simple\", :body \"message\"}")))
+    (is (= "created" (send-signal "{:to \"server.create\", :body {:name \"simple2\"}}")))
+    (is (= "I got 'message' from: eric.?" (send-signal "{:to \"simple2.simple\", :body \"message\"}")))
     ))
 
 (deftest help-test
@@ -38,8 +38,8 @@
            (execute "fish"))))
   (testing "executing a multi argument command"
     (is (= "created"
-           (execute "send {:from \"user.conjure\", :to \"server.create\", :body {:name \"simple2\"}}"))))
+           (execute "send {:to \"server.create\", :body {:name \"simple2\"}}"))))
   (binding [*err* (java.io.PrintWriter. (writer "/dev/null"))]
-  (testing "executing command that throws an error"
+    (testing "executing command that throws an error"
       (is (= "ERROR: java.lang.RuntimeException: Receptor 'simple99' not found"
-             (execute "send {:from \"user.conjure\", :to \"simple99.simple\", :body \"some body\"}"))))))
+             (execute "send {:to \"simple99.simple\", :body \"some body\"}"))))))
