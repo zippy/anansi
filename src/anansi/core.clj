@@ -27,11 +27,12 @@
 
     ;; We have to nest this in another binding call instead of using
     ;; the one above so *in* and *out* will be bound to the socket
-    (print "\nEnter a user name? ") (flush)
+    (print "\nWelcome to the Anansi sever.\n\n  Enter your user name: ") (flush)
     (binding [*user-name* nil]
       (dosync
        (set! *user-name* (get-unique-user-name (read-line)))
-       (commute user-streams assoc *user-name* *out*))
+       (commute user-streams assoc *user-name* *out*)
+       )
 
       (print prompt) (flush)
 
