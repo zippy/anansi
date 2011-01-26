@@ -1,4 +1,6 @@
-(ns anansi.user)
+(ns 
+  #^{:skip-wiki true}    
+  anansi.user)
 
 (def *user-name*)
 

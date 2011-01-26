@@ -1,4 +1,6 @@
-(ns anansi.server
+(ns
+  #^{:skip-wiki true}    
+   anansi.server
   (:use [anansi.receptor :only [create-membrane]])
   )
 

@@ -1,4 +1,7 @@
-(ns anansi.commands
+(ns
+  #^{:author "Eric Harris-Braun"
+     :doc "Commands that can be excecuted at the servers command line"}  
+  anansi.commands
   (:use [anansi.user]
         [anansi.server]
         [anansi.receptor :only [receive parse-signal]])

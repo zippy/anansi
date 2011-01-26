@@ -1,6 +1,6 @@
 (ns
   #^{:author "Eric Harris-Braun"
-     :doc "Receptors"}
+     :doc "Receptor helper functions and receptor definitions"}
   anansi.receptor)
 
 (defprotocol Receptor
