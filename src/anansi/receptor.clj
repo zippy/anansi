@@ -4,9 +4,13 @@
   anansi.receptor)
 
 (defprotocol Receptor
-  "Base protocol for all receptors"
-  (receive [this signal] "Receive a signal. Returns FIXME")
-  (get-aspects [this] "Get a set of the aspects implemented by this receptor")
+  "Underlying protocol for all receptors
+Methods:
+  (receive [this signal])
+  (get-aspects [this])  => returns a set of all aspects impelemented by the receptor
+"
+  (receive [this signal])
+  (get-aspects [this])
   )
 
 ;;;;;;;;;;;;   Utility Functions ;;;;;;;;;;;;
@@ -55,7 +59,7 @@
       )))
 
 (defn create-object
-  "Utility function to create an empty membrane receptor"
+  "Utility function to create an empty object receptor"
   [name]
   (ObjectReceptor. (name)))
 
@@ -81,7 +85,11 @@
             (receive receptor parsed-signal)))))))
 
 (defn create-membrane
-  "Utility function to create an empty membrane receptor"
+"Membrane receptors receive the following signals:
+     aspect: conjure  -- create a new receptor inside the membrane
+       body: {:name <receptor-name>, :type <receptor-type>, ...<other keys as defined by the recptor type>}
+    returns: \"created\" if successful
+"
   []
   (MembraneReceptor. (ref {})))
 
