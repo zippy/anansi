@@ -24,6 +24,10 @@ user can connect by telnetting to port 3333.
 
 FIXME
 
+## Documentation
+
+http://zippy.github.com/anansi/
+
 ## License
 
 Copyright (C) 2011

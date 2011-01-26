@@ -5,8 +5,8 @@
 
 (defprotocol Receptor
   "Base protocol for all receptors"
-  (receive [this signal])
-  (get-aspects [this])
+  (receive [this signal] "Receive a signal. Returns FIXME")
+  (get-aspects [this] "Get a set of the aspects implemented by this receptor")
   )
 
 ;;;;;;;;;;;;   Utility Functions ;;;;;;;;;;;;
