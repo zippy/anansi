@@ -18,7 +18,7 @@ Methods:
 (defn parse-address [address] 
   "Utility function to parse a string encoded ceptr address into hash"
   (if (string? address)
-    (let [[id aspect] (.split #"\." address)]
+    (let [[id aspect] (.split #":" address)]
       {:id id,:aspect (keyword aspect)})
     address))
 
@@ -55,7 +55,7 @@ Methods:
   (get-aspects [this] #{:ping})
   (receive [this signal] 
      (let [{:keys [from to body error]} (validate-signal this signal true)]
-      (str "I got '" body "' from: " (if (string? from) from (str (:id from) "." (clojure.core/name  (:aspect from )))))
+      (str "I got '" body "' from: " (if (string? from) from (str (:id from) ":" (clojure.core/name  (:aspect from )))))
       )))
 
 (defn create-object
@@ -63,35 +63,65 @@ Methods:
   [name]
   (ObjectReceptor. (name)))
 
-(defrecord MembraneReceptor [receptors]
-  Receptor
-  (get-aspects [this] #{:conjure})
-  (receive [this signal] 
-    (let [parsed-signal (parse-signal signal)
-          {:keys [from to body]} parsed-signal]
-      (condp = (:aspect to)
+(defn membrane-receive
+  "Default membrane receive function.  Handles :conjure aspect and routing signals to contained receptors"
+  [this signal scape] 
+  (let [parsed-signal (parse-signal signal)
+        {:keys [from to body]} parsed-signal]
+    (condp = (:aspect to)
         ;; add a new receptor into the membranes receptor list
         :conjure
-        (dosync (let [{:keys [name]} body] 
-          (alter receptors assoc (:name body) (ObjectReceptor. name)))
-                "created")
+      (dosync (let [{:keys [name]} body] 
+                (alter (@scape :receptors) assoc (:name body) (ObjectReceptor. name)))
+              "created")
         
-        ;; otherwise assume the signal is sent to one of our contained
-        ;; receptors
-        (let [name (:id to)
-              receptor (@receptors name)]
-          (if (nil? receptor)
-            (throw (RuntimeException. (str "Receptor '" name "' not found")))
-            (receive receptor parsed-signal)))))))
+      ;; otherwise assume the signal is sent to one of our contained
+      ;; receptors
+      (let [name (:id to)
+            receptor ((@scape :receptors) name)]
+        (if (nil? receptor)
+          (throw (RuntimeException. (str "Receptor '" name "' not found")))
+          (receive receptor parsed-signal))))))
 
-(defn create-membrane
-"Membrane receptors receive the following signals:
+
+(defrecord MembraneReceptor [scape]
+  Receptor
+  (get-aspects [this] #{:conjure})
+  (receive [this signal] (membrane-receive this signal scape))
+  )
+
+(defn make-scape
+  "Utility function to create an empty scape"
+  []
+  (ref {:receptors (ref {})}))
+
+(defn make-membrane
+  "Membrane factory
+
+membranes receive the following signals:
      aspect: conjure  -- create a new receptor inside the membrane
        body: {:name <receptor-name>, :type <receptor-type>, ...<other keys as defined by the recptor type>}
     returns: \"created\" if successful
 "
+  ([] (make-membrane (make-scape)))
+  ([default-scape] (MembraneReceptor. default-scape)))
+
+(defrecord ServerReceptor [scape]
+  Receptor
+  (get-aspects [this] #{:conjure})
+  (receive [this signal] (membrane-receive this signal scape))
+  )
+
+(defn make-server
+  "Sever factory
+
+servers are membranes that also receive the following signals:
+     aspect: 
+       body: {:name <receptor-name>, :type <receptor-type>, ...<other keys as defined by the recptor type>}
+    returns: \"\" if successful
+"
   []
-  (MembraneReceptor. (ref {})))
+  (ServerReceptor. (make-scape)))
 
 (defrecord PersonReceptor [name attributes]
   Receptor
@@ -107,7 +137,7 @@ Methods:
         )
 )))
 
-(defn create-person
+(defn make-person
   "Utility function to create a person receptor"
   [name]
   (PersonReceptor. name (ref {})))

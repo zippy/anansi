@@ -8,14 +8,14 @@
 
 (defmacro def-command-test [name & body]
   `(deftest ~name
-     (binding [*server-receptor* (create-membrane)
+     (binding [*server-receptor* (make-membrane)
                *user-name* "eric"]
        ~@body)))
 
 (def-command-test send-test
   (testing "sending a message"
-    (is (= "created" (send-signal "{:to \"server.conjure\", :body {:name \"object2\"}}")))
-    (is (= "I got 'message' from: eric.?" (send-signal "{:to \"object2.ping\", :body \"message\"}")))
+    (is (= "created" (send-signal "{:to \"server:conjure\", :body {:name \"object2\"}}")))
+    (is (= "I got 'message' from: eric:?" (send-signal "{:to \"object2:ping\", :body \"message\"}")))
     ))
 
 (deftest help-test
@@ -38,9 +38,9 @@
            (execute "fish"))))
   (testing "executing a multi argument command"
     (is (= "created"
-           (execute "send {:to \"server.conjure\", :body {:name \"object2\"}}"))))
+           (execute "send {:to \"server:conjure\", :body {:name \"object2\"}}"))))
   (binding [*err* (java.io.PrintWriter. (writer "/dev/null"))]
     (testing "executing command that throws an error"
-      (is (= (execute "send {:to \"zippy.?\", :body \"some body\"}")
+      (is (= (execute "send {:to \"zippy:?\", :body \"some body\"}")
              "ERROR: java.lang.RuntimeException: Receptor 'zippy' not found"
              )))))

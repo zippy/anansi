@@ -1,7 +1,7 @@
 (ns
   #^{:skip-wiki true}    
    anansi.server
-  (:use [anansi.receptor :only [create-membrane]])
+  (:use [anansi.receptor :only [make-server]])
   )
 
-(def *server-receptor* (create-membrane))
+(def *server-receptor* (make-server))
