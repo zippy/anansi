@@ -56,10 +56,6 @@ namespace.
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/create-person">create-person</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.receptor/get-aspects">get-aspects</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.receptor/receive">receive</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/validate-signal">validate-signal</a>
     </div>
     <br />
@@ -83,7 +79,10 @@ by <span id="author">Eric Harris-Braun</span><br />
   <h2 id="anansi.receptor/Receptor">Receptor</h2>
   <span id="var-type">var</span><br />
   <pre id="var-usage"></pre>
-  <pre id="var-docstr">Base protocol for all receptors</pre>
+  <pre id="var-docstr">Underlying protocol for all receptors
+Methods:
+  (receive [this signal])
+  (get-aspects [this])  =&gt; returns a set of all aspects impelemented by the receptor</pre>
   
 </div><div id="var-entry">
   <br />
@@ -92,7 +91,10 @@ by <span id="author">Eric Harris-Braun</span><br />
   <span id="var-type">function</span><br />
   <pre id="var-usage">Usage: (create-membrane)
 </pre>
-  <pre id="var-docstr">Utility function to create an empty membrane receptor</pre>
+  <pre id="var-docstr">Membrane receptors receive the following signals:
+ aspect: conjure  -- create a new receptor inside the membrane
+   body: {:name &lt;receptor-name&gt;, :type &lt;receptor-type&gt;, ...&lt;other keys as defined by the recptor type&gt;}
+returns: "created" if successful</pre>
   
 </div><div id="var-entry">
   <br />
@@ -101,7 +103,7 @@ by <span id="author">Eric Harris-Braun</span><br />
   <span id="var-type">function</span><br />
   <pre id="var-usage">Usage: (create-object name)
 </pre>
-  <pre id="var-docstr">Utility function to create an empty membrane receptor</pre>
+  <pre id="var-docstr">Utility function to create an empty object receptor</pre>
   
 </div><div id="var-entry">
   <br />
@@ -111,24 +113,6 @@ by <span id="author">Eric Harris-Braun</span><br />
   <pre id="var-usage">Usage: (create-person name)
 </pre>
   <pre id="var-docstr">Utility function to create a person receptor</pre>
-  
-</div><div id="var-entry">
-  <br />
-  <hr />
-  <h2 id="anansi.receptor/get-aspects">get-aspects</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (get-aspects this)
-</pre>
-  <pre id="var-docstr">Get a set of the aspects implemented by this receptor</pre>
-  
-</div><div id="var-entry">
-  <br />
-  <hr />
-  <h2 id="anansi.receptor/receive">receive</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (receive this signal)
-</pre>
-  <pre id="var-docstr">Receive a signal. Returns FIXME</pre>
   
 </div><div id="var-entry">
   <br />
