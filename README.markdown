@@ -26,7 +26,7 @@ FIXME
 
 ## Documentation
 
-http://zippy.github.com/anansi/
+[API](http://zippy.github.com/anansi/)
 
 ## License
 
