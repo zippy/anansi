@@ -46,36 +46,39 @@
 
 ;; RECEPTORS
 
-(defrecord SimpleReceptor [_]
+(defrecord ObjectReceptor [name]
   Receptor
-  (get-aspects [this] #{:simple})
+  (get-aspects [this] #{:ping})
   (receive [this signal] 
      (let [{:keys [from to body error]} (validate-signal this signal true)]
-      (str "I got '" body "' from: " (if (string? from) from (str (:id from) "." (name  (:aspect from )))))
+      (str "I got '" body "' from: " (if (string? from) from (str (:id from) "." (clojure.core/name  (:aspect from )))))
       )))
+
+(defn create-object
+  "Utility function to create an empty membrane receptor"
+  [name]
+  (ObjectReceptor. (name)))
 
 (defrecord MembraneReceptor [receptors]
   Receptor
-  (get-aspects [this] #{:create})
+  (get-aspects [this] #{:conjure})
   (receive [this signal] 
     (let [parsed-signal (parse-signal signal)
           {:keys [from to body]} parsed-signal]
-      (if (= :create (:aspect to))
-        ;; add a new receptor into the membranes receptor list if
-        ;; signal received on the :create aspect
-        (dosync (alter receptors assoc (:name body) (SimpleReceptor. nil))
+      (condp = (:aspect to)
+        ;; add a new receptor into the membranes receptor list
+        :conjure
+        (dosync (let [{:keys [name]} body] 
+          (alter receptors assoc (:name body) (ObjectReceptor. name)))
                 "created")
+        
         ;; otherwise assume the signal is sent to one of our contained
         ;; receptors
         (let [name (:id to)
               receptor (@receptors name)]
           (if (nil? receptor)
             (throw (RuntimeException. (str "Receptor '" name "' not found")))
-            (receive receptor parsed-signal)
-            )
-          )
-        )
-    )))
+            (receive receptor parsed-signal)))))))
 
 (defn create-membrane
   "Utility function to create an empty membrane receptor"
