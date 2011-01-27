@@ -75,6 +75,19 @@
       (is (= #{:conjure} (get-aspects server))))
     ))
 
+(deftest room-recptor
+  (let [room (make-room "room")]
+    (testing "room aspects"
+      (is (= #{:conjure :describe :enter :leave :scape :pass-object} (get-aspects room))))
+    (testing "person entering and leaving room"
+      (is (= "[]" (receive room {:from "eric:?", :to "room:describe"})))
+      (is (= "entered" (receive room {:from "eric:?", :to "room:enter", :body {:person {:name "Art"}}})))
+      (is (= "[\"Art\"]" (receive room {:from "eric:?", :to "room:describe"})))
+      (is (= "left" (receive room {:from "eric:?", :to "room:leave", :body {:person-name "Art"}})))
+      (is (= "[]" (receive room {:from "eric:?", :to "room:describe"})))
+        )
+    ))
+
 (deftest person-recptor
   (let [person (make-person "Eric")]
     (testing "person aspects"

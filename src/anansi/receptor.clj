@@ -85,21 +85,34 @@ Methods:
      (if (nil? rest) address (assoc address :id (join "." rest)))])
   )
 
+(defn aspect-receive-dispatch
+  "Dispatches to aspect-receive calls based on the class of the recptor or a force"
+  ([this signal scape klass]
+      (if klass klass (class this)))
+  ([this signal scape] (aspect-receive-dispatch this signal scape nil))
+  )
+
+(defmulti membrane-aspects aspect-receive-dispatch)
+
+;; The default dispatch for membrane-aspects is the "base" membrane.
+(defmethod membrane-aspects :default
+  [this signal scape]
+  (let [{:keys [to body]} signal]
+    (condp = (:aspect to)
+        ;; add a new receptor into the membranes receptor list
+        :conjure (dosync (let [{:keys [name]} body] 
+                           (alter (@scape :receptors) assoc (:name body) (conjure-receptor body)))
+                         "created")
+        (throw-bad-aspect to))))
+
 (defn membrane-receive
   "Default membrane receive function.  Handles :conjure aspect and routing signals to contained receptors"
   [this signal scape] 
   (let [parsed-signal (parse-signal signal)
         {:keys [from to body]} parsed-signal
         [destination-receptor resolved-address] (resolve-address @scape to)]
-    (if (= destination-receptor :self) 
-      (condp = (:aspect to)
-          ;; add a new receptor into the membranes receptor list
-          :conjure (dosync (let [{:keys [name]} body] 
-                             (alter (@scape :receptors) assoc (:name body) (conjure-receptor body)))
-                           "created")
-        (throw-bad-aspect to)
-        )
-
+    (if (= destination-receptor :self)
+      (membrane-aspects this parsed-signal scape)
       (if (nil? destination-receptor)
           (throw (RuntimeException. (str "No route to '" (humanize-address to) "'")))
           (receive destination-receptor (assoc parsed-signal :to resolved-address))))))
@@ -112,8 +125,10 @@ Methods:
 
 (defn make-scape
   "Utility function to create an empty scape for a new membrane"
-  [self-name]
-  (ref {:receptors (ref {}), :self self-name}))
+  ( [self-name attributes]
+      (let [ scape {:receptors (ref {}), :self self-name}]
+        (ref (if attributes (merge scape attributes) scape))))
+  ( [self-name] (make-scape self-name nil)))
 
 (defn make-membrane
   "Membrane factory
@@ -142,6 +157,52 @@ servers are membranes that also receive the following signals:
 "
   [name]
   (ServerReceptor. (make-scape name)))
+
+(defrecord RoomReceptor [scape]
+  Receptor
+  (get-aspects [this] #{:conjure :describe :enter :leave :scape :pass-object})
+  (receive [this signal] (membrane-receive this signal scape)))
+
+(declare make-person)
+(defmethod membrane-aspects anansi.receptor.RoomReceptor
+  [this signal scape]
+  (let [{:keys [to body]} signal]
+    (condp = (:aspect to)
+        :describe (str (vec (map :name @(@scape :people))))
+        :enter (dosync (let [{:keys [name]} body] 
+                         (alter (@scape :people) conj (let [person (:person body)] (make-person (:name person)))))
+                       "entered")
+        :leave (dosync (let [{:keys [person-name]} body] 
+                         (alter (@scape :people) #(remove (fn [person] (= person-name (:name person))) %)))
+                       "left")
+        (membrane-aspects this signal scape :default))))
+
+(defn make-room
+  "Room factory
+
+rooms are membranes that also receive the following signals:
+     aspect: describe
+       body: nil
+    returns: <vector of people in the room>
+
+     aspect: enter
+       body: {:person {:name <some name> :email \"email@example.com\" <other-person-key-value-pairs>}}
+    returns: \"entered\" if successful
+
+     aspect: leave
+       body: {:person-name <some-name>}
+    returns: \"left\" if successful
+
+     aspect: scape
+       body: {<scaping-attributes>}
+    returns: \"ok\" if successful
+
+     aspect: pass-object
+       body: {:object \"<object-address>\" :to {:person \"<person-address>\"}|:right|:left}
+    returns: \"ok\" if successful
+"
+  [name]
+  (RoomReceptor. (make-scape name {:people (ref (seq []))})))
 
 (defrecord PersonReceptor [name attributes]
   Receptor
