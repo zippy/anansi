@@ -50,11 +50,25 @@ namespace.
     <div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/Receptor">Receptor</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.receptor/create-membrane">create-membrane</a>
+      <a href="#anansi.receptor/conjure-receptor">conjure-receptor</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.receptor/create-object">create-object</a>
+      <a href="#anansi.receptor/humanize-address">humanize-address</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.receptor/create-person">create-person</a>
+      <a href="#anansi.receptor/make-membrane">make-membrane</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/make-object">make-object</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/make-person">make-person</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/make-scape">make-scape</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/make-server">make-server</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/membrane-receive">membrane-receive</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/resolve-address">resolve-address</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/throw-bad-aspect">throw-bad-aspect</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/validate-signal">validate-signal</a>
     </div>
@@ -87,32 +101,102 @@ Methods:
 </div><div id="var-entry">
   <br />
   <hr />
-  <h2 id="anansi.receptor/create-membrane">create-membrane</h2>
+  <h2 id="anansi.receptor/conjure-receptor">conjure-receptor</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (create-membrane)
+  <pre id="var-usage">Usage: (conjure-receptor body)
 </pre>
-  <pre id="var-docstr">Membrane receptors receive the following signals:
- aspect: conjure  -- create a new receptor inside the membrane
-   body: {:name &lt;receptor-name&gt;, :type &lt;receptor-type&gt;, ...&lt;other keys as defined by the recptor type&gt;}
-returns: "created" if successful</pre>
+  <pre id="var-docstr">Create a new receptor based on the parameters specified in the body of the signal</pre>
   
 </div><div id="var-entry">
   <br />
   <hr />
-  <h2 id="anansi.receptor/create-object">create-object</h2>
+  <h2 id="anansi.receptor/humanize-address">humanize-address</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (create-object name)
+  <pre id="var-usage">Usage: (humanize-address {:keys [id aspect], :as address})
+</pre>
+  <pre id="var-docstr">turn an address into a human readable string</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor/make-membrane">make-membrane</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (make-membrane name)
+</pre>
+  <pre id="var-docstr">Membrane factory
+
+membranes receive the following signals:
+     aspect: conjure  -- create a new receptor inside the membrane
+       body: {:name &lt;receptor-name&gt;, :type &lt;receptor-type&gt;, ...&lt;other keys as defined by the recptor type&gt;}
+    returns: "created" if successful</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor/make-object">make-object</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (make-object name)
 </pre>
   <pre id="var-docstr">Utility function to create an empty object receptor</pre>
   
 </div><div id="var-entry">
   <br />
   <hr />
-  <h2 id="anansi.receptor/create-person">create-person</h2>
+  <h2 id="anansi.receptor/make-person">make-person</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (create-person name)
+  <pre id="var-usage">Usage: (make-person name)
 </pre>
   <pre id="var-docstr">Utility function to create a person receptor</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor/make-scape">make-scape</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (make-scape self-name)
+</pre>
+  <pre id="var-docstr">Utility function to create an empty scape for a new membrane</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor/make-server">make-server</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (make-server name)
+</pre>
+  <pre id="var-docstr">Sever factory
+
+servers are membranes that also receive the following signals:
+     aspect: 
+       body: {:name &lt;receptor-name&gt;, :type &lt;receptor-type&gt;, ...&lt;other keys as defined by the recptor type&gt;}
+    returns: "" if successful</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor/membrane-receive">membrane-receive</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (membrane-receive this signal scape)
+</pre>
+  <pre id="var-docstr">Default membrane receive function.  Handles :conjure aspect and routing signals to contained receptors</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor/resolve-address">resolve-address</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (resolve-address {:keys [receptors self], :as scape} {:keys [id aspect], :as address})
+</pre>
+  <pre id="var-docstr">Utility function to resolve an address to :self or to a contained receptor in the scape</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor/throw-bad-aspect">throw-bad-aspect</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (throw-bad-aspect to)
+</pre>
+  <pre id="var-docstr">Utility function to throw an error when a receptor is sent a signal on no exitent aspect</pre>
   
 </div><div id="var-entry">
   <br />
