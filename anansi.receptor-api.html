@@ -50,6 +50,8 @@ namespace.
     <div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/Receptor">Receptor</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/aspect-receive-dispatch">aspect-receive-dispatch</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/conjure-receptor">conjure-receptor</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/humanize-address">humanize-address</a>
@@ -59,6 +61,8 @@ namespace.
       <a href="#anansi.receptor/make-object">make-object</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/make-person">make-person</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/make-room">make-room</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/make-scape">make-scape</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
@@ -97,6 +101,16 @@ by <span id="author">Eric Harris-Braun</span><br />
 Methods:
   (receive [this signal])
   (get-aspects [this])  =&gt; returns a set of all aspects impelemented by the receptor</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor/aspect-receive-dispatch">aspect-receive-dispatch</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (aspect-receive-dispatch this signal scape klass)
+       (aspect-receive-dispatch this signal scape)
+</pre>
+  <pre id="var-docstr">Dispatches to aspect-receive calls based on the class of the recptor or a force</pre>
   
 </div><div id="var-entry">
   <br />
@@ -151,9 +165,40 @@ membranes receive the following signals:
 </div><div id="var-entry">
   <br />
   <hr />
+  <h2 id="anansi.receptor/make-room">make-room</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (make-room name)
+</pre>
+  <pre id="var-docstr">Room factory
+
+rooms are membranes that also receive the following signals:
+     aspect: describe
+       body: nil
+    returns: &lt;vector of people in the room&gt;
+
+     aspect: enter
+       body: {:person {:name &lt;some name&gt; :email "email@example.com" &lt;other-person-key-value-pairs&gt;}}
+    returns: "entered" if successful
+
+     aspect: leave
+       body: {:person-name &lt;some-name&gt;}
+    returns: "left" if successful
+
+     aspect: scape
+       body: {&lt;scaping-attributes&gt;}
+    returns: "ok" if successful
+
+     aspect: pass-object
+       body: {:object "&lt;object-address&gt;" :to {:person "&lt;person-address&gt;"}|:right|:left}
+    returns: "ok" if successful</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
   <h2 id="anansi.receptor/make-scape">make-scape</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (make-scape self-name)
+  <pre id="var-usage">Usage: (make-scape self-name attributes)
+       (make-scape self-name)
 </pre>
   <pre id="var-docstr">Utility function to create an empty scape for a new membrane</pre>
   
