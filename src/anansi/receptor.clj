@@ -2,7 +2,8 @@
   #^{:author "Eric Harris-Braun"
      :doc "Receptor helper functions and receptor definitions"}
   anansi.receptor
-  (:use [clojure.string :only [join]]))
+  (:require [clojure.string :as str])
+  )
 
 (defprotocol Receptor
   "Underlying protocol for all receptors
@@ -62,12 +63,18 @@ Methods:
 
 ;; RECEPTORS
 
+(defn ping-aspect
+  "return ping"
+  [from body]
+  (str "I got '" body "' from " (humanize-address from))
+ )
+
 (defrecord ObjectReceptor [name]
   Receptor
   (get-aspects [this] #{:ping})
   (receive [this signal] 
      (let [{:keys [from to body error]} (validate-signal this signal true)]
-      (str "I got '" body "' from " (humanize-address from))
+      (ping-aspect from body)
       )))
 
 (defn make-object
@@ -75,14 +82,12 @@ Methods:
   [name]
   (ObjectReceptor. name))
 
-(declare conjure-receptor)
-
 (defn resolve-address
   "Utility function to resolve an address to :self or to a contained receptor in the scape"
   [{:keys [receptors self], :as scape} {:keys [id aspect], :as address}]
   (let  [[head & rest] (.split #"\." id)]
     [(if (= self head) :self (@receptors head))
-     (if (nil? rest) address (assoc address :id (join "." rest)))])
+     (if (nil? rest) address (assoc address :id (str/join "." rest)))])
   )
 
 (defn aspect-receive-dispatch
@@ -94,15 +99,22 @@ Methods:
 
 (defmulti membrane-aspects aspect-receive-dispatch)
 
+(declare make-receptor)
+
+(defn do-conjure
+  "conjure a recptor into a scape"
+  [scape body]
+  (dosync (let [{:keys [name]} body] 
+                           (alter (@scape :receptors) assoc (:name body) (make-receptor body)))
+                         "created"))
+
 ;; The default dispatch for membrane-aspects is the "base" membrane.
 (defmethod membrane-aspects :default
   [this signal scape]
   (let [{:keys [to body]} signal]
     (condp = (:aspect to)
         ;; add a new receptor into the membranes receptor list
-        :conjure (dosync (let [{:keys [name]} body] 
-                           (alter (@scape :receptors) assoc (:name body) (conjure-receptor body)))
-                         "created")
+        :conjure (do-conjure scape body)
         (throw-bad-aspect to))))
 
 (defn membrane-receive
@@ -163,18 +175,52 @@ servers are membranes that also receive the following signals:
   (get-aspects [this] #{:conjure :describe :enter :leave :scape :pass-object})
   (receive [this signal] (membrane-receive this signal scape)))
 
+(defn sanitize-for-address
+  "create and address ready string from a string"
+  [name]
+  (str/replace (str/lower-case name) #"\W" "_")
+  )
+
+(defn find-receptor
+  "Utility function to lookup up a receptor in a scape by address"
+  [scape address]
+  (@(@scape :receptors) address)
+  )
+
+(defn remove-receptor
+  "Utility function to remove a receptor from a scape by address"
+  [scape address]
+  (alter (@scape :receptors) dissoc address)
+  )
+
 (declare make-person)
 (defmethod membrane-aspects anansi.receptor.RoomReceptor
   [this signal scape]
-  (let [{:keys [to body]} signal]
+  (let [{:keys [to body]} signal
+        people-ref (@scape :people)
+        ]
     (condp = (:aspect to)
-        :describe (str (vec (map :name @(@scape :people))))
-        :enter (dosync (let [{:keys [name]} body] 
-                         (alter (@scape :people) conj (let [person (:person body)] (make-person (:name person)))))
-                       "entered")
-        :leave (dosync (let [{:keys [person-name]} body] 
-                         (alter (@scape :people) #(remove (fn [person] (= person-name (:name person))) %)))
-                       "left")
+        :describe (str (vec (map :name (vals @people-ref))))
+        :enter (let [{:keys [person]} body
+                     {:keys [name]} person
+                     person-address (sanitize-for-address name)
+                     person-receptor (find-receptor scape person-address)
+                     ]
+                 (if person-receptor
+                   (str name " is allready in the room")
+                   (dosync (alter people-ref assoc person-address {:name name})
+                           (do-conjure scape {:name person-address, :attributes {:name name} :type "Person"})
+                           (str "entered as " person-address)) 
+                   )
+                 )
+        :leave (let [{:keys [person-address]} body
+                     person-receptor (find-receptor scape person-address)]
+                 (if (nil? person-receptor)
+                   (str person-address " is not in the room")
+                   (dosync (remove-receptor scape person-address)
+                           (alter people-ref dissoc person-address)
+                           (str person-address " left"))))
+        :pass-object nil
         (membrane-aspects this signal scape :default))))
 
 (defn make-room
@@ -190,7 +236,7 @@ rooms are membranes that also receive the following signals:
     returns: \"entered\" if successful
 
      aspect: leave
-       body: {:person-name <some-name>}
+       body: {:person-address <some-addr>}
     returns: \"left\" if successful
 
      aspect: scape
@@ -202,11 +248,11 @@ rooms are membranes that also receive the following signals:
     returns: \"ok\" if successful
 "
   [name]
-  (RoomReceptor. (make-scape name {:people (ref (seq []))})))
+  (RoomReceptor. (make-scape name {:objects (ref {}), :people (ref {})})))
 
 (defrecord PersonReceptor [name attributes]
   Receptor
-  (get-aspects [this] #{:get-attributes :set-attributes :receive-object :release-object})
+  (get-aspects [this] #{:ping :get-attributes :set-attributes :receive-object :release-object})
   (receive [this signal] 
     (let [parsed-signal (parse-signal signal)
           {:keys [from to body]} parsed-signal]
@@ -215,16 +261,18 @@ rooms are membranes that also receive the following signals:
         :set-attributes (dosync (alter attributes merge body))
         :receive-object "not-implemented"
         :release-object "not-implemented"
+        :ping (ping-aspect from body)
         (throw-bad-aspect to)
         )
 )))
 
 (defn make-person
   "Utility function to create a person receptor"
-  [name]
-  (PersonReceptor. name (ref {})))
+  ([name] (make-person name {}))
+  ([name attributes]
+     (PersonReceptor. name (ref attributes))))
 
-(defn conjure-receptor
+(defn make-receptor
   "Create a new receptor based on the parameters specified in the body of the signal"
   [body]
   (let [{:keys [type name]} body]
@@ -233,6 +281,8 @@ rooms are membranes that also receive the following signals:
       (make-object (:name body))
       "Membrane"
       (make-membrane (:name body))
+      "Person"
+      (make-person (:name body) (:attributes body))
       (throw (RuntimeException. (str "Unknown receptor type: '" type "'")))
       )))
 

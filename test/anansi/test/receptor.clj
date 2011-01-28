@@ -81,17 +81,21 @@
       (is (= #{:conjure :describe :enter :leave :scape :pass-object} (get-aspects room))))
     (testing "person entering and leaving room"
       (is (= "[]" (receive room {:from "eric:?", :to "room:describe"})))
-      (is (= "entered" (receive room {:from "eric:?", :to "room:enter", :body {:person {:name "Art"}}})))
-      (is (= "[\"Art\"]" (receive room {:from "eric:?", :to "room:describe"})))
-      (is (= "left" (receive room {:from "eric:?", :to "room:leave", :body {:person-name "Art"}})))
+      (is (= "entered as art_brock" (receive room {:from "eric:?", :to "room:enter", :body {:person {:name "Art Brock"}}})))
+      (is (= "[\"Art Brock\"]" (receive room {:from "eric:?", :to "room:describe"})))
+      (is (= "I got 'the message' from eric:?"
+             (receive room {:from "eric:?", :to "art_brock:ping", :body "the message"})))
+      (is (= "art_brock left" (receive room {:from "eric:?", :to "room:leave", :body {:person-address "art_brock"}})))
       (is (= "[]" (receive room {:from "eric:?", :to "room:describe"})))
-        )
+      )
+    (testing "pasing objects to people in room"
+      )
     ))
 
 (deftest person-recptor
   (let [person (make-person "Eric")]
     (testing "person aspects"
-      (is (= #{:get-attributes :set-attributes :receive-object :release-object} (get-aspects person))))
+      (is (= #{:ping :get-attributes :set-attributes :receive-object :release-object} (get-aspects person))))
     (testing "person Attributes"
       (is (= (receive person {:to "eric:set-attributes", :body {:eyes "blue", :cat "adverb"}})
              {:eyes "blue", :cat "adverb"}))
