@@ -52,7 +52,9 @@ namespace.
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/aspect-receive-dispatch">aspect-receive-dispatch</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.receptor/conjure-receptor">conjure-receptor</a>
+      <a href="#anansi.receptor/do-conjure">do-conjure</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/find-receptor">find-receptor</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/humanize-address">humanize-address</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
@@ -62,6 +64,8 @@ namespace.
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/make-person">make-person</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/make-receptor">make-receptor</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/make-room">make-room</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/make-scape">make-scape</a>
@@ -70,7 +74,13 @@ namespace.
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/membrane-receive">membrane-receive</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/ping-aspect">ping-aspect</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/remove-receptor">remove-receptor</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/resolve-address">resolve-address</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/sanitize-for-address">sanitize-for-address</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/throw-bad-aspect">throw-bad-aspect</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
@@ -115,11 +125,20 @@ Methods:
 </div><div id="var-entry">
   <br />
   <hr />
-  <h2 id="anansi.receptor/conjure-receptor">conjure-receptor</h2>
+  <h2 id="anansi.receptor/do-conjure">do-conjure</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (conjure-receptor body)
+  <pre id="var-usage">Usage: (do-conjure scape body)
 </pre>
-  <pre id="var-docstr">Create a new receptor based on the parameters specified in the body of the signal</pre>
+  <pre id="var-docstr">conjure a recptor into a scape</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor/find-receptor">find-receptor</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (find-receptor scape address)
+</pre>
+  <pre id="var-docstr">Utility function to lookup up a receptor in a scape by address</pre>
   
 </div><div id="var-entry">
   <br />
@@ -159,8 +178,18 @@ membranes receive the following signals:
   <h2 id="anansi.receptor/make-person">make-person</h2>
   <span id="var-type">function</span><br />
   <pre id="var-usage">Usage: (make-person name)
+       (make-person name attributes)
 </pre>
   <pre id="var-docstr">Utility function to create a person receptor</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor/make-receptor">make-receptor</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (make-receptor body)
+</pre>
+  <pre id="var-docstr">Create a new receptor based on the parameters specified in the body of the signal</pre>
   
 </div><div id="var-entry">
   <br />
@@ -181,7 +210,7 @@ rooms are membranes that also receive the following signals:
     returns: "entered" if successful
 
      aspect: leave
-       body: {:person-name &lt;some-name&gt;}
+       body: {:person-address &lt;some-addr&gt;}
     returns: "left" if successful
 
      aspect: scape
@@ -228,11 +257,38 @@ servers are membranes that also receive the following signals:
 </div><div id="var-entry">
   <br />
   <hr />
+  <h2 id="anansi.receptor/ping-aspect">ping-aspect</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (ping-aspect from body)
+</pre>
+  <pre id="var-docstr">return ping</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor/remove-receptor">remove-receptor</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (remove-receptor scape address)
+</pre>
+  <pre id="var-docstr">Utility function to remove a receptor from a scape by address</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
   <h2 id="anansi.receptor/resolve-address">resolve-address</h2>
   <span id="var-type">function</span><br />
   <pre id="var-usage">Usage: (resolve-address {:keys [receptors self], :as scape} {:keys [id aspect], :as address})
 </pre>
   <pre id="var-docstr">Utility function to resolve an address to :self or to a contained receptor in the scape</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor/sanitize-for-address">sanitize-for-address</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (sanitize-for-address name)
+</pre>
+  <pre id="var-docstr">create and address ready string from a string</pre>
   
 </div><div id="var-entry">
   <br />
