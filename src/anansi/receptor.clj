@@ -207,7 +207,7 @@ servers are membranes that also receive the following signals:
                      person-receptor (find-receptor scape person-address)
                      ]
                  (if person-receptor
-                   (str name " is allready in the room")
+                   (str name " is already in the room")
                    (dosync (alter people-ref assoc person-address {:name name})
                            (do-conjure scape {:name person-address, :attributes {:name name} :type "Person"})
                            (str "entered as " person-address)) 

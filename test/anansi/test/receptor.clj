@@ -40,7 +40,7 @@
     (is (= "object:ping" (humanize-address "object:ping")))))
 
 
-(deftest object-recptor
+(deftest object-receptor
   (let [my_receptor (ObjectReceptor. "thing")]
     (testing "receiving a valid signal"
       (is (= "I got 'the message' from from_address:some_aspect" (receive my_receptor {:from "from_address:some_aspect", :to "to_address:ping", :body "the message"}))))
@@ -49,7 +49,7 @@
     (testing "getting the aspect list"
       (is (= #{:ping} (get-aspects my_receptor))))))
 
-(deftest membrane-recptor
+(deftest membrane-receptor
   (let [membrane (make-membrane "membrane")]
     (testing "membrane aspects"
       (is (= #{:conjure} (get-aspects membrane))))
@@ -69,13 +69,13 @@
       (is (= "I got 'the message' from eric:?"
              (receive membrane {:from "eric:?", :to "membrane1.object2:ping", :body "the message"}))))))
 
-(deftest server-recptor
+(deftest server-receptor
   (let [server (make-server "server")]
     (testing "server aspects"
       (is (= #{:conjure} (get-aspects server))))
     ))
 
-(deftest room-recptor
+(deftest room-receptor
   (let [room (make-room "room")]
     (testing "room aspects"
       (is (= #{:conjure :describe :enter :leave :scape :pass-object} (get-aspects room))))
@@ -92,7 +92,7 @@
       )
     ))
 
-(deftest person-recptor
+(deftest person-receptor
   (let [person (make-person "Eric")]
     (testing "person aspects"
       (is (= #{:ping :get-attributes :set-attributes :receive-object :release-object} (get-aspects person))))
