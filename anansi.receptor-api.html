@@ -48,17 +48,17 @@ namespace.
   <div style="margin-left: 1em;" class="toc-section">
     <a href="#toc0">Overview</a>
     <div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.receptor/Receptor">Receptor</a>
+      <a href="#anansi.receptor/Ceptr">Ceptr</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/aspect-receive-dispatch">aspect-receive-dispatch</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/do-conjure">do-conjure</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/do-ping">do-ping</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/find-receptor">find-receptor</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/humanize-address">humanize-address</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.receptor/make-membrane">make-membrane</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/make-object">make-object</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
@@ -66,15 +66,15 @@ namespace.
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/make-receptor">make-receptor</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/make-receptor-from-signal">make-receptor-from-signal</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/make-room">make-room</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/make-scape">make-scape</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/make-server">make-server</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.receptor/membrane-receive">membrane-receive</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.receptor/ping-aspect">ping-aspect</a>
+      <a href="#anansi.receptor/receptor-receive">receptor-receive</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/remove-receptor">remove-receptor</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
@@ -104,7 +104,7 @@ by <span id="author">Eric Harris-Braun</span><br />
 <div id="var-entry">
   <br />
   <hr />
-  <h2 id="anansi.receptor/Receptor">Receptor</h2>
+  <h2 id="anansi.receptor/Ceptr">Ceptr</h2>
   <span id="var-type">var</span><br />
   <pre id="var-usage"></pre>
   <pre id="var-docstr">Underlying protocol for all receptors
@@ -134,6 +134,15 @@ Methods:
 </div><div id="var-entry">
   <br />
   <hr />
+  <h2 id="anansi.receptor/do-ping">do-ping</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (do-ping from body)
+</pre>
+  <pre id="var-docstr">return a ping string</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
   <h2 id="anansi.receptor/find-receptor">find-receptor</h2>
   <span id="var-type">function</span><br />
   <pre id="var-usage">Usage: (find-receptor scape address)
@@ -147,21 +156,7 @@ Methods:
   <span id="var-type">function</span><br />
   <pre id="var-usage">Usage: (humanize-address {:keys [id aspect], :as address})
 </pre>
-  <pre id="var-docstr">turn an address into a human readable string</pre>
-  
-</div><div id="var-entry">
-  <br />
-  <hr />
-  <h2 id="anansi.receptor/make-membrane">make-membrane</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (make-membrane name)
-</pre>
-  <pre id="var-docstr">Membrane factory
-
-membranes receive the following signals:
-     aspect: conjure  -- create a new receptor inside the membrane
-       body: {:name &lt;receptor-name&gt;, :type &lt;receptor-type&gt;, ...&lt;other keys as defined by the recptor type&gt;}
-    returns: "created" if successful</pre>
+  <pre id="var-docstr">Utility function turn an address into a human readable string</pre>
   
 </div><div id="var-entry">
   <br />
@@ -187,7 +182,25 @@ membranes receive the following signals:
   <hr />
   <h2 id="anansi.receptor/make-receptor">make-receptor</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (make-receptor body)
+  <pre id="var-usage">Usage: (make-receptor name)
+</pre>
+  <pre id="var-docstr">Receptor factory
+
+vanilla receptors receive the following signals:
+     aspect: conjure  -- create a new receptor inside this receptor
+       body: {:name &lt;receptor-name&gt;, :type &lt;receptor-type&gt;, ...&lt;other keys as defined by the recptor type&gt;}
+    returns: "created" if successful
+
+     aspect: ping  -- request a ping response
+       body: X
+    returns: "I got '&lt;body&gt;' from &lt;from&gt;"</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor/make-receptor-from-signal">make-receptor-from-signal</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (make-receptor-from-signal body)
 </pre>
   <pre id="var-docstr">Create a new receptor based on the parameters specified in the body of the signal</pre>
   
@@ -200,7 +213,7 @@ membranes receive the following signals:
 </pre>
   <pre id="var-docstr">Room factory
 
-rooms are membranes that also receive the following signals:
+rooms are receptors that also receive the following signals:
      aspect: describe
        body: nil
     returns: &lt;vector of people in the room&gt;
@@ -229,7 +242,7 @@ rooms are membranes that also receive the following signals:
   <pre id="var-usage">Usage: (make-scape self-name attributes)
        (make-scape self-name)
 </pre>
-  <pre id="var-docstr">Utility function to create an empty scape for a new membrane</pre>
+  <pre id="var-docstr">Utility function to create an empty scape for a new receptor</pre>
   
 </div><div id="var-entry">
   <br />
@@ -240,7 +253,7 @@ rooms are membranes that also receive the following signals:
 </pre>
   <pre id="var-docstr">Sever factory
 
-servers are membranes that also receive the following signals:
+servers receive the following signals:
      aspect: 
        body: {:name &lt;receptor-name&gt;, :type &lt;receptor-type&gt;, ...&lt;other keys as defined by the recptor type&gt;}
     returns: "" if successful</pre>
@@ -248,20 +261,11 @@ servers are membranes that also receive the following signals:
 </div><div id="var-entry">
   <br />
   <hr />
-  <h2 id="anansi.receptor/membrane-receive">membrane-receive</h2>
+  <h2 id="anansi.receptor/receptor-receive">receptor-receive</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (membrane-receive this signal scape)
+  <pre id="var-usage">Usage: (receptor-receive this signal scape)
 </pre>
-  <pre id="var-docstr">Default membrane receive function.  Handles :conjure aspect and routing signals to contained receptors</pre>
-  
-</div><div id="var-entry">
-  <br />
-  <hr />
-  <h2 id="anansi.receptor/ping-aspect">ping-aspect</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (ping-aspect from body)
-</pre>
-  <pre id="var-docstr">return ping</pre>
+  <pre id="var-docstr">Receive a signal, and either route it to a sub-receptors, or dispatch to the aspect handler.</pre>
   
 </div><div id="var-entry">
   <br />
@@ -288,7 +292,7 @@ servers are membranes that also receive the following signals:
   <span id="var-type">function</span><br />
   <pre id="var-usage">Usage: (sanitize-for-address name)
 </pre>
-  <pre id="var-docstr">create and address ready string from a string</pre>
+  <pre id="var-docstr">Utility function to create and address ready string from a string</pre>
   
 </div><div id="var-entry">
   <br />
