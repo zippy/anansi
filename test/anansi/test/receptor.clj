@@ -3,7 +3,7 @@
   (:import anansi.receptor.ObjectReceptor)
   (:import anansi.receptor.Receptor)
   (:use [clojure.test])
-  (:use [anansi.server]))
+  (:use [anansi.commands :only [*server-receptor*]]))
 
 (def my-receptor (ObjectReceptor. "thing"))
 (deftest receptor-helpers

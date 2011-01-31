@@ -3,9 +3,10 @@
      :doc "Commands that can be excecuted at the servers command line"}  
   anansi.commands
   (:use [anansi.user]
-        [anansi.server]
-        [anansi.receptor :only [receive parse-signal dump-receptor]])
+        [anansi.receptor :only [receive parse-signal dump-receptor make-server]])
   (:use [clojure.string :only [join]]))
+
+(def *server-receptor* (make-server "server"))
 
 (defn exit
   "Terminate connection with the server"
@@ -29,7 +30,7 @@
                           (str name ": " doc)
                           )
                       (dissoc (ns-publics 'anansi.commands)
-                              'execute 'commands))))                                
+                              'execute 'commands '*server-receptor*))))
 
 (defn
   #^{ :doc "Send a signal to a receptor.", :command-name "send"}
