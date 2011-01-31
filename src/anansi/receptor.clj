@@ -16,6 +16,15 @@ Methods:
   )
 
 ;;;;;;;;;;;;   Utility Functions ;;;;;;;;;;;;
+(defn dump-receptor
+  "dump contents of receptor into pretty-print-ready datastructure"
+  [receptor]
+  (let [scape @(:scape receptor)
+        name (:self scape)
+        receptors @(:receptors scape)]
+    { :name name
+      :contents (if (empty? receptors) #{}
+                    (apply hash-set (vec (map (fn [[key value]] (dump-receptor value)) receptors))))}))
 
 (defn humanize-address
   "Utility function turn an address into a human readable string"

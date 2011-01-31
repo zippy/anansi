@@ -4,7 +4,7 @@
   anansi.commands
   (:use [anansi.user]
         [anansi.server]
-        [anansi.receptor :only [receive parse-signal]])
+        [anansi.receptor :only [receive parse-signal dump-receptor]])
   (:use [clojure.string :only [join]]))
 
 (defn exit
@@ -13,6 +13,11 @@
   (let [bye_str (str "Goodbye " *user-name* "!")]
     (set! *user-name* :exit)
     bye_str))
+
+(defn dump
+  "Dump current tree of receptors"
+  []
+  (str (:contents (dump-receptor *server-receptor*))))
 
 (defn help
   "Show available commands and what they do."
@@ -38,6 +43,7 @@
 (def commands
   {"help" help
    "exit" exit
+   "dump" dump
    "send" send-signal})
 
 ;; Command handling

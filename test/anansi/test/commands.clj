@@ -20,8 +20,15 @@
 
 (deftest help-test
   (testing "getting help"
-    (is (= "exit: Terminate connection with the server\nsend: Send a signal to a receptor.\nhelp: Show available commands and what they do."
+    (is (= "exit: Terminate connection with the server\nsend: Send a signal to a receptor.\nhelp: Show available commands and what they do.\ndump: Dump current tree of receptors"
            (help)))))
+
+(def-command-test dump-test
+  (testing "dump of vanilla server"
+    (is (= "#{}" (dump)))
+    (send-signal "{:to \"server:conjure\", :body {:name \"object2\", :type \"Object\"}}")
+    (is (= "#{{:name \"object2\", :contents #{}}}" (dump)))
+    ))
 
 (def-command-test exit-test
   (testing "exiting"

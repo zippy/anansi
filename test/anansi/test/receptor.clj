@@ -2,10 +2,20 @@
   (:use [anansi.receptor] :reload)
   (:import anansi.receptor.ObjectReceptor)
   (:import anansi.receptor.Receptor)
-  (:use [clojure.test]))
+  (:use [clojure.test])
+  (:use [anansi.server]))
 
 (def my-receptor (ObjectReceptor. "thing"))
 (deftest receptor-helpers
+  (testing "dumping the contents of a receptor"
+    (let [receptor (make-receptor "receptor")]
+      (is (= {:name "server" :contents #{}} (dump-receptor *server-receptor*)))
+      (is (= {:name "receptor" :contents #{}} (dump-receptor receptor)))
+      (receive receptor {:from "eric:?", :to "receptor:conjure", :body {:name "receptor1",:type "Receptor"}})
+      (is (= {:name "receptor" :contents #{{ :name "receptor1" :contents #{}}}} (dump-receptor receptor)))
+      (receive receptor {:from "eric:?", :to "receptor:conjure", :body {:name "object2",:type "Object"}})
+      (is (= {:name "receptor" :contents #{{ :name "receptor1" :contents #{}}
+                                           { :name "object2", :contents #{} }}} (dump-receptor receptor)))))
   (testing "parsing a signal that's passed in as a string"
     (let  [{:keys [from to body error]} (parse-signal "{:from \"from_address:some_aspect\", :to \"to_address:ping\", :body \"the message\"}")]
       (is (= from {:id "from_address", :aspect :some_aspect}))
