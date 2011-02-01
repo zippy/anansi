@@ -17,16 +17,40 @@ Clone this repo and let lein install the dependencies:
     $ git clone git://github.com/zippy/anansi.git
     $ lein deps
 
-Once it finishes, you should be able to do "lein run" to launch the anansi server. Then
-user can connect by telnetting to port 3333.
-
 ## Usage
 
-FIXME
+To run the server:
+
+   $ lein run
+
+Then you can connect to the server by telneting to port 3333
+
+Once connected, enter your user-name and then when the user has been
+attached--
+
+For a list of commands:
+   > help
+
+Sending a signal:
+   > send {:to "server.users" :from "user.?"}
 
 ## Documentation
 
 [API](http://zippy.github.com/anansi/)
+
+## Testing
+
+Run all the unit tests with 
+
+    $ lein test
+
+(Cucumber features are planned...)
+
+## Development
+
+[wiki](https://github.com/zippy/anansi/wiki)
+[issue tracking](https://www.pivotaltracker.com/projects/219347)
+
 
 ## License
 
