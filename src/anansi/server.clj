@@ -19,7 +19,7 @@
         (recur (read-line)))
     name))
 
-(defn- anansi-handle-client [in out]
+(defn anansi-handle-client [in out]
   (binding [*in* (reader in)
             *out* (writer out)]
 

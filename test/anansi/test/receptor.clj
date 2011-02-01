@@ -3,7 +3,8 @@
   (:import anansi.receptor.ObjectReceptor)
   (:import anansi.receptor.Receptor)
   (:use [clojure.test])
-  (:use [anansi.commands :only [*server-receptor*]]))
+  (:use [anansi.commands :only [*server-receptor*]]
+        [anansi.server :only [anansi-handle-client]]))
 
 (def my-receptor (ObjectReceptor. "thing"))
 (deftest receptor-helpers
@@ -81,10 +82,18 @@
              (receive receptor {:from "eric:?", :to "receptor1.object2:ping", :body "the message"}))))))
 
 (deftest server-receptor
-  (let [server (make-server "server")]
+  (let [server (make-server "server")
+        client-stream (java.io.PipedWriter.)
+        r (java.io.BufferedReader. (java.io.PipedReader. client-stream))]
+    (doto (Thread. #(do (anansi-handle-client r *out*))) .start)
+    (.write client-stream "eric\n")
     (testing "server aspects"
-      (is (= #{:ping :conjure} (get-aspects server))))
-    ))
+      (is (= #{:ping :conjure :users} (get-aspects server))))
+    (testing "requesting a list of users"
+      ;; putting this thread to sleep, it allows the other client
+      ;; stream thread to read the write and attach the new user
+      (Thread/sleep 1)
+      (is (= "[\"eric\"]" (receive server {:from "eric:?", :to "server:users", :body nil}))))))
 
 (deftest room-receptor
   (let [room (make-room "room")]

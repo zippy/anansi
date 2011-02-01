@@ -2,6 +2,7 @@
   #^{:author "Eric Harris-Braun"
      :doc "Receptor helper functions and receptor definitions"}
   anansi.receptor
+  (:use [anansi.user])
   (:require [clojure.string :as str])
   )
 
@@ -179,7 +180,7 @@ vanilla receptors receive the following signals:
 
 (defrecord ServerReceptor [scape]
   Ceptr
-  (get-aspects [this] #{:ping :conjure})
+  (get-aspects [this] #{:ping :conjure :users})
   (receive [this signal] (receptor-receive this signal scape))
   )
 
@@ -193,6 +194,14 @@ servers receive the following signals:
 "
   [name]
   (ServerReceptor. (make-scape name)))
+
+(defmethod receptor-aspects anansi.receptor.ServerReceptor
+  [this signal scape]
+  (let [{:keys [to body]} signal
+        ]
+    (condp = (:aspect to)
+        :users (str (vec (keys @user-streams)))
+        (receptor-aspects this signal scape :default))))
 
 (defrecord RoomReceptor [scape]
   Ceptr
