@@ -51,6 +51,12 @@
   (testing "sanitizing a string for use as an adress"
     (is (= "jane_smith" (sanitize-for-address "Jane Smith")))))
 
+(deftest serialzing-receptors
+  (let [receptor (make-receptor "receptor")]
+    (receive receptor {:from "eric:?", :to "receptor:conjure", :body {:name "room1",:type "Room"}})
+    (receive receptor {:from "eric:?", :to "room1:enter", :body {:person {:name "Art Brock"}}})
+    (receive receptor {:from "eric:?", :to "receptor:conjure", :body {:name "object2",:type "Object"}})
+    (is (= (dump-receptor receptor) (dump-receptor (unserialize-receptor (serialize-receptor receptor)))))))
 
 (deftest object-receptor
   (let [my_receptor (ObjectReceptor. "thing")]
@@ -92,7 +98,7 @@
     (testing "requesting a list of users"
       ;; putting this thread to sleep, it allows the other client
       ;; stream thread to read the write and attach the new user
-      (Thread/sleep 1)
+      (Thread/sleep 10)
       (is (= "[\"eric\"]" (receive server {:from "eric:?", :to "server:users"}))))))
 
 (deftest room-receptor

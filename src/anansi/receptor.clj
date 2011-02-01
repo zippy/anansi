@@ -29,6 +29,36 @@ Methods:
      :contents (if (empty? receptors) #{}
                    (apply hash-set (vec (map (fn [[key value]] (dump-receptor value)) receptors))))}))
 
+(declare receptor-factory)
+
+(defn add-receptor-to-scape
+  "adds a receptor into a scape"
+  [scape name receptor]
+  (dosync (alter (@scape :receptors) assoc name receptor)))
+
+(defn- unserialize-dump
+  "convert an object from dump into a receptor"
+  [{:keys [name type contents]}]
+  (let [receptor (receptor-factory name type)]
+    (if (not (empty? contents))
+      (let [scape (:scape receptor)]
+        (dorun (map #(let [r (unserialize-dump %)
+                           rn (:self @(:scape r))]
+                       (add-receptor-to-scape scape rn r) ) contents))))
+    receptor
+    )
+  )
+
+(defn serialize-receptor
+  "convert a receptor into a string that can be passed to unserialze-receptor"
+  [receptor]
+  (str (dump-receptor receptor)))
+
+(defn unserialize-receptor
+  "convert a serialzed receptor into a receptor"
+  [receptor-str]
+  (unserialize-dump (with-in-str receptor-str (read))))
+
 (defn humanize-address
   "Utility function turn an address into a human readable string"
   [{:keys [id aspect], :as address} ]
@@ -99,9 +129,9 @@ Methods:
 (defn do-conjure
   "conjure a recptor into a scape"
   [scape body]
-  (dosync (let [{:keys [name]} body] 
-                           (alter (@scape :receptors) assoc (:name body) (make-receptor-from-signal body)))
-                         "created"))
+  (let [{:keys [name]} body]
+    (add-receptor-to-scape scape name (make-receptor-from-signal body))
+    "created"))
 
 (defn do-ping
   "return a ping string"
@@ -300,17 +330,23 @@ rooms are receptors that also receive the following signals:
   ([name attributes]
      (PersonReceptor. (make-scape name) (ref attributes))))
 
+(defn receptor-factory
+  "create a new receptor"
+  [name type & args]
+  (condp = type
+        "Object" (make-object name)
+        "Receptor" (make-receptor name)
+        "Person" (make-person name)
+        "Room" (make-room name)
+      (throw (RuntimeException. (str "Unknown receptor type: '" type "'")))
+      )
+  )
+
+;; FIXME, other arguments in the body aren't parsed, checked or anything
 (defn make-receptor-from-signal
   "Create a new receptor based on the parameters specified in the body of the signal"
   [body]
   (let [{:keys [type name]} body]
-    (condp = type
-        "Object"
-      (make-object (:name body))
-      "Receptor"
-      (make-receptor (:name body))
-      "Person"
-      (make-person (:name body) (:attributes body))
-      (throw (RuntimeException. (str "Unknown receptor type: '" type "'")))
-      )))
+    (receptor-factory name type)
+))
 
