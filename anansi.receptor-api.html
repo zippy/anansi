@@ -50,6 +50,8 @@ namespace.
     <div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/Ceptr">Ceptr</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/add-receptor-to-scape">add-receptor-to-scape</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/aspect-receive-dispatch">aspect-receive-dispatch</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/do-conjure">do-conjure</a>
@@ -76,6 +78,8 @@ namespace.
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/make-server">make-server</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/receptor-factory">receptor-factory</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/receptor-receive">receptor-receive</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/remove-receptor">remove-receptor</a>
@@ -84,7 +88,11 @@ namespace.
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/sanitize-for-address">sanitize-for-address</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/serialize-receptor">serialize-receptor</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/throw-bad-aspect">throw-bad-aspect</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/unserialize-receptor">unserialize-receptor</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/validate-signal">validate-signal</a>
     </div>
@@ -113,6 +121,15 @@ by <span id="author">Eric Harris-Braun</span><br />
 Methods:
   (receive [this signal])
   (get-aspects [this])  =&gt; returns a set of all aspects impelemented by the receptor</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor/add-receptor-to-scape">add-receptor-to-scape</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (add-receptor-to-scape scape name receptor)
+</pre>
+  <pre id="var-docstr">adds a receptor into a scape</pre>
   
 </div><div id="var-entry">
   <br />
@@ -272,6 +289,15 @@ servers receive the following signals:
 </div><div id="var-entry">
   <br />
   <hr />
+  <h2 id="anansi.receptor/receptor-factory">receptor-factory</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (receptor-factory name type &amp; args)
+</pre>
+  <pre id="var-docstr">create a new receptor</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
   <h2 id="anansi.receptor/receptor-receive">receptor-receive</h2>
   <span id="var-type">function</span><br />
   <pre id="var-usage">Usage: (receptor-receive this signal scape)
@@ -308,11 +334,29 @@ servers receive the following signals:
 </div><div id="var-entry">
   <br />
   <hr />
+  <h2 id="anansi.receptor/serialize-receptor">serialize-receptor</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (serialize-receptor receptor)
+</pre>
+  <pre id="var-docstr">convert a receptor into a string that can be passed to unserialze-receptor</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
   <h2 id="anansi.receptor/throw-bad-aspect">throw-bad-aspect</h2>
   <span id="var-type">function</span><br />
   <pre id="var-usage">Usage: (throw-bad-aspect to)
 </pre>
   <pre id="var-docstr">Utility function to throw an error when a receptor is sent a signal on no exitent aspect</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor/unserialize-receptor">unserialize-receptor</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (unserialize-receptor receptor-str)
+</pre>
+  <pre id="var-docstr">convert a serialzed receptor into a receptor</pre>
   
 </div><div id="var-entry">
   <br />
