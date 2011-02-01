@@ -23,9 +23,11 @@ Methods:
   (let [scape @(:scape receptor)
         name (:self scape)
         receptors @(:receptors scape)]
-    { :name name
-      :contents (if (empty? receptors) #{}
-                    (apply hash-set (vec (map (fn [[key value]] (dump-receptor value)) receptors))))}))
+    {:name name
+     :type (let [[_ type]  (re-find #"([a-zA-Z]*)Receptor$" (str (class receptor)))]
+             (if (= "" type) "Receptor" type))
+     :contents (if (empty? receptors) #{}
+                   (apply hash-set (vec (map (fn [[key value]] (dump-receptor value)) receptors))))}))
 
 (defn humanize-address
   "Utility function turn an address into a human readable string"
