@@ -93,7 +93,7 @@
       ;; putting this thread to sleep, it allows the other client
       ;; stream thread to read the write and attach the new user
       (Thread/sleep 1)
-      (is (= "[\"eric\"]" (receive server {:from "eric:?", :to "server:users", :body nil}))))))
+      (is (= "[\"eric\"]" (receive server {:from "eric:?", :to "server:users"}))))))
 
 (deftest room-receptor
   (let [room (make-room "room")]
