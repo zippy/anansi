@@ -10,13 +10,16 @@
 (deftest receptor-helpers
   (testing "dumping the contents of a receptor"
     (let [receptor (make-receptor "receptor")]
-      (is (= {:name "server", :type "Server", :contents #{}} (dump-receptor *server-receptor*)))
-      (is (= {:name "receptor", :type "Receptor", :contents #{}} (dump-receptor receptor)))
+      (is (= {:name- "server", :type- "Server", :receptors- #{}} (dump-receptor *server-receptor*)))
+      (is (= {:name- "receptor", :type- "Receptor", :receptors- #{}} (dump-receptor receptor)))
       (receive receptor {:from "eric:?", :to "receptor:conjure", :body {:name "receptor1",:type "Receptor"}})
-      (is (= {:name "receptor", :type "Receptor", :contents #{{ :name "receptor1", :type "Receptor", :contents #{}}}} (dump-receptor receptor)))
+      (is (= {:name- "receptor", :type- "Receptor", :receptors- #{{ :name- "receptor1", :type- "Receptor", :receptors- #{}}}} (dump-receptor receptor)))
       (receive receptor {:from "eric:?", :to "receptor:conjure", :body {:name "object2",:type "Object"}})
-      (is (= {:name "receptor", :type "Receptor", :contents #{{ :name "receptor1", :type "Receptor", :contents #{}}
-                                           { :name "object2", :type "Object", :contents #{} }}} (dump-receptor receptor)))))
+      (is (= {:name- "receptor", :type- "Receptor", :receptors- #{{ :name- "receptor1", :type- "Receptor", :receptors- #{}}
+                                                               { :name- "object2", :type- "Object", :receptors- #{} }}} (dump-receptor receptor)))))
+  (testing "dumping the contents of a receptor with attributes"
+    (let [eric (make-person "eric" {:eyes "green"})]
+      (is (= {:name- "eric", :type- "Person", :attributes { :eyes "green"}, :receptors- #{}} (dump-receptor eric))) ))
   (testing "parsing a signal that's passed in as a string"
     (let  [{:keys [from to body error]} (parse-signal "{:from \"from_address:some_aspect\", :to \"to_address:ping\", :body \"the message\"}")]
       (is (= from {:id "from_address", :aspect :some_aspect}))
@@ -60,6 +63,13 @@
       (is (= (dump-receptor receptor) (dump-receptor (unserialize-receptor (serialize-receptor receptor)))))))
   )
 
+(comment  (deftest host-receptor
+            (testing "host receptor saves receptor state"
+              (let [host (make-receptor "host")]
+                (receive host {:from "from_address:some_aspect", :to "host:conjure", :body {:name "object1",:type "Object"}})
+                (save-state host)
+                )
+              )))
 
 (deftest object-receptor
   (let [my_receptor (ObjectReceptor. "thing")]
@@ -117,6 +127,11 @@
       (is (= "art_brock left" (receive room {:from "eric:?", :to "room:leave", :body {:person-address "art_brock"}})))
       (is (= "[]" (receive room {:from "eric:?", :to "room:describe"})))
       )
+    (testing "serialize room"
+      (receive room {:from "eric:?", :to "room:enter", :body {:person {:name "Art Brock"}}})
+      (let [room-clone (unserialize-receptor (serialize-receptor room))]
+        (is (= (receive room-clone {:to "room:describe"})
+               (receive room {:to "room:describe"})))))
     (testing "pasing objects to people in room"
       )
     ))
@@ -133,9 +148,7 @@
       (is (= (receive person {:to "eric:get-attributes", :body {:keys [:eyes]}})
              {:eyes "blue"}))
       )
-    (comment "this is pending understanding the relationship between sub-receptors and receptor data and scaping"
-             (testing "serialize person"
-               (let [person-clone (unserialize-receptor (serialize-receptor person))]
-                 (is (= (receive person-clone {:to "eric:get-attributes", :body {:keys [:eyes]}})
-                        {:eyes "blue"})))
-               ))))
+    (testing "serialize person"
+      (let [person-clone (unserialize-receptor (serialize-receptor person))]
+        (is (= (receive person-clone {:to "eric:get-attributes", :body {:keys [:eyes]}})
+               {:eyes "blue"}))))))

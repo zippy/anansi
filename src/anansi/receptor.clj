@@ -20,31 +20,40 @@ Methods:
 (defn dump-receptor
   "dump contents of receptor into pretty-print-ready datastructure"
   [receptor]
-  (let [scape @(:scape receptor)
-        name (:self scape)
-        receptors @(:receptors scape)]
-    {:name name
-     :type (let [[_ type]  (re-find #"([a-zA-Z]*)Receptor$" (str (class receptor)))]
-             (if (= "" type) "Receptor" type))
-     :contents (if (empty? receptors) #{}
-                   (apply hash-set (vec (map (fn [[key value]] (dump-receptor value)) receptors))))}))
+  (let [contents @(:contents receptor)
+        name (:self contents)
+        receptors @(:receptors contents)
+        attributes (dissoc contents :self :receptors)
+        dump-obj {:name- name
+                  :type- (let [[_ type]  (re-find #"([a-zA-Z]*)Receptor$" (str (class receptor)))]
+                          (if (= "" type) "Receptor" type))
+                  :receptors- (if (empty? receptors) #{}
+                                 (apply hash-set (vec (map (fn [[key value]] (dump-receptor value)) receptors))))}]
+    ;; assume that all other attributes are refs for mutability, so
+    ;; copy their values into the dump object
+    (into dump-obj (map (fn [[key val]] [key @val]) attributes))  
+    ))
 
 (declare receptor-factory)
 
-(defn add-receptor-to-scape
-  "adds a receptor into a scape"
-  [scape name receptor]
-  (dosync (alter (@scape :receptors) assoc name receptor)))
+(defn add-receptor-to-contents
+  "adds a sub receptor into the contents ref of a receptor"
+  [contents name receptor]
+  (dosync (alter (@contents :receptors) assoc name receptor)))
 
 (defn- unserialize-dump
   "convert an object from dump into a receptor"
-  [{:keys [name type contents]}]
-  (let [receptor (receptor-factory name type)]
-    (if (not (empty? contents))
-      (let [scape (:scape receptor)]
-        (dorun (map #(let [r (unserialize-dump %)
-                           rn (:self @(:scape r))]
-                       (add-receptor-to-scape scape rn r) ) contents))))
+  [{:keys [name- type- receptors-], :as dump-obj}]
+  (let [receptor (receptor-factory name- type-)
+        contents (:contents receptor)
+        attributes (dissoc dump-obj :name- :type- :receptors-)]
+    (if (not (empty? receptors-))
+      (dorun (map #(let [r (unserialize-dump %)
+                         rn (:self @(:contents r))]
+                     (add-receptor-to-contents contents rn r) ) receptors-)))
+    ;; create refs for each of the attributes so they can be mutable
+    ;; in the receptor
+    (dosync (alter contents merge (into {} (map (fn [[key val]] [key (ref val)]) attributes)) ))
     receptor
     )
   )
@@ -110,8 +119,8 @@ Methods:
   (throw (RuntimeException. (str "Invalid aspect for " (humanize-address to)))))
 
 (defn resolve-address
-  "Utility function to resolve an address to :self or to a contained receptor in the scape"
-  [{:keys [receptors self], :as scape} {:keys [id aspect], :as address}]
+  "Utility function to resolve an address to :self or to a contained receptor in the contents"
+  [{:keys [receptors self], :as contents} {:keys [id aspect], :as address}]
   (let  [[head & rest] (.split #"\." id)]
     [(if (= self head) :self (@receptors head))
      (if (nil? rest) address (assoc address :id (str/join "." rest)))])
@@ -119,18 +128,18 @@ Methods:
 
 (defn aspect-receive-dispatch
   "Dispatches to aspect-receive calls based on the class of the recptor or a force"
-  ([this signal scape klass]
+  ([this signal contents klass]
       (if klass klass (class this)))
-  ([this signal scape] (aspect-receive-dispatch this signal scape nil))
+  ([this signal contents] (aspect-receive-dispatch this signal contents nil))
   )
 
 (declare make-receptor-from-signal)
 
 (defn do-conjure
-  "conjure a recptor into a scape"
-  [scape body]
+  "conjure a recptor into the contents ref of a receptor"
+  [contents body]
   (let [{:keys [name]} body]
-    (add-receptor-to-scape scape name (make-receptor-from-signal body))
+    (add-receptor-to-contents contents name (make-receptor-from-signal body))
     "created"))
 
 (defn do-ping
@@ -143,43 +152,43 @@ Methods:
 
 ;; The default dispatch for receptor-aspects is the "base" receptor.
 (defmethod receptor-aspects :default
-  [this signal scape & _]
+  [this signal contents & _]
   (let [{:keys [from to body]} signal]
     (condp = (:aspect to)
         
         ;; respond to a ping request
         :ping (do-ping from body) 
 
-        ;; add a sub receptor into the receptors scape
-        :conjure (do-conjure scape body)
+        ;; add a sub receptor into the receptors contents
+        :conjure (do-conjure contents body)
         
         ;; otherwise throw an error
         (throw-bad-aspect to))))
 
 (defn receptor-receive
   "Receive a signal, and either route it to a sub-receptors, or dispatch to the aspect handler."
-  [this signal scape] 
+  [this signal contents] 
   (let [parsed-signal (parse-signal signal)
         {:keys [from to body]} parsed-signal
-        [destination-receptor resolved-address] (resolve-address @scape to)]
+        [destination-receptor resolved-address] (resolve-address @contents to)]
     (if (= destination-receptor :self)
-      (receptor-aspects this parsed-signal scape)
+      (receptor-aspects this parsed-signal contents)
       (if (nil? destination-receptor)
           (throw (RuntimeException. (str "No route to '" (humanize-address to) "'")))
           (receive destination-receptor (assoc parsed-signal :to resolved-address))))))
 
-(defrecord Receptor [scape]
+(defrecord Receptor [contents]
   Ceptr
   (get-aspects [this] #{:conjure :ping})
-  (receive [this signal] (receptor-receive this signal scape))
+  (receive [this signal] (receptor-receive this signal contents))
   )
 
-(defn make-scape
-  "Utility function to create an empty scape for a new receptor"
+(defn make-contents
+  "Utility function to create an empty contents ref for a new receptor"
   ( [self-name attributes]
-      (let [ scape {:receptors (ref {}), :self self-name}]
-        (ref (if attributes (merge scape attributes) scape))))
-  ( [self-name] (make-scape self-name nil)))
+      (let [ contents {:receptors (ref {}), :self self-name}]
+        (ref (if attributes (merge contents attributes) contents))))
+  ( [self-name] (make-contents self-name nil)))
 
 (defn make-receptor
   "Receptor factory
@@ -194,10 +203,10 @@ vanilla receptors receive the following signals:
     returns: \"I got '<body>' from <from>\"
 "
   [name]
-  (Receptor. (make-scape name)))
+  (Receptor. (make-contents name)))
 
 
-(defrecord ObjectReceptor [scape]
+(defrecord ObjectReceptor [contents]
   Ceptr
   (get-aspects [this] #{:ping :conjure})
   (receive [this signal] 
@@ -208,12 +217,12 @@ vanilla receptors receive the following signals:
 (defn make-object
   "Utility function to create an empty object receptor"
   [name]
-  (ObjectReceptor. (make-scape name)))
+  (ObjectReceptor. (make-contents name)))
 
-(defrecord ServerReceptor [scape]
+(defrecord ServerReceptor [contents]
   Ceptr
   (get-aspects [this] #{:ping :conjure :users})
-  (receive [this signal] (receptor-receive this signal scape))
+  (receive [this signal] (receptor-receive this signal contents))
   )
 
 (defn make-server
@@ -225,62 +234,62 @@ servers receive the following signals:
     returns: \"\" if successful
 "
   [name]
-  (ServerReceptor. (make-scape name)))
+  (ServerReceptor. (make-contents name)))
 
 (defmethod receptor-aspects anansi.receptor.ServerReceptor
-  [this signal scape]
+  [this signal contents]
   (let [{:keys [to body]} signal
         ]
     (condp = (:aspect to)
         :users (str (vec (keys @user-streams)))
-        (receptor-aspects this signal scape :default))))
+        (receptor-aspects this signal contents :default))))
 
-(defrecord RoomReceptor [scape]
+(defrecord RoomReceptor [contents]
   Ceptr
   (get-aspects [this] #{:ping :conjure :describe :enter :leave :scape :pass-object})
-  (receive [this signal] (receptor-receive this signal scape)))
+  (receive [this signal] (receptor-receive this signal contents)))
 
 (defn find-receptor
-  "Utility function to lookup up a receptor in a scape by address"
-  [scape address]
-  (@(@scape :receptors) address)
+  "Utility function to lookup up a receptor in the contents by address"
+  [contents address]
+  (@(@contents :receptors) address)
   )
 
 (defn remove-receptor
-  "Utility function to remove a receptor from a scape by address"
-  [scape address]
-  (alter (@scape :receptors) dissoc address)
+  "Utility function to remove a receptor from the contents by address"
+  [contents address]
+  (alter (@contents :receptors) dissoc address)
   )
 
 (declare make-person)
 (defmethod receptor-aspects anansi.receptor.RoomReceptor
-  [this signal scape]
+  [this signal contents]
   (let [{:keys [to body]} signal
-        people-ref (@scape :people)
+        people-ref (@contents :people)
         ]
     (condp = (:aspect to)
         :describe (str (vec (map :name (vals @people-ref))))
         :enter (let [{:keys [person]} body
                      {:keys [name]} person
                      person-address (sanitize-for-address name)
-                     person-receptor (find-receptor scape person-address)
+                     person-receptor (find-receptor contents person-address)
                      ]
                  (if person-receptor
                    (str name " is already in the room")
                    (dosync (alter people-ref assoc person-address {:name name})
-                           (do-conjure scape {:name person-address, :attributes {:name name} :type "Person"})
+                           (do-conjure contents {:name person-address, :attributes {:name name} :type "Person"})
                            (str "entered as " person-address)) 
                    )
                  )
         :leave (let [{:keys [person-address]} body
-                     person-receptor (find-receptor scape person-address)]
+                     person-receptor (find-receptor contents person-address)]
                  (if (nil? person-receptor)
                    (str person-address " is not in the room")
-                   (dosync (remove-receptor scape person-address)
+                   (dosync (remove-receptor contents person-address)
                            (alter people-ref dissoc person-address)
                            (str person-address " left"))))
         :pass-object nil
-        (receptor-aspects this signal scape :default))))
+        (receptor-aspects this signal contents :default))))
 
 (defn make-room
   "Room factory
@@ -307,20 +316,21 @@ rooms are receptors that also receive the following signals:
     returns: \"ok\" if successful
 "
   [name]
-  (RoomReceptor. (make-scape name {:objects (ref {}), :people (ref {})})))
+  (RoomReceptor. (make-contents name {:objects (ref {}), :people (ref {})})))
 
-(defrecord PersonReceptor [scape attributes]
+(defrecord PersonReceptor [contents]
   Ceptr
   (get-aspects [this] #{:ping :conjure :get-attributes :set-attributes :receive-object :release-object})
   (receive [this signal] 
     (let [parsed-signal (parse-signal signal)
-          {:keys [from to body]} parsed-signal]
+          {:keys [from to body]} parsed-signal
+          attributes (:attributes @contents)]
       (condp = (:aspect to)
         :get-attributes (let [{:keys [keys]} body] (if (nil? keys) @attributes (select-keys @attributes keys))) 
         :set-attributes (dosync (alter attributes merge body))
         :receive-object "not-implemented"
         :release-object "not-implemented"
-        (receptor-aspects this signal scape :default)
+        (receptor-aspects this signal contents :default)
         )
 )))
 
@@ -328,7 +338,7 @@ rooms are receptors that also receive the following signals:
   "Utility function to create a person receptor"
   ([name] (make-person name {}))
   ([name attributes]
-     (PersonReceptor. (make-scape name) (ref attributes))))
+     (PersonReceptor. (make-contents name {:attributes (ref attributes)}))))
 
 (defn receptor-factory
   "create a new receptor"
