@@ -50,7 +50,7 @@ namespace.
     <div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/Ceptr">Ceptr</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.receptor/add-receptor-to-scape">add-receptor-to-scape</a>
+      <a href="#anansi.receptor/add-receptor-to-contents">add-receptor-to-contents</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/aspect-receive-dispatch">aspect-receive-dispatch</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
@@ -64,6 +64,8 @@ namespace.
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/humanize-address">humanize-address</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/make-contents">make-contents</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/make-object">make-object</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/make-person">make-person</a>
@@ -73,8 +75,6 @@ namespace.
       <a href="#anansi.receptor/make-receptor-from-signal">make-receptor-from-signal</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/make-room">make-room</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.receptor/make-scape">make-scape</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/make-server">make-server</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
@@ -125,19 +125,19 @@ Methods:
 </div><div id="var-entry">
   <br />
   <hr />
-  <h2 id="anansi.receptor/add-receptor-to-scape">add-receptor-to-scape</h2>
+  <h2 id="anansi.receptor/add-receptor-to-contents">add-receptor-to-contents</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (add-receptor-to-scape scape name receptor)
+  <pre id="var-usage">Usage: (add-receptor-to-contents contents name receptor)
 </pre>
-  <pre id="var-docstr">adds a receptor into a scape</pre>
+  <pre id="var-docstr">adds a sub receptor into the contents ref of a receptor</pre>
   
 </div><div id="var-entry">
   <br />
   <hr />
   <h2 id="anansi.receptor/aspect-receive-dispatch">aspect-receive-dispatch</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (aspect-receive-dispatch this signal scape klass)
-       (aspect-receive-dispatch this signal scape)
+  <pre id="var-usage">Usage: (aspect-receive-dispatch this signal contents klass)
+       (aspect-receive-dispatch this signal contents)
 </pre>
   <pre id="var-docstr">Dispatches to aspect-receive calls based on the class of the recptor or a force</pre>
   
@@ -146,9 +146,9 @@ Methods:
   <hr />
   <h2 id="anansi.receptor/do-conjure">do-conjure</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (do-conjure scape body)
+  <pre id="var-usage">Usage: (do-conjure contents body)
 </pre>
-  <pre id="var-docstr">conjure a recptor into a scape</pre>
+  <pre id="var-docstr">conjure a recptor into the contents ref of a receptor</pre>
   
 </div><div id="var-entry">
   <br />
@@ -173,9 +173,9 @@ Methods:
   <hr />
   <h2 id="anansi.receptor/find-receptor">find-receptor</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (find-receptor scape address)
+  <pre id="var-usage">Usage: (find-receptor contents address)
 </pre>
-  <pre id="var-docstr">Utility function to lookup up a receptor in a scape by address</pre>
+  <pre id="var-docstr">Utility function to lookup up a receptor in the contents by address</pre>
   
 </div><div id="var-entry">
   <br />
@@ -185,6 +185,16 @@ Methods:
   <pre id="var-usage">Usage: (humanize-address {:keys [id aspect], :as address})
 </pre>
   <pre id="var-docstr">Utility function turn an address into a human readable string</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor/make-contents">make-contents</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (make-contents self-name attributes)
+       (make-contents self-name)
+</pre>
+  <pre id="var-docstr">Utility function to create an empty contents ref for a new receptor</pre>
   
 </div><div id="var-entry">
   <br />
@@ -265,16 +275,6 @@ rooms are receptors that also receive the following signals:
 </div><div id="var-entry">
   <br />
   <hr />
-  <h2 id="anansi.receptor/make-scape">make-scape</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (make-scape self-name attributes)
-       (make-scape self-name)
-</pre>
-  <pre id="var-docstr">Utility function to create an empty scape for a new receptor</pre>
-  
-</div><div id="var-entry">
-  <br />
-  <hr />
   <h2 id="anansi.receptor/make-server">make-server</h2>
   <span id="var-type">function</span><br />
   <pre id="var-usage">Usage: (make-server name)
@@ -300,7 +300,7 @@ servers receive the following signals:
   <hr />
   <h2 id="anansi.receptor/receptor-receive">receptor-receive</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (receptor-receive this signal scape)
+  <pre id="var-usage">Usage: (receptor-receive this signal contents)
 </pre>
   <pre id="var-docstr">Receive a signal, and either route it to a sub-receptors, or dispatch to the aspect handler.</pre>
   
@@ -309,18 +309,18 @@ servers receive the following signals:
   <hr />
   <h2 id="anansi.receptor/remove-receptor">remove-receptor</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (remove-receptor scape address)
+  <pre id="var-usage">Usage: (remove-receptor contents address)
 </pre>
-  <pre id="var-docstr">Utility function to remove a receptor from a scape by address</pre>
+  <pre id="var-docstr">Utility function to remove a receptor from the contents by address</pre>
   
 </div><div id="var-entry">
   <br />
   <hr />
   <h2 id="anansi.receptor/resolve-address">resolve-address</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (resolve-address {:keys [receptors self], :as scape} {:keys [id aspect], :as address})
+  <pre id="var-usage">Usage: (resolve-address {:keys [receptors self], :as contents} {:keys [id aspect], :as address})
 </pre>
-  <pre id="var-docstr">Utility function to resolve an address to :self or to a contained receptor in the scape</pre>
+  <pre id="var-docstr">Utility function to resolve an address to :self or to a contained receptor in the contents</pre>
   
 </div><div id="var-entry">
   <br />
