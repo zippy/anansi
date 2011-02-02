@@ -52,11 +52,14 @@
     (is (= "jane_smith" (sanitize-for-address "Jane Smith")))))
 
 (deftest serialzing-receptors
-  (let [receptor (make-receptor "receptor")]
-    (receive receptor {:from "eric:?", :to "receptor:conjure", :body {:name "room1",:type "Room"}})
-    (receive receptor {:from "eric:?", :to "room1:enter", :body {:person {:name "Art Brock"}}})
-    (receive receptor {:from "eric:?", :to "receptor:conjure", :body {:name "object2",:type "Object"}})
-    (is (= (dump-receptor receptor) (dump-receptor (unserialize-receptor (serialize-receptor receptor)))))))
+  (testing "serialize unserialize"
+    (let [receptor (make-receptor "receptor")]
+      (receive receptor {:from "eric:?", :to "receptor:conjure", :body {:name "room1",:type "Room"}})
+      (receive receptor {:from "eric:?", :to "room1:enter", :body {:person {:name "Art Brock"}}})
+      (receive receptor {:from "eric:?", :to "receptor:conjure", :body {:name "object2",:type "Object"}})
+      (is (= (dump-receptor receptor) (dump-receptor (unserialize-receptor (serialize-receptor receptor)))))))
+  )
+
 
 (deftest object-receptor
   (let [my_receptor (ObjectReceptor. "thing")]
@@ -129,4 +132,10 @@
              {:eyes "blue", :cat "adverb"}))
       (is (= (receive person {:to "eric:get-attributes", :body {:keys [:eyes]}})
              {:eyes "blue"}))
-      )))
+      )
+    (comment "this is pending understanding the relationship between sub-receptors and receptor data and scaping"
+             (testing "serialize person"
+               (let [person-clone (unserialize-receptor (serialize-receptor person))]
+                 (is (= (receive person-clone {:to "eric:get-attributes", :body {:keys [:eyes]}})
+                        {:eyes "blue"})))
+               ))))
