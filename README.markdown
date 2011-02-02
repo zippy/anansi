@@ -49,7 +49,7 @@ Run all the unit tests with
 ## Development
 
 [wiki](https://github.com/zippy/anansi/wiki)
-[issue tracking](https://www.pivotaltracker.com/projects/219347)
+[issue tracking](https://secure.bettermeans.com/projects/1157)
 
 
 ## License
@@ -60,4 +60,5 @@ Distributed under the Eclipse Public License, the same as Clojure.
 
 ## Acknowledgements
 
-This code borrows heavily from Mire (https://github.com/technomancy/mire) for it's server implementation
+Thanks to technomancy for Mire (https://github.com/technomancy/mire)
+which got us our start on the server implementation
