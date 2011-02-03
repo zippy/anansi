@@ -54,6 +54,8 @@ namespace.
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/aspect-receive-dispatch">aspect-receive-dispatch</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/calculate-angles">calculate-angles</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/do-conjure">do-conjure</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/do-ping">do-ping</a>
@@ -82,11 +84,17 @@ namespace.
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/receptor-receive">receptor-receive</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/receptor-resolve">receptor-resolve</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/receptor-scape">receptor-scape</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/remove-receptor">remove-receptor</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/resolve-address">resolve-address</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/sanitize-for-address">sanitize-for-address</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/scape-keys">scape-keys</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/serialize-receptor">serialize-receptor</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
@@ -140,6 +148,15 @@ Methods:
        (aspect-receive-dispatch this signal contents)
 </pre>
   <pre id="var-docstr">Dispatches to aspect-receive calls based on the class of the recptor or a force</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor/calculate-angles">calculate-angles</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (calculate-angles seat-scape)
+</pre>
+  <pre id="var-docstr">calculate angles scape from the seat scape</pre>
   
 </div><div id="var-entry">
   <br />
@@ -307,6 +324,24 @@ servers receive the following signals:
 </div><div id="var-entry">
   <br />
   <hr />
+  <h2 id="anansi.receptor/receptor-resolve">receptor-resolve</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (receptor-resolve receptor scape key)
+</pre>
+  <pre id="var-docstr">Resolve a scape key to a receptor address</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor/receptor-scape">receptor-scape</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (receptor-scape receptor scape)
+</pre>
+  <pre id="var-docstr">Utility function to return a receptor's scape</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
   <h2 id="anansi.receptor/remove-receptor">remove-receptor</h2>
   <span id="var-type">function</span><br />
   <pre id="var-usage">Usage: (remove-receptor contents address)
@@ -330,6 +365,15 @@ servers receive the following signals:
   <pre id="var-usage">Usage: (sanitize-for-address name)
 </pre>
   <pre id="var-docstr">Utility function to create and address ready string from a string</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor/scape-keys">scape-keys</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (scape-keys receptor scape)
+</pre>
+  <pre id="var-docstr">Utility function to return a lazy list of all the keys in a scape</pre>
   
 </div><div id="var-entry">
   <br />
