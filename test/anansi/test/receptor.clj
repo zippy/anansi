@@ -54,6 +54,12 @@
   (testing "sanitizing a string for use as an adress"
     (is (= "jane_smith" (sanitize-for-address "Jane Smith")))))
 
+(deftest receptor-scaping
+  (testing "resolving scape keys from a receptor with no scapes"
+    (let [receptor (make-receptor "receptor")]
+      (is (thrown? RuntimeException (receptor-resolve receptor :some-scape :some-key)))))
+  )
+
 (deftest serialzing-receptors
   (testing "serialize unserialize"
     (let [receptor (make-receptor "receptor")]
@@ -132,6 +138,23 @@
       (let [room-clone (unserialize-receptor (serialize-receptor room))]
         (is (= (receive room-clone {:to "room:describe"})
                (receive room {:to "room:describe"})))))
+    (testing "room scaping"
+      (let [room (make-room "room")]
+        (receive room {:from "eric:?", :to "room:enter", :body {:person {:name "Art"}}})
+        (receive room {:from "eric:?", :to "room:enter", :body {:person {:name "Fernanda"}}})
+        (receive room {:from "eric:?", :to "room:enter", :body {:person {:name "Adam"}}})
+        (receive room {:from "eric:?", :to "room:enter", :body {:person {:name "Eric"}}})
+        (is (= {0 "art", 1 "fernanda", 2 "adam", 3 "eric"} (receptor-scape room :seat)))
+        (is (=  {0 "art", 90 "fernanda", 180 "adam", 270 "eric"} (receptor-scape room :angle)))
+        (is (= "art" (receptor-resolve room :seat 0)))
+        (is (= "eric" (receptor-resolve room :seat 3)))
+        (is (= "art" (receptor-resolve room :angle 0)))
+        (is (= "adam" (receptor-resolve room :angle 180)))
+        (receive room {:from "eric:?", :to "room:leave", :body {:person-address "art"}})
+        (is (= {0 "fernanda", 1 "adam", 2 "eric"} (receptor-scape room :seat)))
+        (is (=  {0 "fernanda", 120 "adam", 240 "eric"} (receptor-scape room :angle)))
+        )
+      )
     (testing "pasing objects to people in room"
       )
     ))

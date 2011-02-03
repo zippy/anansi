@@ -177,11 +177,31 @@ Methods:
           (throw (RuntimeException. (str "No route to '" (humanize-address to) "'")))
           (receive destination-receptor (assoc parsed-signal :to resolved-address))))))
 
+(defn receptor-scape
+  "Utility function to return a receptor's scape"
+  [receptor scape]
+  (let [contents (:contents receptor)
+        scapes (:scapes @contents)
+        scape-fn (if scapes (scape @scapes) nil)]
+    (if scape-fn
+      scape-fn
+      (throw (RuntimeException. (str "Unknown scape '" scape "' in " (:self @contents))))))
+  )
+
+(defn receptor-resolve
+  "Resolve a scape key to a receptor address"
+  [receptor scape key]
+  ((receptor-scape receptor scape) key))
+
+(defn scape-keys
+  "Utility function to return a lazy list of all the keys in a scape"
+  [receptor scape]
+  (keys (receptor-scape receptor scape)))
+
 (defrecord Receptor [contents]
   Ceptr
   (get-aspects [this] #{:conjure :ping})
-  (receive [this signal] (receptor-receive this signal contents))
-  )
+  (receive [this signal] (receptor-receive this signal contents)))
 
 (defn make-contents
   "Utility function to create an empty contents ref for a new receptor"
@@ -261,11 +281,20 @@ servers receive the following signals:
   (alter (@contents :receptors) dissoc address)
   )
 
+(defn calculate-angles
+  "calculate angles scape from the seat scape"
+  [seat-scape]
+  (let [size (count seat-scape)]
+    (if (> size 0)
+      (into (sorted-map) (zipmap (range 0 360 (/ 360 size)) (vals seat-scape)))
+      (sorted-map))))
+
 (declare make-person)
 (defmethod receptor-aspects anansi.receptor.RoomReceptor
   [this signal contents]
   (let [{:keys [to body]} signal
         people-ref (@contents :people)
+        scapes-ref (@contents :scapes)
         ]
     (condp = (:aspect to)
         :describe (str (vec (map :name (vals @people-ref))))
@@ -277,6 +306,10 @@ servers receive the following signals:
                  (if person-receptor
                    (str name " is already in the room")
                    (dosync (alter people-ref assoc person-address {:name name})
+                           (let [seat-scape (:seat @scapes-ref)
+                                 new-seat-scape (assoc seat-scape (count seat-scape) person-address)]
+                             (alter scapes-ref assoc :seat new-seat-scape)
+                             (alter scapes-ref assoc :angle (calculate-angles new-seat-scape)))
                            (do-conjure contents {:name person-address, :attributes {:name name} :type "Person"})
                            (str "entered as " person-address)) 
                    )
@@ -287,6 +320,11 @@ servers receive the following signals:
                    (str person-address " is not in the room")
                    (dosync (remove-receptor contents person-address)
                            (alter people-ref dissoc person-address)
+                           (let [seat-scape (:seat @scapes-ref)
+                                 old-vals (filter #(not= person-address %) (vals seat-scape))
+                                 new-seat-scape (into (sorted-map) (zipmap (range (count old-vals)) old-vals))]
+                             (alter scapes-ref assoc :seat new-seat-scape) 
+                             (alter scapes-ref assoc :angle (calculate-angles new-seat-scape)))
                            (str person-address " left"))))
         :pass-object nil
         (receptor-aspects this signal contents :default))))
@@ -316,7 +354,7 @@ rooms are receptors that also receive the following signals:
     returns: \"ok\" if successful
 "
   [name]
-  (RoomReceptor. (make-contents name {:objects (ref {}), :people (ref {})})))
+  (RoomReceptor. (make-contents name {:scapes (ref {:seat (sorted-map),:angle (sorted-map)}) :objects (ref {}), :people (ref {})})))
 
 (defrecord PersonReceptor [contents]
   Ceptr
