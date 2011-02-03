@@ -16,6 +16,8 @@ Methods:
   (get-aspects [this])
   )
 
+(def *base-aspects* #{:conjure :ping :scapes})
+
 ;;;;;;;;;;;;   Utility Functions ;;;;;;;;;;;;
 (defn dump-receptor
   "dump contents of receptor into pretty-print-ready datastructure"
@@ -133,6 +135,25 @@ Methods:
   ([this signal contents] (aspect-receive-dispatch this signal contents nil))
   )
 
+(defn receptor-scape
+  "Utility function to return a receptor's scape"
+  [receptor scape]
+  (let [contents (:contents receptor)
+        scapes (:scapes @contents)
+        scape-fn (if scapes (scape @scapes) nil)]
+    (if scape-fn
+      scape-fn
+      (throw (RuntimeException. (str "Unknown scape '" scape "' in " (:self @contents))))))
+  )
+
+(defn receptor-scapes
+  "Utility function to return a set of the scapes defined for the ceptor"
+  [receptor]
+  (let [contents (:contents receptor)
+        scapes (:scapes @contents)
+        ]
+    (if scapes (into #{} (keys @scapes)) #{})))
+
 (declare make-receptor-from-signal)
 
 (defn do-conjure
@@ -161,6 +182,9 @@ Methods:
 
         ;; add a sub receptor into the receptors contents
         :conjure (do-conjure contents body)
+
+        ;; return a list of the scapes in this receptor
+        :scapes (receptor-scapes this)
         
         ;; otherwise throw an error
         (throw-bad-aspect to))))
@@ -177,17 +201,6 @@ Methods:
           (throw (RuntimeException. (str "No route to '" (humanize-address to) "'")))
           (receive destination-receptor (assoc parsed-signal :to resolved-address))))))
 
-(defn receptor-scape
-  "Utility function to return a receptor's scape"
-  [receptor scape]
-  (let [contents (:contents receptor)
-        scapes (:scapes @contents)
-        scape-fn (if scapes (scape @scapes) nil)]
-    (if scape-fn
-      scape-fn
-      (throw (RuntimeException. (str "Unknown scape '" scape "' in " (:self @contents))))))
-  )
-
 (defn receptor-resolve
   "Resolve a scape key to a receptor address"
   [receptor scape key]
@@ -200,7 +213,7 @@ Methods:
 
 (defrecord Receptor [contents]
   Ceptr
-  (get-aspects [this] #{:conjure :ping})
+  (get-aspects [this] *base-aspects*)
   (receive [this signal] (receptor-receive this signal contents)))
 
 (defn make-contents
@@ -228,7 +241,7 @@ vanilla receptors receive the following signals:
 
 (defrecord ObjectReceptor [contents]
   Ceptr
-  (get-aspects [this] #{:ping :conjure})
+  (get-aspects [this] *base-aspects*)
   (receive [this signal] 
      (let [{:keys [from to body error]} (validate-signal this signal true)]
       (do-ping from body)
@@ -241,7 +254,7 @@ vanilla receptors receive the following signals:
 
 (defrecord ServerReceptor [contents]
   Ceptr
-  (get-aspects [this] #{:ping :conjure :users})
+  (get-aspects [this] (conj *base-aspects* :users))
   (receive [this signal] (receptor-receive this signal contents))
   )
 
@@ -266,7 +279,7 @@ servers receive the following signals:
 
 (defrecord RoomReceptor [contents]
   Ceptr
-  (get-aspects [this] #{:ping :conjure :describe :enter :leave :scape :pass-object})
+  (get-aspects [this] (conj *base-aspects* :describe :enter :leave :scape :pass-object))
   (receive [this signal] (receptor-receive this signal contents)))
 
 (defn find-receptor
@@ -358,7 +371,7 @@ rooms are receptors that also receive the following signals:
 
 (defrecord PersonReceptor [contents]
   Ceptr
-  (get-aspects [this] #{:ping :conjure :get-attributes :set-attributes :receive-object :release-object})
+  (get-aspects [this] (conj *base-aspects* :get-attributes :set-attributes :receive-object :release-object))
   (receive [this signal] 
     (let [parsed-signal (parse-signal signal)
           {:keys [from to body]} parsed-signal

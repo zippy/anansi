@@ -84,12 +84,12 @@
     (testing "receiving an invalid signal"
       (is (thrown? RuntimeException (receive my_receptor {:from "from_address:some_aspect", :to "to_address:FISH", :body "the message"}))))
     (testing "getting the aspect list"
-      (is (= #{:ping :conjure} (get-aspects my_receptor))))))
+      (is (= #{:ping :conjure :scapes} (get-aspects my_receptor))))))
 
 (deftest receptor
   (let [receptor (make-receptor "receptor")]
     (testing "receptor aspects"
-      (is (= #{:ping :conjure} (get-aspects receptor))))
+      (is (= #{:ping :conjure :scapes} (get-aspects receptor))))
     (testing "sending a message to a non existent receptor"
       (is (thrown? RuntimeException
                    (receive receptor {:from "from_address:some_aspect", :to "fish:ping", :body "the message"}))))
@@ -110,7 +110,7 @@
   (let [[server client-stream] (make-client-server)]
     (.write client-stream "eric\n")
     (testing "server aspects"
-      (is (= #{:ping :conjure :users} (get-aspects server))))
+      (is (= #{:ping :conjure :scapes :users} (get-aspects server))))
     (testing "requesting a list of users"
       ;; putting this thread to sleep, it allows the other client
       ;; stream thread to read the write and attach the new user
@@ -120,7 +120,7 @@
 (deftest room-receptor
   (let [room (make-room "room")]
     (testing "room aspects"
-      (is (= #{:ping :conjure :describe :enter :leave :scape :pass-object} (get-aspects room))))
+      (is (= #{:ping :conjure :scapes :describe :enter :leave :scape :pass-object} (get-aspects room))))
     (testing "person entering and leaving room"
       (is (= "[]" (receive room {:from "eric:?", :to "room:describe"})))
       (is (= "entered as art_brock" (receive room {:from "eric:?", :to "room:enter", :body {:person {:name "Art Brock"}}})))
@@ -137,6 +137,7 @@
                (receive room {:to "room:describe"})))))
     (testing "room scaping"
       (let [room (make-room "room")]
+        (is (= #{:seat :angle} (receive room {:from "eric:?", :to "room:scapes"})))
         (receive room {:from "eric:?", :to "room:enter", :body {:person {:name "Art"}}})
         (receive room {:from "eric:?", :to "room:enter", :body {:person {:name "Fernanda"}}})
         (receive room {:from "eric:?", :to "room:enter", :body {:person {:name "Adam"}}})
@@ -159,7 +160,7 @@
 (deftest person-receptor
   (let [person (make-person "Eric")]
     (testing "person aspects"
-      (is (= #{:ping :conjure :get-attributes :set-attributes :receive-object :release-object} (get-aspects person))))
+      (is (= #{:ping :conjure :scapes :get-attributes :set-attributes :receive-object :release-object} (get-aspects person))))
     (testing "person Attributes"
       (is (= (receive person {:to "eric:set-attributes", :body {:eyes "blue", :cat "adverb"}})
              {:eyes "blue", :cat "adverb"}))
