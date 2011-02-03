@@ -1,7 +1,6 @@
 (ns
-  #^{:author "Eric Harris-Braun"
-     :doc "constants used by the server"}  
-    anansi.server-constants
+    #^{:skip-wiki true}
+  anansi.server-constants
   (:use [anansi.receptor :only [make-server unserialize-receptor]])  )
 
 (def *server-state-file-name* "anansi-server.state")
