@@ -1,6 +1,7 @@
 (ns anansi.test.commands
   (:use [anansi.receptor])
-  (:use [anansi.server])
+  (:use [anansi.server]
+        [anansi.server-constants])
   (:use [anansi.user])
   (:use [anansi.commands] :reload)
   (:use [clojure.test]
@@ -9,7 +10,8 @@
 (defmacro def-command-test [name & body]
   `(deftest ~name
      (binding [*server-receptor* (make-server "server")
-               *user-name* "eric"]
+               *user-name* "eric"
+               *server-state-file-name* "testing-server.state"]
        ~@body)))
 
 (def-command-test send-test
@@ -32,8 +34,13 @@
 
 (def-command-test exit-test
   (testing "exiting"
+    (send-signal "{:to \"server:conjure\", :body {:name \"object2\", :type \"Object\"}}")
     (is (= "Goodbye eric!"
-           (exit)))))
+           (exit))))
+  (testing "state saving"
+    (is (= (slurp *server-state-file-name*) (serialize-receptor *server-receptor*)))
+    )
+  )
 
 (def-command-test execute-test
   ;; Silence the error!

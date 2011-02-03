@@ -386,6 +386,7 @@ rooms are receptors that also receive the following signals:
         "Receptor" (make-receptor name)
         "Person" (make-person name)
         "Room" (make-room name)
+        "Server" (make-server name)
       (throw (RuntimeException. (str "Unknown receptor type: '" type "'")))
       )
   )

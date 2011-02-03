@@ -3,16 +3,16 @@
      :doc "Commands that can be excecuted at the servers command line"}  
   anansi.commands
   (:use [anansi.user]
-        [anansi.receptor :only [receive parse-signal dump-receptor make-server]])
+        [anansi.receptor :only [receive parse-signal dump-receptor serialize-receptor]]
+        [anansi.server-constants])
   (:use [clojure.string :only [join]]))
-
-(def *server-receptor* (make-server "server"))
 
 (defn exit
   "Terminate connection with the server"
   []
   (let [bye_str (str "Goodbye " *user-name* "!")]
     (set! *user-name* :exit)
+    (spit *server-state-file-name* (serialize-receptor *server-receptor*))
     bye_str))
 
 (defn dump
@@ -30,7 +30,7 @@
                           (str name ": " doc)
                           )
                       (dissoc (ns-publics 'anansi.commands)
-                              'execute 'commands '*server-receptor*))))
+                              'execute 'commands))))
 
 (defn
   #^{ :doc "Send a signal to a receptor.", :command-name "send"}
