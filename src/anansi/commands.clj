@@ -18,7 +18,7 @@
 (defn dump
   "Dump current tree of receptors"
   []
-  (str (:contents (dump-receptor *server-receptor*))))
+  (str (:receptors- (dump-receptor *server-receptor*))))
 
 (defn help
   "Show available commands and what they do."

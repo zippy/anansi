@@ -27,7 +27,7 @@
   (testing "dump of vanilla server"
     (is (= "#{}" (dump)))
     (send-signal "{:to \"server:conjure\", :body {:name \"object2\", :type \"Object\"}}")
-    (is (= "#{{:name \"object2\", :type \"Object\", :contents #{}}}" (dump)))
+    (is (= "#{{:name- \"object2\", :type- \"Object\", :receptors- #{}}}" (dump)))
     ))
 
 (def-command-test exit-test
