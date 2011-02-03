@@ -84,12 +84,13 @@
     (testing "receiving an invalid signal"
       (is (thrown? RuntimeException (receive my_receptor {:from "from_address:some_aspect", :to "to_address:FISH", :body "the message"}))))
     (testing "getting the aspect list"
-      (is (= #{:ping :conjure :scapes} (get-aspects my_receptor))))))
+      (is (= (get-aspects my_receptor) *base-aspects*))
+      )))
 
 (deftest receptor
   (let [receptor (make-receptor "receptor")]
     (testing "receptor aspects"
-      (is (= #{:ping :conjure :scapes} (get-aspects receptor))))
+      (is (= *base-aspects* (get-aspects receptor))))
     (testing "sending a message to a non existent receptor"
       (is (thrown? RuntimeException
                    (receive receptor {:from "from_address:some_aspect", :to "fish:ping", :body "the message"}))))
@@ -110,7 +111,7 @@
   (let [[server client-stream] (make-client-server)]
     (.write client-stream "eric\n")
     (testing "server aspects"
-      (is (= #{:ping :conjure :scapes :users} (get-aspects server))))
+      (is (= (clojure.set/difference (get-aspects server) *base-aspects*) #{:users}  )))
     (testing "requesting a list of users"
       ;; putting this thread to sleep, it allows the other client
       ;; stream thread to read the write and attach the new user
@@ -120,7 +121,7 @@
 (deftest room-receptor
   (let [room (make-room "room")]
     (testing "room aspects"
-      (is (= #{:ping :conjure :scapes :describe :enter :leave :scape :pass-object} (get-aspects room))))
+      (is (= (clojure.set/difference (get-aspects room) *base-aspects*) #{:describe :enter :leave :scape :pass-object})))
     (testing "person entering and leaving room"
       (is (= "[]" (receive room {:from "eric:?", :to "room:describe"})))
       (is (= "entered as art_brock" (receive room {:from "eric:?", :to "room:enter", :body {:person {:name "Art Brock"}}})))
@@ -144,10 +145,10 @@
         (receive room {:from "eric:?", :to "room:enter", :body {:person {:name "Eric"}}})
         (is (= {0 "art", 1 "fernanda", 2 "adam", 3 "eric"} (receptor-scape room :seat)))
         (is (=  {0 "art", 90 "fernanda", 180 "adam", 270 "eric"} (receptor-scape room :angle)))
-        (is (= "art" (receptor-resolve room :seat 0)))
-        (is (= "eric" (receptor-resolve room :seat 3)))
-        (is (= "art" (receptor-resolve room :angle 0)))
-        (is (= "adam" (receptor-resolve room :angle 180)))
+        (is (= "art" (receive room {:from "eric:?", :to "room:resolve", :body {:scape :seat, :key 0}})))
+        (is (= "eric" (receive room {:from "eric:?", :to "room:resolve", :body {:scape :seat, :key 3}})))
+        (is (= "art" (receive room {:from "eric:?", :to "room:resolve", :body {:scape :angle, :key 0}})))
+        (is (= "adam" (receive room {:from "eric:?", :to "room:resolve", :body {:scape :angle, :key 180}})))
         (receive room {:from "eric:?", :to "room:leave", :body {:person-address "art"}})
         (is (= {0 "fernanda", 1 "adam", 2 "eric"} (receptor-scape room :seat)))
         (is (=  {0 "fernanda", 120 "adam", 240 "eric"} (receptor-scape room :angle)))
@@ -160,7 +161,7 @@
 (deftest person-receptor
   (let [person (make-person "Eric")]
     (testing "person aspects"
-      (is (= #{:ping :conjure :scapes :get-attributes :set-attributes :receive-object :release-object} (get-aspects person))))
+      (is (= (clojure.set/difference (get-aspects person) *base-aspects* ) #{:get-attributes :set-attributes :receive-object :release-object})))
     (testing "person Attributes"
       (is (= (receive person {:to "eric:set-attributes", :body {:eyes "blue", :cat "adverb"}})
              {:eyes "blue", :cat "adverb"}))

@@ -16,7 +16,7 @@ Methods:
   (get-aspects [this])
   )
 
-(def *base-aspects* #{:conjure :ping :scapes})
+(def *base-aspects* #{:conjure :ping :scapes :resolve})
 
 ;;;;;;;;;;;;   Utility Functions ;;;;;;;;;;;;
 (defn dump-receptor
@@ -154,6 +154,16 @@ Methods:
         ]
     (if scapes (into #{} (keys @scapes)) #{})))
 
+(defn receptor-resolve
+  "Resolve a scape key to a receptor address"
+  [receptor scape key]
+  ((receptor-scape receptor scape) key))
+
+(defn scape-keys
+  "Utility function to return a lazy list of all the keys in a scape"
+  [receptor scape]
+  (keys (receptor-scape receptor scape)))
+
 (declare make-receptor-from-signal)
 
 (defn do-conjure
@@ -185,6 +195,9 @@ Methods:
 
         ;; return a list of the scapes in this receptor
         :scapes (receptor-scapes this)
+
+        ;; resolve a scape key to an address
+        :resolve (receptor-resolve this (:scape body) (:key body))
         
         ;; otherwise throw an error
         (throw-bad-aspect to))))
@@ -200,16 +213,6 @@ Methods:
       (if (nil? destination-receptor)
           (throw (RuntimeException. (str "No route to '" (humanize-address to) "'")))
           (receive destination-receptor (assoc parsed-signal :to resolved-address))))))
-
-(defn receptor-resolve
-  "Resolve a scape key to a receptor address"
-  [receptor scape key]
-  ((receptor-scape receptor scape) key))
-
-(defn scape-keys
-  "Utility function to return a lazy list of all the keys in a scape"
-  [receptor scape]
-  (keys (receptor-scape receptor scape)))
 
 (defrecord Receptor [contents]
   Ceptr
