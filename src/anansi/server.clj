@@ -10,7 +10,8 @@
 (defn- cleanup []
   "Clean user list."
   (dosync
-   (commute user-streams dissoc *user-name*)))
+   (commute user-streams dissoc *user-name*))
+  (println (str "Cleaning up " *user-name*)))
 
 (defn- get-unique-user-name [name]
   (if (@user-streams name)
@@ -29,8 +30,7 @@
     (binding [*user-name* nil]
       (dosync
        (set! *user-name* (get-unique-user-name (read-line)))
-       (commute user-streams assoc *user-name* *out*)
-       )
+       (commute user-streams assoc *user-name* *out*))
 
       (print prompt) (flush)
 
@@ -38,7 +38,7 @@
              (when input
                (println (execute input))
                (print prompt) (flush)
-               (if (not= *user-name* :exit) (recur (read-line)) )
+               (if (user-streams *user-name*) (recur (read-line)) )
                ))
            (finally (cleanup))))))
 

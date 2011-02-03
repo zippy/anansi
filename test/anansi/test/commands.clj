@@ -2,7 +2,8 @@
   (:use [anansi.receptor])
   (:use [anansi.server]
         [anansi.server-constants])
-  (:use [anansi.user])
+  (:use [anansi.user]
+        [anansi.test.helpers])
   (:use [anansi.commands] :reload)
   (:use [clojure.test]
         [clojure.contrib.io :only [writer]]))
@@ -22,8 +23,16 @@
 
 (deftest help-test
   (testing "getting help"
-    (is (= "exit: Terminate connection with the server\nsend: Send a signal to a receptor.\nhelp: Show available commands and what they do.\ndump: Dump current tree of receptors"
+    (is (= "exit: Terminate connection with the server\nusers: Get a list of logged in users\nsend: Send a signal to a receptor.\nhelp: Show available commands and what they do.\ndump: Dump current tree of receptors"
            (help)))))
+
+(deftest users-test
+  (testing "getting a list of users"
+    (binding [*server-receptor* (make-server "server")
+              *server-state-file-name* "testing-server.state"]
+      (let [[server client-stream] (make-client-server)]
+        (.write client-stream "eric\n")
+        (is (= "[\"eric\"]" (users)))))))
 
 (def-command-test dump-test
   (testing "dump of vanilla server"

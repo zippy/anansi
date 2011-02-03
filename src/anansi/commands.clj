@@ -7,11 +7,17 @@
         [anansi.server-constants])
   (:use [clojure.string :only [join]]))
 
+(defn users
+  "Get a list of logged in users"
+  []
+  (str (vec (keys @user-streams))))
+
 (defn exit
   "Terminate connection with the server"
   []
   (let [bye_str (str "Goodbye " *user-name* "!")]
-    (set! *user-name* :exit)
+    (dosync
+     (commute user-streams assoc *user-name* nil))
     (spit *server-state-file-name* (serialize-receptor *server-receptor*))
     bye_str))
 
@@ -45,7 +51,8 @@
   {"help" help
    "exit" exit
    "dump" dump
-   "send" send-signal})
+   "send" send-signal
+   "users" users})
 
 ;; Command handling
 

@@ -3,6 +3,7 @@
   (:import anansi.receptor.ObjectReceptor)
   (:import anansi.receptor.Receptor)
   (:use [clojure.test])
+  (:use [anansi.test.helpers])
   (:use [anansi.server-constants :only [*server-receptor*]]
         [anansi.server :only [anansi-handle-client]]))
 
@@ -10,7 +11,6 @@
 (deftest receptor-helpers
   (testing "dumping the contents of a receptor"
     (let [receptor (make-receptor "receptor")]
-      (is (= {:name- "server", :type- "Server", :receptors- #{}} (dump-receptor *server-receptor*)))
       (is (= {:name- "receptor", :type- "Receptor", :receptors- #{}} (dump-receptor receptor)))
       (receive receptor {:from "eric:?", :to "receptor:conjure", :body {:name "receptor1",:type "Receptor"}})
       (is (= {:name- "receptor", :type- "Receptor", :receptors- #{{ :name- "receptor1", :type- "Receptor", :receptors- #{}}}} (dump-receptor receptor)))
@@ -107,10 +107,7 @@
              (receive receptor {:from "eric:?", :to "receptor1.object2:ping", :body "the message"}))))))
 
 (deftest server-receptor
-  (let [server (make-server "server")
-        client-stream (java.io.PipedWriter.)
-        r (java.io.BufferedReader. (java.io.PipedReader. client-stream))]
-    (doto (Thread. #(do (anansi-handle-client r *out*))) .start)
+  (let [[server client-stream] (make-client-server)]
     (.write client-stream "eric\n")
     (testing "server aspects"
       (is (= #{:ping :conjure :users} (get-aspects server))))
