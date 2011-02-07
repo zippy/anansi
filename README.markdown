@@ -21,7 +21,7 @@ Clone this repo and let lein install the dependencies:
 
 To run the server:
 
-   $ lein run
+    $ lein run
 
 Then you can connect to the server by telneting to port 3333
 
@@ -29,10 +29,10 @@ Once connected, enter your user-name and then when the user has been
 attached--
 
 For a list of commands:
-   > help
+    > help
 
 Sending a signal:
-   > send {:to "server.users" :from "user.?"}
+    > send {:to "server.users" :from "user.?"}
 
 ## Documentation
 
