@@ -54,10 +54,18 @@
   (testing "sanitizing a string for use as an adress"
     (is (= "jane_smith" (sanitize-for-address "Jane Smith")))))
 
+
 (deftest receptor-scaping
-  (testing "resolving scape keys from a receptor with no scapes"
-    (let [receptor (make-receptor "receptor")]
-      (is (thrown? RuntimeException (receptor-resolve receptor :some-scape :some-key)))))
+  (let [receptor (Receptor. (make-contents "receptor" {:scapes (ref {:x-y-address {[1,2] "r1"} :human-name {"Bob" "r1" "Jane" "r1"}})}) )]
+    (testing "resolving scape keys"
+      (is (= "r1" (receptor-resolve receptor :x-y-address [1,2]))))
+    (testing "reverse resolving by address"
+      (is (= [[1,2]] (receptor-reverse-resolve receptor :x-y-address "r1"))))
+    (testing "reverse resolving by address where multiple items are returned"
+      (is (= ["Bob","Jane"] (receptor-reverse-resolve receptor :human-name "r1"))))
+    (testing "resolving scape keys from a receptor with no scapes"
+      (is (thrown? RuntimeException (receptor-resolve receptor :some-scape :some-key))))
+    )
   )
 
 (deftest serialzing-receptors
@@ -149,6 +157,7 @@
         (is (= "eric" (receive room {:from "eric:?", :to "room:resolve", :body {:scape :seat, :key 3}})))
         (is (= "art" (receive room {:from "eric:?", :to "room:resolve", :body {:scape :angle, :key 0}})))
         (is (= "adam" (receive room {:from "eric:?", :to "room:resolve", :body {:scape :angle, :key 180}})))
+        (is (= [180] (receive room {:from "eric:?", :to "room:resolve", :body {:scape :angle, :address "adam"}})))
         (receive room {:from "eric:?", :to "room:leave", :body {:person-address "art"}})
         (is (= {0 "fernanda", 1 "adam", 2 "eric"} (receptor-scape room :seat)))
         (is (=  {0 "fernanda", 120 "adam", 240 "eric"} (receptor-scape room :angle)))

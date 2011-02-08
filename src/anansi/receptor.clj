@@ -159,6 +159,13 @@ Methods:
   [receptor scape key]
   ((receptor-scape receptor scape) key))
 
+(defn receptor-reverse-resolve
+  "Resolve a receptor address to its scape keys in a scape:
+Returns a vector of keys"
+  [receptor scape address]
+  (into [] (keep (fn [[key val]] (if (= val address) key nil)) (receptor-scape receptor scape)))
+  )
+
 (defn scape-keys
   "Utility function to return a lazy list of all the keys in a scape"
   [receptor scape]
@@ -197,7 +204,11 @@ Methods:
         :scapes (receptor-scapes this)
 
         ;; resolve a scape key to an address
-        :resolve (receptor-resolve this (:scape body) (:key body))
+        :resolve (cond
+                  (contains? body :key) (receptor-resolve this (:scape body) (:key body))
+                  (contains? body :address) (receptor-reverse-resolve this (:scape body) (:address body))
+                  :else (throw (RuntimeException. "resolve requires a :key or :address parameter"))
+                   ) 
         
         ;; otherwise throw an error
         (throw-bad-aspect to))))
