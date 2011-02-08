@@ -316,12 +316,26 @@ servers receive the following signals:
       (into (sorted-map) (zipmap (range 0 360 (/ 360 size)) (vals seat-scape)))
       (sorted-map))))
 
+(defn angle-to-coord
+  [degrees radius]
+  [(int  (* radius (Math/sin (Math/toRadians degrees)))) (int (* -1 radius (Math/cos (Math/toRadians degrees))))]
+  )
+
+(defn calculate-coords
+  "calculate coordinate scape from the seat scape"
+  [seat-scape radius]
+  (let [size (count seat-scape)]
+    (if (> size 0)
+      (into {} (zipmap (map #(angle-to-coord % radius) (range 0 360 (/ 360 size))) (vals seat-scape)))
+      (sorted-map))))
+
 (declare make-person)
 (defmethod receptor-aspects anansi.receptor.RoomReceptor
   [this signal contents]
   (let [{:keys [to body]} signal
         people-ref (@contents :people)
         scapes-ref (@contents :scapes)
+        radius @(@contents :radius)
         ]
     (condp = (:aspect to)
         :describe (str (vec (map :name (vals @people-ref))))
@@ -336,7 +350,8 @@ servers receive the following signals:
                            (let [seat-scape (:seat @scapes-ref)
                                  new-seat-scape (assoc seat-scape (count seat-scape) person-address)]
                              (alter scapes-ref assoc :seat new-seat-scape)
-                             (alter scapes-ref assoc :angle (calculate-angles new-seat-scape)))
+                             (alter scapes-ref assoc :angle (calculate-angles new-seat-scape))
+                             (alter scapes-ref assoc :coords (calculate-coords new-seat-scape radius)))
                            (do-conjure contents {:name person-address, :attributes {:name name} :type "Person"})
                            (str "entered as " person-address)) 
                    )
@@ -351,7 +366,8 @@ servers receive the following signals:
                                  old-vals (filter #(not= person-address %) (vals seat-scape))
                                  new-seat-scape (into (sorted-map) (zipmap (range (count old-vals)) old-vals))]
                              (alter scapes-ref assoc :seat new-seat-scape) 
-                             (alter scapes-ref assoc :angle (calculate-angles new-seat-scape)))
+                             (alter scapes-ref assoc :angle (calculate-angles new-seat-scape))
+                             (alter scapes-ref assoc :coords (calculate-coords new-seat-scape radius)))
                            (str person-address " left"))))
         :pass-object nil
         (receptor-aspects this signal contents :default))))
@@ -381,7 +397,7 @@ rooms are receptors that also receive the following signals:
     returns: \"ok\" if successful
 "
   [name]
-  (RoomReceptor. (make-contents name {:scapes (ref {:seat (sorted-map),:angle (sorted-map)}) :objects (ref {}), :people (ref {})})))
+  (RoomReceptor. (make-contents name {:scapes (ref {:seat (sorted-map),:angle (sorted-map),:coords {}}) :objects (ref {}), :people (ref {}), :radius (ref 500)})))
 
 (defrecord PersonReceptor [contents]
   Ceptr
