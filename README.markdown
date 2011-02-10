@@ -32,7 +32,22 @@ For a list of commands:
     > help
 
 Sending a signal:
-    > send {:to "server.users" :from "user.?"}
+    > send {:to "some-address:some-aspect" :body {:some-key "some value"}}
+
+For testing purposes the server comes with a room receptor that scapes
+people into a circle and allows passing object receptors between
+them. For example:
+
+    > send {:to "server:conjure", :body {:name "room",:type "Room"}}
+    created
+    > send {:to "room:enter", :body {:person {:name "Art"}}}
+    entered as art
+    > send {:to "room:enter", :body {:person {:name "Eric"}}}
+    entered as eric
+    > send {:to "room:conjure", :body {:name "stick",:type "Object"}}
+    {:seat {0 art, 1 eric}, :angle {0 art, 180 eric}, :coords {[0 0] stick, [0 -500] art, [0 500] eric}, :holding {}}
+    > send {:to "room:pass-object", :body {:object "stick",:to "art_brock"}}
+    {:seat {0 art, 1 eric}, :angle {0 art, 180 eric}, :coords {[0 -490] stick, [0 -500] art, [0 500] eric}, :holding {art stick}}
 
 ## Documentation
 
