@@ -135,16 +135,73 @@ Methods:
   ([this signal contents] (aspect-receive-dispatch this signal contents nil))
   )
 
+(defn- get-receptor-scape
+  "Utility function to get the scapes ref and an particular scape
+ (Used for mutating scapes)"
+  [receptor scape-name]
+  (let [contents @(:contents receptor)
+        scapes-ref (:scapes contents)
+        scape (if scapes-ref (scape-name @scapes-ref) nil)]
+    (if scape
+      [scapes-ref scape]
+      (throw (RuntimeException. (str "Unknown scape '" scape-name "' in " (:self contents)))))))
+
 (defn receptor-scape
   "Utility function to return a receptor's scape"
-  [receptor scape]
-  (let [contents (:contents receptor)
-        scapes (:scapes @contents)
-        scape-fn (if scapes (scape @scapes) nil)]
-    (if scape-fn
-      scape-fn
-      (throw (RuntimeException. (str "Unknown scape '" scape "' in " (:self @contents))))))
+  [receptor scape-name]
+  (let [[scapes-ref scape] (get-receptor-scape receptor scape-name)]
+    scape))
+
+(defn- alter-scape-set
+  "Utility function to change a scape (must be called within dosync)"
+  [scapes-ref scape-name scape key value]
+  (alter scapes-ref assoc scape-name (merge scape {key value}))
   )
+
+(defn receptor-scape-set
+  "Add a key into a scape"
+  [receptor scape-name key value]
+    (let [[scapes-ref scape] (get-receptor-scape receptor scape-name)]
+      (dosync (alter-scape-set scapes-ref scape-name scape key value))))
+
+(defn- alter-scape-unset-key
+  "Utility function to remove a scape key (must be called within dosync)"
+  [scapes-ref scape-name scape key]
+  (alter scapes-ref assoc scape-name (dissoc scape key))
+  )
+
+(defn receptor-scape-unset-key
+  "Remove a key into a scape"
+  [receptor scape-name key]
+    (let [[scapes-ref scape] (get-receptor-scape receptor scape-name)]
+    (dosync (alter-scape-unset-key scapes-ref scape-name scape key))))
+
+(defn- remove-value
+  "Utility function that remvoes all entries in a map by value"
+  [the-map value]
+  (into {} (filter (fn [[key val]] (not= val value)) the-map)))
+
+(defn- remove-values
+  "Utility function that remvoes all entries in a map by value"
+  [the-map values]
+  (into {} (filter (fn [[key val]] (not (some #{val} values))) the-map)))
+
+(defn- alter-scape-unset-address
+  "Utility function to remove a scape address (must be called within dosync)"
+  [scapes-ref scape-name scape address]
+  (alter scapes-ref assoc scape-name (remove-value scape address))
+  )
+
+(defn receptor-scape-unset-address
+  "Remove an address from a scape"
+  [receptor scape-name address]
+    (let [[scapes-ref scape] (get-receptor-scape receptor scape-name)]
+    (dosync (alter-scape-unset-address scapes-ref scape-name scape address))))
+
+(defn- alter-scape-change
+  "untility function to move an change an key and address"
+  [scapes-ref scape-name scape key address]
+  (alter scapes-ref assoc scape-name (assoc (remove-value scape address) key address)))
 
 (defn receptor-scapes
   "Utility function to return a set of the scapes defined for the ceptor"
@@ -154,17 +211,30 @@ Methods:
         ]
     (if scapes (into #{} (keys @scapes)) #{})))
 
+;; scapes are currently implemented as scape-key -> address maps.
+;; this is very likely to change soon, i.e. to be reversed so that the
+;; key in the map is the address and the value is the scape key.
+
+(defn- scape-resolve
+  "utility function to resolve a key within a scape"
+  [scape key]
+  (scape key))
+
 (defn receptor-resolve
   "Resolve a scape key to a receptor address"
-  [receptor scape key]
-  ((receptor-scape receptor scape) key))
+  [receptor scape-name key]
+  (scape-resolve (receptor-scape receptor scape-name) key))
+
+(defn- scape-reverse-resolve
+  "utility funciton to do a reverse resolution"
+  [scape address]
+  (into [] (keep (fn [[key val]] (if (= val address) key nil)) scape)))
 
 (defn receptor-reverse-resolve
   "Resolve a receptor address to its scape keys in a scape:
 Returns a vector of keys"
-  [receptor scape address]
-  (into [] (keep (fn [[key val]] (if (= val address) key nil)) (receptor-scape receptor scape)))
-  )
+  [receptor scape-name address]
+  (scape-reverse-resolve (receptor-scape receptor scape-name) address))
 
 (defn scape-keys
   "Utility function to return a lazy list of all the keys in a scape"
@@ -329,15 +399,45 @@ servers receive the following signals:
       (into {} (zipmap (map #(angle-to-coord % radius) (range 0 360 (/ 360 size))) (vals seat-scape)))
       (sorted-map))))
 
+(defn calculate-holding-coord
+  "cacluate the x,y coordinate of an object held by a person based on the angle scape"
+  [to-address angle-scape radius]
+  (let [[to-angle] (scape-reverse-resolve angle-scape to-address)
+        ]
+    (if (nil? to-angle)
+      (throw ( RuntimeException. (str to-address " doesn't have an angle in the scape: " angle-scape)))
+      (angle-to-coord to-angle (- radius (int (* radius 0.02))))))
+  )
+
+(defn regenerate-holding-coords
+  "Recreate the holding coords from the holding and angle scapes"
+  [holding-scape angle-scape]
+  (into {} (map (fn [[holder-address object-address]] {(calculate-holding-coord holder-address angle-scape 500) object-address}) holding-scape))
+  )
+
+(defn regenerate-coord-scape
+  "Recreates the coordinate scape based on the other scapes"
+  [coords-scape seat-scape angle-scape holding-scape people-list radius]
+  (let [scape-minus-people-and-held-objects (remove-values (remove-values coords-scape people-list) (vals holding-scape))
+        people-coords (calculate-coords seat-scape radius)
+        holding-coords (regenerate-holding-coords holding-scape angle-scape)
+        ]
+    (merge scape-minus-people-and-held-objects people-coords holding-coords))
+  )
+
 (declare make-person)
+
 (defmethod receptor-aspects anansi.receptor.RoomReceptor
   [this signal contents]
   (let [{:keys [to body]} signal
         people-ref (@contents :people)
+        old-people-list (keys @people-ref)
         scapes-ref (@contents :scapes)
         radius @(@contents :radius)
         ]
     (condp = (:aspect to)
+        :conjure (do (receptor-aspects this signal contents :default)
+                     (dosync (alter scapes-ref assoc :coords (merge (:coords @scapes-ref) {[0,0] (:name body)}))))
         :describe (str (vec (map :name (vals @people-ref))))
         :enter (let [{:keys [person]} body
                      {:keys [name]} person
@@ -348,10 +448,12 @@ servers receive the following signals:
                    (str name " is already in the room")
                    (dosync (alter people-ref assoc person-address {:name name})
                            (let [seat-scape (:seat @scapes-ref)
+                                 coords-scape (:coords @scapes-ref)
+                                 holding-scape (:holding @scapes-ref)
                                  new-seat-scape (assoc seat-scape (count seat-scape) person-address)]
                              (alter scapes-ref assoc :seat new-seat-scape)
-                             (alter scapes-ref assoc :angle (calculate-angles new-seat-scape))
-                             (alter scapes-ref assoc :coords (calculate-coords new-seat-scape radius)))
+                             (let [new-angle-scape (:angle (alter scapes-ref assoc :angle (calculate-angles new-seat-scape)))] 
+                               (alter scapes-ref assoc :coords (regenerate-coord-scape coords-scape new-seat-scape new-angle-scape holding-scape old-people-list radius))))
                            (do-conjure contents {:name person-address, :attributes {:name name} :type "Person"})
                            (str "entered as " person-address)) 
                    )
@@ -362,14 +464,33 @@ servers receive the following signals:
                    (str person-address " is not in the room")
                    (dosync (remove-receptor contents person-address)
                            (alter people-ref dissoc person-address)
+
+                           ;; put anything the person is holding back
+                           ;; in the middle
+                           (let [holding-scape (:holding @scapes-ref)
+                                 held-object (scape-resolve holding-scape person-address)]
+                             (if held-object
+                               (do  (alter-scape-unset-key scapes-ref :holding holding-scape person-address)
+                                    (alter-scape-change scapes-ref :coords (:coords @scapes-ref) [0,0] held-object)
+                                    
+))
+                             )
+                           
                            (let [seat-scape (:seat @scapes-ref)
+                                 coords-scape (:coords @scapes-ref)
+                                 holding-scape (:holding @scapes-ref)
                                  old-vals (filter #(not= person-address %) (vals seat-scape))
                                  new-seat-scape (into (sorted-map) (zipmap (range (count old-vals)) old-vals))]
+                             (println (str "coord cape " coords-scape))
                              (alter scapes-ref assoc :seat new-seat-scape) 
-                             (alter scapes-ref assoc :angle (calculate-angles new-seat-scape))
-                             (alter scapes-ref assoc :coords (calculate-coords new-seat-scape radius)))
+                             (let [new-angle-scape (:angle (alter scapes-ref assoc :angle (calculate-angles new-seat-scape)))]
+                               (alter scapes-ref assoc :coords (regenerate-coord-scape coords-scape new-seat-scape new-angle-scape holding-scape old-people-list radius))))
                            (str person-address " left"))))
-        :pass-object nil
+        :pass-object (let [{object-address :object to-address :to} body]
+                       (dosync (alter-scape-unset-address scapes-ref :holding (:holding @scapes-ref) object-address)
+                               (alter-scape-set scapes-ref :holding (:holding @scapes-ref) to-address object-address)
+                               (alter-scape-unset-address scapes-ref :coords (:coords @scapes-ref) object-address)
+                               (alter-scape-set scapes-ref :coords (:coords @scapes-ref) (calculate-holding-coord to-address (:angle @scapes-ref) radius) object-address)))
         (receptor-aspects this signal contents :default))))
 
 (defn make-room
@@ -397,7 +518,7 @@ rooms are receptors that also receive the following signals:
     returns: \"ok\" if successful
 "
   [name]
-  (RoomReceptor. (make-contents name {:scapes (ref {:seat (sorted-map),:angle (sorted-map),:coords {}}) :objects (ref {}), :people (ref {}), :radius (ref 500)})))
+  (RoomReceptor. (make-contents name {:scapes (ref {:seat (sorted-map),:angle (sorted-map),:coords {},:holding {}}) :objects (ref {}), :people (ref {}), :radius (ref 500)})))
 
 (defrecord PersonReceptor [contents]
   Ceptr

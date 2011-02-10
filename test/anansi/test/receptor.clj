@@ -65,6 +65,15 @@
       (is (= ["Bob","Jane"] (receptor-reverse-resolve receptor :human-name "r1"))))
     (testing "resolving scape keys from a receptor with no scapes"
       (is (thrown? RuntimeException (receptor-resolve receptor :some-scape :some-key))))
+    (testing "adding a key to a scape"
+      (receptor-scape-set receptor :human-name "Mary" "r3")
+      (is (= {"Bob" "r1", "Jane" "r1","Mary" "r3"} (receptor-scape receptor :human-name))))
+    (testing "removing a items from a scape"
+      (receptor-scape-unset-key receptor :human-name "Bob")
+      (is (= {"Jane" "r1","Mary" "r3"} (receptor-scape receptor :human-name)))
+      (receptor-scape-unset-address receptor :human-name "r3")
+      (is (= {"Jane" "r1"} (receptor-scape receptor :human-name)))
+      )
     )
   )
 
@@ -146,7 +155,7 @@
                (receive room {:to "room:describe"})))))
     (testing "room scaping"
       (let [room (make-room "room")]
-        (is (= #{:seat :angle :coords} (receive room {:from "eric:?", :to "room:scapes"})))
+        (is (= #{:seat :angle :coords :holding} (receive room {:from "eric:?", :to "room:scapes"})))
         (receive room {:from "eric:?", :to "room:enter", :body {:person {:name "Art"}}})
         (receive room {:from "eric:?", :to "room:enter", :body {:person {:name "Fernanda"}}})
         (receive room {:from "eric:?", :to "room:enter", :body {:person {:name "Adam"}}})
@@ -166,7 +175,27 @@
         (is (=  {[0,-500] "fernanda", [433 249] "adam", [-433 250] "eric"} (receptor-scape room :coords)))
         )
       )
-    (testing "pasing objects to people in room"
+    (testing "adding an object to a room"
+      (receive room {:from "eric:?", :to "room:enter", :body {:person {:name "Art Brock"}}})
+      (receive room {:from "eric:?", :to "room:enter", :body {:person {:name "Eric Harris-Braun"}}})
+      (receive room {:from "eric:?", :to "room:conjure", :body {:name "stick",:type "Object"}})
+      (is (= "stick" (receive room {:from "eric:?", :to "room:resolve", :body {:scape :coords, :key [0,0]}})))
+      (is (= nil (receive room {:from "eric:?", :to "room:resolve", :body {:scape :holding, :key "art_brock"}})))
+      )
+    (testing "passing an object"
+      (receive room {:from "eric:?", :to "room:pass-object", :body {:object "stick",:to "art_brock"}})
+      (is (= "stick" (receive room {:from "eric:?", :to "room:resolve", :body {:scape :holding, :key "art_brock"}})))
+      (is (= [[0,-490]] (receive room {:from "eric:?", :to "room:resolve", :body {:scape :coords, :address "stick"}})))
+      (is (= ["art_brock"] (receive room {:from "eric:?", :to "room:resolve", :body {:scape :holding, :address "stick"}})))
+      (receive room {:from "eric:?", :to "room:pass-object", :body {:object "stick",:to "eric_harris_braun"}})
+      (is (= [[0,490]] (receive room {:from "eric:?", :to "room:resolve", :body {:scape :coords, :address "stick"}})))
+      (is (= ["eric_harris_braun"] (receive room {:from "eric:?", :to "room:resolve", :body {:scape :holding, :address "stick"}})))
+      (receive room {:from "eric:?", :to "room:enter", :body {:person {:name "JF"}}})
+      (is (= {[0 -500] "art_brock", [433 249] "eric_harris_braun", [-433 250] "jf", [424 244] "stick"} (receptor-scape room :coords)))
+      )
+    (testing "leaving a room if holding an object"
+      (receive room {:from "eric:?", :to "room:leave", :body {:person-address "eric_harris_braun"}})
+      (is (= {[0 -500] "art_brock", [0 500] "jf", [0 0] "stick"} (receptor-scape room :coords)))
       )
     ))
 
