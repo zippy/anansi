@@ -58,6 +58,8 @@ namespace.
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/calculate-coords">calculate-coords</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/calculate-holding-coord">calculate-holding-coord</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/do-conjure">do-conjure</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/do-ping">do-ping</a>
@@ -92,7 +94,17 @@ namespace.
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/receptor-scape">receptor-scape</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/receptor-scape-set">receptor-scape-set</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/receptor-scape-unset-address">receptor-scape-unset-address</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/receptor-scape-unset-key">receptor-scape-unset-key</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/receptor-scapes">receptor-scapes</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/regenerate-coord-scape">regenerate-coord-scape</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/regenerate-holding-coords">regenerate-holding-coords</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/remove-receptor">remove-receptor</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
@@ -172,6 +184,15 @@ Methods:
   <pre id="var-usage">Usage: (calculate-coords seat-scape radius)
 </pre>
   <pre id="var-docstr">calculate coordinate scape from the seat scape</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor/calculate-holding-coord">calculate-holding-coord</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (calculate-holding-coord to-address angle-scape radius)
+</pre>
+  <pre id="var-docstr">cacluate the x,y coordinate of an object held by a person based on the angle scape</pre>
   
 </div><div id="var-entry">
   <br />
@@ -341,7 +362,7 @@ servers receive the following signals:
   <hr />
   <h2 id="anansi.receptor/receptor-resolve">receptor-resolve</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (receptor-resolve receptor scape key)
+  <pre id="var-usage">Usage: (receptor-resolve receptor scape-name key)
 </pre>
   <pre id="var-docstr">Resolve a scape key to a receptor address</pre>
   
@@ -350,7 +371,7 @@ servers receive the following signals:
   <hr />
   <h2 id="anansi.receptor/receptor-reverse-resolve">receptor-reverse-resolve</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (receptor-reverse-resolve receptor scape address)
+  <pre id="var-usage">Usage: (receptor-reverse-resolve receptor scape-name address)
 </pre>
   <pre id="var-docstr">Resolve a receptor address to its scape keys in a scape:
 Returns a vector of keys</pre>
@@ -360,9 +381,36 @@ Returns a vector of keys</pre>
   <hr />
   <h2 id="anansi.receptor/receptor-scape">receptor-scape</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (receptor-scape receptor scape)
+  <pre id="var-usage">Usage: (receptor-scape receptor scape-name)
 </pre>
   <pre id="var-docstr">Utility function to return a receptor's scape</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor/receptor-scape-set">receptor-scape-set</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (receptor-scape-set receptor scape-name key value)
+</pre>
+  <pre id="var-docstr">Add a key into a scape</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor/receptor-scape-unset-address">receptor-scape-unset-address</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (receptor-scape-unset-address receptor scape-name address)
+</pre>
+  <pre id="var-docstr">Remove an address from a scape</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor/receptor-scape-unset-key">receptor-scape-unset-key</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (receptor-scape-unset-key receptor scape-name key)
+</pre>
+  <pre id="var-docstr">Remove a key into a scape</pre>
   
 </div><div id="var-entry">
   <br />
@@ -372,6 +420,24 @@ Returns a vector of keys</pre>
   <pre id="var-usage">Usage: (receptor-scapes receptor)
 </pre>
   <pre id="var-docstr">Utility function to return a set of the scapes defined for the ceptor</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor/regenerate-coord-scape">regenerate-coord-scape</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (regenerate-coord-scape coords-scape seat-scape angle-scape holding-scape people-list radius)
+</pre>
+  <pre id="var-docstr">Recreates the coordinate scape based on the other scapes</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor/regenerate-holding-coords">regenerate-holding-coords</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (regenerate-holding-coords holding-scape angle-scape)
+</pre>
+  <pre id="var-docstr">Recreate the holding coords from the holding and angle scapes</pre>
   
 </div><div id="var-entry">
   <br />
