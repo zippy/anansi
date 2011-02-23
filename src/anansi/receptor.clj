@@ -481,7 +481,6 @@ servers receive the following signals:
                                  holding-scape (:holding @scapes-ref)
                                  old-vals (filter #(not= person-address %) (vals seat-scape))
                                  new-seat-scape (into (sorted-map) (zipmap (range (count old-vals)) old-vals))]
-                             (println (str "coord cape " coords-scape))
                              (alter scapes-ref assoc :seat new-seat-scape) 
                              (let [new-angle-scape (:angle (alter scapes-ref assoc :angle (calculate-angles new-seat-scape)))]
                                (alter scapes-ref assoc :coords (regenerate-coord-scape coords-scape new-seat-scape new-angle-scape holding-scape old-people-list radius))))
