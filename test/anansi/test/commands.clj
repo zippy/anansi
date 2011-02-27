@@ -23,7 +23,11 @@
 
 (deftest help-test
   (testing "getting help"
-    (is (= "exit: Terminate connection with the server\nusers: Get a list of logged in users\nsend: Send a signal to a receptor.\nhelp: Show available commands and what they do.\ndump: Dump current tree of receptors"
+    (is (= (str "exit: Terminate connection with the server\n"
+              "users: Get a list of logged in users\n"
+              "send: Send a signal to a receptor.\n"
+              "help: Show available commands and what they do.\n"
+              "dump: Dump current tree of receptors")
            (help)))))
 
 (deftest users-test
