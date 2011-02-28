@@ -3,7 +3,7 @@
      :doc "Commands that can be excecuted at the servers command line"}  
   anansi.commands
   (:use [anansi.user]
-        [anansi.util :only [get-first modify-keys]]
+        [anansi.util :only [modify-keys]]
         [anansi.receptor
          :only [receive parse-signal dump-receptor serialize-receptor]]
         [anansi.server-constants])
@@ -13,7 +13,7 @@
 ;; Command Utilities
 
 (defn- command-name [method]
-  (str (get-first (meta method) :command-name :name)))
+  (str (some #((meta method) %) [:command-name :name])))
 
 (defn- command-index  []
   (let [fn-map (dissoc (ns-publics 'anansi.commands) 'execute)]
