@@ -7,7 +7,8 @@
         [anansi.receptor
          :only [receive parse-signal dump-receptor serialize-receptor]]
         [anansi.server-constants])
-  (:use [clojure.string :only [join]]))
+  (:use [clojure.string :only [join]]
+        [clojure.contrib.strint]))
 
 ;; Command Utilities
 
@@ -62,8 +63,11 @@
 
 (defn help
   "Show available commands and what they do."
-  []
-  (join "\n" (map (fn [[name f]] (str name ": " (:doc (meta f))))
-                  (command-index))))
+  ([]
+     (join "\n" (map help (keys (command-index)))))
+  ([command]
+     (if (contains? (command-index) command)
+       (str command ": " (:doc (meta ((command-index) command))))
+       (<< "No such command ~{command}"))))
 
 

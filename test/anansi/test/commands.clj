@@ -18,17 +18,20 @@
 (def-command-test send-test
   (testing "sending a message"
     (is (= "created" (send-signal "{:to \"server:conjure\", :body {:name \"object2\", :type \"Object\"}}")))
-    (is (= "I got 'message' from eric:?" (send-signal "{:to \"object2:ping\", :body \"message\"}")))
-    ))
+    (is (= "I got 'message' from eric:?" (send-signal "{:to \"object2:ping\", :body \"message\"}")))))
 
 (deftest help-test
-  (testing "getting help"
+  (testing "help overview"
     (is (= (str "exit: Terminate connection with the server\n"
               "users: Get a list of logged in users\n"
               "send: Send a signal to a receptor.\n"
               "help: Show available commands and what they do.\n"
               "dump: Dump current tree of receptors")
-           (help)))))
+           (help))))
+  (testing "help on specific commands"
+    (is (= "users: Get a list of logged in users" (help "users"))))
+  (testing "help on missing command"
+    (is (= "No such command foobar" (help "foobar")))))
 
 (deftest users-test
   (testing "getting a list of users"
@@ -42,8 +45,7 @@
   (testing "dump of vanilla server"
     (is (= "#{}" (dump)))
     (send-signal "{:to \"server:conjure\", :body {:name \"object2\", :type \"Object\"}}")
-    (is (= "#{{:name- \"object2\", :type- \"Object\", :receptors- #{}}}" (dump)))
-    ))
+    (is (= "#{{:name- \"object2\", :type- \"Object\", :receptors- #{}}}" (dump)))))
 
 (def-command-test exit-test
   (testing "exiting"
@@ -51,9 +53,8 @@
     (is (= "Goodbye eric!"
            (exit))))
   (testing "state saving"
-    (is (= (slurp *server-state-file-name*) (serialize-receptor *server-receptor*)))
-    )
-  )
+    (is (= (slurp *server-state-file-name*)
+           (serialize-receptor *server-receptor*)))))
 
 (def-command-test execute-test
   ;; Silence the error!

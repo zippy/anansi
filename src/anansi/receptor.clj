@@ -82,19 +82,22 @@ Methods:
   (str/replace (str/lower-case name) #"\W" "_")
   )
 
-(defn parse-address [address] 
+(defn parse-address
   "Utility function to parse a string encoded ceptr address into hash"
+  [address] 
   (if (string? address)
     (let [[id aspect] (.split #":" address)]
       {:id id,:aspect (keyword aspect)})
     address))
 
-(defn parse-signal-addresses [signal]
+(defn parse-signal-addresses
   "Utility function to parse a string encoded addresses in a signal"
+  [signal]
   (reduce #(assoc %1 %2 (parse-address (%2 signal))) [signal :from :to]))
 
-(defn parse-signal [signal]
+(defn parse-signal
   "Utility function to parse a string encoded signal"
+  [signal]
   (parse-signal-addresses
    (if (string? signal)
      (read-string signal)
