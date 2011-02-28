@@ -3,8 +3,7 @@
      :doc "Receptor helper functions and receptor definitions"}
   anansi.receptor
   (:use [anansi.user])
-  (:require [clojure.string :as str])
-  )
+  (:require [clojure.string :as str]))
 
 (defprotocol Ceptr
   "Underlying protocol for all receptors
@@ -13,8 +12,7 @@ Methods:
   (get-aspects [this])  => returns a set of all aspects impelemented by the receptor
 "
   (receive [this signal])
-  (get-aspects [this])
-  )
+  (get-aspects [this]))
 
 (def *base-aspects* #{:conjure :ping :scapes :resolve})
 
@@ -33,8 +31,7 @@ Methods:
                                  (apply hash-set (vec (map (fn [[key value]] (dump-receptor value)) receptors))))}]
     ;; assume that all other attributes are refs for mutability, so
     ;; copy their values into the dump object
-    (into dump-obj (map (fn [[key val]] [key @val]) attributes))  
-    ))
+    (into dump-obj (map (fn [[key val]] [key @val]) attributes))))
 
 (declare receptor-factory)
 
@@ -55,10 +52,8 @@ Methods:
                      (add-receptor-to-contents contents rn r) ) receptors-)))
     ;; create refs for each of the attributes so they can be mutable
     ;; in the receptor
-    (dosync (alter contents merge (into {} (map (fn [[key val]] [key (ref val)]) attributes)) ))
-    receptor
-    )
-  )
+    (dosync (alter contents merge (into {} (map (fn [[key val]] [key (ref val)]) attributes))))
+    receptor))
 
 (defn serialize-receptor
   "convert a receptor into a string that can be passed to unserialze-receptor"
@@ -73,14 +68,12 @@ Methods:
 (defn humanize-address
   "Utility function turn an address into a human readable string"
   [{:keys [id aspect], :as address} ]
-  (if (string? address) address (str id ":" (clojure.core/name aspect)))
-  )
+  (if (string? address) address (str id ":" (clojure.core/name aspect))))
 
 (defn sanitize-for-address
   "Utility function to create and address ready string from a string"
   [name]
-  (str/replace (str/lower-case name) #"\W" "_")
-  )
+  (str/replace (str/lower-case name) #"\W" "_"))
 
 (defn parse-address
   "Utility function to parse a string encoded ceptr address into hash"
@@ -109,8 +102,7 @@ Methods:
   ([receptor signal] (validate-signal receptor signal false))
   ([receptor signal do-raise]
     (let [{:keys [to]} (parse-signal signal) 
-          {:keys [aspect]} (parse-address to)
-          ]
+          {:keys [aspect]} (parse-address to)]
       (if (nil? (aspect (get-aspects receptor)))
         (let [err_str  (str "unknown aspect " aspect)]
           (if do-raise
@@ -128,15 +120,13 @@ Methods:
   [{:keys [receptors self], :as contents} {:keys [id aspect], :as address}]
   (let  [[head & rest] (.split #"\." id)]
     [(if (= self head) :self (@receptors head))
-     (if (nil? rest) address (assoc address :id (str/join "." rest)))])
-  )
+     (if (nil? rest) address (assoc address :id (str/join "." rest)))]))
 
 (defn aspect-receive-dispatch
   "Dispatches to aspect-receive calls based on the class of the recptor or a force"
   ([this signal contents klass]
       (if klass klass (class this)))
-  ([this signal contents] (aspect-receive-dispatch this signal contents nil))
-  )
+  ([this signal contents] (aspect-receive-dispatch this signal contents nil)))
 
 (defn- get-receptor-scape
   "Utility function to get the scapes ref and an particular scape
@@ -158,8 +148,7 @@ Methods:
 (defn- alter-scape-set
   "Utility function to change a scape (must be called within dosync)"
   [scapes-ref scape-name scape key value]
-  (alter scapes-ref assoc scape-name (merge scape {key value}))
-  )
+  (alter scapes-ref assoc scape-name (merge scape {key value})))
 
 (defn receptor-scape-set
   "Add a key into a scape"
@@ -170,8 +159,7 @@ Methods:
 (defn- alter-scape-unset-key
   "Utility function to remove a scape key (must be called within dosync)"
   [scapes-ref scape-name scape key]
-  (alter scapes-ref assoc scape-name (dissoc scape key))
-  )
+  (alter scapes-ref assoc scape-name (dissoc scape key)))
 
 (defn receptor-scape-unset-key
   "Remove a key into a scape"
@@ -192,8 +180,7 @@ Methods:
 (defn- alter-scape-unset-address
   "Utility function to remove a scape address (must be called within dosync)"
   [scapes-ref scape-name scape address]
-  (alter scapes-ref assoc scape-name (remove-value scape address))
-  )
+  (alter scapes-ref assoc scape-name (remove-value scape address)))
 
 (defn receptor-scape-unset-address
   "Remove an address from a scape"
@@ -210,8 +197,7 @@ Methods:
   "Utility function to return a set of the scapes defined for the ceptor"
   [receptor]
   (let [contents (:contents receptor)
-        scapes (:scapes @contents)
-        ]
+        scapes (:scapes @contents)]
     (if scapes (into #{} (keys @scapes)) #{})))
 
 ;; scapes are currently implemented as scape-key -> address maps.
@@ -256,8 +242,7 @@ Returns a vector of keys"
 (defn do-ping
   "return a ping string"
   [from body]
-  (str "I got '" body "' from " (humanize-address from))
-  )
+  (str "I got '" body "' from " (humanize-address from)))
 
 (defmulti receptor-aspects aspect-receive-dispatch)
 
@@ -280,8 +265,7 @@ Returns a vector of keys"
         :resolve (cond
                   (contains? body :key) (receptor-resolve this (:scape body) (:key body))
                   (contains? body :address) (receptor-reverse-resolve this (:scape body) (:address body))
-                  :else (throw (RuntimeException. "resolve requires a :key or :address parameter"))
-                   ) 
+                  :else (throw (RuntimeException. "resolve requires a :key or :address parameter"))) 
         
         ;; otherwise throw an error
         (throw-bad-aspect to))))
@@ -331,8 +315,7 @@ vanilla receptors receive the following signals:
   (get-aspects [this] *base-aspects*)
   (receive [this signal] 
      (let [{:keys [from to body error]} (validate-signal this signal true)]
-      (do-ping from body)
-      )))
+      (do-ping from body))))
 
 (defn make-object
   "Utility function to create an empty object receptor"
@@ -342,8 +325,7 @@ vanilla receptors receive the following signals:
 (defrecord ServerReceptor [contents]
   Ceptr
   (get-aspects [this] (conj *base-aspects* :users))
-  (receive [this signal] (receptor-receive this signal contents))
-  )
+  (receive [this signal] (receptor-receive this signal contents)))
 
 (defn make-server
   "Sever factory
@@ -372,14 +354,12 @@ servers receive the following signals:
 (defn find-receptor
   "Utility function to lookup up a receptor in the contents by address"
   [contents address]
-  (@(@contents :receptors) address)
-  )
+  (@(@contents :receptors) address))
 
 (defn remove-receptor
   "Utility function to remove a receptor from the contents by address"
   [contents address]
-  (alter (@contents :receptors) dissoc address)
-  )
+  (alter (@contents :receptors) dissoc address))
 
 (defn calculate-angles
   "calculate angles scape from the seat scape"
@@ -391,8 +371,7 @@ servers receive the following signals:
 
 (defn angle-to-coord
   [degrees radius]
-  [(int  (* radius (Math/sin (Math/toRadians degrees)))) (int (* -1 radius (Math/cos (Math/toRadians degrees))))]
-  )
+  [(int  (* radius (Math/sin (Math/toRadians degrees)))) (int (* -1 radius (Math/cos (Math/toRadians degrees))))])
 
 (defn calculate-coords
   "calculate coordinate scape from the seat scape"
@@ -409,14 +388,12 @@ servers receive the following signals:
         ]
     (if (nil? to-angle)
       (throw ( RuntimeException. (str to-address " doesn't have an angle in the scape: " angle-scape)))
-      (angle-to-coord to-angle (- radius (int (* radius 0.02))))))
-  )
+      (angle-to-coord to-angle (- radius (int (* radius 0.02)))))))
 
 (defn regenerate-holding-coords
   "Recreate the holding coords from the holding and angle scapes"
   [holding-scape angle-scape]
-  (into {} (map (fn [[holder-address object-address]] {(calculate-holding-coord holder-address angle-scape 500) object-address}) holding-scape))
-  )
+  (into {} (map (fn [[holder-address object-address]] {(calculate-holding-coord holder-address angle-scape 500) object-address}) holding-scape)))
 
 (defn regenerate-coord-scape
   "Recreates the coordinate scape based on the other scapes"
@@ -425,8 +402,7 @@ servers receive the following signals:
         people-coords (calculate-coords seat-scape radius)
         holding-coords (regenerate-holding-coords holding-scape angle-scape)
         ]
-    (merge scape-minus-people-and-held-objects people-coords holding-coords))
-  )
+    (merge scape-minus-people-and-held-objects people-coords holding-coords)))
 
 (declare make-person)
 
@@ -436,8 +412,7 @@ servers receive the following signals:
         people-ref (@contents :people)
         old-people-list (keys @people-ref)
         scapes-ref (@contents :scapes)
-        radius @(@contents :radius)
-        ]
+        radius @(@contents :radius)]
     (condp = (:aspect to)
         :conjure (do (receptor-aspects this signal contents :default)
                      (dosync (alter scapes-ref assoc :coords (merge (:coords @scapes-ref) {[0,0] (:name body)}))))
@@ -445,8 +420,7 @@ servers receive the following signals:
         :enter (let [{:keys [person]} body
                      {:keys [name]} person
                      person-address (sanitize-for-address name)
-                     person-receptor (find-receptor contents person-address)
-                     ]
+                     person-receptor (find-receptor contents person-address)]
                  (if person-receptor
                    (str name " is already in the room")
                    (dosync (alter people-ref assoc person-address {:name name})
@@ -458,9 +432,7 @@ servers receive the following signals:
                              (let [new-angle-scape (:angle (alter scapes-ref assoc :angle (calculate-angles new-seat-scape)))] 
                                (alter scapes-ref assoc :coords (regenerate-coord-scape coords-scape new-seat-scape new-angle-scape holding-scape old-people-list radius))))
                            (do-conjure contents {:name person-address, :attributes {:name name} :type "Person"})
-                           (str "entered as " person-address)) 
-                   )
-                 )
+                           (str "entered as " person-address))))
         :leave (let [{:keys [person-address]} body
                      person-receptor (find-receptor contents person-address)]
                  (if (nil? person-receptor)
@@ -474,10 +446,7 @@ servers receive the following signals:
                                  held-object (scape-resolve holding-scape person-address)]
                              (if held-object
                                (do  (alter-scape-unset-key scapes-ref :holding holding-scape person-address)
-                                    (alter-scape-change scapes-ref :coords (:coords @scapes-ref) [0,0] held-object)
-                                    
-))
-                             )
+                                    (alter-scape-change scapes-ref :coords (:coords @scapes-ref) [0,0] held-object))))
                            
                            (let [seat-scape (:seat @scapes-ref)
                                  coords-scape (:coords @scapes-ref)
@@ -534,9 +503,7 @@ rooms are receptors that also receive the following signals:
         :set-attributes (dosync (alter attributes merge body))
         :receive-object "not-implemented"
         :release-object "not-implemented"
-        (receptor-aspects this signal contents :default)
-        )
-)))
+        (receptor-aspects this signal contents :default)))))
 
 (defn make-person
   "Utility function to create a person receptor"
@@ -553,15 +520,12 @@ rooms are receptors that also receive the following signals:
         "Person" (make-person name)
         "Room" (make-room name)
         "Server" (make-server name)
-      (throw (RuntimeException. (str "Unknown receptor type: '" type "'")))
-      )
-  )
+      (throw (RuntimeException. (str "Unknown receptor type: '" type "'")))))
 
 ;; FIXME, other arguments in the body aren't parsed, checked or anything
 (defn make-receptor-from-signal
   "Create a new receptor based on the parameters specified in the body of the signal"
   [body]
   (let [{:keys [type name]} body]
-    (receptor-factory name type)
-))
+    (receptor-factory name type)))
 
