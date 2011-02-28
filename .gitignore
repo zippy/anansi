@@ -7,3 +7,6 @@ autodoc/**
 autodoc
 testing-server.state
 anansi-server.state
+.idea
+META-INF/
+anansi.iml
