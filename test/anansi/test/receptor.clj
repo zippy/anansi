@@ -1,5 +1,6 @@
 (ns anansi.test.receptor
   (:use [anansi.receptor] :reload)
+  (:use [anansi.scape])
   (:import anansi.receptor.ObjectReceptor)
   (:import anansi.receptor.Receptor)
   (:use [clojure.test])
@@ -54,15 +55,18 @@
   (testing "sanitizing a string for use as an adress"
     (is (= "jane_smith" (sanitize-for-address "Jane Smith")))))
 
-
 (deftest receptor-scaping
-  (let [receptor (Receptor. (make-contents "receptor" {:scapes (ref {:x-y-address {[1,2] "r1"} :human-name {"Bob" "r1" "Jane" "r1"}})}) )]
+  (let [scapes-ref (make-scapes-ref :x-y-address :human-name)
+        _ (dosync (alter-scape-set scapes-ref :x-y-address [1,2] "r1")
+                   (alter-scape-set scapes-ref :human-name "Bob" "r1")
+                   (alter-scape-set scapes-ref :human-name "Jane" "r1"))
+        receptor (Receptor. (make-contents "receptor" {:scapes scapes-ref}) )]
     (testing "resolving scape keys"
       (is (= "r1" (receptor-resolve receptor :x-y-address [1,2]))))
     (testing "reverse resolving by address"
       (is (= [[1,2]] (receptor-reverse-resolve receptor :x-y-address "r1"))))
     (testing "reverse resolving by address where multiple items are returned"
-      (is (= ["Bob","Jane"] (receptor-reverse-resolve receptor :human-name "r1"))))
+      (is (= ["Jane","Bob"] (receptor-reverse-resolve receptor :human-name "r1"))))
     (testing "resolving scape keys from a receptor with no scapes"
       (is (thrown? RuntimeException (receptor-resolve receptor :some-scape :some-key))))
     (testing "adding a key to a scape"
@@ -150,7 +154,8 @@
       )
     (testing "serialize room"
       (receive room {:from "eric:?", :to "room:enter", :body {:person {:name "Art Brock"}}})
-      (let [room-clone (unserialize-receptor (serialize-receptor room))]
+      (let [serialized-room (serialize-receptor room)
+            room-clone (unserialize-receptor serialized-room)]
         (is (= (receive room-clone {:to "room:describe"})
                (receive room {:to "room:describe"})))))
     (testing "room scaping"

@@ -2,8 +2,11 @@
   #^{:author "Eric Harris-Braun"
      :doc "Receptor helper functions and receptor definitions"}
   anansi.receptor
-  (:use [anansi.user])
-  (:require [clojure.string :as str]))
+  (:use [anansi.user]
+        [anansi.map-utilities]
+        [anansi.scape])
+  (:require [clojure.string :as str])
+  )
 
 (defprotocol Ceptr
   "Underlying protocol for all receptors
@@ -23,12 +26,15 @@ Methods:
   (let [contents @(:contents receptor)
         name (:self contents)
         receptors @(:receptors contents)
-        attributes (dissoc contents :self :receptors)
+        scapes-ref (:scapes contents)
+        attributes (dissoc contents :self :receptors :scapes)
         dump-obj {:name- name
                   :type- (let [[_ type]  (re-find #"([a-zA-Z]*)Receptor$" (str (class receptor)))]
                           (if (= "" type) "Receptor" type))
                   :receptors- (if (empty? receptors) #{}
-                                 (apply hash-set (vec (map (fn [[key value]] (dump-receptor value)) receptors))))}]
+                                  (apply hash-set (vec (map (fn [[key value]] (dump-receptor value)) receptors))))}
+        dump-obj (if (nil? scapes-ref) dump-obj
+                     (assoc dump-obj :scapes- (dump-scapes @scapes-ref)))]
     ;; assume that all other attributes are refs for mutability, so
     ;; copy their values into the dump object
     (into dump-obj (map (fn [[key val]] [key @val]) attributes))))
@@ -42,14 +48,19 @@ Methods:
 
 (defn- unserialize-dump
   "convert an object from dump into a receptor"
-  [{:keys [name- type- receptors-], :as dump-obj}]
+  [{:keys [name- type- receptors- scapes-], :as dump-obj}]
   (let [receptor (receptor-factory name- type-)
         contents (:contents receptor)
-        attributes (dissoc dump-obj :name- :type- :receptors-)]
+        attributes (dissoc dump-obj :name- :type- :receptors- :scapes-)]
+    ;; add in the sub-receptors if any
     (if (not (empty? receptors-))
       (dorun (map #(let [r (unserialize-dump %)
                          rn (:self @(:contents r))]
                      (add-receptor-to-contents contents rn r) ) receptors-)))
+    ;; add in the scapes if any
+    (if (not (nil? scapes-))
+      (dosync (alter contents assoc :scapes (ref (unserialize-scapes scapes-)))))
+    
     ;; create refs for each of the attributes so they can be mutable
     ;; in the receptor
     (dosync (alter contents merge (into {} (map (fn [[key val]] [key (ref val)]) attributes))))
@@ -145,26 +156,34 @@ Methods:
   (let [[scapes-ref scape] (get-receptor-scape receptor scape-name)]
     scape))
 
+<<<<<<< HEAD
 (defn- alter-scape-set
   "Utility function to change a scape (must be called within dosync)"
   [scapes-ref scape-name scape key value]
   (alter scapes-ref assoc scape-name (merge scape {key value})))
 
+=======
+>>>>>>> refactored scapes, and made them into a protocol
 (defn receptor-scape-set
   "Add a key into a scape"
   [receptor scape-name key value]
     (let [[scapes-ref scape] (get-receptor-scape receptor scape-name)]
+<<<<<<< HEAD
       (dosync (alter-scape-set scapes-ref scape-name scape key value))))
 
 (defn- alter-scape-unset-key
   "Utility function to remove a scape key (must be called within dosync)"
   [scapes-ref scape-name scape key]
   (alter scapes-ref assoc scape-name (dissoc scape key)))
+=======
+      (dosync (alter-scape-set scapes-ref scape-name key value))))
+>>>>>>> refactored scapes, and made them into a protocol
 
 (defn receptor-scape-unset-key
   "Remove a key into a scape"
   [receptor scape-name key]
     (let [[scapes-ref scape] (get-receptor-scape receptor scape-name)]
+<<<<<<< HEAD
     (dosync (alter-scape-unset-key scapes-ref scape-name scape key))))
 
 (defn- remove-value
@@ -181,17 +200,15 @@ Methods:
   "Utility function to remove a scape address (must be called within dosync)"
   [scapes-ref scape-name scape address]
   (alter scapes-ref assoc scape-name (remove-value scape address)))
+=======
+    (dosync (alter-scape-unset-key scapes-ref scape-name key))))
+>>>>>>> refactored scapes, and made them into a protocol
 
 (defn receptor-scape-unset-address
   "Remove an address from a scape"
   [receptor scape-name address]
     (let [[scapes-ref scape] (get-receptor-scape receptor scape-name)]
-    (dosync (alter-scape-unset-address scapes-ref scape-name scape address))))
-
-(defn- alter-scape-change
-  "untility function to move an change an key and address"
-  [scapes-ref scape-name scape key address]
-  (alter scapes-ref assoc scape-name (assoc (remove-value scape address) key address)))
+    (dosync (alter-scape-unset-address scapes-ref scape-name address))))
 
 (defn receptor-scapes
   "Utility function to return a set of the scapes defined for the ceptor"
@@ -200,35 +217,16 @@ Methods:
         scapes (:scapes @contents)]
     (if scapes (into #{} (keys @scapes)) #{})))
 
-;; scapes are currently implemented as scape-key -> address maps.
-;; this is very likely to change soon, i.e. to be reversed so that the
-;; key in the map is the address and the value is the scape key.
-
-(defn- scape-resolve
-  "utility function to resolve a key within a scape"
-  [scape key]
-  (scape key))
-
 (defn receptor-resolve
   "Resolve a scape key to a receptor address"
   [receptor scape-name key]
-  (scape-resolve (receptor-scape receptor scape-name) key))
-
-(defn- scape-reverse-resolve
-  "utility funciton to do a reverse resolution"
-  [scape address]
-  (into [] (keep (fn [[key val]] (if (= val address) key nil)) scape)))
+  (scape-get (receptor-scape receptor scape-name) {:key key}))
 
 (defn receptor-reverse-resolve
   "Resolve a receptor address to its scape keys in a scape:
 Returns a vector of keys"
   [receptor scape-name address]
-  (scape-reverse-resolve (receptor-scape receptor scape-name) address))
-
-(defn scape-keys
-  "Utility function to return a lazy list of all the keys in a scape"
-  [receptor scape]
-  (keys (receptor-scape receptor scape)))
+  (scape-get (receptor-scape receptor scape-name) {:address address}))
 
 (declare make-receptor-from-signal)
 
@@ -309,6 +307,11 @@ vanilla receptors receive the following signals:
   [name]
   (Receptor. (make-contents name)))
 
+(defn- remove-receptor
+  "Utility function to remove a receptor from the contents by address (must be called in dosync)"
+  [contents address]
+  (alter (@contents :receptors) dissoc address)
+  )
 
 (defrecord ObjectReceptor [contents]
   Ceptr
@@ -356,6 +359,7 @@ servers receive the following signals:
   [contents address]
   (@(@contents :receptors) address))
 
+<<<<<<< HEAD
 (defn remove-receptor
   "Utility function to remove a receptor from the contents by address"
   [contents address]
@@ -404,6 +408,8 @@ servers receive the following signals:
         ]
     (merge scape-minus-people-and-held-objects people-coords holding-coords)))
 
+=======
+>>>>>>> refactored scapes, and made them into a protocol
 (declare make-person)
 
 (defmethod receptor-aspects anansi.receptor.RoomReceptor
@@ -427,9 +433,10 @@ servers receive the following signals:
                            (let [seat-scape (:seat @scapes-ref)
                                  coords-scape (:coords @scapes-ref)
                                  holding-scape (:holding @scapes-ref)
-                                 new-seat-scape (assoc seat-scape (count seat-scape) person-address)]
+                                 new-seat-scape (scape-set seat-scape (count seat-scape) person-address)]
                              (alter scapes-ref assoc :seat new-seat-scape)
-                             (let [new-angle-scape (:angle (alter scapes-ref assoc :angle (calculate-angles new-seat-scape)))] 
+                             (let [new-angle-scape (angle-scape-from-seat-scape new-seat-scape)]
+                               (alter scapes-ref assoc :angle new-angle-scape)
                                (alter scapes-ref assoc :coords (regenerate-coord-scape coords-scape new-seat-scape new-angle-scape holding-scape old-people-list radius))))
                            (do-conjure contents {:name person-address, :attributes {:name name} :type "Person"})
                            (str "entered as " person-address))))
@@ -443,25 +450,30 @@ servers receive the following signals:
                            ;; put anything the person is holding back
                            ;; in the middle
                            (let [holding-scape (:holding @scapes-ref)
-                                 held-object (scape-resolve holding-scape person-address)]
+                                 held-object (scape-get holding-scape {:key person-address})]
                              (if held-object
+<<<<<<< HEAD
                                (do  (alter-scape-unset-key scapes-ref :holding holding-scape person-address)
                                     (alter-scape-change scapes-ref :coords (:coords @scapes-ref) [0,0] held-object))))
                            
+=======
+                               (do  (alter-scape-unset-key scapes-ref :holding person-address)
+                                    (alter-scape-change scapes-ref :coords [0,0] held-object))))
+>>>>>>> refactored scapes, and made them into a protocol
                            (let [seat-scape (:seat @scapes-ref)
                                  coords-scape (:coords @scapes-ref)
                                  holding-scape (:holding @scapes-ref)
                                  old-vals (filter #(not= person-address %) (vals seat-scape))
-                                 new-seat-scape (into (sorted-map) (zipmap (range (count old-vals)) old-vals))]
+                                 new-seat-scape (make-hash-scape (into (sorted-map) (zipmap (range (count old-vals)) old-vals)))]
                              (alter scapes-ref assoc :seat new-seat-scape) 
-                             (let [new-angle-scape (:angle (alter scapes-ref assoc :angle (calculate-angles new-seat-scape)))]
+                             (let [new-angle-scape (:angle (alter scapes-ref assoc :angle (angle-scape-from-seat-scape new-seat-scape)))]
                                (alter scapes-ref assoc :coords (regenerate-coord-scape coords-scape new-seat-scape new-angle-scape holding-scape old-people-list radius))))
                            (str person-address " left"))))
         :pass-object (let [{object-address :object to-address :to} body]
-                       (dosync (alter-scape-unset-address scapes-ref :holding (:holding @scapes-ref) object-address)
-                               (alter-scape-set scapes-ref :holding (:holding @scapes-ref) to-address object-address)
-                               (alter-scape-unset-address scapes-ref :coords (:coords @scapes-ref) object-address)
-                               (alter-scape-set scapes-ref :coords (:coords @scapes-ref) (calculate-holding-coord to-address (:angle @scapes-ref) radius) object-address)))
+                       (dosync (alter-scape-unset-address scapes-ref :holding object-address)
+                               (alter-scape-set scapes-ref :holding to-address object-address)
+                               (alter-scape-unset-address scapes-ref :coords object-address)
+                               (alter-scape-set scapes-ref :coords (calculate-holding-coord to-address (:angle @scapes-ref) radius) object-address)))
         (receptor-aspects this signal contents :default))))
 
 (defn make-room
@@ -489,7 +501,7 @@ rooms are receptors that also receive the following signals:
     returns: \"ok\" if successful
 "
   [name]
-  (RoomReceptor. (make-contents name {:scapes (ref {:seat (sorted-map),:angle (sorted-map),:coords {},:holding {}}) :objects (ref {}), :people (ref {}), :radius (ref 500)})))
+  (RoomReceptor. (make-contents name {:scapes (ref { :seat (make-hash-scape (sorted-map)), :angle (make-hash-scape (sorted-map)), :coords (make-hash-scape), :holding (make-hash-scape)}), :people (ref {}), :radius (ref 500)})))
 
 (defrecord PersonReceptor [contents]
   Ceptr
