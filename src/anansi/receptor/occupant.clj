@@ -4,8 +4,8 @@
   anansi.receptor.occupant
   (:use [anansi.ceptr]))
 
-(defmethod initialize-contents :occupant [x]
-           {})
+(defmethod manifest :occupant [_r unique-name data]
+           {:unique-name unique-name :data data})
 
 ;(attribute (manifestable :picture))  ; FIXME add default picture of silhouette 
 ;(attribute (manifestable :full-name))

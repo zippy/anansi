@@ -3,11 +3,9 @@
   (:use [anansi.ceptr])
   (:use [clojure.test]))
 
-(comment deftest occupant
-  (let [s (receptor occupant)]
+(deftest occupant
+  (let [o (receptor occupant nil "zippy" {:name "e"})]
     (testing "contents"
-      (is (= @(contents s) {:a 1,:b 1})))
-    (testing "signal"
-      (is (= 1 (self->new s ))))
-
-    ))
+      (is (= "zippy" (contents o :unique-name)))
+      (is (= {:name "e"} (contents o :data)))
+      )))
