@@ -16,7 +16,7 @@
   (testing "contents"
     (is (= (contents r :x) "the receptor contents: fish")))
   (testing "instantiate receptor"
-    (is (= (:last-address @*receptors*) 1))
+    (is (= r (get-receptor nil (address-of r))))
     )
   (testing "addresses"
     (is (= (address-of r) 1))

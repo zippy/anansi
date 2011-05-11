@@ -12,8 +12,12 @@
     (testing "incorporate"
       (let [flower-address (matrice->incorporate r :flower "http://images.com/flower.jpg" 0 0)
             chicken-address (matrice->incorporate r :chicken "http://images.com/chicken.jpg" 0 1)]
-        (is (= (address-of (get-receptor r flower-address)) flower-address))
-        (is (= [[0 0]] (address->resolve coords flower-address)))
+        (are [x y] (= x y)
+             (address-of (get-receptor r flower-address)) flower-address
+             [[0 0]] (address->resolve coords flower-address)
+             [[0 1]] (address->resolve coords chicken-address)
+             flower-address (key->resolve coords [0 0])
+             )
         (is (= flower-address (key->resolve coords [0 0])))
         (is (not= flower-address chicken-address))))
     (testing "door"
@@ -33,7 +37,8 @@
           (is (instance? java.util.Date (:when le))))
         (comment is (= nil (contents (contents r :seat-scape) :map)))
         (is (= [] (address->resolve occupants (address-of o))))
-        (is (= (key->all (contents r :occupant-scape)) [] ))))
+        (is (= (key->all (contents r :occupant-scape)) [] ))
+        (is (nil? (get-receptor r (address-of o))))))
     (testing "move"
       (let [o (door->enter r "zippy" {:name "Eric"})
             addr (address-of o)]
@@ -41,4 +46,20 @@
         (is (= addr (key->resolve coords [100 100])))
         (matrice->move r addr 20 20)
         (is (= [[20 20]] (address->resolve coords addr)))))
-    ))
+    (testing "talking-stick"
+      (door->enter r "art" {:name "Art"})
+      (let [f (contents r :talking-stick)
+            s (contents f :stick-scape)
+            zippy_addr (key->resolve occupants "zippy")
+            art_addr (key->resolve occupants "art") ]
+        (stick->request r "zippy")
+        (is (= [zippy_addr] (address->resolve s :have-it)))
+        (stick->request r "art")
+        (stick->release r "zippy")
+        (is (= [art_addr] (address->resolve s :have-it)))
+        (stick->give r "zippy")
+        (is (= [zippy_addr] (address->resolve s :have-it)))
+        ))))
+
+(comment set-person-image )
+(comment stick creates slots for every occupant in the room.  facilitation receptor)

@@ -26,7 +26,7 @@
   "Instantiates a receptor"
   `(let [~'ns-str :last-address ;;(keyword (str (ns-name *ns*) "." '~name))
          ~'receptors (receptors-container ~parent)
-           ~'c (~'ns-str @~'receptors)
+         ~'c (~'ns-str @~'receptors)
          ~'addr (if (nil? ~'c) 1 (+ ~'c 1))
          ~'type (keyword '~name)
          ~'r (ref {:type ~'type
@@ -48,5 +48,5 @@
 (defn get-receptor [receptor address]
   (let [receptors @(receptors-container receptor)]
     (get receptors address)))
-
-
+(defn destroy-receptor [receptor address]
+  (dosync ( alter (receptors-container receptor) dissoc address)))
