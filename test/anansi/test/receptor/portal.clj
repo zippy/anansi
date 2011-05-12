@@ -14,6 +14,6 @@
     (testing "custom target"
       (is (= (contents p2 :target) "x")))
     (testing "enter signal"
-      (let [o (self->enter p1 "zippy" {:name "Eric H-B" :image "http://gravatar.com/userimage/x.jpg" :phone "123/456-7890"})]
+      (let [o (s-> self->enter p1 "zippy" {:name "Eric H-B" :image "http://gravatar.com/userimage/x.jpg" :phone "123/456-7890"})]
         (is (= (get-receptor r (address-of o)) o)))
       )))

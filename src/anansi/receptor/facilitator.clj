@@ -9,22 +9,22 @@
            {:image-url img_url
             :stick-scape (receptor scape _r)})
 
-(signal participant request-stick [_r participant-address]
+(signal participant request-stick [_r _f participant-address]
         (let [stick (contents _r :stick-scape)]
-          (if (= [] (address->resolve stick :have-it))
-            (key->set stick participant-address :have-it)
-            (key->set stick participant-address :want-it))))
+          (if (= [] (--> address->resolve _r stick :have-it))
+            (--> key->set _r stick participant-address :have-it)
+            (--> key->set _r stick participant-address :want-it))))
 
-(signal participant release-stick [_r participant-address]
+(signal participant release-stick [_r _f participant-address]
         (let [stick (contents _r :stick-scape)
-              want-it (address->resolve stick :want-it)]
+              want-it (--> address->resolve _r stick :want-it)]
           (dosync 
-           (key->delete stick participant-address)
+           (--> key->delete _r stick participant-address)
            (if (not= [] want-it)
-             (key->set stick (first want-it) :have-it)))))
+             (--> key->set _r stick (first want-it) :have-it)))))
 
-(signal matrice give-stick [_r participant-address]
+(signal matrice give-stick [_r _f participant-address]
         (let [stick (contents _r :stick-scape)]
-          (dosync  (address->delete stick :have-it)
-                   (key->set stick participant-address :have-it))
+          (dosync  (--> address->delete _r stick :have-it)
+                   (--> key->set _r stick participant-address :have-it))
 ))

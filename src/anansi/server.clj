@@ -15,7 +15,7 @@
   "Clean user list."
   (dosync
    (let [user (@user-streams *user-name*)]
-     (self->disconnect user)
+     (--> self->disconnect *host* user)
      (commute user-streams dissoc *user-name*)))
   (println (str "Cleaning up " *user-name*)))
 
@@ -37,9 +37,9 @@
       (dosync
        (set! *user-name* (get-unique-user-name (read-line)))
        (let [users (contents *host* :user-scape)
-             user-address (self->host-user *host* *user-name*) ;; creates or returns existing user receptor address
+             user-address (s-> self->host-user *host* *user-name*) ;; creates or returns existing user receptor address
              user (get-receptor *host* user-address)]
-         (self->connect user *out*)
+         (--> self->connect *host* user *out*)
          (commute user-streams assoc *user-name* user)))
 
       (print prompt) (flush)

@@ -19,8 +19,9 @@
                *user-name* "eric"
                *receptors* (ref {})
                *signals* (ref {})
-               *room-addr* (self->host-room *host* "the room" )           
+               *room-addr* (s-> self->host-room *host* "the room" )           
                *server-state-file-name* "testing-server.state"]
+       (dosync (commute user-streams assoc *user-name* (get-receptor *host* (s-> self->host-user *host* *user-name*))))
        ~@body)))
 
 (def-command-test send-test
@@ -84,6 +85,7 @@
 
 (def-command-test ss-test
   (testing "sending signals"
+    (set! *print-level* 10)
     (ss (json-str {:from 0 :to *room-addr* :signal "door->enter" :params {:name "zippy" :data {:name "Eric"}}}))
-    (is (= ["zippy"] (key->all (contents (get-receptor *host* *room-addr*) :occupant-scape))))
+    (is (= ["zippy"] (s-> key->all (contents (get-receptor *host* *room-addr*) :occupant-scape))))
     ))

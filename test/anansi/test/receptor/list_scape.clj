@@ -7,6 +7,6 @@
 (deftest list-scape
   (let [s (receptor list-scape nil)]
     (testing "signal"
-      (is (= 0 (address->push s 19)))
-      (is (= 19 (key->resolve s 0))))
+      (is (= 0 (s-> address->push s 19)))
+      (is (= 19 (s-> key->resolve s 0))))
     ))

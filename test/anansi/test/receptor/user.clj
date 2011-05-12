@@ -9,9 +9,9 @@
       (is (= (contents u :name) "zippy"))
       (is (= (contents u :stream) :the-stream)))
     (testing "disconnect signal"
-      (self->disconnect u)
+      (s-> self->disconnect u)
       (is (= (contents u :stream) nil)))
     (testing "connect signal"
-      (self->connect u :another-stream)
+      (s-> self->connect u :another-stream)
       (is (= (contents u :stream) :another-stream)))
     ))

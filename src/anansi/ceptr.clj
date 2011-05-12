@@ -40,14 +40,47 @@
              ~'r
              )))
 
-(defn contents [receptor key] (key @(:contents @receptor)))
-(defn set-content [receptor key value] (dosync (alter (:contents @receptor) assoc key value)))
-(defn parent-of [receptor] (:parent @receptor))
-(defn send-sig [receptor signal & args]
-  (apply signal receptor args))
-(defn address-of [receptor] (:address @receptor))
-(defn get-receptor [receptor address]
+(defn contents
+  "get an item out of the manifest"
+  [receptor key] (key @(:contents @receptor)))
+
+(defn set-content
+  "set the value of a manifest item"
+  [receptor key value] (dosync (alter (:contents @receptor) assoc key value)))
+
+(defn parent-of
+  "return the receptor that is a receptor's parent"
+  [receptor] (:parent @receptor))
+
+(defn get-receptor
+  "get a contained receptor by address"
+  [receptor address]
   (let [receptors @(receptors-container receptor)]
     (get receptors address)))
-(defn destroy-receptor [receptor address]
+
+(defn address-of
+  "get the address of a receptor"
+  [receptor] (:address @receptor))
+
+(defn -->
+  "send a signal to a receptor"
+  [signal from-receptor to & args]
+  (let [to-receptor (if (instance? clojure.lang.Ref to) to (get-receptor (parent-of from-receptor) to))]
+    (apply signal to-receptor  (address-of from-receptor) args)))
+
+(defn s->
+  "send a signal to yourself"
+  [signal receptor & args]
+  (apply --> signal receptor receptor args)
+  )
+
+(defn p->
+  "send a signal from the parent"
+  [signal receptor & args]
+  (apply --> signal nil receptor args)
+  )
+
+(defn destroy-receptor
+  "destroy a contained receptor by address"
+  [receptor address]
   (dosync ( alter (receptors-container receptor) dissoc address)))
