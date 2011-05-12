@@ -1,14 +1,20 @@
 (ns anansi.test.receptor.commons-room
   (:use [anansi.receptor.commons-room] :reload)
-  (:use [anansi.ceptr])
-  (:use [anansi.receptor.scape])
+  (:use [anansi.ceptr]
+        [anansi.receptor.scape]   
+        [anansi.receptor.user])
   (:use [clojure.test]))
 
 (deftest commons-room
-  (let [r (receptor commons-room nil)
+  (let [m (receptor user nil "eric" nil)
+        u (receptor user nil "art" nil)
+        r (receptor commons-room nil (address-of m) "password")
         occupants (contents r :occupant-scape)
         coords (contents r :coords-scape)]
     (set! *print-level* 4)
+    (testing "initialization"
+      (is (= [(address-of m)] (s-> address->resolve (contents r :matrice-scape) :matrice)))
+      )
     (testing "incorporate"
       (let [flower-address (s-> matrice->incorporate r :flower "http://images.com/flower.jpg" 0 0)
             chicken-address (s-> matrice->incorporate r :chicken "http://images.com/chicken.jpg" 0 1)]
@@ -20,8 +26,11 @@
              )
         (is (= flower-address (s-> key->resolve coords [0 0])))
         (is (not= flower-address chicken-address))))
+    (testing "failed door entrance"
+      (is (thrown-with-msg? RuntimeException #"incorrect room password" (s-> door->enter r {:password "wrong" :name  "x" :data {:name "e"}})))
+      )
     (testing "door"
-      (let [o (s-> door->enter r {:name "zippy" :data {:name "Eric H-B", :image "http://gravatar.com/userimage/x.jpg" :phone "123/456-7890"}})]
+      (let [o (s-> door->enter r {:password "password" :name "zippy" :data {:name "Eric H-B", :image "http://gravatar.com/userimage/x.jpg" :phone "123/456-7890"}})]
         (is (= o (get-receptor r (address-of o))))
         (let [le (last @(contents r :door-log))]
           (is (= "zippy" (:who le)))
@@ -29,7 +38,7 @@
           (is (instance? java.util.Date (:when le))))
         (comment is (= (s-> key->resolve (contents r :seat-scape) 0) (address-of o)))
         (is (= (s-> key->all occupants) ["zippy"] ))
-        (is (thrown? RuntimeException (door->enter r {:name  "zippy" :data {:name "e"}})))
+        (is (thrown-with-msg? RuntimeException #"'zippy' is already in the room" (s-> door->enter r {:password "password" :name  "zippy" :data {:name "e"}})))
         (s-> door->leave r "zippy")
         (let [le (last @(contents r :door-log))]
           (is (= "zippy" (:who le)))
@@ -40,14 +49,14 @@
         (is (= (s-> key->all (contents r :occupant-scape)) [] ))
         (is (nil? (get-receptor r (address-of o))))))
     (testing "move"
-      (let [o (s-> door->enter r {:name "zippy" :data {:name "Eric"}})
+      (let [o (s-> door->enter r {:password "password" :name "zippy" :data {:name "Eric"}})
             addr (address-of o)]
         (s-> matrice->move r addr 100 100 )
         (is (= addr (s-> key->resolve coords [100 100])))
         (s-> matrice->move r addr 20 20)
         (is (= [[20 20]] (s-> address->resolve coords addr)))))
     (testing "talking-stick"
-      (s-> door->enter r {:name "art" :data {:name "Art"}})
+      (s-> door->enter r {:password "password" :name "art" :data {:name "Art"}})
       (let [f (contents r :talking-stick)
             s (contents f :stick-scape)
             zippy_addr (s-> key->resolve occupants "zippy")

@@ -14,10 +14,10 @@
 ;; TODO make this an generalized receptor host
 (comment defmacro make-receptor [n p & a] `(receptor ~(symbol (str (name n))) ~p ~@a))
 (comment defn do-make-receptor [n p & a] (receptor '(symbol (str (name n))) p a))
-(signal self host-room [_r _f receptor-name & args]
+(signal self host-room [_r _f {receptor-name :name password :password matrice-address :matrice-address}]
         (dosync
          (let [names (contents _r :room-scape)
-               r (receptor commons-room _r) ;;(make-receptor type _r args)
+               r (receptor commons-room _r password matrice-address) ;;(make-receptor type _r args)
                addr (address-of r)]
            (--> key->set _r names receptor-name addr)
            addr)))

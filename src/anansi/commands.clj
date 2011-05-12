@@ -75,7 +75,7 @@
 (defn ss
   "Send a signal (new version)"
   [j]
-  (let [{from-addr :from to-addr :to signal :signal params :params} (read-json j)
-        to (get-receptor *host* to-addr)]
+  (let [{to-addr :to signal :signal params :params} (read-json j)
+        to (if (= to-addr 0 ) *host* (get-receptor *host* to-addr))]
        (--> (eval (symbol (str "anansi.receptor." (name (:type @to)) "/" signal))) (@user-streams *user-name*) to params)
     ))

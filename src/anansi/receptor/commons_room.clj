@@ -9,14 +9,18 @@
   (:use [anansi.receptor.object])
   (:use [anansi.receptor.facilitator]))
 
-(defmethod manifest :commons-room [_r]
-           {:objects (ref {})
-            :coords-scape (receptor scape _r)
-            :occupant-scape (receptor scape _r)
-            :seat-scape (receptor list-scape _r)
-            :door (receptor portal _r)
-            :door-log (ref [])
-            :talking-stick (receptor facilitator _r "")})
+(defmethod manifest :commons-room [_r matrice-address password]
+           (let [ms (receptor scape _r)]
+             (s-> key->set ms matrice-address :matrice)
+             {:password password
+              :objects (ref {})
+              :matrice-scape ms
+              :coords-scape (receptor scape _r)
+              :occupant-scape (receptor scape _r)
+              :seat-scape (receptor list-scape _r)
+              :door (receptor portal _r)
+              :door-log (ref [])
+              :talking-stick (receptor facilitator _r "")}))
 
 ;;; MATRICE signals
 ;; TODO
@@ -35,13 +39,17 @@
                   (s-> matrice->move _r addr x y))
           addr))
 
+(defn- check-password [_r password]
+  (= (contents _r :password) password ))
+
 ;;; DOOR signals
-(signal door enter [_r _f {unique-name :name occupant-data :data}]
+(signal door enter [_r _f {unique-name :name occupant-data :data password :password}]
         (dosync
          (let [o (--> anansi.receptor.portal/self->enter _r (contents _r :door) unique-name occupant-data)
                seats (contents _r :seat-scape)
                occupants (contents _r :occupant-scape)
                addr (address-of o)]
+           (if (not (check-password _r password)) (throw (RuntimeException. "incorrect room password")))
            (if (--> key->resolve _r occupants unique-name) (throw (RuntimeException. (str "'" unique-name "' is already in the room"))))
            (alter (contents _r :door-log) conj {:who unique-name, :what "entered", :when (java.util.Date.)})
            (comment address->push seats addr)
