@@ -6,9 +6,11 @@
         [anansi.util :only [modify-keys]]
         [anansi.receptor
          :only [receive parse-signal dump-receptor serialize-receptor]]
-        [anansi.server-constants])
+        [anansi.server-constants]
+        [anansi.ceptr])
   (:use [clojure.string :only [join]]
-        [clojure.contrib.strint]))
+        [clojure.contrib.strint]
+        [clojure.contrib.json :only [read-json]]))
 
 ;; Command Utilities
 
@@ -70,4 +72,10 @@
        (str command ": " (:doc (meta ((command-index) command))))
        (<< "No such command ~{command}"))))
 
-
+(defn ss
+  "Send a signal (new version)"
+  [j]
+  (let [{from-addr :from to-addr :to signal :signal params :params} (read-json j)
+        to (get-receptor *context* to-addr)]
+    ((eval (symbol (str "anansi.receptor." (name (:type @to)) "/" signal))) to params)
+    ))

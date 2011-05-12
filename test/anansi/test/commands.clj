@@ -1,17 +1,25 @@
 (ns anansi.test.commands
-  (:use [anansi.receptor])
+  (:use [anansi.receptor]
+        [anansi.ceptr]
+        [anansi.receptor.scape]
+        [anansi.receptor.host]
+)
   (:use [anansi.server]
         [anansi.server-constants])
   (:use [anansi.user]
         [anansi.test.helpers])
   (:use [anansi.commands] :reload)
   (:use [clojure.test]
-        [clojure.contrib.io :only [writer]]))
+        [clojure.contrib.io :only [writer]]
+        [clojure.contrib.json :only [json-str]]))
 
 (defmacro def-command-test [name & body]
   `(deftest ~name
      (binding [*server-receptor* (make-server "server")
                *user-name* "eric"
+               *receptors* (ref {})
+               *signals* (ref {})
+               *room-addr* (self->host *context* "the room" )           
                *server-state-file-name* "testing-server.state"]
        ~@body)))
 
@@ -23,10 +31,11 @@
 (deftest help-test
   (testing "help overview"
     (is (= (str "exit: Terminate connection with the server\n"
-              "users: Get a list of logged in users\n"
-              "send: Send a signal to a receptor.\n"
-              "help: Show available commands and what they do.\n"
-              "dump: Dump current tree of receptors")
+                "users: Get a list of logged in users\n"
+                "ss: Send a signal (new version)\n"
+                "send: Send a signal to a receptor.\n"
+                "help: Show available commands and what they do.\n"
+                "dump: Dump current tree of receptors")
            (help))))
   (testing "help on specific commands"
     (is (= "users: Get a list of logged in users" (help "users"))))
@@ -72,3 +81,9 @@
       (is (= (execute "send {:to \"zippy:?\", :body \"some body\"}")
              "ERROR: java.lang.RuntimeException: No route to 'zippy:?'"
              )))))
+
+(def-command-test ss-test
+  (testing "sending signals"
+    (ss (json-str {:from 0 :to *room-addr* :signal "door->enter" :params {:name "zippy" :data {:name "Eric"}}}))
+    (is (= ["zippy"] (key->all (contents (get-receptor *context* *room-addr*) :occupant-scape))))
+    ))

@@ -2,7 +2,10 @@
   #^{:skip-wiki true}    
    anansi.server
    (:use [anansi.user]
-         [anansi.commands :only [execute]])
+         [anansi.commands :only [execute]]
+         [anansi.receptor.user]
+         [anansi.ceptr]
+         [anansi.server-constants])
    (:use [clojure.java.io :only [reader writer]]
       [clojure.contrib.server-socket :only [create-server]])
 )
@@ -10,7 +13,9 @@
 (defn- cleanup []
   "Clean user list."
   (dosync
-   (commute user-streams dissoc *user-name*))
+   (let [user (@user-streams *user-name*)]
+     (destroy-receptor (parent-of user) (address-of user))
+     (commute user-streams dissoc *user-name*)))
   (println (str "Cleaning up " *user-name*)))
 
 (defn- get-unique-user-name [name]
@@ -30,7 +35,8 @@
     (binding [*user-name* nil]
       (dosync
        (set! *user-name* (get-unique-user-name (read-line)))
-       (commute user-streams assoc *user-name* *out*))
+       (let [user (receptor user *context* *user-name* *out*)]
+         (commute user-streams assoc *user-name* user)))
 
       (print prompt) (flush)
 

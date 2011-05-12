@@ -21,7 +21,7 @@
         (is (= flower-address (key->resolve coords [0 0])))
         (is (not= flower-address chicken-address))))
     (testing "door"
-      (let [o (door->enter r "zippy" {:name "Eric H-B", :image "http://gravatar.com/userimage/x.jpg" :phone "123/456-7890"})]
+      (let [o (door->enter r {:name "zippy" :data {:name "Eric H-B", :image "http://gravatar.com/userimage/x.jpg" :phone "123/456-7890"}})]
         (is (= o (get-receptor r (address-of o))))
         (let [le (last @(contents r :door-log))]
           (is (= "zippy" (:who le)))
@@ -29,7 +29,7 @@
           (is (instance? java.util.Date (:when le))))
         (comment is (= (key->resolve (contents r :seat-scape) 0) (address-of o)))
         (is (= (key->all occupants) ["zippy"] ))
-        (is (thrown? RuntimeException (door->enter r "zippy" {:name "e"})))
+        (is (thrown? RuntimeException (door->enter r {:name  "zippy" :data {:name "e"}})))
         (door->leave r "zippy")
         (let [le (last @(contents r :door-log))]
           (is (= "zippy" (:who le)))
@@ -40,14 +40,14 @@
         (is (= (key->all (contents r :occupant-scape)) [] ))
         (is (nil? (get-receptor r (address-of o))))))
     (testing "move"
-      (let [o (door->enter r "zippy" {:name "Eric"})
+      (let [o (door->enter r {:name "zippy" :data {:name "Eric"}})
             addr (address-of o)]
         (matrice->move r addr 100 100 )
         (is (= addr (key->resolve coords [100 100])))
         (matrice->move r addr 20 20)
         (is (= [[20 20]] (address->resolve coords addr)))))
     (testing "talking-stick"
-      (door->enter r "art" {:name "Art"})
+      (door->enter r {:name "art" :data {:name "Art"}})
       (let [f (contents r :talking-stick)
             s (contents f :stick-scape)
             zippy_addr (key->resolve occupants "zippy")

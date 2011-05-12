@@ -36,13 +36,13 @@
           addr))
 
 ;;; DOOR signals
-(signal door enter [_r unique-name occupant-data]
+(signal door enter [_r {unique-name :name occupant-data :data}]
         (dosync
          (let [o (anansi.receptor.portal/self->enter (contents _r :door) unique-name occupant-data)
                seats (contents _r :seat-scape)
                occupants (contents _r :occupant-scape)
                addr (address-of o)]
-           (if (key->resolve occupants unique-name) (throw RuntimeException (str "'" unique-name "' is already in the room")))
+           (if (key->resolve occupants unique-name) (throw (RuntimeException. (str "'" unique-name "' is already in the room"))))
            (alter (contents _r :door-log) conj {:who unique-name, :what "entered", :when (java.util.Date.)})
            (comment address->push seats addr)
            (key->set occupants unique-name addr)
@@ -51,7 +51,7 @@
 
 (defn resolve-occupant [occupants name]
   (let [addr (key->resolve occupants name)]
-    (if (nil? addr) (throw RuntimeException (str "'" name "' is not in room")))
+    (if (nil? addr) (throw (RuntimeException. (str "'" name "' is not in room"))))
     addr))
 
 (signal door leave [_r unique-name]

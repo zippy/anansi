@@ -42,7 +42,7 @@
 
 (defn contents [receptor key] (key @(:contents @receptor)))
 (defn parent-of [receptor] (:parent @receptor))
-(defn send-signal [receptor signal & args]
+(defn send-sig [receptor signal & args]
   (apply signal receptor args))
 (defn address-of [receptor] (:address @receptor))
 (defn get-receptor [receptor address]
