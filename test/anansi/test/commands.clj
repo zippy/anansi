@@ -19,7 +19,7 @@
                *user-name* "eric"
                *receptors* (ref {})
                *signals* (ref {})
-               *room-addr* (self->host *context* "the room" )           
+               *room-addr* (self->host-room *host* "the room" )           
                *server-state-file-name* "testing-server.state"]
        ~@body)))
 
@@ -85,5 +85,5 @@
 (def-command-test ss-test
   (testing "sending signals"
     (ss (json-str {:from 0 :to *room-addr* :signal "door->enter" :params {:name "zippy" :data {:name "Eric"}}}))
-    (is (= ["zippy"] (key->all (contents (get-receptor *context* *room-addr*) :occupant-scape))))
+    (is (= ["zippy"] (key->all (contents (get-receptor *host* *room-addr*) :occupant-scape))))
     ))

@@ -8,3 +8,8 @@
            {:name name
             :stream stream})
 
+(signal self disconnect [_r]
+        (set-content _r :stream nil))
+
+(signal self connect [_r stream]
+        (set-content _r :stream stream))

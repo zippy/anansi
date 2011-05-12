@@ -4,6 +4,7 @@
    (:use [anansi.user]
          [anansi.commands :only [execute]]
          [anansi.receptor.user]
+         [anansi.receptor.host]
          [anansi.ceptr]
          [anansi.server-constants])
    (:use [clojure.java.io :only [reader writer]]
@@ -14,7 +15,7 @@
   "Clean user list."
   (dosync
    (let [user (@user-streams *user-name*)]
-     (destroy-receptor (parent-of user) (address-of user))
+     (self->disconnect user)
      (commute user-streams dissoc *user-name*)))
   (println (str "Cleaning up " *user-name*)))
 
@@ -35,7 +36,10 @@
     (binding [*user-name* nil]
       (dosync
        (set! *user-name* (get-unique-user-name (read-line)))
-       (let [user (receptor user *context* *user-name* *out*)]
+       (let [users (contents *host* :user-scape)
+             user-address (self->host-user *host* *user-name*) ;; creates or returns existing user receptor address
+             user (get-receptor *host* user-address)]
+         (self->connect user *out*)
          (commute user-streams assoc *user-name* user)))
 
       (print prompt) (flush)

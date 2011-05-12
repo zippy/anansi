@@ -14,7 +14,9 @@
   )
 (deftest receptors
   (testing "contents"
-    (is (= (contents r :x) "the receptor contents: fish")))
+    (is (= (contents r :x) "the receptor contents: fish"))
+    (set-content r :x "the receptor contents: dog")
+    (is (= (contents r :x) "the receptor contents: dog")))
   (testing "instantiate receptor"
     (is (= r (get-receptor nil (address-of r))))
     )

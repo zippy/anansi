@@ -5,8 +5,8 @@
         [anansi.receptor.host]
         [anansi.ceptr])  )
 
-(def *context* (receptor host nil))
-(def *room-addr* (self->host *context* "the room" ))
+(def *host* (receptor host nil))
+(def *room-addr* (self->host-room *host* "the room" ))
 (def *server-state-file-name* "anansi-server.state")
 (def *server-receptor*
      (if (some #{*server-state-file-name*} (.list (java.io.File. ".")))

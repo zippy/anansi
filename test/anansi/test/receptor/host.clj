@@ -6,7 +6,12 @@
 
 (deftest host
   (let [h (receptor host nil)]
-    (testing "host"
-        (let [addr (self->host h "the room")]
-          (is (= addr (key->resolve (contents h :name-scape) "the room"))))
-      )))
+    (testing "host-room"
+      (let [addr (self->host-room h "the room")]
+        (is (= addr (key->resolve (contents h :room-scape) "the room"))))
+      )
+    (testing "host-user"
+      (let [addr (self->host-user h "zippy")]
+        (is (= ["zippy"] (key->all (contents h :user-scape))))
+        (is (= addr (self->host-user h "zippy")))))
+    ))

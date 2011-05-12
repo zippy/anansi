@@ -41,6 +41,7 @@
              )))
 
 (defn contents [receptor key] (key @(:contents @receptor)))
+(defn set-content [receptor key value] (dosync (alter (:contents @receptor) assoc key value)))
 (defn parent-of [receptor] (:parent @receptor))
 (defn send-sig [receptor signal & args]
   (apply signal receptor args))

@@ -4,8 +4,14 @@
   (:use [clojure.test]))
 
 (deftest user
-  (let [o (receptor user nil "zippy" :the-stream)]
+  (let [u (receptor user nil "zippy" :the-stream)]
     (testing "contents"
-      (is (= (contents o :name) "zippy"))
-      (is (= (contents o :stream) :the-stream)))
+      (is (= (contents u :name) "zippy"))
+      (is (= (contents u :stream) :the-stream)))
+    (testing "disconnect signal"
+      (self->disconnect u)
+      (is (= (contents u :stream) nil)))
+    (testing "connect signal"
+      (self->connect u :another-stream)
+      (is (= (contents u :stream) :another-stream)))
     ))
