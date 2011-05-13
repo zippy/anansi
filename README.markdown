@@ -32,8 +32,11 @@ For a list of commands:
     > help
 
 Sending a signal:
-    > send {:to "some-address:some-aspect" :body {:some-key "some value"}}
+    ss <to, signal, params> encoded as json  
+for example:
+    > ss {"to":0, "signal":"self->host-room", "params": {"name": "the room", :password "pass", "matrice-address":33}}
 
+OBSOLETE:
 For testing purposes the server comes with a room receptor that scapes
 people into a circle and allows passing object receptors between
 them. For example:
