@@ -84,6 +84,7 @@
   [k]
   (let [[_ r a s] (re-find #"([^.]+)\.([^.]+)\.([^.]+)$" (name k))] [(keyword r) (str a "->" s)])
   )
+
 (defn rl
   "Request a list of all receptor specification on the server"
   []
@@ -97,3 +98,10 @@
             {} @*signals*)
     )
   )
+
+(defn gs
+  "Get state"
+  [j]
+  (let [to-addr (read-json j)
+        to (if (= to-addr 0 ) *host* (get-receptor *host* to-addr))]
+    (state to)))

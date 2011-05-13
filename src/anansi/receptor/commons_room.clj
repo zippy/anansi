@@ -9,19 +9,27 @@
   (:use [anansi.receptor.object])
   (:use [anansi.receptor.facilitator]))
 
+(defmethod state :commons-room [_r]
+           (assoc (state-convert _r)
+;;             :objects (map state @(contents _r :objects))
+             :matrices (s-> key->all (contents _r :matrice-scape))
+             :talking-stick (state (contents _r :talking-stick))
+             )
+           )
 (defmethod manifest :commons-room [_r matrice-address password]
            (let [ms (receptor scape _r)]
              (s-> key->set ms matrice-address :matrice)
-             {:password password
-              :objects (ref {})
-              :matrice-scape ms
-              :agent-scape (receptor scape _r)
-              :coords-scape (receptor scape _r)
-              :occupant-scape (receptor scape _r)
-              :seat-scape (receptor list-scape _r)
-              :door (receptor portal _r)
-              :door-log (ref [])
-              :talking-stick (receptor facilitator _r "")}))
+             (make-scapes _r  {:password password
+                               :objects (ref {})
+                               :matrice-scape ms
+                                        ;              :agent-scape (receptor scape _r)
+                                        ;              :coords-scape (receptor scape _r)
+                                        ;              :occupant-scape (receptor scape _r)
+                                        ;              :seat-scape (receptor list-scape _r)
+                               :door (receptor portal _r)
+                               :door-log (ref [])
+                               :talking-stick (receptor facilitator _r "")}
+                          :agent :coords :occupant)))
 
 ;;; MATRICE signals
 ;; TODO

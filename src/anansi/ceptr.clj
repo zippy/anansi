@@ -3,7 +3,8 @@
      :doc "basic ceptr functions"}
   anansi.ceptr
   (:use [anansi.map-utilities]
-        [anansi.util]))
+        [anansi.util]
+        ))
 
 (def *signals* (ref {}))
 (def *receptors* (ref {}))
@@ -15,23 +16,11 @@
      (defn ~(symbol (str aspect "->" name)) ~args ~@body)
      (dosync (alter *signals* assoc (keyword (str (ns-name *ns*) "." '~aspect "." '~name)) '~args))))
 
-(defmulti initialize-contents (fn [x & args] x))
-(defmethod initialize-contents :default [x & args] {})
-
 (defmulti manifest (fn [receptor & args] (:type @receptor)))
 (defmethod manifest :default [receptor & args] {})
 
 (defmulti state (fn [receptor] (:type @receptor)))
-(defn state-convert [receptor]
-  (let [r @receptor
-        p (parent-of receptor)]
-    {:type (:type r),
-     :parent (if (nil? p) nil (address-of p))
-     :address (:address r)
-     :receptors (modify-vals (fn [x] (state x)) (dissoc @(:receptors r) :last-address))
-     }))
-(defmethod state :default [receptor]
-           (state-convert receptor))
+
 
 (defn receptors-container [receptor] (if (nil? receptor) *receptors* (:receptors @receptor)))
 
@@ -97,3 +86,24 @@
   "destroy a contained receptor by address"
   [receptor address]
   (dosync ( alter (receptors-container receptor) dissoc address)))
+
+(defn scape-state [_r scape-name]
+  @(contents (contents _r scape-name) :map))
+
+(defn state-convert [receptor]
+  (let [r @receptor
+        s {:type (:type r),
+           :address (:address r)
+           :receptors (modify-vals (fn [x] (state x))  (filter (fn [[k v]] (and (not= k :last-address) (not= (:type @v) :scape) )) @(:receptors r)))
+           }
+        ss (contents receptor :scapes-scape)
+        ]
+    (if ss
+      (let [scapes (keys @(contents ss :map))] ;; this is cheating 
+        (assoc s :scapes (into {} (map (fn [sn] [sn (scape-state receptor sn)] ) scapes))))
+      s)
+))
+(defmethod state :default [receptor]
+           (state-convert receptor))
+
+

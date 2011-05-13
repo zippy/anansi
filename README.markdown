@@ -39,6 +39,12 @@ for example:
     
 Get a list of receptors defined on the server:
     > rl
+
+Get the state of a receptor:
+    > gs 0
+    {"type":"host",
+     "address":1,
+     "receptors":{"3":{"type":"user", "address":3, "receptors":{}}}}
     
 
 ## Commons-room

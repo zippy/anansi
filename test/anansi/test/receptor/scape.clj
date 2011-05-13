@@ -22,3 +22,12 @@
         (is (= [] (s-> address->resolve s 1))))
     (comment is (= {:type "HashScape", :contents {:a 1}} (scape-dump scape)))
     ))
+
+(deftest make-scapes-test
+  (testing "make-scapes"
+    (set! *print-level* 6)
+    (let [r (receptor test-receptor nil)
+          m (make-scapes r {:x :y} :a :b)]
+      (is (= #{:x :a-scape :b-scape :scapes-scape} (into #{} (keys m))))
+      (is ()))
+    ))

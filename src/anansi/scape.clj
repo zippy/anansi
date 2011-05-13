@@ -2,7 +2,9 @@
   #^{:author "Eric Harris-Braun"
      :doc "Scaping"}
   anansi.scape
-  (:use [anansi.map-utilities]))
+  (:use [anansi.map-utilities]
+        [anansi.util]
+        [anansi.ceptr]))
 
 (defprotocol ScapeStore
   "Protocol for accessing scape data"

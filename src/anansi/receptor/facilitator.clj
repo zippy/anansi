@@ -6,8 +6,7 @@
   (:use [anansi.receptor.scape]))
 
 (defmethod manifest :facilitator [_r img_url]
-           {:image-url img_url
-            :stick-scape (receptor scape _r)})
+           (make-scapes _r {:image-url img_url} :stick))
 
 (signal participant request-stick [_r _f participant-address]
         (let [stick (contents _r :stick-scape)]

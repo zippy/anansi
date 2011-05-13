@@ -33,6 +33,7 @@
   (testing "help overview"
     (is (= (str "exit: Terminate connection with the server\n"
                 "rl: Request a list of all receptor specification on the server\n"
+                "gs: Get state\n"
                 "users: Get a list of logged in users\n"
                 "ss: Send a signal (new version)\n"
                 "send: Send a signal to a receptor.\n"
@@ -100,3 +101,12 @@
       (is (= (first (vals result)) {"aspect->sig" []})))
     )
   )
+
+(def-command-test gs-test
+  (testing "get state"
+    (let [host-state (gs "0")
+          room-state (gs "4")
+          ]
+      (is (=  (:type host-state) :host))
+      (is (=  (:type room-state) :commons-room))
+      )))

@@ -25,3 +25,16 @@
         (into [] (distinct (vals @(contents _r :map)))))
 (signal address delete [_r _f address]
         (dosync (alter (contents _r :map) remove-value address)))
+
+(defn make-scapes
+  "instantiate a scape (utility function for building the manifests)"
+  [_r man & scapes]
+  (let [ss (receptor scape _r)
+        m  (into man (map (fn [s] (let [key (keyword (str (name s) "-scape"))
+                                      s (receptor scape _r)]
+                                  (--> key->set _r ss key (address-of s))
+                                  [key s])) scapes))
+        ]
+    (assoc m :scapes-scape ss)
+    )
+  )

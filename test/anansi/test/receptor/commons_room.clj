@@ -11,7 +11,7 @@
         r (receptor commons-room nil (address-of m) "password")
         occupants (contents r :occupant-scape)
         coords (contents r :coords-scape)]
-    (set! *print-level* 4)
+    (set! *print-level* 10)
     (testing "initialization"
       (is (= [(address-of m)] (s-> address->resolve (contents r :matrice-scape) :matrice)))
       )
@@ -82,7 +82,12 @@
         (is (= [art_addr] (s-> address->resolve s :have-it)))
         (s-> stick->give r "zippy")
         (is (= [zippy_addr] (s-> address->resolve s :have-it)))
-        ))))
+        ))
+    (testing "state"
+      ;; cant actually test the contents because addresses change...
+      (is (= (into #{} (keys  (state r)))
+             #{:receptors :matrices :scapes :type :talking-stick :address})))
+    ))
 
 (comment set-person-image )
 (comment stick creates slots for every occupant in the room.  facilitation receptor)
