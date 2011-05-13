@@ -30,5 +30,11 @@
     (is (= r (get-receptor (parent-of r) (address-of r)))))
   (testing "destroy receptor"
     (destroy-receptor nil (address-of r))
-    (is (= nil (get-receptor nil (address-of r)))))  
+    (is (= nil (get-receptor nil (address-of r)))))
+  (testing "state"
+    (receptor test-receptor r "cow")
+    (set! *print-level* 6)
+    (println r)
+    (is (= {:type :test-receptor, :parent nil, :address 1, :receptors {1 {:type :test-receptor, :parent 1, :address 1, :receptors {}}}}
+           (state r))))
     )

@@ -2,7 +2,8 @@
   #^{:author "Eric Harris-Braun"
      :doc "basic ceptr functions"}
   anansi.ceptr
-  (:use [anansi.map-utilities]))
+  (:use [anansi.map-utilities]
+        [anansi.util]))
 
 (def *signals* (ref {}))
 (def *receptors* (ref {}))
@@ -19,6 +20,18 @@
 
 (defmulti manifest (fn [receptor & args] (:type @receptor)))
 (defmethod manifest :default [receptor & args] {})
+
+(defmulti state (fn [receptor] (:type @receptor)))
+(defn state-convert [receptor]
+  (let [r @receptor
+        p (parent-of receptor)]
+    {:type (:type r),
+     :parent (if (nil? p) nil (address-of p))
+     :address (:address r)
+     :receptors (modify-vals (fn [x] (state x)) (dissoc @(:receptors r) :last-address))
+     }))
+(defmethod state :default [receptor]
+           (state-convert receptor))
 
 (defn receptors-container [receptor] (if (nil? receptor) *receptors* (:receptors @receptor)))
 
