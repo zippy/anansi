@@ -11,7 +11,7 @@
   )
 
 (defn remove-value
-  "Utility function that remvoes all entries in a map by value"
+  "Utility function that removes all entries in a map by value"
   [the-map value]
   (remove-values the-map [value]))
 

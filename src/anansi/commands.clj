@@ -1,6 +1,6 @@
 (ns
   #^{:author "Eric Harris-Braun"
-     :doc "Commands that can be excecuted at the servers command line"}  
+     :doc "Commands that can be excecuted at the server's command line"}  
   anansi.commands
   (:use [anansi.user]
         [anansi.util :only [modify-keys]]
