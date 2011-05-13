@@ -8,11 +8,11 @@
 (def *receptors* (ref {}))
 (defn get-signal [s] {s @*signals*})
 
-(defmacro signal [aspect name & body]
+(defmacro signal [aspect name args & body]
   "Creates a signal function on an aspect"
   `(do
-     (defn ~(symbol (str aspect "->" name)) ~@body)
-     (dosync (alter *signals* assoc (keyword (str (ns-name *ns*) "." '~aspect "." '~name)) 1))))
+     (defn ~(symbol (str aspect "->" name)) ~args ~@body)
+     (dosync (alter *signals* assoc (keyword (str (ns-name *ns*) "." '~aspect "." '~name)) '~args))))
 
 (defmulti initialize-contents (fn [x & args] x))
 (defmethod initialize-contents :default [x & args] {})

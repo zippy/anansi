@@ -8,7 +8,8 @@
          [anansi.ceptr]
          [anansi.server-constants])
    (:use [clojure.java.io :only [reader writer]]
-      [clojure.contrib.server-socket :only [create-server]])
+         [clojure.contrib.server-socket :only [create-server]]
+         [clojure.contrib.json])
 )
 
 (defn- cleanup []
@@ -32,7 +33,8 @@
 
     ;; We have to nest this in another binding call instead of using
     ;; the one above so *in* and *out* will be bound to the socket
-    (print "\nWelcome to the Anansi sever.\n\nNote: All signals directed to this sever should be addressed to \"server\"\n\nEnter your user name: ") (flush)
+    
+    (print "\nWelcome to the Anansi sever.\n\nEnter your user name: ") (flush)
     (binding [*user-name* nil]
       (dosync
        (set! *user-name* (get-unique-user-name (read-line)))
@@ -40,13 +42,19 @@
              user-address (s-> self->host-user *host* *user-name*) ;; creates or returns existing user receptor address
              user (get-receptor *host* user-address)]
          (--> self->connect *host* user *out*)
-         (commute user-streams assoc *user-name* user)))
-
+         (commute user-streams assoc *user-name* user)
+         (print (str "\nYou are connected as user receptor address: " user-address
+                     "\n\nThe address for the host receptor is 0.\n\n"))
+         )
+       )
+      
+       
       (print prompt) (flush)
 
       (try (loop [input (read-line)]
              (when input
-               (println (execute input))
+               (pprint-json (execute input))
+               (print "\n")
                (print prompt) (flush)
                (if (user-streams *user-name*) (recur (read-line)) )
                ))

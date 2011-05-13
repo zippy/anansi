@@ -32,6 +32,7 @@
 (deftest help-test
   (testing "help overview"
     (is (= (str "exit: Terminate connection with the server\n"
+                "rl: Request a list of all receptor specification on the server\n"
                 "users: Get a list of logged in users\n"
                 "ss: Send a signal (new version)\n"
                 "send: Send a signal to a receptor.\n"
@@ -90,3 +91,12 @@
           (ss (json-str {:to 0 :signal "self->host-room" :params {:name "the-room" :password "pass" :matrice-address 33}}))]
       (is (= ["the-room"] (s-> address->resolve (contents *host* :room-scape) room-addr) )))
     ))
+
+(def-command-test rl-test
+  (testing "receptor list"
+    (signal aspect sig [_r _f])
+    (let [result (rl)
+          ]
+      (is (= (first (vals result)) {"aspect->sig" []})))
+    )
+  )
