@@ -8,18 +8,18 @@ Example: to create a new room send the host a "self->host-room" signal, make sur
 
     ss {"to":0, "signal":"self->host-room", "params": {"name":"the room", "password":"pass", "matrice-address":3}}
 
----
+##Receptors
 
 Here is a list of the receptors available and the signals you can send to them:
 
-##host
+###host
     self->host-room:
         name: <name of the room>
         password: <room access password>
         matrice-address: <address of initial admin>
     
 
-##commons-room
+###commons-room
     door->enter:
         name: <unique name for the occupant>
         password: <room access password>
