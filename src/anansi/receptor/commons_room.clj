@@ -15,6 +15,7 @@
              {:password password
               :objects (ref {})
               :matrice-scape ms
+              :agent-scape (receptor scape _r)
               :coords-scape (receptor scape _r)
               :occupant-scape (receptor scape _r)
               :seat-scape (receptor list-scape _r)
@@ -52,6 +53,7 @@
            (if (not (check-password _r password)) (throw (RuntimeException. "incorrect room password")))
            (if (--> key->resolve _r occupants unique-name) (throw (RuntimeException. (str "'" unique-name "' is already in the room"))))
            (alter (contents _r :door-log) conj {:who unique-name, :what "entered", :when (java.util.Date.)})
+           (--> key->set _r (contents _r :agent-scape) addr _f)
            (comment address->push seats addr)
            (--> key->set _r occupants unique-name addr)
            o)
@@ -62,11 +64,17 @@
     (if (nil? addr) (throw (RuntimeException. (str "'" name "' is not in room"))))
     addr))
 
+(defn agent-or-matrice? [_r _f occupant-address]
+  (or
+   (= _f (--> key->resolve _r (contents  _r :agent-scape) occupant-address))
+   (= :matrice (--> key->resolve _r (contents  _r :matrice-scape) _f ))))
+
 (signal door leave [_r _f unique-name]
         (dosync
          (let [seats (contents _r :seat-scape)
                occupants (contents _r :occupant-scape)
                addr (resolve-occupant _r occupants unique-name)]
+           (if (not ( agent-or-matrice? _r _f addr)) (throw (RuntimeException. "no agency")))
            (alter (contents _r :door-log) conj {:who unique-name, :what "left", :when (java.util.Date.)})
            (comment address->delete seats addr)
            (--> address->delete _r occupants addr)
