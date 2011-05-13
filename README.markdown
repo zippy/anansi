@@ -15,6 +15,7 @@ its already in you shell path you can do it like this:
 Clone this repo and let lein install the dependencies:
 
     $ git clone git://github.com/zippy/anansi.git
+    $ cd anansi
     $ lein deps
 
 ## Usage
@@ -26,31 +27,25 @@ To run the server:
 Then you can connect to the server by telneting to port 3333
 
 Once connected, enter your user-name and then when the user has been
-attached--
+attached you can enter the following commands:
 
 For a list of commands:
     > help
 
-Sending a signal:
+Send a signal:
     ss <to, signal, params> encoded as json  
 for example:
     > ss {"to":0, "signal":"self->host-room", "params": {"name": "the room", :password "pass", "matrice-address":33}}
+    
+Get a list of receptors defined on the server:
+    > rl
+    
 
-OBSOLETE:
-For testing purposes the server comes with a room receptor that scapes
-people into a circle and allows passing object receptors between
-them. For example:
+## Commons-room
 
-    > send {:to "server:conjure", :body {:name "room",:type "Room"}}
-    created
-    > send {:to "room:enter", :body {:person {:name "Art"}}}
-    entered as art
-    > send {:to "room:enter", :body {:person {:name "Eric"}}}
-    entered as eric
-    > send {:to "room:conjure", :body {:name "stick",:type "Object"}}
-    {:seat {0 art, 1 eric}, :angle {0 art, 180 eric}, :coords {[0 0] stick, [0 -500] art, [0 500] eric}, :holding {}}
-    > send {:to "room:pass-object", :body {:object "stick",:to "art_brock"}}
-    {:seat {0 art, 1 eric}, :angle {0 art, 180 eric}, :coords {[0 -490] stick, [0 -500] art, [0 500] eric}, :holding {art stick}}
+For prototyping purposes, the anansi server comes with a set of receptors that model a virtual room with a facilitator.
+
+[Documentation](https://github.com/zippy/anansi/blob/master/README-commons-room.markdown)
 
 ## Documentation
 
