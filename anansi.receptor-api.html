@@ -34,7 +34,7 @@ namespace.
     <a class="wiki_link" href="api-index.html">API Index</a><br />
     <a class="wiki_link" href="#">Namespaces:</a>
     <ul id="left-sidebar-list">
-      <li><a href="anansi.commands-api.html" class="wiki_link">anansi.commands</a></li><li><a href="anansi.core-api.html" class="wiki_link">anansi.core</a></li><li><a href="anansi.receptor-api.html" class="wiki_link">anansi.receptor</a></li>
+      <li><a href="anansi.ceptr-api.html" class="wiki_link">anansi.ceptr</a></li><li><a href="anansi.commands-api.html" class="wiki_link">anansi.commands</a></li><li><a href="anansi.core-api.html" class="wiki_link">anansi.core</a></li><li><a href="anansi.grammar-api.html" class="wiki_link">anansi.grammar</a></li><li><a href="anansi.map-utilities-api.html" class="wiki_link">anansi.map-utilities</a></li><li><a href="anansi.receptor-api.html" class="wiki_link">anansi.receptor</a></li><li><a href="anansi.scape-api.html" class="wiki_link">anansi.scape</a></li><li><a href="anansi.util-api.html" class="wiki_link">anansi.util</a></li>
     </ul>
   </div>
 </div>
@@ -53,12 +53,6 @@ namespace.
       <a href="#anansi.receptor/add-receptor-to-contents">add-receptor-to-contents</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/aspect-receive-dispatch">aspect-receive-dispatch</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.receptor/calculate-angles">calculate-angles</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.receptor/calculate-coords">calculate-coords</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.receptor/calculate-holding-coord">calculate-holding-coord</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/do-conjure">do-conjure</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
@@ -84,6 +78,12 @@ namespace.
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/make-server">make-server</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/parse-address">parse-address</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/parse-signal">parse-signal</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.receptor/parse-signal-addresses">parse-signal-addresses</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/receptor-factory">receptor-factory</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/receptor-receive">receptor-receive</a>
@@ -102,17 +102,11 @@ namespace.
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/receptor-scapes">receptor-scapes</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.receptor/regenerate-coord-scape">regenerate-coord-scape</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.receptor/regenerate-holding-coords">regenerate-holding-coords</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/remove-receptor">remove-receptor</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/resolve-address">resolve-address</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/sanitize-for-address">sanitize-for-address</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.receptor/scape-keys">scape-keys</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/serialize-receptor">serialize-receptor</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
@@ -122,6 +116,42 @@ namespace.
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.receptor/validate-signal">validate-signal</a>
     </div>
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#anansi.receptor.commons-room">anansi.receptor.commons-room</a>
+    
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#anansi.receptor.facilitator">anansi.receptor.facilitator</a>
+    
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#anansi.receptor.host">anansi.receptor.host</a>
+    
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#anansi.receptor.list-scape">anansi.receptor.list-scape</a>
+    
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#anansi.receptor.object">anansi.receptor.object</a>
+    
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#anansi.receptor.occupant">anansi.receptor.occupant</a>
+    
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#anansi.receptor.portal">anansi.receptor.portal</a>
+    
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#anansi.receptor.scape">anansi.receptor.scape</a>
+    
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#anansi.receptor.user">anansi.receptor.user</a>
+    
     <br />
   </div>
 </div>
@@ -166,33 +196,6 @@ Methods:
        (aspect-receive-dispatch this signal contents)
 </pre>
   <pre id="var-docstr">Dispatches to aspect-receive calls based on the class of the recptor or a force</pre>
-  
-</div><div id="var-entry">
-  <br />
-  <hr />
-  <h2 id="anansi.receptor/calculate-angles">calculate-angles</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (calculate-angles seat-scape)
-</pre>
-  <pre id="var-docstr">calculate angles scape from the seat scape</pre>
-  
-</div><div id="var-entry">
-  <br />
-  <hr />
-  <h2 id="anansi.receptor/calculate-coords">calculate-coords</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (calculate-coords seat-scape radius)
-</pre>
-  <pre id="var-docstr">calculate coordinate scape from the seat scape</pre>
-  
-</div><div id="var-entry">
-  <br />
-  <hr />
-  <h2 id="anansi.receptor/calculate-holding-coord">calculate-holding-coord</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (calculate-holding-coord to-address angle-scape radius)
-</pre>
-  <pre id="var-docstr">cacluate the x,y coordinate of an object held by a person based on the angle scape</pre>
   
 </div><div id="var-entry">
   <br />
@@ -342,6 +345,33 @@ servers receive the following signals:
 </div><div id="var-entry">
   <br />
   <hr />
+  <h2 id="anansi.receptor/parse-address">parse-address</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (parse-address address)
+</pre>
+  <pre id="var-docstr">Utility function to parse a string encoded ceptr address into hash</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor/parse-signal">parse-signal</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (parse-signal signal)
+</pre>
+  <pre id="var-docstr">Utility function to parse a string encoded signal</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor/parse-signal-addresses">parse-signal-addresses</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (parse-signal-addresses signal)
+</pre>
+  <pre id="var-docstr">Utility function to parse a string encoded addresses in a signal</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
   <h2 id="anansi.receptor/receptor-factory">receptor-factory</h2>
   <span id="var-type">function</span><br />
   <pre id="var-usage">Usage: (receptor-factory name type &amp; args)
@@ -424,24 +454,6 @@ Returns a vector of keys</pre>
 </div><div id="var-entry">
   <br />
   <hr />
-  <h2 id="anansi.receptor/regenerate-coord-scape">regenerate-coord-scape</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (regenerate-coord-scape coords-scape seat-scape angle-scape holding-scape people-list radius)
-</pre>
-  <pre id="var-docstr">Recreates the coordinate scape based on the other scapes</pre>
-  
-</div><div id="var-entry">
-  <br />
-  <hr />
-  <h2 id="anansi.receptor/regenerate-holding-coords">regenerate-holding-coords</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (regenerate-holding-coords holding-scape angle-scape)
-</pre>
-  <pre id="var-docstr">Recreate the holding coords from the holding and angle scapes</pre>
-  
-</div><div id="var-entry">
-  <br />
-  <hr />
   <h2 id="anansi.receptor/remove-receptor">remove-receptor</h2>
   <span id="var-type">function</span><br />
   <pre id="var-usage">Usage: (remove-receptor contents address)
@@ -465,15 +477,6 @@ Returns a vector of keys</pre>
   <pre id="var-usage">Usage: (sanitize-for-address name)
 </pre>
   <pre id="var-docstr">Utility function to create and address ready string from a string</pre>
-  
-</div><div id="var-entry">
-  <br />
-  <hr />
-  <h2 id="anansi.receptor/scape-keys">scape-keys</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (scape-keys receptor scape)
-</pre>
-  <pre id="var-docstr">Utility function to return a lazy list of all the keys in a scape</pre>
   
 </div><div id="var-entry">
   <br />
@@ -513,6 +516,42 @@ Returns a vector of keys</pre>
   <pre id="var-docstr">Utility function that confirms generic validity of a signal</pre>
   
 </div>
+<h2 id="namespace-name">anansi.receptor.commons-room</h2>
+<pre id="namespace-docstr">Commons-room receptor</pre>
+<br />
+
+<h2 id="namespace-name">anansi.receptor.facilitator</h2>
+<pre id="namespace-docstr">Facilitator receptor</pre>
+<br />
+
+<h2 id="namespace-name">anansi.receptor.host</h2>
+<pre id="namespace-docstr">Host receptor</pre>
+<br />
+
+<h2 id="namespace-name">anansi.receptor.list-scape</h2>
+<pre id="namespace-docstr">List scape receptor</pre>
+<br />
+
+<h2 id="namespace-name">anansi.receptor.object</h2>
+<pre id="namespace-docstr">Object receptor</pre>
+<br />
+
+<h2 id="namespace-name">anansi.receptor.occupant</h2>
+<pre id="namespace-docstr">Occupant receptor</pre>
+<br />
+
+<h2 id="namespace-name">anansi.receptor.portal</h2>
+<pre id="namespace-docstr">Portal receptor</pre>
+<br />
+
+<h2 id="namespace-name">anansi.receptor.scape</h2>
+<pre id="namespace-docstr">Scape receptor</pre>
+<br />
+
+<h2 id="namespace-name">anansi.receptor.user</h2>
+<pre id="namespace-docstr">User receptor</pre>
+<br />
+
 
 
 </div>

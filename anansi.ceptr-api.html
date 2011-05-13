@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>anansi.commands API reference (Anansi)</title>
+    <title>anansi.ceptr API reference (Anansi)</title>
     <link href="static/favicon.png" rel="icon" />
     <link href="static/favicon.png" rel="shortcut icon" />
     <link media="all" type="text/css" href="static/clojure.css" rel="stylesheet" />
@@ -48,109 +48,119 @@ namespace.
   <div style="margin-left: 1em;" class="toc-section">
     <a href="#toc0">Overview</a>
     <div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.commands/dump">dump</a>
+      <a href="#anansi.ceptr/--&gt;">--&gt;</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.commands/execute">execute</a>
+      <a href="#anansi.ceptr/address-of">address-of</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.commands/exit">exit</a>
+      <a href="#anansi.ceptr/contents">contents</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.commands/help">help</a>
+      <a href="#anansi.ceptr/destroy-receptor">destroy-receptor</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.commands/rl">rl</a>
+      <a href="#anansi.ceptr/get-receptor">get-receptor</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.commands/send-signal">send-signal</a>
+      <a href="#anansi.ceptr/p-&gt;">p-&gt;</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.commands/ss">ss</a>
+      <a href="#anansi.ceptr/parent-of">parent-of</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.commands/users">users</a>
+      <a href="#anansi.ceptr/s-&gt;">s-&gt;</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.ceptr/set-content">set-content</a>
     </div>
     <br />
   </div>
 </div>
 </div>
-                <div id="content-tag"><h1 id="overview">API for <span id="namespace-name">anansi.commands</span></h1>
+                <div id="content-tag"><h1 id="overview">API for <span id="namespace-name">anansi.ceptr</span></h1>
 by <span id="author">Eric Harris-Braun</span><br />
 <br />Usage:
 <pre>
 (ns your-namespace
-  (:require <span id="long-name">anansi.commands</span>))
+  (:require <span id="long-name">anansi.ceptr</span>))
 </pre><pre>
 </pre><h2>Overview</h2>
-<pre id="namespace-docstr">Commands that can be excecuted at the server's command line</pre>
+<pre id="namespace-docstr">basic ceptr functions</pre>
 <br />
 <h2>Public Variables and Functions</h2>
 <div id="var-entry">
   <br />
   <hr />
-  <h2 id="anansi.commands/dump">dump</h2>
+  <h2 id="anansi.ceptr/--&gt;">--&gt;</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (dump)
+  <pre id="var-usage">Usage: (--&gt; signal from-receptor to &amp; args)
 </pre>
-  <pre id="var-docstr">Dump current tree of receptors</pre>
+  <pre id="var-docstr">send a signal to a receptor</pre>
   
 </div><div id="var-entry">
   <br />
   <hr />
-  <h2 id="anansi.commands/execute">execute</h2>
+  <h2 id="anansi.ceptr/address-of">address-of</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (execute input)
+  <pre id="var-usage">Usage: (address-of receptor)
 </pre>
-  <pre id="var-docstr">Execute a command.</pre>
+  <pre id="var-docstr">get the address of a receptor</pre>
   
 </div><div id="var-entry">
   <br />
   <hr />
-  <h2 id="anansi.commands/exit">exit</h2>
+  <h2 id="anansi.ceptr/contents">contents</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (exit)
+  <pre id="var-usage">Usage: (contents receptor key)
 </pre>
-  <pre id="var-docstr">Terminate connection with the server</pre>
+  <pre id="var-docstr">get an item out of the manifest</pre>
   
 </div><div id="var-entry">
   <br />
   <hr />
-  <h2 id="anansi.commands/help">help</h2>
+  <h2 id="anansi.ceptr/destroy-receptor">destroy-receptor</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (help)
-       (help command)
+  <pre id="var-usage">Usage: (destroy-receptor receptor address)
 </pre>
-  <pre id="var-docstr">Show available commands and what they do.</pre>
+  <pre id="var-docstr">destroy a contained receptor by address</pre>
   
 </div><div id="var-entry">
   <br />
   <hr />
-  <h2 id="anansi.commands/rl">rl</h2>
+  <h2 id="anansi.ceptr/get-receptor">get-receptor</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (rl)
+  <pre id="var-usage">Usage: (get-receptor receptor address)
 </pre>
-  <pre id="var-docstr">Request a list of all receptor specification on the server</pre>
+  <pre id="var-docstr">get a contained receptor by address</pre>
   
 </div><div id="var-entry">
   <br />
   <hr />
-  <h2 id="anansi.commands/send-signal">send-signal</h2>
+  <h2 id="anansi.ceptr/p-&gt;">p-&gt;</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (send-signal &amp; signal)
+  <pre id="var-usage">Usage: (p-&gt; signal receptor &amp; args)
 </pre>
-  <pre id="var-docstr">Send a signal to a receptor.</pre>
+  <pre id="var-docstr">send a signal from the parent</pre>
   
 </div><div id="var-entry">
   <br />
   <hr />
-  <h2 id="anansi.commands/ss">ss</h2>
+  <h2 id="anansi.ceptr/parent-of">parent-of</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (ss j)
+  <pre id="var-usage">Usage: (parent-of receptor)
 </pre>
-  <pre id="var-docstr">Send a signal (new version)</pre>
+  <pre id="var-docstr">return the receptor that is a receptor's parent</pre>
   
 </div><div id="var-entry">
   <br />
   <hr />
-  <h2 id="anansi.commands/users">users</h2>
+  <h2 id="anansi.ceptr/s-&gt;">s-&gt;</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (users)
+  <pre id="var-usage">Usage: (s-&gt; signal receptor &amp; args)
 </pre>
-  <pre id="var-docstr">Get a list of logged in users</pre>
+  <pre id="var-docstr">send a signal to yourself</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.ceptr/set-content">set-content</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (set-content receptor key value)
+</pre>
+  <pre id="var-docstr">set the value of a manifest item</pre>
   
 </div>
 

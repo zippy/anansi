@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>anansi.commands API reference (Anansi)</title>
+    <title>anansi.map-utilities API reference (Anansi)</title>
     <link href="static/favicon.png" rel="icon" />
     <link href="static/favicon.png" rel="shortcut icon" />
     <link media="all" type="text/css" href="static/clojure.css" rel="stylesheet" />
@@ -48,109 +48,53 @@ namespace.
   <div style="margin-left: 1em;" class="toc-section">
     <a href="#toc0">Overview</a>
     <div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.commands/dump">dump</a>
+      <a href="#anansi.map-utilities/get-keys">get-keys</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.commands/execute">execute</a>
+      <a href="#anansi.map-utilities/remove-value">remove-value</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.commands/exit">exit</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.commands/help">help</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.commands/rl">rl</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.commands/send-signal">send-signal</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.commands/ss">ss</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.commands/users">users</a>
+      <a href="#anansi.map-utilities/remove-values">remove-values</a>
     </div>
     <br />
   </div>
 </div>
 </div>
-                <div id="content-tag"><h1 id="overview">API for <span id="namespace-name">anansi.commands</span></h1>
+                <div id="content-tag"><h1 id="overview">API for <span id="namespace-name">anansi.map-utilities</span></h1>
 by <span id="author">Eric Harris-Braun</span><br />
 <br />Usage:
 <pre>
 (ns your-namespace
-  (:require <span id="long-name">anansi.commands</span>))
+  (:require <span id="long-name">anansi.map-utilities</span>))
 </pre><pre>
 </pre><h2>Overview</h2>
-<pre id="namespace-docstr">Commands that can be excecuted at the server's command line</pre>
+<pre id="namespace-docstr">Utility functions that work on maps</pre>
 <br />
 <h2>Public Variables and Functions</h2>
 <div id="var-entry">
   <br />
   <hr />
-  <h2 id="anansi.commands/dump">dump</h2>
+  <h2 id="anansi.map-utilities/get-keys">get-keys</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (dump)
+  <pre id="var-usage">Usage: (get-keys the-map value)
 </pre>
-  <pre id="var-docstr">Dump current tree of receptors</pre>
+  <pre id="var-docstr">Utility function to return a list of all the keys in a map that have a given value</pre>
   
 </div><div id="var-entry">
   <br />
   <hr />
-  <h2 id="anansi.commands/execute">execute</h2>
+  <h2 id="anansi.map-utilities/remove-value">remove-value</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (execute input)
+  <pre id="var-usage">Usage: (remove-value the-map value)
 </pre>
-  <pre id="var-docstr">Execute a command.</pre>
+  <pre id="var-docstr">Utility function that remvoes all entries in a map by value</pre>
   
 </div><div id="var-entry">
   <br />
   <hr />
-  <h2 id="anansi.commands/exit">exit</h2>
+  <h2 id="anansi.map-utilities/remove-values">remove-values</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (exit)
+  <pre id="var-usage">Usage: (remove-values the-map values)
 </pre>
-  <pre id="var-docstr">Terminate connection with the server</pre>
-  
-</div><div id="var-entry">
-  <br />
-  <hr />
-  <h2 id="anansi.commands/help">help</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (help)
-       (help command)
-</pre>
-  <pre id="var-docstr">Show available commands and what they do.</pre>
-  
-</div><div id="var-entry">
-  <br />
-  <hr />
-  <h2 id="anansi.commands/rl">rl</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (rl)
-</pre>
-  <pre id="var-docstr">Request a list of all receptor specification on the server</pre>
-  
-</div><div id="var-entry">
-  <br />
-  <hr />
-  <h2 id="anansi.commands/send-signal">send-signal</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (send-signal &amp; signal)
-</pre>
-  <pre id="var-docstr">Send a signal to a receptor.</pre>
-  
-</div><div id="var-entry">
-  <br />
-  <hr />
-  <h2 id="anansi.commands/ss">ss</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (ss j)
-</pre>
-  <pre id="var-docstr">Send a signal (new version)</pre>
-  
-</div><div id="var-entry">
-  <br />
-  <hr />
-  <h2 id="anansi.commands/users">users</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (users)
-</pre>
-  <pre id="var-docstr">Get a list of logged in users</pre>
+  <pre id="var-docstr">Utility function that remvoes all entries in a map by value</pre>
   
 </div>
 

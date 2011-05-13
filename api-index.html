@@ -34,7 +34,7 @@ namespace.
     <a class="wiki_link" href="api-index.html">API Index</a><br />
     <a class="wiki_link" href="#">Namespaces:</a>
     <ul id="left-sidebar-list">
-      <li><a href="anansi.commands-api.html" class="wiki_link">anansi.commands</a></li><li><a href="anansi.core-api.html" class="wiki_link">anansi.core</a></li><li><a href="anansi.receptor-api.html" class="wiki_link">anansi.receptor</a></li>
+      <li><a href="anansi.ceptr-api.html" class="wiki_link">anansi.ceptr</a></li><li><a href="anansi.commands-api.html" class="wiki_link">anansi.commands</a></li><li><a href="anansi.core-api.html" class="wiki_link">anansi.core</a></li><li><a href="anansi.grammar-api.html" class="wiki_link">anansi.grammar</a></li><li><a href="anansi.map-utilities-api.html" class="wiki_link">anansi.map-utilities</a></li><li><a href="anansi.receptor-api.html" class="wiki_link">anansi.receptor</a></li><li><a href="anansi.scape-api.html" class="wiki_link">anansi.scape</a></li><li><a href="anansi.util-api.html" class="wiki_link">anansi.util</a></li>
     </ul>
   </div>
 </div>
@@ -74,6 +74,12 @@ Shortcuts:<br />
   <h2 id="A"><span id="section-head">A</span></h2>
   <pre>
 <span id="section-content"> <a href="anansi.receptor-api.html#anansi.receptor/add-receptor-to-contents">add-receptor-to-contents</a><span id="line-content">     function      anansi.receptor    adds a sub receptor into the contents ref of a rec...
+</span></span><span id="section-content"> <a href="anansi.ceptr-api.html#anansi.ceptr/address-of">address-of</a><span id="line-content">                   function      anansi.ceptr       get the address of a receptor.
+</span></span><span id="section-content"> <a href="anansi.scape-api.html#anansi.scape/alter-scape-change">alter-scape-change</a><span id="line-content">           function      anansi.scape       Utility function to change the key of an address.
+</span></span><span id="section-content"> <a href="anansi.scape-api.html#anansi.scape/alter-scape-set">alter-scape-set</a><span id="line-content">              function      anansi.scape       Utility function to change a scape (must be called...
+</span></span><span id="section-content"> <a href="anansi.scape-api.html#anansi.scape/alter-scape-unset-address">alter-scape-unset-address</a><span id="line-content">    function      anansi.scape       Utility function to remove a scape address (must b...
+</span></span><span id="section-content"> <a href="anansi.scape-api.html#anansi.scape/alter-scape-unset-key">alter-scape-unset-key</a><span id="line-content">        function      anansi.scape       Utility function to remove a scape key (must be ca...
+</span></span><span id="section-content"> <a href="anansi.scape-api.html#anansi.scape/angle-scape-from-seat-scape">angle-scape-from-seat-scape</a><span id="line-content">  function      anansi.scape       create angle scape from a seat scape.
 </span></span><span id="section-content"> <a href="anansi.receptor-api.html#anansi.receptor/aspect-receive-dispatch">aspect-receive-dispatch</a><span id="line-content">      function      anansi.receptor    Dispatches to aspect-receive calls based on the cl...
 </span></span></pre>
 </div><div id="index-body">
@@ -83,18 +89,21 @@ Shortcuts:<br />
 </div><div id="index-body">
   <h2 id="C"><span id="section-head">C</span></h2>
   <pre>
-<span id="section-content"> <a href="anansi.receptor-api.html#anansi.receptor/calculate-angles">calculate-angles</a><span id="line-content">             function      anansi.receptor    calculate angles scape from the seat scape.
-</span></span><span id="section-content"> <a href="anansi.receptor-api.html#anansi.receptor/calculate-coords">calculate-coords</a><span id="line-content">             function      anansi.receptor    calculate coordinate scape from the seat scape.
-</span></span><span id="section-content"> <a href="anansi.receptor-api.html#anansi.receptor/calculate-holding-coord">calculate-holding-coord</a><span id="line-content">      function      anansi.receptor    cacluate the x,y coordinate of an object held by a...
+<span id="section-content"> <a href="anansi.scape-api.html#anansi.scape/calculate-angles">calculate-angles</a><span id="line-content">             function      anansi.scape       calculate angles from the seat scape.
+</span></span><span id="section-content"> <a href="anansi.scape-api.html#anansi.scape/calculate-coords">calculate-coords</a><span id="line-content">             function      anansi.scape       calculate coordinate scape from the seat scape.
+</span></span><span id="section-content"> <a href="anansi.scape-api.html#anansi.scape/calculate-holding-coord">calculate-holding-coord</a><span id="line-content">      function      anansi.scape       cacluate the x,y coordinate of an object held by a...
 </span></span><span id="section-content"> <a href="anansi.receptor-api.html#anansi.receptor/Ceptr">Ceptr</a><span id="line-content">                        var           anansi.receptor    Underlying protocol for all receptors Methods: (...
+</span></span><span id="section-content"> <a href="anansi.ceptr-api.html#anansi.ceptr/contents">contents</a><span id="line-content">                     function      anansi.ceptr       get an item out of the manifest.
 </span></span></pre>
 </div><div id="index-body">
   <h2 id="D"><span id="section-head">D</span></h2>
   <pre>
-<span id="section-content"> <a href="anansi.receptor-api.html#anansi.receptor/do-conjure">do-conjure</a><span id="line-content">                   function      anansi.receptor    conjure a recptor into the contents ref of a recep...
+<span id="section-content"> <a href="anansi.ceptr-api.html#anansi.ceptr/destroy-receptor">destroy-receptor</a><span id="line-content">             function      anansi.ceptr       destroy a contained receptor by address.
+</span></span><span id="section-content"> <a href="anansi.receptor-api.html#anansi.receptor/do-conjure">do-conjure</a><span id="line-content">                   function      anansi.receptor    conjure a recptor into the contents ref of a recep...
 </span></span><span id="section-content"> <a href="anansi.receptor-api.html#anansi.receptor/do-ping">do-ping</a><span id="line-content">                      function      anansi.receptor    return a ping string.
 </span></span><span id="section-content"> <a href="anansi.commands-api.html#anansi.commands/dump">dump</a><span id="line-content">                         function      anansi.commands    Dump current tree of receptors.
 </span></span><span id="section-content"> <a href="anansi.receptor-api.html#anansi.receptor/dump-receptor">dump-receptor</a><span id="line-content">                function      anansi.receptor    dump contents of receptor into pretty-print-ready ...
+</span></span><span id="section-content"> <a href="anansi.scape-api.html#anansi.scape/dump-scapes">dump-scapes</a><span id="line-content">                  function      anansi.scape       convert scapes into pretty printable hash.
 </span></span></pre>
 </div><div id="index-body">
   <h2 id="E"><span id="section-head">E</span></h2>
@@ -110,7 +119,9 @@ Shortcuts:<br />
 </div><div id="index-body">
   <h2 id="G"><span id="section-head">G</span></h2>
   <pre>
-</pre>
+<span id="section-content"> <a href="anansi.map-utilities-api.html#anansi.map-utilities/get-keys">get-keys</a><span id="line-content">                     function      anansi.map-utilities Utility function to return a list of all the key...
+</span></span><span id="section-content"> <a href="anansi.ceptr-api.html#anansi.ceptr/get-receptor">get-receptor</a><span id="line-content">                 function      anansi.ceptr       get a contained receptor by address.
+</span></span></pre>
 </div><div id="index-body">
   <h2 id="H"><span id="section-head">H</span></h2>
   <pre>
@@ -137,12 +148,15 @@ Shortcuts:<br />
   <h2 id="M"><span id="section-head">M</span></h2>
   <pre>
 <span id="section-content"> <a href="anansi.receptor-api.html#anansi.receptor/make-contents">make-contents</a><span id="line-content">                function      anansi.receptor    Utility function to create an empty contents ref f...
+</span></span><span id="section-content"> <a href="anansi.scape-api.html#anansi.scape/make-hash-scape">make-hash-scape</a><span id="line-content">              function      anansi.scape       create a new HashScape from a hash.
 </span></span><span id="section-content"> <a href="anansi.receptor-api.html#anansi.receptor/make-object">make-object</a><span id="line-content">                  function      anansi.receptor    Utility function to create an empty object recepto...
 </span></span><span id="section-content"> <a href="anansi.receptor-api.html#anansi.receptor/make-person">make-person</a><span id="line-content">                  function      anansi.receptor    Utility function to create a person receptor.
 </span></span><span id="section-content"> <a href="anansi.receptor-api.html#anansi.receptor/make-receptor">make-receptor</a><span id="line-content">                function      anansi.receptor    Receptor factory  vanilla receptors receive the fo...
 </span></span><span id="section-content"> <a href="anansi.receptor-api.html#anansi.receptor/make-receptor-from-signal">make-receptor-from-signal</a><span id="line-content">    function      anansi.receptor    Create a new receptor based on the parameters spec...
 </span></span><span id="section-content"> <a href="anansi.receptor-api.html#anansi.receptor/make-room">make-room</a><span id="line-content">                    function      anansi.receptor    Room factory  rooms are receptors that also receiv...
+</span></span><span id="section-content"> <a href="anansi.scape-api.html#anansi.scape/make-scapes-ref">make-scapes-ref</a><span id="line-content">              function      anansi.scape       create a ref to a hash of empty scapes.
 </span></span><span id="section-content"> <a href="anansi.receptor-api.html#anansi.receptor/make-server">make-server</a><span id="line-content">                  function      anansi.receptor    Sever factory  servers receive the following signa...
+</span></span><span id="section-content"> <a href="anansi.util-api.html#anansi.util/modify-keys">modify-keys</a><span id="line-content">                  function      anansi.util        takes fn and map and returns new map with fn appli...
 </span></span></pre>
 </div><div id="index-body">
   <h2 id="N"><span id="section-head">N</span></h2>
@@ -155,7 +169,12 @@ Shortcuts:<br />
 </div><div id="index-body">
   <h2 id="P"><span id="section-head">P</span></h2>
   <pre>
-</pre>
+<span id="section-content"> <a href="anansi.ceptr-api.html#anansi.ceptr/p-&gt;">p-&gt;</a><span id="line-content">                          function      anansi.ceptr       send a signal from the parent.
+</span></span><span id="section-content"> <a href="anansi.ceptr-api.html#anansi.ceptr/parent-of">parent-of</a><span id="line-content">                    function      anansi.ceptr       return the receptor that is a receptor's parent.
+</span></span><span id="section-content"> <a href="anansi.receptor-api.html#anansi.receptor/parse-address">parse-address</a><span id="line-content">                function      anansi.receptor    Utility function to parse a string encoded ceptr a...
+</span></span><span id="section-content"> <a href="anansi.receptor-api.html#anansi.receptor/parse-signal">parse-signal</a><span id="line-content">                 function      anansi.receptor    Utility function to parse a string encoded signal.
+</span></span><span id="section-content"> <a href="anansi.receptor-api.html#anansi.receptor/parse-signal-addresses">parse-signal-addresses</a><span id="line-content">       function      anansi.receptor    Utility function to parse a string encoded address...
+</span></span></pre>
 </div><div id="index-body">
   <h2 id="Q"><span id="section-head">Q</span></h2>
   <pre>
@@ -172,18 +191,24 @@ Shortcuts:<br />
 </span></span><span id="section-content"> <a href="anansi.receptor-api.html#anansi.receptor/receptor-scape-unset-address">receptor-scape-unset-address</a><span id="line-content"> function      anansi.receptor    Remove an address from a scape.
 </span></span><span id="section-content"> <a href="anansi.receptor-api.html#anansi.receptor/receptor-scape-unset-key">receptor-scape-unset-key</a><span id="line-content">     function      anansi.receptor    Remove a key into a scape.
 </span></span><span id="section-content"> <a href="anansi.receptor-api.html#anansi.receptor/receptor-scapes">receptor-scapes</a><span id="line-content">              function      anansi.receptor    Utility function to return a set of the scapes def...
-</span></span><span id="section-content"> <a href="anansi.receptor-api.html#anansi.receptor/regenerate-coord-scape">regenerate-coord-scape</a><span id="line-content">       function      anansi.receptor    Recreates the coordinate scape based on the other ...
-</span></span><span id="section-content"> <a href="anansi.receptor-api.html#anansi.receptor/regenerate-holding-coords">regenerate-holding-coords</a><span id="line-content">    function      anansi.receptor    Recreate the holding coords from the holding and a...
+</span></span><span id="section-content"> <a href="anansi.scape-api.html#anansi.scape/regenerate-coord-scape">regenerate-coord-scape</a><span id="line-content">       function      anansi.scape       Recreates the coordinate scape based on the other ...
+</span></span><span id="section-content"> <a href="anansi.scape-api.html#anansi.scape/regenerate-holding-coords">regenerate-holding-coords</a><span id="line-content">    function      anansi.scape       Recreate the holding coords from the holding and a...
 </span></span><span id="section-content"> <a href="anansi.receptor-api.html#anansi.receptor/remove-receptor">remove-receptor</a><span id="line-content">              function      anansi.receptor    Utility function to remove a receptor from the con...
+</span></span><span id="section-content"> <a href="anansi.map-utilities-api.html#anansi.map-utilities/remove-value">remove-value</a><span id="line-content">                 function      anansi.map-utilities Utility function that remvoes all entries in a m...
+</span></span><span id="section-content"> <a href="anansi.map-utilities-api.html#anansi.map-utilities/remove-values">remove-values</a><span id="line-content">                function      anansi.map-utilities Utility function that remvoes all entries in a m...
 </span></span><span id="section-content"> <a href="anansi.receptor-api.html#anansi.receptor/resolve-address">resolve-address</a><span id="line-content">              function      anansi.receptor    Utility function to resolve an address to :self or...
+</span></span><span id="section-content"> <a href="anansi.commands-api.html#anansi.commands/rl">rl</a><span id="line-content">                           function      anansi.commands    Request a list of all receptor specification on th...
 </span></span></pre>
 </div><div id="index-body">
   <h2 id="S"><span id="section-head">S</span></h2>
   <pre>
-<span id="section-content"> <a href="anansi.receptor-api.html#anansi.receptor/sanitize-for-address">sanitize-for-address</a><span id="line-content">         function      anansi.receptor    Utility function to create and address ready strin...
-</span></span><span id="section-content"> <a href="anansi.receptor-api.html#anansi.receptor/scape-keys">scape-keys</a><span id="line-content">                   function      anansi.receptor    Utility function to return a lazy list of all the ...
+<span id="section-content"> <a href="anansi.ceptr-api.html#anansi.ceptr/s-&gt;">s-&gt;</a><span id="line-content">                          function      anansi.ceptr       send a signal to yourself.
+</span></span><span id="section-content"> <a href="anansi.receptor-api.html#anansi.receptor/sanitize-for-address">sanitize-for-address</a><span id="line-content">         function      anansi.receptor    Utility function to create and address ready strin...
+</span></span><span id="section-content"> <a href="anansi.scape-api.html#anansi.scape/ScapeStore">ScapeStore</a><span id="line-content">                   var           anansi.scape       Protocol for accessing scape data.
 </span></span><span id="section-content"> <a href="anansi.commands-api.html#anansi.commands/send-signal">send-signal</a><span id="line-content">                  function      anansi.commands    Send a signal to a receptor..
 </span></span><span id="section-content"> <a href="anansi.receptor-api.html#anansi.receptor/serialize-receptor">serialize-receptor</a><span id="line-content">           function      anansi.receptor    convert a receptor into a string that can be passe...
+</span></span><span id="section-content"> <a href="anansi.ceptr-api.html#anansi.ceptr/set-content">set-content</a><span id="line-content">                  function      anansi.ceptr       set the value of a manifest item.
+</span></span><span id="section-content"> <a href="anansi.commands-api.html#anansi.commands/ss">ss</a><span id="line-content">                           function      anansi.commands    Send a signal (new version).
 </span></span></pre>
 </div><div id="index-body">
   <h2 id="T"><span id="section-head">T</span></h2>
@@ -194,6 +219,8 @@ Shortcuts:<br />
   <h2 id="U"><span id="section-head">U</span></h2>
   <pre>
 <span id="section-content"> <a href="anansi.receptor-api.html#anansi.receptor/unserialize-receptor">unserialize-receptor</a><span id="line-content">         function      anansi.receptor    convert a serialzed receptor into a receptor.
+</span></span><span id="section-content"> <a href="anansi.scape-api.html#anansi.scape/unserialize-scape">unserialize-scape</a><span id="line-content">            function      anansi.scape       convert a scape dump back into a a scape.
+</span></span><span id="section-content"> <a href="anansi.scape-api.html#anansi.scape/unserialize-scapes">unserialize-scapes</a><span id="line-content">           function      anansi.scape       convert scapes dump into scapes hash.
 </span></span><span id="section-content"> <a href="anansi.commands-api.html#anansi.commands/users">users</a><span id="line-content">                        function      anansi.commands    Get a list of logged in users.
 </span></span></pre>
 </div><div id="index-body">
@@ -220,7 +247,8 @@ Shortcuts:<br />
 </div><div id="index-body">
   <h2 id="Other"><span id="section-head">Other</span></h2>
   <pre>
-</pre>
+<span id="section-content"> <a href="anansi.ceptr-api.html#anansi.ceptr/--&gt;">--&gt;</a><span id="line-content">                          function      anansi.ceptr       send a signal to a receptor.
+</span></span></pre>
 </div>
 <style type="text/css">
   #AllContentContainer {min-width: 96em;}

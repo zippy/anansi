@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>anansi.commands API reference (Anansi)</title>
+    <title>anansi.util API reference (Anansi)</title>
     <link href="static/favicon.png" rel="icon" />
     <link href="static/favicon.png" rel="shortcut icon" />
     <link media="all" type="text/css" href="static/clojure.css" rel="stylesheet" />
@@ -48,109 +48,31 @@ namespace.
   <div style="margin-left: 1em;" class="toc-section">
     <a href="#toc0">Overview</a>
     <div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.commands/dump">dump</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.commands/execute">execute</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.commands/exit">exit</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.commands/help">help</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.commands/rl">rl</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.commands/send-signal">send-signal</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.commands/ss">ss</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.commands/users">users</a>
+      <a href="#anansi.util/modify-keys">modify-keys</a>
     </div>
     <br />
   </div>
 </div>
 </div>
-                <div id="content-tag"><h1 id="overview">API for <span id="namespace-name">anansi.commands</span></h1>
-by <span id="author">Eric Harris-Braun</span><br />
+                <div id="content-tag"><h1 id="overview">API for <span id="namespace-name">anansi.util</span></h1>
+by <span id="author">Unknown</span><br />
 <br />Usage:
 <pre>
 (ns your-namespace
-  (:require <span id="long-name">anansi.commands</span>))
+  (:require <span id="long-name">anansi.util</span>))
 </pre><pre>
 </pre><h2>Overview</h2>
-<pre id="namespace-docstr">Commands that can be excecuted at the server's command line</pre>
+<pre id="namespace-docstr"></pre>
 <br />
 <h2>Public Variables and Functions</h2>
 <div id="var-entry">
   <br />
   <hr />
-  <h2 id="anansi.commands/dump">dump</h2>
+  <h2 id="anansi.util/modify-keys">modify-keys</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (dump)
+  <pre id="var-usage">Usage: (modify-keys tform m)
 </pre>
-  <pre id="var-docstr">Dump current tree of receptors</pre>
-  
-</div><div id="var-entry">
-  <br />
-  <hr />
-  <h2 id="anansi.commands/execute">execute</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (execute input)
-</pre>
-  <pre id="var-docstr">Execute a command.</pre>
-  
-</div><div id="var-entry">
-  <br />
-  <hr />
-  <h2 id="anansi.commands/exit">exit</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (exit)
-</pre>
-  <pre id="var-docstr">Terminate connection with the server</pre>
-  
-</div><div id="var-entry">
-  <br />
-  <hr />
-  <h2 id="anansi.commands/help">help</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (help)
-       (help command)
-</pre>
-  <pre id="var-docstr">Show available commands and what they do.</pre>
-  
-</div><div id="var-entry">
-  <br />
-  <hr />
-  <h2 id="anansi.commands/rl">rl</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (rl)
-</pre>
-  <pre id="var-docstr">Request a list of all receptor specification on the server</pre>
-  
-</div><div id="var-entry">
-  <br />
-  <hr />
-  <h2 id="anansi.commands/send-signal">send-signal</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (send-signal &amp; signal)
-</pre>
-  <pre id="var-docstr">Send a signal to a receptor.</pre>
-  
-</div><div id="var-entry">
-  <br />
-  <hr />
-  <h2 id="anansi.commands/ss">ss</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (ss j)
-</pre>
-  <pre id="var-docstr">Send a signal (new version)</pre>
-  
-</div><div id="var-entry">
-  <br />
-  <hr />
-  <h2 id="anansi.commands/users">users</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (users)
-</pre>
-  <pre id="var-docstr">Get a list of logged in users</pre>
+  <pre id="var-docstr">takes fn and map and returns new map with fn applied to keys</pre>
   
 </div>
 
