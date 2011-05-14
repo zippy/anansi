@@ -34,10 +34,25 @@
 ;;; MATRICE signals
 ;; TODO
 ;; handle collisions when incorporating things onto the same place?
+
+(defn matrice? [_r _f]
+  (= :matrice (--> key->resolve _r (contents  _r :matrice-scape) _f )))
+
+(defn agent-or-matrice? [_r _f occupant-address]
+  (or
+   (= _f (--> key->resolve _r (contents  _r :agent-scape) occupant-address))
+   (matrice? _r _f)))
+
+(defn do-move [_r address x y]
+ ( let [coords (contents _r :coords-scape)]
+   (--> address->delete _r coords address)
+   (--> key->set _r coords [x y] address)))
+
 (signal matrice move [_r _f address x y]
-        (let [coords (contents _r :coords-scape)]
-          (--> address->delete _r coords address)
-          (--> key->set _r coords [x y] address)))
+        (if (matrice? _r _f)
+          (do-move _r address x y)
+          (throw (RuntimeException. "not matrice"))
+         ))
 
 (signal matrice incorporate [_r _f name picture_url x y]
         (let [o (receptor object _r picture_url)
@@ -45,7 +60,8 @@
               coords (contents _r :coords-scape)
               objects (contents _r :objects)]
           (dosync (alter objects assoc name o)
-                  (s-> matrice->move _r addr x y))
+                  ( do-move _r addr x y)
+                  )
           addr))
 
 (defn- check-password [_r password]
@@ -72,11 +88,6 @@
     (if (nil? addr) (throw (RuntimeException. (str "'" name "' is not in room"))))
     addr))
 
-(defn agent-or-matrice? [_r _f occupant-address]
-  (or
-   (= _f (--> key->resolve _r (contents  _r :agent-scape) occupant-address))
-   (= :matrice (--> key->resolve _r (contents  _r :matrice-scape) _f ))))
-
 (signal door leave [_r _f unique-name]
         (dosync
          (let [seats (contents _r :seat-scape)
@@ -97,7 +108,8 @@
               ~'addr (resolve-occupant ~'_r ~'occupants ~'unique-name)
               ~'stick (contents ~'_r :talking-stick)
               ]
-          (--> ~signal ~'_r ~'stick ~'addr)
+             (if (not (agent-or-matrice? ~'_r ~'_f ~'addr)) (throw (RuntimeException. "no agency")))
+             (--> ~signal ~'_r ~'stick ~'addr)
           )
            ))
 (forward-stick-signal participant->request-stick stick request)

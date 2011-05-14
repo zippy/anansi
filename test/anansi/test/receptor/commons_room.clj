@@ -8,6 +8,7 @@
 (deftest commons-room
   (let [m (receptor user nil "eric" nil)
         u (receptor user nil "zippy" nil)
+        u-art (receptor user nil "art" nil)
         r (receptor commons-room nil (address-of m) "password")
         occupants (contents r :occupant-scape)
         coords (contents r :coords-scape)]
@@ -29,7 +30,7 @@
     (testing "failed door entrance"
       (is (thrown-with-msg? RuntimeException #"incorrect room password" (s-> door->enter r {:password "wrong" :name  "x" :data {:name "e"}})))
       )
-    (let [u-art (receptor user nil "art" nil)
+    (let [
           o (--> door->enter u r {:password "password" :name "zippy" :data {:name "Eric H-B", :image "http://gravatar.com/userimage/x.jpg" :phone "123/456-7890"}})]
       (testing "door->enter"
         (is (agent-or-matrice? r (address-of u) (address-of o)))
@@ -65,22 +66,26 @@
     (testing "move"
       (let [o (--> door->enter u r {:password "password" :name "zippy" :data {:name "Eric"}})
             addr (address-of o)]
-        (s-> matrice->move r addr 100 100 )
+        ;; refuse if not from matrice
+        (is (thrown-with-msg? RuntimeException #"not matrice" (-->  matrice->move u r addr 100 100)))
+        (--> matrice->move m r addr 100 100 )
         (is (= addr (s-> key->resolve coords [100 100])))
-        (s-> matrice->move r addr 20 20)
+        (--> matrice->move m r addr 20 20)
         (is (= [[20 20]] (s-> address->resolve coords addr)))))
     (testing "talking-stick"
-      (--> door->enter u r {:password "password" :name "art" :data {:name "Art"}})
+      (--> door->enter u-art r {:password "password" :name "art" :data {:name "Art"}})
       (let [f (contents r :talking-stick)
             s (contents f :stick-scape)
             zippy_addr (s-> key->resolve occupants "zippy")
             art_addr (s-> key->resolve occupants "art") ]
-        (s-> stick->request r "zippy")
+        ;; refuse if not from agent
+        (is (thrown-with-msg? RuntimeException #"no agency" (--> stick->request u-art r "zippy")))
+        (--> stick->request u r "zippy")
         (is (= [zippy_addr] (s-> address->resolve s :have-it)))
-        (s-> stick->request r "art")
-        (s-> stick->release r "zippy")
+        (--> stick->request u-art r "art")
+        (--> stick->release u r "zippy")
         (is (= [art_addr] (s-> address->resolve s :have-it)))
-        (s-> stick->give r "zippy")
+        (--> stick->give u r "zippy")
         (is (= [zippy_addr] (s-> address->resolve s :have-it)))
         ))
     (testing "state"
