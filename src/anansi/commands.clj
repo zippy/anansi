@@ -88,15 +88,14 @@
 (defn rl
   "Request a list of all receptor specification on the server"
   []
-  (do
-    (println @*signals*)
-    (reduce (fn [m [k v]] (let [[r s] (parse-signal-keyword k)
-                               params (into [] (rest (rest v)))]
-                           (if (r m)
-                             (update-in m [r] (fn [rm] (assoc rm s params)))
-                             (assoc m r {s params}))))
-            {} @*signals*)
-    )
+  
+  (reduce (fn [m [k v]] (let [[r s] (parse-signal-keyword k)
+                             params (into [] (rest (rest v)))]
+                         (if (r m)
+                           (update-in m [r] (fn [rm] (assoc rm s params)))
+                           (assoc m r {s params}))))
+          {} @*signals*)
+    
   )
 
 (defn gs
