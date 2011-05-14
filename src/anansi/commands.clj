@@ -3,7 +3,7 @@
      :doc "Commands that can be excecuted at the server's command line"}  
   anansi.commands
   (:use [anansi.user]
-        [anansi.util :only [modify-keys]]
+        [anansi.util :only [modify-keys modify-vals]]
         [anansi.receptor
          :only [receive parse-signal dump-receptor serialize-receptor]]
         [anansi.server-constants]
@@ -30,26 +30,32 @@
                         true (into [] (.split arg-part " +")))
              command-function ((command-index) command)]
          (if (nil? command-function)
-           (str "Unknown command: '" input
-                "'. Try help for a list of commands.")
-           (apply command-function args )))
+           {:status :error
+            :result (str "Unknown command: '" input "'")
+            :comment  "Try 'help' for a list of commands."}
+           {:status :ok
+            :result (apply command-function args )}))
        (catch Exception e
          (.printStackTrace e *err*)
-         (str "ERROR: " e))))
+         {:status :error
+          :result (str "exception raised: " e)})))
 
 ;; Commands
 
 (defn users
   "Get a list of logged in users"
   []
-  (str (vec (keys @user-streams))))
+  (vec (keys @user-streams)))
+;  (modify-vals state @user-streams)
 
 (defn exit
   "Terminate connection with the server"
   []
   (let [bye_str (str "Goodbye " *user-name* "!")]
     (dosync
-     (commute user-streams assoc *user-name* nil))
+     (set! *done* true)
+     ;(commute user-streams assoc *user-name* nil)
+     )
     (spit *server-state-file-name* (serialize-receptor *server-receptor*))
     bye_str))
 

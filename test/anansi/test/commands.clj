@@ -16,6 +16,7 @@
 (defmacro def-command-test [name & body]
   `(deftest ~name
      (binding [*server-receptor* (make-server "server")
+               *done* false
                *user-name* "eric"
                *receptors* (ref {})
                *signals* (ref {})
@@ -51,7 +52,7 @@
               *server-state-file-name* "testing-server.state"]
       (let [[server client-stream] (make-client-server)]
         (.write client-stream "eric\n")
-        (is (= "[\"eric\"]" (users)))))))
+        (is (= ["eric"] (users)))))))
 
 (def-command-test dump-test
   (testing "dump of vanilla server"
@@ -71,18 +72,19 @@
 (def-command-test execute-test
   ;; Silence the error!
   (testing "executing a no argument command"
-    (is (= "Goodbye eric!"
+    (is (= {:status :ok, :result "Goodbye eric!"}
            (execute "exit"))))
   (testing "executing a non existent command"
-    (is (= "Unknown command: 'fish'. Try help for a list of commands."
+    (is (= {:status :error, :result "Unknown command: 'fish'", :comment "Try 'help' for a list of commands."}
            (execute "fish"))))
   (testing "executing a multi argument command"
-    (is (= "created"
+    (is (= {:status :ok, :result "created"}
            (execute (str "send " (json-str {:to "server:conjure", :body {:name "object2", :type "Object"}})) ))))
   (binding [*err* (java.io.PrintWriter. (writer "/dev/null"))]
     (testing "executing command that throws an error"
       (is (= (execute (str "send " (json-str  {:to "zippy:?", :body "some body"})))
-             "ERROR: java.lang.RuntimeException: No route to 'zippy:?'"
+             {:status :error, :result "exception raised: java.lang.RuntimeException: No route to 'zippy:?'"}
+             
              )))))
 
 (def-command-test ss-test
@@ -105,7 +107,7 @@
 (def-command-test gs-test
   (testing "get state"
     (let [host-state (gs "0")
-          room-state (gs "4")
+          room-state (gs "5")
           ]
       (is (=  (:type host-state) :host))
       (is (=  (:type room-state) :commons-room))

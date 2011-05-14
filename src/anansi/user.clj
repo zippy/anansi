@@ -6,3 +6,4 @@
 
 (def prompt "> ")
 (def user-streams (ref {}))
+(def *done*)

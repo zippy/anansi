@@ -8,8 +8,7 @@
         [anansi.receptor.scape]))
 
 (defmethod manifest :host [_r]
-           {:room-scape (receptor scape _r)
-            :user-scape (receptor scape _r)})
+           (make-scapes _r {} :room :user))
 
 ;; TODO make this an generalized receptor host
 (comment defmacro make-receptor [n p & a] `(receptor ~(symbol (str (name n))) ~p ~@a))
