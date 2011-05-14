@@ -54,13 +54,20 @@ Get the state of a receptor:
       {"5":{"type":"user", "address":5, "receptors":{}},
        "4":{"type":"user", "address":4, "receptors":{}}}}}
 
-Results are returned as a json object that is always of the form:
+Command results are returned as a json object that is always of the form:
     {"status:" "ok"|"error"
      "result": <result-value>}
 
+## Architecture
+
+The ceptr platform consists of a nested hierarchy of receptors, with no necessary top.
+
+[Documentation](https://github.com/zippy/anansi/blob/master/README-ceptr-architecture.markdown)
+ 
+
 ## Commons-room
 
-For prototyping purposes, the anansi server comes with a set of receptors that model a virtual room with a facilitator.
+For prototyping purposes, the anansi server also comes with a set of receptors that model a virtual room with a facilitator.
 
 [Documentation](https://github.com/zippy/anansi/blob/master/README-commons-room.markdown)
 
