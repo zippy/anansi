@@ -32,6 +32,9 @@ attached you can enter the following commands:
 For a list of commands:
     > help
 
+Get a list of logged in users:
+    > users
+
 Send a signal:
     ss <to, signal, params> encoded as json  
 for example:
@@ -42,10 +45,18 @@ Get a list of receptors defined on the server:
 
 Get the state of a receptor:
     > gs 0
-    {"type":"host",
-     "address":1,
-     "receptors":{"3":{"type":"user", "address":3, "receptors":{}}}}
-    
+    {"status":"ok",
+     "result":
+     {"scapes":{"room-scape":{}, "user-scape":{"y":5, "z":4}},
+      "type":"host",
+      "address":1,
+      "receptors":
+      {"5":{"type":"user", "address":5, "receptors":{}},
+       "4":{"type":"user", "address":4, "receptors":{}}}}}
+
+Results are returned as a json object that is always of the form:
+    {"status:" "ok"|"error"
+     "result": <result-value>}
 
 ## Commons-room
 

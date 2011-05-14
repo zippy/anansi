@@ -25,3 +25,7 @@ Here is a list of the receptors available and the signals you can send to them:
         password: <room access password>
         data: <hash of any other data to be associated with that room occupant like full-name, and img-url>
     door->leave: <name>
+    stick->request: <name>
+    stick->release: <name>
+    stick->give: <name>
+    matrice->move: <address> <x> <y>
