@@ -20,15 +20,16 @@ User receptors implement a model for agency in the ceptr platform.  By conventio
 
 ### host
     self->host-user [name]
-Creates a new user receptor.  Returns the receptor address.
+> Creates a new user receptor.  Returns the receptor address.
 
     self->host-room [name password matrice-address]
-Creates a new commons room receptor.  Returns the receptor address.
+> Creates a new commons room receptor.  Returns the receptor address.
+
 ### user
     self->connect [stream]
-Connects the user to a stream.
+> Connects the user to a stream.
 
     self->disconnect
-Disconnects the user from a stream.
+> Disconnects the user from a stream.
 
 
