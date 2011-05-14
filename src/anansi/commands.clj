@@ -24,7 +24,10 @@
 (defn execute
   "Execute a command."
   [input]
-  (try (let [[command & args] (.split input " +")
+  (try (let [[command arg-part] (.split input " +" 2)
+             args (cond (nil? arg-part) nil
+                        (= \{ (first arg-part)) [arg-part]
+                        true (into [] (.split arg-part " +")))
              command-function ((command-index) command)]
          (if (nil? command-function)
            (str "Unknown command: '" input
@@ -58,9 +61,9 @@
 (defn
   #^{ :doc "Send a signal to a receptor.", :command-name "send"}
   send-signal
-  [& signal]
+  [j]
   (receive *server-receptor*
-           (assoc (parse-signal (join " " signal))
+           (assoc (parse-signal (read-json j))
              :from {:id *user-name* :aspect "?"})))
 
 (defn help

@@ -26,8 +26,8 @@
 
 (def-command-test send-test
   (testing "sending a message"
-    (is (= "created" (send-signal "{:to \"server:conjure\", :body {:name \"object2\", :type \"Object\"}}")))
-    (is (= "I got 'message' from eric:?" (send-signal "{:to \"object2:ping\", :body \"message\"}")))))
+    (is (= "created" (send-signal (json-str {:to "server:conjure", :body {:name "object2", :type "Object"}}))))
+    (is (= "I got 'message' from eric:?" (send-signal (json-str {:to "object2:ping", :body "message"}))))))
 
 (deftest help-test
   (testing "help overview"
@@ -56,12 +56,12 @@
 (def-command-test dump-test
   (testing "dump of vanilla server"
     (is (= "#{}" (dump)))
-    (send-signal "{:to \"server:conjure\", :body {:name \"object2\", :type \"Object\"}}")
+    (send-signal (json-str {:to "server:conjure", :body {:name "object2", :type "Object"}}))
     (is (= "#{{:name- \"object2\", :type- \"Object\", :receptors- #{}}}" (dump)))))
 
 (def-command-test exit-test
   (testing "exiting"
-    (send-signal "{:to \"server:conjure\", :body {:name \"object2\", :type \"Object\"}}")
+    (send-signal (json-str {:to "server:conjure", :body {:name "object2", :type "Object"}}))
     (is (= "Goodbye eric!"
            (exit))))
   (testing "state saving"
@@ -78,10 +78,10 @@
            (execute "fish"))))
   (testing "executing a multi argument command"
     (is (= "created"
-           (execute "send {:to \"server:conjure\", :body {:name \"object2\", :type \"Object\"}}"))))
+           (execute (str "send " (json-str {:to "server:conjure", :body {:name "object2", :type "Object"}})) ))))
   (binding [*err* (java.io.PrintWriter. (writer "/dev/null"))]
     (testing "executing command that throws an error"
-      (is (= (execute "send {:to \"zippy:?\", :body \"some body\"}")
+      (is (= (execute (str "send " (json-str  {:to "zippy:?", :body "some body"})))
              "ERROR: java.lang.RuntimeException: No route to 'zippy:?'"
              )))))
 
