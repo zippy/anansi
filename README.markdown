@@ -30,22 +30,28 @@ Once connected, enter your user-name and then when the user has been
 attached you can enter the following commands:
 
 For a list of commands:
+
     > help
 
 Get a list of logged in users:
+
     > users
 
 Send a signal:
-    ss <to, signal, params> encoded as json  
+
+    > ss <to, signal, params> encoded as json  
+
 for example:
+
     > ss {"to":0, "signal":"self->host-room", "params": {"name": "the room", :password "pass", "matrice-address":33}}
     
 Get a list of receptors defined on the server:
+
     > rl
 
 Get the state of a receptor: (you can set full to true for more detailed state info)
-> gs {"addr":0}
 
+    > gs {"addr":0}
     {"status":"ok",
      "result":
      {"scapes":{"room-scape":{}, "user-scape":{"zippy":4}},
@@ -55,8 +61,7 @@ Get the state of a receptor: (you can set full to true for more detailed state i
       "type":"host",
       "address":1}}
 
-> gs {"addr":0 "full":true}
-
+    > gs {"addr":0 "full":true}
     {"status":"ok",
      "result":
      {"scapes-scape-addr":1,
@@ -69,6 +74,7 @@ Get the state of a receptor: (you can set full to true for more detailed state i
       "address":1}}
 
 Command results are returned as a json object that is always of the form:
+
     {"status:" "ok"|"error"
      "result": <result-value>}
 
