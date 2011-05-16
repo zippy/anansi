@@ -6,7 +6,15 @@
   (:use [anansi.map-utilities]))
 
 (defmethod manifest :scape [_r]
-  {:map (ref (sorted-map))} )
+           {:map (ref (sorted-map))} )
+
+(defmethod state :scape [_r full?]
+           (assoc (state-convert _r full?)
+             :map @(contents _r :map)))
+(defmethod restore :scape [state parent]
+           (let [r (do-restore state parent)]
+             (set-content r :map (ref (:map state)))
+             r))
 
 ;; Signals on the key aspect
 (signal key set [_r _f key value]
@@ -28,9 +36,9 @@
 
 (defn make-scapes
   "instantiate a scape (utility function for building the manifests)"
-  [_r man & scapes]
+  [_r manifest & scapes]
   (let [ss (receptor scape _r)
-        m  (into man (map (fn [s] (let [key (keyword (str (name s) "-scape"))
+        m  (into manifest (map (fn [s] (let [key (keyword (str (name s) "-scape"))
                                       s (receptor scape _r)]
                                   (--> key->set _r ss key (address-of s))
                                   [key s])) scapes))

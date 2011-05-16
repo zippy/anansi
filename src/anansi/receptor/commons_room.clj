@@ -9,23 +9,38 @@
   (:use [anansi.receptor.object])
   (:use [anansi.receptor.facilitator]))
 
-(defmethod state :commons-room [_r]
-           (assoc (state-convert _r)
-;;             :objects (map state @(contents _r :objects))
-             :matrices (s-> key->all (contents _r :matrice-scape))
-             :talking-stick (state (contents _r :talking-stick))
-             )
+(defmethod state :commons-room [_r full?]
+           (let [base-state (state-convert _r full?)]
+             (if full?
+               (assoc base-state
+                 :password (contents _r :password)
+                 ;; TODO object state
+                 :matrice-scape (address-of (contents _r :matrice-scape))
+                 :door (address-of (contents _r :door))
+                 :talking-stick (address-of (contents _r :talking-stick))
+                 :door-log @(contents _r :door-log)
+                 )
+               (assoc base-state 
+                   ;;             :objects (map state @(contents _r :objects))
+                   :matrices (s-> key->all (contents _r :matrice-scape))
+                   :talking-stick (state (contents _r :talking-stick) full?)
+                   )))
            )
+(defmethod restore :commons-room [state parent]
+           (let [r (do-restore state parent)]
+             (set-content r :objects (ref {})) ;TODO actually restore the objects...
+             (set-content r :password (:password state))
+             (set-content r :matrice-scape (get-receptor r (:matrice-scape state)))
+             (set-content r :door (get-receptor r (:door state)))
+             (set-content r :door-log (ref (:door-log state)))
+             (set-content r :talking-stick (get-receptor r (:talking-stick state)))
+             r))
 (defmethod manifest :commons-room [_r matrice-address password]
            (let [ms (receptor scape _r)]
              (s-> key->set ms matrice-address :matrice)
              (make-scapes _r  {:password password
                                :objects (ref {})
                                :matrice-scape ms
-                                        ;              :agent-scape (receptor scape _r)
-                                        ;              :coords-scape (receptor scape _r)
-                                        ;              :occupant-scape (receptor scape _r)
-                                        ;              :seat-scape (receptor list-scape _r)
                                :door (receptor portal _r)
                                :door-log (ref [])
                                :talking-stick (receptor facilitator _r "")}

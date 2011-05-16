@@ -16,7 +16,7 @@
 (signal self host-room [_r _f {receptor-name :name password :password matrice-address :matrice-address}]
         (dosync
          (let [names (contents _r :room-scape)
-               r (receptor commons-room _r password matrice-address) ;;(make-receptor type _r args)
+               r (receptor commons-room _r matrice-address password) ;;(make-receptor type _r args)
                addr (address-of r)]
            (--> key->set _r names receptor-name addr)
            addr)))

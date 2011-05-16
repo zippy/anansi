@@ -112,4 +112,4 @@
   [j]
   (let [to-addr (read-json j)
         to (if (= to-addr 0 ) *host* (get-receptor *host* to-addr))]
-    (state to)))
+    (state to true)))

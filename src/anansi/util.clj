@@ -12,19 +12,20 @@
   [tform m]
   (into {} (map (fn [[k v]] [ k (tform v)] ) m)))
 
-(defn- do-snapshot
-  [m l]
-  (into {} (map (fn [[k v]]
-                  [k  (if (instance? clojure.lang.Ref v)
-                        (if (or (= k :parent) (get l (str v)))
-                          :skipping
-                          (if (map? @v)
-                            (do-snapshot @v (conj l (str v)))
-                            @v))
-                        v)]
-                  ) m)))
+(defn do-snapshot
+  [mm l]
+  (let [m (filter (fn [[k v]] (not= k :parent)) mm )]
+    (into {} (map (fn [[k v]]
+                    [k  (if (instance? clojure.lang.Ref v)
+                          (let [ref-key (keyword (last (re-find #"@(.*)$" (str v))))]
+                            (if (get l ref-key)
+                              '(get-ref ~ref-key)
+                              (if (map? @v)
+                                {ref-key (do-snapshot @v (conj l ref-key))}
+                                @v)))
+                          v)]
+                    ) m))))
 
 (defn snapshot [m]
   "removes all refs from a map"
   (do-snapshot m #{}))
-

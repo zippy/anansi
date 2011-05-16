@@ -25,7 +25,7 @@
     (is (= (s-> self->test-signal r :x) "from 1 with param :x")))
   )
 (deftest receptors
-  (set! *print-level* 8)
+  (set! *print-level* 10)
   (testing "contents"
     (is (= (contents r :x) "the receptor contents: fish"))
     (set-content r :x "the receptor contents: dog")
@@ -38,9 +38,22 @@
   (testing "destroy receptor"
     (destroy-receptor nil (address-of r))
     (is (= nil (get-receptor nil (address-of r)))))
+  (testing "get-scape"
+    (is (= (get-scape r :s1-scape) (get-receptor r (--> key->resolve r (get-receptor r 1) :s1-scape )))))
   (testing "state"
     (receptor test-receptor r "cow")
+    
     (--> key->set r (contents r :s1-scape) :test-key :test-val)
-    (is (= {:scapes {:s1-scape {:test-key :test-val}, :s2-scape {}}, :type :test-receptor, :address 1, :receptors {4 {:scapes {:s1-scape {}, :s2-scape {}}, :type :test-receptor, :address 4, :receptors {}}}}
-           (state r))))
+    (is (= (state r false)
+           {:scapes {:s1-scape {:test-key :test-val}, :s2-scape {}}, :receptors {:last-address 4, 4 {:scapes {:s1-scape {}, :s2-scape {}}, :receptors {:last-address 3}, :type :test-receptor, :address 4}}, :type :test-receptor, :address 1}))
+    (is (= (state r true)
+            {:scapes-scape-addr 1,:receptors {:last-address 4, 4 {:scapes-scape-addr 1 :receptors {:last-address 3, 3 {:map {}, :type :scape, :address 3}, 2 {:map {}, :type :scape, :address 2}, 1 {:map {:s1-scape 2, :s2-scape 3}, :type :scape, :address 1}}, :type :test-receptor, :address 4}, 3 {:map {}, :type :scape, :address 3}, 2 {:map {:test-key :test-val}, :type :scape, :address 2}, 1 {:map {:s1-scape 2, :s2-scape 3}, :type :scape, :address 1}}, :type :test-receptor, :address 1})))
+  
+  
+  (testing "restore"
+    (let [restored (restore (state r true) nil)]
+      (is (= (state r true) (state restored true)))
+      (is (= (state (get-scape r :scapes-scape) true) (state (get-scape restored :scapes-scape) true)))
+      (is (= (state (get-scape r :s1-scape) true) (state (get-scape restored :s1-scape) true))))
+    )
   )

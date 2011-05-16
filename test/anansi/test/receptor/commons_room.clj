@@ -88,10 +88,16 @@
         (--> stick->give u r "zippy")
         (is (= [zippy_addr] (s-> address->resolve s :have-it)))
         ))
-    (testing "state"
+    (testing "state-pretty"
       ;; cant actually test the contents because addresses change...
-      (is (= (into #{} (keys  (state r)))
+      (is (= (into #{} (keys  (state r false)))
              #{:receptors :matrices :scapes :type :talking-stick :address})))
+    (testing "state-full"
+      (is (= (into #{} (keys  (state r true)))
+             #{:scapes-scape-addr :receptors :type :address :door-log :door :matrice-scape :talking-stick :password}))
+      (comment is (= nil (restore (state r true) nil))))
+    (testing "restore"
+      (is (=  (state r true) (state (restore (state r true) nil) true))))
     ))
 
 (comment set-person-image )

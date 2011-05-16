@@ -8,6 +8,14 @@
 (defmethod manifest :facilitator [_r img_url]
            (make-scapes _r {:image-url img_url} :stick))
 
+(defmethod state :facilitator [_r full?]
+           (assoc (state-convert _r full?)
+             :image-url (contents _r :image-url)))
+(defmethod restore :facilitator [state parent]
+           (let [r (do-restore state parent)]
+             (set-content r :image-url (:image-url state))
+             r))
+
 (signal participant request-stick [_r _f participant-address]
         (let [stick (contents _r :stick-scape)]
           (if (= [] (--> address->resolve _r stick :have-it))

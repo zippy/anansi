@@ -32,6 +32,11 @@
       (s-> matrice->give-stick f 2)
       (is (= [2] (s-> address->resolve stick :have-it)))
       )
+    (testing "state"
+      (is (= (:image-url (state f true))
+             "some-url")))
+    (testing "restore"
+      (is (=  (state f true) (state (restore (state f true) nil) true))))
     (testing "you say you want the stick if the matrice says you want the stick")
 
     ))

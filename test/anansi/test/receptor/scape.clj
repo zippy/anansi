@@ -20,7 +20,13 @@
         (is (= [:b] (s-> address->resolve s 1)))
         (s-> address->delete s 1)
         (is (= [] (s-> address->resolve s 1))))
-    (comment is (= {:type "HashScape", :contents {:a 1}} (scape-dump scape)))
+    (testing "state"
+      (s-> key->set s :b 1)
+      (is (= (:map (state s true))
+             {:b 1})))
+    (testing "restore"
+      (is (=  (state s true) (state (restore (state s true) nil) true))))
+    
     ))
 
 (deftest make-scapes-test

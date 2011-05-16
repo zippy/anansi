@@ -10,5 +10,7 @@
   (is (= {1 3 3 5} (modify-vals inc {1 2 3 4}))))
 
 (deftest snapshot-test
-  (is (= {:a 2, :b {4 5}}
-         (snapshot {:a 2, :b (ref {4 5})}))))
+  (let [r (ref {4 5})
+        n (keyword (last (re-find #"@(.*)$" (str r))))]
+    (is (= {:a 2, :b {n {4 5}}}
+           (snapshot {:a 2, :b r})))))

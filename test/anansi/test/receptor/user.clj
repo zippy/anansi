@@ -14,4 +14,10 @@
     (testing "connect signal"
       (s-> self->connect u :another-stream)
       (is (= (contents u :stream) :another-stream)))
+    (testing "state"
+      (is (= (:name (state u true))
+             "zippy")))
+    (testing "restore"
+      (is (=  (state u true) (state (restore (state u true) nil) true))))
+
     ))

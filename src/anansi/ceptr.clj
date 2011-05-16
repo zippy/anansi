@@ -19,8 +19,8 @@
 (defmulti manifest (fn [receptor & args] (:type @receptor)))
 (defmethod manifest :default [receptor & args] {})
 
-(defmulti state (fn [receptor] (:type @receptor)))
-
+(defmulti state (fn [receptor full?] (:type @receptor)))
+(defmulti restore (fn [s p] (:type s)))
 
 (defn receptors-container [receptor] (if (nil? receptor) *receptors* (:receptors @receptor)))
 
@@ -87,23 +87,54 @@
   [receptor address]
   (dosync ( alter (receptors-container receptor) dissoc address)))
 
+(defn get-scape
+  "return the named scape recptor"
+  [receptor scape-name]
+  (contents receptor scape-name))
+
 (defn scape-state [_r scape-name]
   @(contents (contents _r scape-name) :map))
 
-(defn state-convert [receptor]
+(defn state-convert
+  "worker function to serialize the standard contents of a recptor"
+  [receptor full?]
   (let [r @receptor
-        s {:type (:type r),
-           :address (:address r)
-           :receptors (modify-vals (fn [x] (state x))  (filter (fn [[k v]] (and (not= k :last-address) (not= (:type @v) :scape) )) @(:receptors r)))
-           }
-        ss (contents receptor :scapes-scape)
-        ]
-    (if ss
+        rc @(:receptors r)
+        s1 {:type (:type r),
+            :address (:address r)
+            }
+        s (if (empty? rc) s1
+              (assoc s1
+                :receptors (assoc (modify-vals (fn [x] (state x full?))  (filter (fn [[k v]] (and (not= k :last-address) (or full? (not= (:type @v) :scape)) )) rc))
+                             :last-address (:last-address rc))))
+        ss (contents receptor :scapes-scape)]
+    (if (and (not full?) ss)
       (let [scapes (keys @(contents ss :map))] ;; this is cheating 
         (assoc s :scapes (into {} (map (fn [sn] [sn (scape-state receptor sn)] ) scapes))))
-      s)
-))
-(defmethod state :default [receptor]
-           (state-convert receptor))
+      (if ss (assoc s :scapes-scape-addr (address-of ss)) s)
+      )))
+(defmethod state :default [receptor full?]
+           (state-convert receptor full?))
 
+(defn do-restore [state parent]
+  (let [r (ref {})
+        rc (:receptors state)
+        sr (modify-vals (fn [s] (restore s r)) (filter (fn [[k v]] (not= k :last-address)) rc))
+        sr1 (if (:last-address rc) (assoc sr :last-address (:last-address rc)) sr)
+        c {}
+        r1 {:type (:type state)
+            :address (:address state)
+            :receptors (ref sr1)
+            :parent parent
+            :contents (ref c)
+            }
+        ]
+    (dosync (alter r merge r1))
+    (let [ss-addr (:scapes-scape-addr state)]
+      (if ss-addr (let [ss (get-receptor r ss-addr)]
+                    (doseq [[k v]  @(contents ss :map)] (set-content r k (get-receptor r v))) 
+                    (set-content r :scapes-scape ss))))
+    r)
+  )
 
+(defmethod restore :default [state parent] (do-restore state parent) )
