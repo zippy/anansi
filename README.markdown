@@ -37,9 +37,9 @@ Get a list of logged in users:
 
     > users
 
-Send a signal:
+All signals are sent to receptors using the ss command which takes a single json object as a parameter which is always of this form:
 
-    > ss <to, signal, params> encoded as json  
+    {"to":<address-integer>, "signal":<signal-name>, "params":<signal-dependent-params>}
 
 for example:
 

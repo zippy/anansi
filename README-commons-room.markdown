@@ -1,12 +1,27 @@
 # commons-room
 
-All signals are sent to receptors using the ss command which takes a single json object as a parameter which is always of this form:
+## Examples
 
-    {"to":<address-integer>, "signal":<signal-name>, "params":<signal-dependent-params>}
+To create a new room send the host a "self->host-room" signal, make sure to use your user address as the matrice-address:
 
-Example: to create a new room send the host a "self->host-room" signal, make sure to use your user address as the matrice-address:
+    > ss {"to":0, "signal":"self->host-room", "params": {"name":"the room", "password":"pass", "matrice-address":4}}
+    {"status":"ok", "result":5}
 
-    ss {"to":0, "signal":"self->host-room", "params": {"name":"the room", "password":"pass", "matrice-address":3}}
+To add an occupant to the room, send the room a "door->enter" signal:
+
+    > ss {"to":5, "signal":"door->enter", "params": {"password": "pass" "name":"zippy", "data": {"image-url": "http://images.com/img.jpg"}}}
+    {"status":"ok", "result":8}
+
+To move an occupant to a coordinate in the room send the room a "matrice->move":
+
+    > ss {"to":5, "signal":"matrice->move", "params": {"addr":8, "x":100, "y":100}}
+    {"status":"ok", "result":{"[100 100]":8}}
+
+To have an occupant leave the room send the room a "door->leave" signal:
+
+    > ss {"to":5, "signal":"door->leave", "params": "zippy"}
+    {"status":"ok", "result":null}
+    
 
 ## API
 
@@ -21,16 +36,24 @@ Example: to create a new room send the host a "self->host-room" signal, make sur
     stick->request: <name>
     stick->release: <name>
     stick->give: <name>
-    matrice->move: <address> <x> <y>
+    matrice->move: 
+        addr: <address of occupant>
+        x: <x coord>
+        y: <y coord>
 #### scapes
-    matrice
-> maps occupant address to a single matrice address.  Used for permissions management
 
-    agent
-> maps external agent addresses to occupant addresses.  Used for permissions management.
+##### matrice
+maps occupant address to a single matrice address.  Used for permissions management
 
-    coord
-> maps 2D coordinates onto addresses (occupant or object)
+##### agent
+maps external agent addresses to occupant addresses.  Used for permissions management.
 
-    occupant
-> maps names onto occupant addreses
+##### coord
+maps 2D coordinates onto addresses (occupant or object)
+
+##### occupant
+maps names onto occupant addreses
+
+### talking-stick
+#### signals
+#### scapes

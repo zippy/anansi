@@ -30,47 +30,45 @@
     (testing "failed door entrance"
       (is (thrown-with-msg? RuntimeException #"incorrect room password" (s-> door->enter r {:password "wrong" :name  "x" :data {:name "e"}})))
       )
-    (let [
-          o (--> door->enter u r {:password "password" :name "zippy" :data {:name "Eric H-B", :image "http://gravatar.com/userimage/x.jpg" :phone "123/456-7890"}})]
+    (let [address-of-o (--> door->enter u r {:password "password" :name "zippy" :data {:name "Eric H-B", :image "http://gravatar.com/userimage/x.jpg" :phone "123/456-7890"}})]
       (testing "door->enter"
-        (is (agent-or-matrice? r (address-of u) (address-of o)))
-        (is (agent-or-matrice? r (address-of m) (address-of o)))
-        (is (not (agent-or-matrice? r (address-of u-art) (address-of o))))
-        (is (= o (get-receptor r (address-of o))))
+        (is (agent-or-matrice? r (address-of u) address-of-o))
+        (is (agent-or-matrice? r (address-of m) address-of-o))
+        (is (not (agent-or-matrice? r (address-of u-art) address-of-o)))
         ;; enter event is posted to the door log
         (let [le (last @(contents r :door-log))]
           (is (= "zippy" (:who le)))
           (is (= "entered" (:what le)))
           (is (instance? java.util.Date (:when le))))
         ;; sender of enter is in the agent scape for the occupant
-        (is (= (address-of u) (s-> key->resolve (contents r :agent-scape) (address-of o))))
-        (comment is (= (s-> key->resolve (contents r :seat-scape) 0) (address-of o)))
+        (is (= (address-of u) (s-> key->resolve (contents r :agent-scape) address-of-o)))
+        (comment is (= (s-> key->resolve (contents r :seat-scape) 0) address-of-o))
         (is (= (s-> key->all occupants) ["zippy"] ))
         (is (thrown-with-msg? RuntimeException #"'zippy' is already in the room" (s-> door->enter r {:password "password" :name  "zippy" :data {:name "e"}}))))
       (testing "door-leave"
         ;; refuse leave if not from agent
         (is (thrown-with-msg? RuntimeException #"no agency" (--> door->leave u-art r "zippy")))
-        (--> door->leave u r "zippy")
+        (is (= nil (--> door->leave u r "zippy")))
         ;; leave event is posed to the door log
         (let [le (last @(contents r :door-log))]
             (is (= "zippy" (:who le)))
             (is (= "left" (:what le)))
             (is (instance? java.util.Date (:when le))))
         (comment is (= nil (contents (contents r :seat-scape) :map)))
-        (is (= [] (s-> address->resolve occupants (address-of o))))
+        (is (= [] (s-> address->resolve occupants address-of-o)))
         (is (= (s-> key->all (contents r :occupant-scape)) [] ))
-        (is (nil? (get-receptor r (address-of o))))
+        (is (= (s-> key->all (contents r :agent-scape)) [] ))
+        (is (nil? (get-receptor r address-of-o)))
         ;; leave works if from matrice
         (--> door->enter u r {:password "password" :name "zippy" :data {:name "Eric"}})
         (--> door->leave m r "zippy")))
     (testing "move"
-      (let [o (--> door->enter u r {:password "password" :name "zippy" :data {:name "Eric"}})
-            addr (address-of o)]
+      (let [addr (--> door->enter u r {:password "password" :name "zippy" :data {:name "Eric"}})]
         ;; refuse if not from matrice
-        (is (thrown-with-msg? RuntimeException #"not matrice" (-->  matrice->move u r addr 100 100)))
-        (--> matrice->move m r addr 100 100 )
+        (is (thrown-with-msg? RuntimeException #"not matrice" (-->  matrice->move u r {:addr addr :x 100 :y 100})))
+        (--> matrice->move m r {:addr addr :x 100 :y 100} )
         (is (= addr (s-> key->resolve coords [100 100])))
-        (--> matrice->move m r addr 20 20)
+        (--> matrice->move m r {:addr addr :x 20 :y 20})
         (is (= [[20 20]] (s-> address->resolve coords addr)))))
     (testing "talking-stick"
       (--> door->enter u-art r {:password "password" :name "art" :data {:name "Art"}})

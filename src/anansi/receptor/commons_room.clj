@@ -63,7 +63,7 @@
    (--> address->delete _r coords address)
    (--> key->set _r coords [x y] address)))
 
-(signal matrice move [_r _f address x y]
+(signal matrice move [_r _f {address :addr x :x y :y}]
         (if (matrice? _r _f)
           (do-move _r address x y)
           (throw (RuntimeException. "not matrice"))
@@ -95,7 +95,7 @@
            (--> key->set _r (contents _r :agent-scape) addr _f)
            (comment address->push seats addr)
            (--> key->set _r occupants unique-name addr)
-           o)
+           (address-of o))
          ))
 
 (defn resolve-occupant [_r occupants name]
@@ -107,13 +107,15 @@
         (dosync
          (let [seats (contents _r :seat-scape)
                occupants (contents _r :occupant-scape)
+               agents (contents _r :agent-scape)
                addr (resolve-occupant _r occupants unique-name)]
            (if (not ( agent-or-matrice? _r _f addr)) (throw (RuntimeException. "no agency")))
            (alter (contents _r :door-log) conj {:who unique-name, :what "left", :when (java.util.Date.)})
            (comment address->delete seats addr)
            (--> address->delete _r occupants addr)
-           (destroy-receptor _r addr))
-         ))
+           (--> key->delete _r agents addr)
+           (destroy-receptor _r addr)
+           nil)))
 
 ;; TODO, I think the _r and unique-name parameters should be gensymed
 ;; but I don't know how to do that yet.
