@@ -28,11 +28,17 @@
         (.write client-stream (str "ss "(json-str {:to 0 :signal "self->host-room" :params {:name "the-room" :password "pass" :matrice-address 5}}) "\n"))
         (Thread/sleep 1000)
         (is (re-find #"\{\"status\":\"ok\", \"result\":[0-9]+\}\n> $" (.toString server-stream))))
-      (testing "entering a room"
-        (let [[m room-addr] (re-find #"\{\"status\":\"ok\", \"result\":([0-9]+)\}\n> $" (.toString server-stream))
-              c (str "ss " (json-str {:to (Integer. room-addr) :signal "door->enter" :params {:password "pass" :name "bob", :data {:image-url "http://images.com/img.jpg"}}}) "\n")]
-          (.write client-stream c)
-          (Thread/sleep 1000)
-          (is (re-find #"\{\"status\":\"ok\", \"result\":[0-9]+\}\n> $" (.toString server-stream))))))
+      (let [[m room-addr] (re-find #"\{\"status\":\"ok\", \"result\":([0-9]+)\}\n> $" (.toString server-stream))] 
+        (testing "entering a room"
+          (let [c (str "ss " (json-str {:to (Integer. room-addr) :signal "door->enter" :params {:password "pass" :name "bob", :data {:image-url "http://images.com/img.jpg"}}}) "\n")]
+            (.write client-stream c)
+            (Thread/sleep 1000)
+            (is (re-find #"\{\"status\":\"ok\", \"result\":([0-9]+)\}\n> $" (.toString server-stream)))))
+        (testing "sleeping an occupant"
+          (let [[m o-addr] (re-find #"\{\"status\":\"ok\", \"result\":([0-9]+)\}\n> $" (.toString server-stream))]
+            (.write client-stream (str "ss " (json-str {:to (Integer. room-addr) :signal "matrice->update-awareness" :params {:addr (Integer. o-addr) :awareness "sleepy"}}) "\n"))
+            (Thread/sleep 1000)
+            (is (re-find #"\{\"status\":\"ok\", \"result\":null\}\n> $" (.toString server-stream))))))
     )
   )
+)

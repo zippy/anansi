@@ -11,7 +11,8 @@
         u-art (receptor user nil "art" nil)
         r (receptor commons-room nil (address-of m) "password")
         occupants (contents r :occupant-scape)
-        coords (contents r :coords-scape)]
+        coords (contents r :coords-scape)
+        awareness (contents r :awareness-scape)]
     (set! *print-level* 10)
     (testing "initialization"
       (is (= [(address-of m)] (s-> address->resolve (contents r :matrice-scape) :matrice)))
@@ -44,7 +45,20 @@
         (is (= (address-of u) (s-> key->resolve (contents r :agent-scape) address-of-o)))
         (comment is (= (s-> key->resolve (contents r :seat-scape) 0) address-of-o))
         (is (= (s-> key->all occupants) ["zippy"] ))
-        (is (thrown-with-msg? RuntimeException #"'zippy' is already in the room" (s-> door->enter r {:password "password" :name  "zippy" :data {:name "e"}}))))
+        ;; entering again fails
+        (is (thrown-with-msg? RuntimeException #"'zippy' is already in the room" (s-> door->enter r {:password "password" :name  "zippy" :data {:name "e"}})))
+        ;; on entering occupant is awake
+        (is (= (s-> key->resolve awareness address-of-o) :awake))
+        )
+      (testing "awareness"
+        (let [addr (s-> key->resolve occupants "zippy")]
+          (is (nil? (--> matrice->update-awareness m r {:addr addr :awareness "asleep"} )))
+          (is (= (s-> key->resolve awareness addr) :asleep))
+          (--> matrice->update-awareness u r {:addr addr :awareness "tired"} )
+          (is (= (s-> key->resolve awareness addr) :tired))
+          (is (thrown-with-msg? RuntimeException #"no agency" (--> matrice->update-awareness u-art r {:addr addr :awareness "asleep"})))
+          )
+        )
       (testing "door-leave"
         ;; refuse leave if not from agent
         (is (thrown-with-msg? RuntimeException #"no agency" (--> door->leave u-art r "zippy")))
@@ -58,6 +72,7 @@
         (is (= [] (s-> address->resolve occupants address-of-o)))
         (is (= (s-> key->all (contents r :occupant-scape)) [] ))
         (is (= (s-> key->all (contents r :agent-scape)) [] ))
+        (is (= (s-> key->all (contents r :awareness-scape)) [] ))
         (is (nil? (get-receptor r address-of-o)))
         ;; leave works if from matrice
         (--> door->enter u r {:password "password" :name "zippy" :data {:name "Eric"}})

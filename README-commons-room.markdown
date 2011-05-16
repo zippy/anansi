@@ -21,7 +21,13 @@ To have an occupant leave the room send the room a "door->leave" signal:
 
     > ss {"to":5, "signal":"door->leave", "params": "zippy"}
     {"status":"ok", "result":null}
-    
+
+To change an occupants awareness status send the room a "matrice->update-awareness" signal:
+
+    > ss {"to":5, "signal":"matrice->update-awareness", "params": {"addr":8 "awareness":"asleep"}}
+    {"status":"ok", "result":null}
+
+  
 
 ## API
 
@@ -36,6 +42,9 @@ To have an occupant leave the room send the room a "door->leave" signal:
     stick->request: <name>
     stick->release: <name>
     stick->give: <name>
+    matrice->update-awareness:
+        addr: <address of occupant>
+        awareness: <string value of awareness state>
     matrice->move: 
         addr: <address of occupant>
         x: <x coord>

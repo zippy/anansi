@@ -9,6 +9,17 @@
   (:use [anansi.receptor.object])
   (:use [anansi.receptor.facilitator]))
 
+(defmethod manifest :commons-room [_r matrice-address password]
+           (let [ms (receptor scape _r)]
+             (s-> key->set ms matrice-address :matrice)
+             (make-scapes _r  {:password password
+                               :objects (ref {})
+                               :matrice-scape ms
+                               :door (receptor portal _r)
+                               :door-log (ref [])
+                               :talking-stick (receptor facilitator _r "")}
+                          :agent :coords :occupant :awareness)))
+
 (defmethod state :commons-room [_r full?]
            (let [base-state (state-convert _r full?)]
              (if full?
@@ -35,16 +46,6 @@
              (set-content r :door-log (ref (:door-log state)))
              (set-content r :talking-stick (get-receptor r (:talking-stick state)))
              r))
-(defmethod manifest :commons-room [_r matrice-address password]
-           (let [ms (receptor scape _r)]
-             (s-> key->set ms matrice-address :matrice)
-             (make-scapes _r  {:password password
-                               :objects (ref {})
-                               :matrice-scape ms
-                               :door (receptor portal _r)
-                               :door-log (ref [])
-                               :talking-stick (receptor facilitator _r "")}
-                          :agent :coords :occupant)))
 
 ;;; MATRICE signals
 ;; TODO
@@ -67,7 +68,12 @@
         (if (matrice? _r _f)
           (do-move _r address x y)
           (throw (RuntimeException. "not matrice"))
-         ))
+          ))
+(signal matrice update-awareness [_r _f {address :addr  awareness :awareness}]
+        (if (agent-or-matrice? _r _f address)
+          (do (--> key->set _r (contents _r :awareness-scape) address (keyword awareness)) nil)
+          (throw (RuntimeException. "no agency"))
+          ))
 
 (signal matrice incorporate [_r _f name picture_url x y]
         (let [o (receptor object _r picture_url)
@@ -93,6 +99,7 @@
            (if (--> key->resolve _r occupants unique-name) (throw (RuntimeException. (str "'" unique-name "' is already in the room"))))
            (alter (contents _r :door-log) conj {:who unique-name, :what "entered", :when (java.util.Date.)})
            (--> key->set _r (contents _r :agent-scape) addr _f)
+           (--> key->set _r (contents _r :awareness-scape) addr :awake)
            (comment address->push seats addr)
            (--> key->set _r occupants unique-name addr)
            (address-of o))
@@ -108,12 +115,14 @@
          (let [seats (contents _r :seat-scape)
                occupants (contents _r :occupant-scape)
                agents (contents _r :agent-scape)
+               awareness (contents _r :awareness-scape)
                addr (resolve-occupant _r occupants unique-name)]
            (if (not ( agent-or-matrice? _r _f addr)) (throw (RuntimeException. "no agency")))
            (alter (contents _r :door-log) conj {:who unique-name, :what "left", :when (java.util.Date.)})
            (comment address->delete seats addr)
            (--> address->delete _r occupants addr)
            (--> key->delete _r agents addr)
+           (--> key->delete _r awareness addr)
            (destroy-receptor _r addr)
            nil)))
 
