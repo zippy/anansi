@@ -25,9 +25,12 @@ Example: to create a new room send the host a "self->host-room" signal, make sur
 #### scapes
     matrice
 > maps occupant address to a single matrice address.  Used for permissions management
+
     agent
 > maps external agent addresses to occupant addresses.  Used for permissions management.
+
     coord
 > maps 2D coordinates onto addresses (occupant or object)
+
     occupant
 > maps names onto occupant addreses

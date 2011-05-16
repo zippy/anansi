@@ -43,16 +43,30 @@ for example:
 Get a list of receptors defined on the server:
     > rl
 
-Get the state of a receptor:
-    > gs 0
+Get the state of a receptor: (you can set full to true for more detailed state info)
+> gs {"addr":0}
+
     {"status":"ok",
      "result":
-     {"scapes":{"room-scape":{}, "user-scape":{"y":5, "z":4}},
-      "type":"host",
-      "address":1,
+     {"scapes":{"room-scape":{}, "user-scape":{"zippy":4}},
       "receptors":
-      {"5":{"type":"user", "address":5, "receptors":{}},
-       "4":{"type":"user", "address":4, "receptors":{}}}}}
+        {"last-address":4, 
+         "4": {"name":"zippy", "type":"user", "address":4}},
+      "type":"host",
+      "address":1}}
+
+> gs {"addr":0 "full":true}
+
+    {"status":"ok",
+     "result":
+     {"scapes-scape-addr":1,
+      "receptors": {"last-address":4,
+           "4":{"name":"zippy", "type":"user", "address":4},
+           "3":{"map":{"zippy":4}, "type":"scape", "address":3},
+           "2":{"map":{}, "type":"scape", "address":2},
+           "1":{"map":{"room-scape":2, "user-scape":3}, "type":"scape","address":1}},
+      "type":"host",
+      "address":1}}
 
 Command results are returned as a json object that is always of the form:
     {"status:" "ok"|"error"
