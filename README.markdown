@@ -6,7 +6,7 @@ A reference server for the ceptr platform
 
 Install [Leiningen](http://github.com/technomancy/leiningen) if you
 haven't already.  Assuming you have a bin directory for your user and
-its already in you shell path you can do it like this:
+its already in your shell path you can do it like this:
 
     $ curl -O ~/bin/lein http://github.com/technomancy/leiningen/raw/stable/bin/lein
     $ chmod 755 bin/lein
@@ -106,6 +106,7 @@ Run all the unit tests with
 ## Development
 
 [wiki](https://github.com/zippy/anansi/wiki)
+
 [issue tracking](https://secure.bettermeans.com/projects/1157)
 
 

@@ -13,18 +13,6 @@
         [clojure.contrib.io :only [writer]]
         [clojure.contrib.json :only [json-str]]))
 
-(defmacro def-command-test [name & body]
-  `(deftest ~name
-     (binding [*server-receptor* (make-server "server")
-               *done* false
-               *user-name* "eric"
-               *receptors* (ref {})
-               *signals* (ref {})
-;;               *room-addr* (s-> self->host-room *host* "the room" )
-               *server-state-file-name* "testing-server.state"]
-       (dosync (commute user-streams assoc *user-name* (get-receptor *host* (s-> self->host-user *host* *user-name*))))
-       ~@body)))
-
 (def-command-test send-test
   (testing "sending a message"
     (is (= "created" (send-signal (json-str {:to "server:conjure", :body {:name "object2", :type "Object"}}))))
@@ -106,8 +94,8 @@
 
 (def-command-test gs-test
   (testing "get state"
-    (let [host-state (gs "0")
-          room-state (gs "5")
+    (let [host-state (gs (json-str {:addr 0}))
+          room-state (gs (json-str {:addr 5}))
           ]
       (is (=  (:type host-state) :host))
       (is (=  (:type room-state) :commons-room))
