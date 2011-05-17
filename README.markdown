@@ -43,7 +43,7 @@ All signals are sent to receptors using the ss command which takes a single json
 
 for example:
 
-    > ss {"to":0, "signal":"self->host-room", "params": {"name": "the room", :password "pass", "matrice-address":33}}
+    > ss {"to":0, "signal":"self->host-room", "params": {"name": "the room", "password": "pass", "matrice-address":33}}
     
 Get a list of receptors defined on the server:
 
