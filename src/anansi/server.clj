@@ -41,7 +41,6 @@
               *done* false]
       (do
         (load-receptors)
-        (comment if (nil? (get-host)) (receptor host nil))
         (dosync         
          (set! *user-name* (get-unique-user-name (read-line)))
          (let [host (get-host)
@@ -70,5 +69,6 @@
 
 (defn launch-server [port]
   (defonce server (create-server (Integer. port) anansi-handle-client))
+  (doto (Thread. #(while true (do (spit *server-state-file-name* (serialize-receptors *receptors*)) (Thread/sleep (* 60 1000))))) .start)
   (println "Launching Anansi server on port" port)
           )

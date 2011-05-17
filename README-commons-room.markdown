@@ -7,6 +7,8 @@ To create a new room send the host a "self->host-room" signal, make sure to use 
     > ss {"to":0, "signal":"self->host-room", "params": {"name":"the room", "password":"pass", "matrice-address":4}}
     {"status":"ok", "result":5}
 
+The result of the self->host-room command is the address of the room, which you use to send it these signals:
+
 To add an occupant to the room, send the room a "door->enter" signal:
 
     > ss {"to":5, "signal":"door->enter", "params": {"password": "pass" "name":"zippy", "data": {"image-url": "http://images.com/img.jpg"}}}
