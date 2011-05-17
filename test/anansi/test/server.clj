@@ -1,6 +1,5 @@
 (ns anansi.test.server
-  (:use [anansi.receptor]
-        [anansi.ceptr]
+  (:use [anansi.ceptr]
         [anansi.test.helpers]
         [anansi.receptor.host]
         [anansi.server-constants]
@@ -15,9 +14,8 @@
         [clojure.contrib.json :only [json-str]]))
 
 (deftest server-test
-  (binding [*server-receptor* (make-server "server")
-            *server-state-file-name* "testing-server.state"]
-    (let [[server client-stream server-stream] (make-client-server)]
+  (binding [*server-state-file-name* "testing-server.state"]
+    (let [[client-stream server-stream] (make-client-server)]
       (testing "welcome"
         (is  (.endsWith (.toString server-stream) "\nWelcome to the Anansi sever.\n\nEnter your user name: ")))
       (testing "login"

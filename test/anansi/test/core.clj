@@ -1,6 +1,5 @@
 (ns anansi.test.core
   (:use [anansi.test.commands] :reload)
-  (:use [anansi.test.receptor] :reload)
   (:use [anansi.test.util] :reload)
   (:use [anansi.core] :reload)
   (:use [clojure.test]))

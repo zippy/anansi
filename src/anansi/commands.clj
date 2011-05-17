@@ -4,8 +4,6 @@
   anansi.commands
   (:use [anansi.user]
         [anansi.util :only [modify-keys modify-vals]]
-        [anansi.receptor
-         :only [receive parse-signal dump-receptor serialize-receptor]]
         [anansi.server-constants]
         [anansi.ceptr])
   (:use [clojure.string :only [join]]
@@ -59,19 +57,6 @@
     (spit *server-state-file-name* (serialize-receptors *receptors*))
     bye_str))
 
-(defn dump
-  "Dump current tree of receptors"
-  []
-  (str (:receptors- (dump-receptor *server-receptor*))))
-
-(defn
-  #^{ :doc "Send a signal to a receptor.", :command-name "send"}
-  send-signal
-  [j]
-  (receive *server-receptor*
-           (assoc (parse-signal (read-json j))
-             :from {:id *user-name* :aspect "?"})))
-
 (defn help
   "Show available commands and what they do."
   ([]
@@ -81,8 +66,9 @@
        (str command ": " (:doc (meta ((command-index) command))))
        (<< "No such command ~{command}"))))
 
-(defn ss
-  "Send a signal (new version)"
+(defn 
+  #^{ :doc "Send a signal to a receptor.", :command-name "ss"}
+  ss
   [j]
   (let [host (get-host)
         {to-addr :to signal :signal params :params} (read-json j)

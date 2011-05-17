@@ -1,6 +1,5 @@
 (ns anansi.test.commands
-  (:use [anansi.receptor]
-        [anansi.ceptr]
+  (:use [anansi.ceptr]
         [anansi.receptor.scape]
         [anansi.receptor.host]
 )
@@ -13,21 +12,14 @@
         [clojure.contrib.io :only [writer]]
         [clojure.contrib.json :only [json-str]]))
 
-(def-command-test send-test
-  (testing "sending a message"
-    (is (= "created" (send-signal (json-str {:to "server:conjure", :body {:name "object2", :type "Object"}}))))
-    (is (= "I got 'message' from eric:?" (send-signal (json-str {:to "object2:ping", :body "message"}))))))
-
 (deftest help-test
   (testing "help overview"
     (is (= (str "exit: Terminate connection with the server\n"
                 "rl: Request a list of all receptor specification on the server\n"
                 "gs: Get state\n"
                 "users: Get a list of logged in users\n"
-                "ss: Send a signal (new version)\n"
-                "send: Send a signal to a receptor.\n"
-                "help: Show available commands and what they do.\n"
-                "dump: Dump current tree of receptors")
+                "ss: Send a signal to a receptor.\n"
+                "help: Show available commands and what they do.")
            (help))))
   (testing "help on specific commands"
     (is (= "users: Get a list of logged in users" (help "users"))))
@@ -36,21 +28,13 @@
 
 (deftest users-test
   (testing "getting a list of users"
-    (binding [*server-receptor* (make-server "server")
-              *server-state-file-name* "testing-server.state"]
-      (let [[server client-stream] (make-client-server)]
+    (binding [*server-state-file-name* "testing-server.state"]
+      (let [[client-stream] (make-client-server)]
         (.write client-stream "eric\n")
         (is (= ["eric"] (users)))))))
 
-(comment def-command-test dump-test
-  (testing "dump of vanilla server"
-    (is (= "#{}" (dump)))
-    (send-signal (json-str {:to "server:conjure", :body {:name "object2", :type "Object"}}))
-    (is (= "#{{:name- \"object2\", :type- \"Object\", :receptors- #{}}}" (dump)))))
-
 (def-command-test exit-test
   (testing "exiting"
-    (send-signal (json-str {:to "server:conjure", :body {:name "object2", :type "Object"}}))
     (is (= "Goodbye eric!"
            (exit))))
   (testing "state saving"
@@ -65,13 +49,10 @@
   (testing "executing a non existent command"
     (is (= {:status :error, :result "Unknown command: 'fish'", :comment "Try 'help' for a list of commands."}
            (execute "fish"))))
-  (testing "executing a multi argument command"
-    (is (= {:status :ok, :result "created"}
-           (execute (str "send " (json-str {:to "server:conjure", :body {:name "object2", :type "Object"}})) ))))
   (binding [*err* (java.io.PrintWriter. (writer "/dev/null"))]
     (testing "executing command that throws an error"
-      (is (= (execute (str "send " (json-str  {:to "zippy:?", :body "some body"})))
-             {:status :error, :result "exception raised: java.lang.RuntimeException: No route to 'zippy:?'"}
+      (is (= (execute (str "ss " (json-str  {:to 99 :signal "self->host-room" :params {}})))
+             {:status :error, :result "exception raised: java.lang.NullPointerException"}
              
              )))))
 
