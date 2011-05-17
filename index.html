@@ -34,7 +34,7 @@ namespace.
     <a class="wiki_link" href="api-index.html">API Index</a><br />
     <a class="wiki_link" href="#">Namespaces:</a>
     <ul id="left-sidebar-list">
-      <li><a href="anansi.ceptr-api.html" class="wiki_link">anansi.ceptr</a></li><li><a href="anansi.commands-api.html" class="wiki_link">anansi.commands</a></li><li><a href="anansi.core-api.html" class="wiki_link">anansi.core</a></li><li><a href="anansi.grammar-api.html" class="wiki_link">anansi.grammar</a></li><li><a href="anansi.map-utilities-api.html" class="wiki_link">anansi.map-utilities</a></li><li><a href="anansi.receptor-api.html" class="wiki_link">anansi.receptor</a></li><li><a href="anansi.scape-api.html" class="wiki_link">anansi.scape</a></li><li><a href="anansi.util-api.html" class="wiki_link">anansi.util</a></li>
+      <li><a href="anansi.ceptr-api.html" class="wiki_link">anansi.ceptr</a></li><li><a href="anansi.commands-api.html" class="wiki_link">anansi.commands</a></li><li><a href="anansi.core-api.html" class="wiki_link">anansi.core</a></li><li><a href="anansi.grammar-api.html" class="wiki_link">anansi.grammar</a></li><li><a href="anansi.map-utilities-api.html" class="wiki_link">anansi.map-utilities</a></li><li><a href="anansi.receptor.commons-room-api.html" class="wiki_link">anansi.receptor.commons-room</a></li><li><a href="anansi.receptor.facilitator-api.html" class="wiki_link">anansi.receptor.facilitator</a></li><li><a href="anansi.receptor.host-api.html" class="wiki_link">anansi.receptor.host</a></li><li><a href="anansi.receptor.list-scape-api.html" class="wiki_link">anansi.receptor.list-scape</a></li><li><a href="anansi.receptor.object-api.html" class="wiki_link">anansi.receptor.object</a></li><li><a href="anansi.receptor.occupant-api.html" class="wiki_link">anansi.receptor.occupant</a></li><li><a href="anansi.receptor.portal-api.html" class="wiki_link">anansi.receptor.portal</a></li><li><a href="anansi.receptor.scape-api.html" class="wiki_link">anansi.receptor.scape</a></li><li><a href="anansi.receptor.user-api.html" class="wiki_link">anansi.receptor.user</a></li><li><a href="anansi.util-api.html" class="wiki_link">anansi.util</a></li>
     </ul>
   </div>
 </div>
@@ -66,11 +66,39 @@ namespace.
     
     <br />
   </div><div style="margin-left: 1em;" class="toc-section">
-    <a href="#anansi.receptor">anansi.receptor</a>
+    <a href="#anansi.receptor.commons-room">anansi.receptor.commons-room</a>
     
     <br />
   </div><div style="margin-left: 1em;" class="toc-section">
-    <a href="#anansi.scape">anansi.scape</a>
+    <a href="#anansi.receptor.facilitator">anansi.receptor.facilitator</a>
+    
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#anansi.receptor.host">anansi.receptor.host</a>
+    
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#anansi.receptor.list-scape">anansi.receptor.list-scape</a>
+    
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#anansi.receptor.object">anansi.receptor.object</a>
+    
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#anansi.receptor.occupant">anansi.receptor.occupant</a>
+    
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#anansi.receptor.portal">anansi.receptor.portal</a>
+    
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#anansi.receptor.scape">anansi.receptor.scape</a>
+    
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#anansi.receptor.user">anansi.receptor.user</a>
     
     <br />
   </div><div style="margin-left: 1em;" class="toc-section">
@@ -104,7 +132,7 @@ namespace.
   <pre id="namespace-docstr">Commands that can be excecuted at the server's command line</pre>
   
   Public variables and functions:
-  <span id="var-link"><a href="anansi.commands-api.html#anansi.commands/dump" id="var-tag">dump</a> </span><span id="var-link"><a href="anansi.commands-api.html#anansi.commands/execute" id="var-tag">execute</a> </span><span id="var-link"><a href="anansi.commands-api.html#anansi.commands/exit" id="var-tag">exit</a> </span><span id="var-link"><a href="anansi.commands-api.html#anansi.commands/gs" id="var-tag">gs</a> </span><span id="var-link"><a href="anansi.commands-api.html#anansi.commands/help" id="var-tag">help</a> </span><span id="var-link"><a href="anansi.commands-api.html#anansi.commands/rl" id="var-tag">rl</a> </span><span id="var-link"><a href="anansi.commands-api.html#anansi.commands/send-signal" id="var-tag">send-signal</a> </span><span id="var-link"><a href="anansi.commands-api.html#anansi.commands/ss" id="var-tag">ss</a> </span><span id="var-link"><a href="anansi.commands-api.html#anansi.commands/users" id="var-tag">users</a> </span><br />
+  <span id="var-link"><a href="anansi.commands-api.html#anansi.commands/execute" id="var-tag">execute</a> </span><span id="var-link"><a href="anansi.commands-api.html#anansi.commands/exit" id="var-tag">exit</a> </span><span id="var-link"><a href="anansi.commands-api.html#anansi.commands/gs" id="var-tag">gs</a> </span><span id="var-link"><a href="anansi.commands-api.html#anansi.commands/help" id="var-tag">help</a> </span><span id="var-link"><a href="anansi.commands-api.html#anansi.commands/rl" id="var-tag">rl</a> </span><span id="var-link"><a href="anansi.commands-api.html#anansi.commands/ss" id="var-tag">ss</a> </span><span id="var-link"><a href="anansi.commands-api.html#anansi.commands/users" id="var-tag">users</a> </span><br />
   
 </div><div id="namespace-entry">
   <br />
@@ -142,62 +170,101 @@ namespace.
 </div><div id="namespace-entry">
   <br />
   <hr />
-  <h2 id="anansi.receptor">anansi.receptor</h2>
+  <h2 id="anansi.receptor.commons-room">anansi.receptor.commons-room</h2>
   by <span id="author">Eric Harris-Braun</span><br />
-  <a href="anansi.receptor-api.html" id="api-link">Detailed API documentation</a><br />
-  <pre id="namespace-docstr">Receptor helper functions and receptor definitions</pre>
+  <a href="anansi.receptor.commons-room-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr">Commons-room receptor</pre>
   
   Public variables and functions:
-  <span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/Ceptr" id="var-tag">Ceptr</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/add-receptor-to-contents" id="var-tag">add-receptor-to-contents</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/aspect-receive-dispatch" id="var-tag">aspect-receive-dispatch</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/do-conjure" id="var-tag">do-conjure</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/do-ping" id="var-tag">do-ping</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/dump-receptor" id="var-tag">dump-receptor</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/find-receptor" id="var-tag">find-receptor</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/humanize-address" id="var-tag">humanize-address</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/make-contents" id="var-tag">make-contents</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/make-object" id="var-tag">make-object</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/make-person" id="var-tag">make-person</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/make-receptor" id="var-tag">make-receptor</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/make-receptor-from-signal" id="var-tag">make-receptor-from-signal</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/make-room" id="var-tag">make-room</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/make-server" id="var-tag">make-server</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/parse-address" id="var-tag">parse-address</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/parse-signal" id="var-tag">parse-signal</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/parse-signal-addresses" id="var-tag">parse-signal-addresses</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/receptor-factory" id="var-tag">receptor-factory</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/receptor-receive" id="var-tag">receptor-receive</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/receptor-resolve" id="var-tag">receptor-resolve</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/receptor-reverse-resolve" id="var-tag">receptor-reverse-resolve</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/receptor-scape" id="var-tag">receptor-scape</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/receptor-scape-set" id="var-tag">receptor-scape-set</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/receptor-scape-unset-address" id="var-tag">receptor-scape-unset-address</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/receptor-scape-unset-key" id="var-tag">receptor-scape-unset-key</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/receptor-scapes" id="var-tag">receptor-scapes</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/remove-receptor" id="var-tag">remove-receptor</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/resolve-address" id="var-tag">resolve-address</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/sanitize-for-address" id="var-tag">sanitize-for-address</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/serialize-receptor" id="var-tag">serialize-receptor</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/throw-bad-aspect" id="var-tag">throw-bad-aspect</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/unserialize-receptor" id="var-tag">unserialize-receptor</a> </span><span id="var-link"><a href="anansi.receptor-api.html#anansi.receptor/validate-signal" id="var-tag">validate-signal</a> </span><br />
-  <span id="subspace"><br />Variables and functions in
-    <span id="name">anansi.receptor.commons-room</span>:
-    
-    <br />
-  </span><span id="subspace"><br />Variables and functions in
-    <span id="name">anansi.receptor.facilitator</span>:
-    
-    <br />
-  </span><span id="subspace"><br />Variables and functions in
-    <span id="name">anansi.receptor.host</span>:
-    
-    <br />
-  </span><span id="subspace"><br />Variables and functions in
-    <span id="name">anansi.receptor.list-scape</span>:
-    
-    <br />
-  </span><span id="subspace"><br />Variables and functions in
-    <span id="name">anansi.receptor.object</span>:
-    
-    <br />
-  </span><span id="subspace"><br />Variables and functions in
-    <span id="name">anansi.receptor.occupant</span>:
-    
-    <br />
-  </span><span id="subspace"><br />Variables and functions in
-    <span id="name">anansi.receptor.portal</span>:
-    
-    <br />
-  </span><span id="subspace"><br />Variables and functions in
-    <span id="name">anansi.receptor.scape</span>:
-    <span id="sub-var-link">
-      <a href="anansi.receptor-api.html#anansi.receptor.scape/make-scapes">make-scapes</a>
-    </span>
-    <br />
-  </span><span id="subspace"><br />Variables and functions in
-    <span id="name">anansi.receptor.user</span>:
-    
-    <br />
-  </span>
+  <br />
+  
 </div><div id="namespace-entry">
   <br />
   <hr />
-  <h2 id="anansi.scape">anansi.scape</h2>
+  <h2 id="anansi.receptor.facilitator">anansi.receptor.facilitator</h2>
   by <span id="author">Eric Harris-Braun</span><br />
-  <a href="anansi.scape-api.html" id="api-link">Detailed API documentation</a><br />
-  <pre id="namespace-docstr">Scaping</pre>
+  <a href="anansi.receptor.facilitator-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr">Facilitator receptor</pre>
   
   Public variables and functions:
-  <span id="var-link"><a href="anansi.scape-api.html#anansi.scape/ScapeStore" id="var-tag">ScapeStore</a> </span><span id="var-link"><a href="anansi.scape-api.html#anansi.scape/alter-scape-change" id="var-tag">alter-scape-change</a> </span><span id="var-link"><a href="anansi.scape-api.html#anansi.scape/alter-scape-set" id="var-tag">alter-scape-set</a> </span><span id="var-link"><a href="anansi.scape-api.html#anansi.scape/alter-scape-unset-address" id="var-tag">alter-scape-unset-address</a> </span><span id="var-link"><a href="anansi.scape-api.html#anansi.scape/alter-scape-unset-key" id="var-tag">alter-scape-unset-key</a> </span><span id="var-link"><a href="anansi.scape-api.html#anansi.scape/angle-scape-from-seat-scape" id="var-tag">angle-scape-from-seat-scape</a> </span><span id="var-link"><a href="anansi.scape-api.html#anansi.scape/calculate-angles" id="var-tag">calculate-angles</a> </span><span id="var-link"><a href="anansi.scape-api.html#anansi.scape/calculate-coords" id="var-tag">calculate-coords</a> </span><span id="var-link"><a href="anansi.scape-api.html#anansi.scape/calculate-holding-coord" id="var-tag">calculate-holding-coord</a> </span><span id="var-link"><a href="anansi.scape-api.html#anansi.scape/dump-scapes" id="var-tag">dump-scapes</a> </span><span id="var-link"><a href="anansi.scape-api.html#anansi.scape/make-hash-scape" id="var-tag">make-hash-scape</a> </span><span id="var-link"><a href="anansi.scape-api.html#anansi.scape/make-scapes-ref" id="var-tag">make-scapes-ref</a> </span><span id="var-link"><a href="anansi.scape-api.html#anansi.scape/regenerate-coord-scape" id="var-tag">regenerate-coord-scape</a> </span><span id="var-link"><a href="anansi.scape-api.html#anansi.scape/regenerate-holding-coords" id="var-tag">regenerate-holding-coords</a> </span><span id="var-link"><a href="anansi.scape-api.html#anansi.scape/unserialize-scape" id="var-tag">unserialize-scape</a> </span><span id="var-link"><a href="anansi.scape-api.html#anansi.scape/unserialize-scapes" id="var-tag">unserialize-scapes</a> </span><br />
+  <br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor.host">anansi.receptor.host</h2>
+  by <span id="author">Eric Harris-Braun</span><br />
+  <a href="anansi.receptor.host-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr">Host receptor</pre>
+  
+  Public variables and functions:
+  <br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor.list-scape">anansi.receptor.list-scape</h2>
+  by <span id="author">Eric Harris-Braun</span><br />
+  <a href="anansi.receptor.list-scape-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr">List scape receptor</pre>
+  
+  Public variables and functions:
+  <br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor.object">anansi.receptor.object</h2>
+  by <span id="author">Eric Harris-Braun</span><br />
+  <a href="anansi.receptor.object-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr">Object receptor</pre>
+  
+  Public variables and functions:
+  <br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor.occupant">anansi.receptor.occupant</h2>
+  by <span id="author">Eric Harris-Braun</span><br />
+  <a href="anansi.receptor.occupant-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr">Occupant receptor</pre>
+  
+  Public variables and functions:
+  <br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor.portal">anansi.receptor.portal</h2>
+  by <span id="author">Eric Harris-Braun</span><br />
+  <a href="anansi.receptor.portal-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr">Portal receptor</pre>
+  
+  Public variables and functions:
+  <br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor.scape">anansi.receptor.scape</h2>
+  by <span id="author">Eric Harris-Braun</span><br />
+  <a href="anansi.receptor.scape-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr">Scape receptor</pre>
+  
+  Public variables and functions:
+  <span id="var-link"><a href="anansi.receptor.scape-api.html#anansi.receptor.scape/make-scapes" id="var-tag">make-scapes</a> </span><br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.receptor.user">anansi.receptor.user</h2>
+  by <span id="author">Eric Harris-Braun</span><br />
+  <a href="anansi.receptor.user-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr">User receptor</pre>
+  
+  Public variables and functions:
+  <br />
   
 </div><div id="namespace-entry">
   <br />

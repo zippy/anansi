@@ -34,7 +34,7 @@ namespace.
     <a class="wiki_link" href="api-index.html">API Index</a><br />
     <a class="wiki_link" href="#">Namespaces:</a>
     <ul id="left-sidebar-list">
-      <li><a href="anansi.ceptr-api.html" class="wiki_link">anansi.ceptr</a></li><li><a href="anansi.commands-api.html" class="wiki_link">anansi.commands</a></li><li><a href="anansi.core-api.html" class="wiki_link">anansi.core</a></li><li><a href="anansi.grammar-api.html" class="wiki_link">anansi.grammar</a></li><li><a href="anansi.map-utilities-api.html" class="wiki_link">anansi.map-utilities</a></li><li><a href="anansi.receptor-api.html" class="wiki_link">anansi.receptor</a></li><li><a href="anansi.scape-api.html" class="wiki_link">anansi.scape</a></li><li><a href="anansi.util-api.html" class="wiki_link">anansi.util</a></li>
+      <li><a href="anansi.ceptr-api.html" class="wiki_link">anansi.ceptr</a></li><li><a href="anansi.commands-api.html" class="wiki_link">anansi.commands</a></li><li><a href="anansi.core-api.html" class="wiki_link">anansi.core</a></li><li><a href="anansi.grammar-api.html" class="wiki_link">anansi.grammar</a></li><li><a href="anansi.map-utilities-api.html" class="wiki_link">anansi.map-utilities</a></li><li><a href="anansi.receptor.commons-room-api.html" class="wiki_link">anansi.receptor.commons-room</a></li><li><a href="anansi.receptor.facilitator-api.html" class="wiki_link">anansi.receptor.facilitator</a></li><li><a href="anansi.receptor.host-api.html" class="wiki_link">anansi.receptor.host</a></li><li><a href="anansi.receptor.list-scape-api.html" class="wiki_link">anansi.receptor.list-scape</a></li><li><a href="anansi.receptor.object-api.html" class="wiki_link">anansi.receptor.object</a></li><li><a href="anansi.receptor.occupant-api.html" class="wiki_link">anansi.receptor.occupant</a></li><li><a href="anansi.receptor.portal-api.html" class="wiki_link">anansi.receptor.portal</a></li><li><a href="anansi.receptor.scape-api.html" class="wiki_link">anansi.receptor.scape</a></li><li><a href="anansi.receptor.user-api.html" class="wiki_link">anansi.receptor.user</a></li><li><a href="anansi.util-api.html" class="wiki_link">anansi.util</a></li>
     </ul>
   </div>
 </div>
@@ -48,8 +48,6 @@ namespace.
   <div style="margin-left: 1em;" class="toc-section">
     <a href="#toc0">Overview</a>
     <div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.commands/dump">dump</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.commands/execute">execute</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.commands/exit">exit</a>
@@ -59,8 +57,6 @@ namespace.
       <a href="#anansi.commands/help">help</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.commands/rl">rl</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#anansi.commands/send-signal">send-signal</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.commands/ss">ss</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
@@ -82,15 +78,6 @@ by <span id="author">Eric Harris-Braun</span><br />
 <br />
 <h2>Public Variables and Functions</h2>
 <div id="var-entry">
-  <br />
-  <hr />
-  <h2 id="anansi.commands/dump">dump</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (dump)
-</pre>
-  <pre id="var-docstr">Dump current tree of receptors</pre>
-  
-</div><div id="var-entry">
   <br />
   <hr />
   <h2 id="anansi.commands/execute">execute</h2>
@@ -139,20 +126,11 @@ by <span id="author">Eric Harris-Braun</span><br />
 </div><div id="var-entry">
   <br />
   <hr />
-  <h2 id="anansi.commands/send-signal">send-signal</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (send-signal j)
-</pre>
-  <pre id="var-docstr">Send a signal to a receptor.</pre>
-  
-</div><div id="var-entry">
-  <br />
-  <hr />
   <h2 id="anansi.commands/ss">ss</h2>
   <span id="var-type">function</span><br />
   <pre id="var-usage">Usage: (ss j)
 </pre>
-  <pre id="var-docstr">Send a signal (new version)</pre>
+  <pre id="var-docstr">Send a signal to a receptor.</pre>
   
 </div><div id="var-entry">
   <br />
