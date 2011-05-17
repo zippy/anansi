@@ -18,7 +18,7 @@
                                :door (receptor portal _r)
                                :door-log (ref [])
                                :talking-stick (receptor facilitator _r "")}
-                          :agent :coords :occupant :awareness)))
+                          :agent :coords :occupant :status)))
 
 (defmethod state :commons-room [_r full?]
            (let [base-state (state-convert _r full?)]
@@ -69,9 +69,9 @@
           (do-move _r address x y)
           (throw (RuntimeException. "not matrice"))
           ))
-(signal matrice update-awareness [_r _f {address :addr  awareness :awareness}]
+(signal matrice update-status [_r _f {address :addr  status :status}]
         (if (agent-or-matrice? _r _f address)
-          (do (--> key->set _r (contents _r :awareness-scape) address (keyword awareness)) nil)
+          (do (--> key->set _r (contents _r :status-scape) address (keyword status)) nil)
           (throw (RuntimeException. "no agency"))
           ))
 
@@ -99,7 +99,7 @@
            (if (--> key->resolve _r occupants unique-name) (throw (RuntimeException. (str "'" unique-name "' is already in the room"))))
            (alter (contents _r :door-log) conj {:who unique-name, :what "entered", :when (java.util.Date.)})
            (--> key->set _r (contents _r :agent-scape) addr _f)
-           (--> key->set _r (contents _r :awareness-scape) addr :awake)
+           (--> key->set _r (contents _r :status-scape) addr :present)
            (comment address->push seats addr)
            (--> key->set _r occupants unique-name addr)
            (address-of o))
@@ -115,14 +115,14 @@
          (let [seats (contents _r :seat-scape)
                occupants (contents _r :occupant-scape)
                agents (contents _r :agent-scape)
-               awareness (contents _r :awareness-scape)
+               status (contents _r :status-scape)
                addr (resolve-occupant _r occupants unique-name)]
            (if (not ( agent-or-matrice? _r _f addr)) (throw (RuntimeException. "no agency")))
            (alter (contents _r :door-log) conj {:who unique-name, :what "left", :when (java.util.Date.)})
            (comment address->delete seats addr)
            (--> address->delete _r occupants addr)
            (--> key->delete _r agents addr)
-           (--> key->delete _r awareness addr)
+           (--> key->delete _r status addr)
            (destroy-receptor _r addr)
            nil)))
 

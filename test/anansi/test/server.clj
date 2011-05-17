@@ -34,7 +34,7 @@
             (is (re-find #"\{\"status\":\"ok\", \"result\":([0-9]+)\}\n> $" (.toString server-stream)))))
         (testing "sleeping an occupant"
           (let [[m o-addr] (re-find #"\{\"status\":\"ok\", \"result\":([0-9]+)\}\n> $" (.toString server-stream))]
-            (.write client-stream (str "ss " (json-str {:to (Integer. room-addr) :signal "matrice->update-awareness" :params {:addr (Integer. o-addr) :awareness "sleepy"}}) "\n"))
+            (.write client-stream (str "ss " (json-str {:to (Integer. room-addr) :signal "matrice->update-status" :params {:addr (Integer. o-addr) :status "sleepy"}}) "\n"))
             (Thread/sleep 1000)
             (is (re-find #"\{\"status\":\"ok\", \"result\":null\}\n> $" (.toString server-stream))))))
     )
