@@ -42,7 +42,7 @@
         (.write client-stream "eric\n")
         (is (= ["eric"] (users)))))))
 
-(def-command-test dump-test
+(comment def-command-test dump-test
   (testing "dump of vanilla server"
     (is (= "#{}" (dump)))
     (send-signal (json-str {:to "server:conjure", :body {:name "object2", :type "Object"}}))
@@ -55,7 +55,7 @@
            (exit))))
   (testing "state saving"
     (is (= (slurp *server-state-file-name*)
-           (serialize-receptor *server-receptor*)))))
+           (.toString (serialize-receptors *receptors*))))))
 
 (def-command-test execute-test
   ;; Silence the error!
@@ -80,7 +80,7 @@
     (set! *print-level* 10)
     (let [room-addr 
           (ss (json-str {:to 0 :signal "self->host-room" :params {:name "the-room" :password "pass" :matrice-address 33}}))]
-      (is (= ["the-room"] (s-> address->resolve (contents *host* :room-scape) room-addr) )))
+      (is (= ["the-room"] (s-> address->resolve (contents (get-host) :room-scape) room-addr) )))
     ))
 
 (def-command-test rl-test
@@ -94,9 +94,6 @@
 
 (def-command-test gs-test
   (testing "get state"
-    (let [host-state (gs (json-str {:addr 0}))
-          room-state (gs (json-str {:addr 5}))
-          ]
+    (let [host-state (gs (json-str {:addr 0}))]
       (is (=  (:type host-state) :host))
-      (is (=  (:type room-state) :commons-room))
       )))

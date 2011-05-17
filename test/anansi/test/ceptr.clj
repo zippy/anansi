@@ -49,11 +49,15 @@
     (is (= (state r true)
             {:scapes-scape-addr 1,:receptors {:last-address 4, 4 {:scapes-scape-addr 1 :receptors {:last-address 3, 3 {:map {}, :type :scape, :address 3}, 2 {:map {}, :type :scape, :address 2}, 1 {:map {:s1-scape 2, :s2-scape 3}, :type :scape, :address 1}}, :type :test-receptor, :address 4}, 3 {:map {}, :type :scape, :address 3}, 2 {:map {:test-key :test-val}, :type :scape, :address 2}, 1 {:map {:s1-scape 2, :s2-scape 3}, :type :scape, :address 1}}, :type :test-receptor, :address 1})))
   
-  
   (testing "restore"
     (let [restored (restore (state r true) nil)]
       (is (= (state r true) (state restored true)))
       (is (= (state (get-scape r :scapes-scape) true) (state (get-scape restored :scapes-scape) true)))
       (is (= (state (get-scape r :s1-scape) true) (state (get-scape restored :s1-scape) true))))
+    )
+  (testing "serialization"
+    (let [s (serialize-receptors *receptors*)
+          u (unserialize-receptors s)]
+      (is (= s (serialize-receptors u))))
     )
   )

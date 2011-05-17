@@ -6,8 +6,9 @@
         [anansi.util]
         ))
 
+(declare *receptors*)
+
 (def *signals* (ref {}))
-(def *receptors* (ref {}))
 (defn get-signal [s] {s @*signals*})
 
 (defmacro signal [aspect name args & body]
@@ -138,3 +139,28 @@
   )
 
 (defmethod restore :default [state parent] (do-restore state parent) )
+
+(defn serialize-receptors
+  [receptors]
+  [(into {} (map (fn [[k v]] {k (state v true)}) (filter (fn [[k v]] (= (class k) java.lang.Integer)) @receptors))) (:last-address @receptors)])
+
+(defn unserialize-receptors [[states last-address]]
+  (let [r (ref {:last-address last-address})]
+    (doseq [[addr state] states]
+      (dosync (alter r assoc addr (restore state nil))))
+    r
+    )
+  )
+(def *server-state-file-name* "anansi-server.state")
+(def *receptors* (ref {})
+     )
+
+(defn load-receptors
+  []
+  (if (some #{*server-state-file-name*} (.list (java.io.File. ".")))
+    (let [f (slurp *server-state-file-name*)]
+      (if f
+        (dosync (alter *receptors* merge @(unserialize-receptors (with-in-str f (read)))))
+        )
+      )
+    ))

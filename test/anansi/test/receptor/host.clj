@@ -20,4 +20,6 @@
         (is (= ["zippy"] (s-> key->all (contents h :user-scape))))
         (is (= addr (s-> self->host-user h "zippy")))
         (is (= (contents u :name) "zippy"))))
+    (testing "restore"
+      (is (=  (state h true) (state (restore (state h true) nil) true))))
     ))

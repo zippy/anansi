@@ -33,6 +33,8 @@ Returns a three item vector of a server receptor, a writable stream that is a cl
               *receptors* (ref {})
               *signals* (ref {})
 ;;               *room-addr* (s-> self->host-room *host* "the room" )
-              *server-state-file-name* "testing-server.state"]
-      (dosync (commute user-streams assoc *user-name* (get-receptor *host* (s-> self->host-user *host* *user-name*))))
+              *server-state-file-name* "testing-server.state"
+              *print-level* 10]
+      (do (receptor ~'host nil)
+          (dosync  (commute user-streams assoc *user-name* (get-receptor (get-host) (s-> self->host-user (get-host) *user-name*)))))
       ~@body)))

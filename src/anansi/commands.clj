@@ -56,7 +56,7 @@
      (set! *done* true)
      ;(commute user-streams assoc *user-name* nil)
      )
-    (spit *server-state-file-name* (serialize-receptor *server-receptor*))
+    (spit *server-state-file-name* (serialize-receptors *receptors*))
     bye_str))
 
 (defn dump
@@ -84,8 +84,9 @@
 (defn ss
   "Send a signal (new version)"
   [j]
-  (let [{to-addr :to signal :signal params :params} (read-json j)
-        to (if (= to-addr 0 ) *host* (get-receptor *host* to-addr))]
+  (let [host (get-host)
+        {to-addr :to signal :signal params :params} (read-json j)
+        to (if (= to-addr 0 ) host (get-receptor host to-addr))]
        (--> (eval (symbol (str "anansi.receptor." (name (:type @to)) "/" signal))) (@user-streams *user-name*) to params)
        ))
 
@@ -110,6 +111,8 @@
 (defn gs
   "Get state"
   [j]
-  (let [{to-addr :addr full? :full} (read-json j)
-        to (if (= to-addr 0 ) *host* (get-receptor *host* to-addr))]
+  (let [host (get-host)
+        {to-addr :addr full? :full} (read-json j)
+        to (if (= to-addr 0 ) host (get-receptor host to-addr))]
     (state to full?)))
+

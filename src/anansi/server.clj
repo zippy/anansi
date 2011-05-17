@@ -18,7 +18,7 @@
   (let [user (get @user-streams *user-name*)]
     (if (not (nil? user)) 
       (dosync
-       (--> self->disconnect *host* user)
+       (--> self->disconnect (get-host) user)
        (commute user-streams dissoc *user-name*)))
     ))
 
@@ -39,18 +39,22 @@
     (print "\nWelcome to the Anansi sever.\n\nEnter your user name: ") (flush)
     (binding [*user-name* nil
               *done* false]
-      (dosync
-       (set! *user-name* (get-unique-user-name (read-line)))
-       (let [users (contents *host* :user-scape)
-             user-address (s-> self->host-user *host* *user-name*) ;; creates or returns existing user receptor address
-             user (get-receptor *host* user-address)]
-         (--> key->set *host* users *user-name* user-address )
-         (--> self->connect *host* user *out*)
-         (commute user-streams assoc *user-name* user)
-         (pprint-json {:status :ok
-                       :result {:user-address user-address
-                                :host-address 0}})
-         (print "\n")))
+      (do
+        (load-receptors)
+        (comment if (nil? (get-host)) (receptor host nil))
+        (dosync         
+         (set! *user-name* (get-unique-user-name (read-line)))
+         (let [host (get-host)
+               users (contents host :user-scape)
+               user-address (s-> self->host-user host *user-name*) ;; creates or returns existing user receptor address
+               user (get-receptor host user-address)]
+           (--> key->set host users *user-name* user-address )
+           (--> self->connect host user *out*)
+           (commute user-streams assoc *user-name* user)
+           (pprint-json {:status :ok
+                         :result {:user-address user-address
+                                  :host-address 0}})
+           (print "\n"))))
       
        
       (print prompt) (flush)
@@ -65,6 +69,6 @@
            (finally (cleanup))))))
 
 (defn launch-server [port]
-          (defonce server (create-server (Integer. port) anansi-handle-client))
-          (println "Launching Anansi server on port" port)
+  (defonce server (create-server (Integer. port) anansi-handle-client))
+  (println "Launching Anansi server on port" port)
           )
