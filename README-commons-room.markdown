@@ -24,7 +24,7 @@ To have an occupant leave the room send the room a "door->leave" signal:
 
 To change an occupants awareness status send the room a "matrice->update-awareness" signal:
 
-    > ss {"to":5, "signal":"matrice->update-awareness", "params": {"addr":8 "awareness":"asleep"}}
+    > ss {"to":5, "signal":"matrice->update-status", "params": {"addr":8 "status":"away"}}
     {"status":"ok", "result":null}
 
   
