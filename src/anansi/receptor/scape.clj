@@ -18,13 +18,13 @@
 
 ;; Signals on the key aspect
 (signal key set [_r _f key value]
-        (dosync (alter (contents _r :map) assoc key value)))
+        (rsync (alter (contents _r :map) assoc key value)))
 (signal key resolve [_r _f key]
         (get @(contents _r :map) key))
 (signal key all [_r _f]
         (into [] (keys @(contents _r :map))))
 (signal key delete [_r _f key]
-        (dosync (alter (contents _r :map) dissoc key)))
+        (rsync (alter (contents _r :map) dissoc key)))
 
 ;; Signals on the address aspect
 (signal address resolve [_r _f address]
@@ -32,7 +32,7 @@
 (signal address all [_r _f]
         (into [] (distinct (vals @(contents _r :map)))))
 (signal address delete [_r _f address]
-        (dosync (alter (contents _r :map) remove-value address)))
+        (rsync (alter (contents _r :map) remove-value address)))
 
 (defn make-scapes
   "instantiate a scape (utility function for building the manifests)"

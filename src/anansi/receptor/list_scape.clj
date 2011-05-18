@@ -8,6 +8,6 @@
            {:map (ref [])} )
 
 (signal address push [_r _f value]
-    (dosync (alter (contents _r :map) conj value))
+    (rsync (alter (contents _r :map) conj value))
     (- (count @(contents _r :map)) 1)
         )

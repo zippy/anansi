@@ -90,9 +90,12 @@
                          (if (r m)
                            (update-in m [r] (fn [rm] (assoc rm s params)))
                            (assoc m r {s params}))))
-          {} @*signals*)
-    
-  )
+          {} @*signals*))
+
+(defn gc
+  "Get last changes count"
+  []
+  @*changes*)
 
 (defn gs
   "Get state"

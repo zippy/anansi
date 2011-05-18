@@ -80,7 +80,7 @@
               addr (address-of o)
               coords (contents _r :coords-scape)
               objects (contents _r :objects)]
-          (dosync (alter objects assoc name o)
+          (rsync (alter objects assoc name o)
                   ( do-move _r addr x y)
                   )
           addr))
@@ -90,7 +90,7 @@
 
 ;;; DOOR signals
 (signal door enter [_r _f {unique-name :name occupant-data :data password :password}]
-        (dosync
+        (rsync
          (let [o (--> anansi.receptor.portal/self->enter _r (contents _r :door) unique-name occupant-data)
                seats (contents _r :seat-scape)
                occupants (contents _r :occupant-scape)
@@ -111,7 +111,7 @@
     addr))
 
 (signal door leave [_r _f unique-name]
-        (dosync
+        (rsync
          (let [seats (contents _r :seat-scape)
                occupants (contents _r :occupant-scape)
                agents (contents _r :agent-scape)

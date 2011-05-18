@@ -44,11 +44,12 @@ All signals are sent to receptors using the ss command which takes a single json
 for example:
 
     > ss {"to":0, "signal":"self->host-room", "params": {"name": "the room", "password": "pass", "matrice-address":33}}
+
+Get the state changes count.  You can use this to poll to see if the state has changed.
+
+    > gc
+    {"status":"ok", "result":20}
     
-Get a list of receptors defined on the server:
-
-    > rl
-
 Get the state of a receptor: (you can set full to true for more detailed state info)
 
     > gs {"addr":0}
@@ -72,6 +73,11 @@ Get the state of a receptor: (you can set full to true for more detailed state i
            "1":{"map":{"room-scape":2, "user-scape":3}, "type":"scape","address":1}},
       "type":"host",
       "address":1}}
+
+Get a list of receptors defined on the server:
+
+    > rl
+
 
 Command results are returned as a json object that is always of the form:
 

@@ -17,7 +17,15 @@ Returns a three item vector of a server receptor, a writable stream that is a cl
      (let [out (java.io.StringWriter.)
            client-stream (java.io.PipedWriter.)
            r (java.io.BufferedReader. (java.io.PipedReader. client-stream))
-           thread (Thread. #(do (anansi.server/anansi-handle-client r out)))
+           thread (Thread. #(binding [*server-state-file-name* "testing-server.state"
+                                      *done* false
+                                      *changes* (ref 0)
+                                      *user-name* "eric"
+                                      *receptors* (ref {})
+                                      *signals* (ref {})
+                                      ]
+                              (receptor host nil)
+                              (anansi.server/anansi-handle-client r out)))
            ]
        (doto thread  .start)
        [client-stream out])
@@ -26,6 +34,7 @@ Returns a three item vector of a server receptor, a writable stream that is a cl
 (defmacro def-command-test [name & body]
  `(deftest ~name
     (binding [*done* false
+              *changes* (ref 0)
               *user-name* "eric"
               *receptors* (ref {})
               *signals* (ref {})

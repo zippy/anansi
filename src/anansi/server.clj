@@ -39,21 +39,20 @@
     (print "\nWelcome to the Anansi sever.\n\nEnter your user name: ") (flush)
     (binding [*user-name* nil
               *done* false]
-      (do
-        (load-receptors)
-        (dosync         
-         (set! *user-name* (get-unique-user-name (read-line)))
-         (let [host (get-host)
-               users (contents host :user-scape)
-               user-address (s-> self->host-user host *user-name*) ;; creates or returns existing user receptor address
-               user (get-receptor host user-address)]
-           (--> key->set host users *user-name* user-address )
-           (--> self->connect host user *out*)
-           (commute user-streams assoc *user-name* user)
-           (pprint-json {:status :ok
-                         :result {:user-address user-address
-                                  :host-address 0}})
-           (print "\n"))))
+      (dosync
+       (set! *user-name* (get-unique-user-name (read-line)))
+       (let [host (get-host)
+             x  (if (nil? host) (throw (RuntimeException. (str host "R: " (keys @*receptors*)))))
+             users (contents host :user-scape)
+             user-address (s-> self->host-user host *user-name*) ;; creates or returns existing user receptor address
+             user (get-receptor host user-address)]
+         (--> key->set host users *user-name* user-address )
+         (--> self->connect host user *out*)
+         (commute user-streams assoc *user-name* user)
+         (pprint-json {:status :ok
+                       :result {:user-address user-address
+                                :host-address 0}})
+         (print "\n")))
       
        
       (print prompt) (flush)
@@ -69,6 +68,13 @@
 
 (defn launch-server [port]
   (defonce server (create-server (Integer. port) anansi-handle-client))
-  (doto (Thread. #(while true (do (spit *server-state-file-name* (serialize-receptors *receptors*)) (Thread/sleep (* 60 1000))))) .start)
+  (load-receptors)
+  (comment doto (Thread. #(let [x (ref 0)]
+                    (while true (do (if (not= @x @*changes*)
+                                      (do (spit *server-state-file-name* (serialize-receptors *receptors*))
+                                          (dosync (ref-set x @*changes*))))
+                                    (Thread/sleep 1000)))))
+    .start)
+
   (println "Launching Anansi server on port" port)
           )

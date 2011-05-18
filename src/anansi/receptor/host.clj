@@ -14,14 +14,14 @@
 (comment defmacro make-receptor [n p & a] `(receptor ~(symbol (str (name n))) ~p ~@a))
 (comment defn do-make-receptor [n p & a] (receptor '(symbol (str (name n))) p a))
 (signal self host-room [_r _f {receptor-name :name password :password matrice-address :matrice-address}]
-        (dosync
+        (rsync
          (let [names (contents _r :room-scape)
                r (receptor commons-room _r matrice-address password) ;;(make-receptor type _r args)
                addr (address-of r)]
            (--> key->set _r names receptor-name addr)
            addr)))
 (signal self host-user [_r _f receptor-name]
-        (dosync
+        (rsync
          (let [names (contents _r :user-scape)
                existing-addr (--> key->resolve _r names receptor-name)
                addr (if existing-addr existing-addr (address-of (receptor user _r receptor-name nil))) ;; (make-receptor type _r args)                

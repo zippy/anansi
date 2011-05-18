@@ -8,6 +8,11 @@
 
 (declare *receptors*)
 
+(def *changes* (ref 0))
+
+(defmacro rsync [& body]
+  `(dosync (alter *changes* + 1) ~@body))
+
 (def *signals* (ref {}))
 (defn get-signal [s] {s @*signals*})
 
@@ -37,11 +42,11 @@
                    :receptors (ref {}),
                    :address ~'addr})
          ]
-     (dosync (alter ~'receptors assoc ~'ns-str ~'addr)
-             (alter ~'receptors assoc ~'addr ~'r)
-             (alter ~'r assoc :contents (ref (manifest ~'r ~@args)))
-             ~'r
-             )))
+     (rsync (alter ~'receptors assoc ~'ns-str ~'addr)
+            (alter ~'receptors assoc ~'addr ~'r)
+            (alter ~'r assoc :contents (ref (manifest ~'r ~@args)))
+            ~'r
+            )))
 
 (defn contents
   "get an item out of the manifest"
@@ -49,7 +54,7 @@
 
 (defn set-content
   "set the value of a manifest item"
-  [receptor key value] (dosync (alter (:contents @receptor) assoc key value)))
+  [receptor key value] (rsync (alter (:contents @receptor) assoc key value)))
 
 (defn parent-of
   "return the receptor that is a receptor's parent"
@@ -86,7 +91,7 @@
 (defn destroy-receptor
   "destroy a contained receptor by address"
   [receptor address]
-  (dosync ( alter (receptors-container receptor) dissoc address)))
+  (rsync ( alter (receptors-container receptor) dissoc address)))
 
 (defn get-scape
   "return the named scape recptor"
@@ -160,7 +165,7 @@
   (if (some #{*server-state-file-name*} (.list (java.io.File. ".")))
     (let [f (slurp *server-state-file-name*)]
       (if f
-        (dosync (alter *receptors* merge @(unserialize-receptors (with-in-str f (read)))))
+        (rsync (alter *receptors* merge @(unserialize-receptors (with-in-str f (read)))))
         )
       )
     ))
