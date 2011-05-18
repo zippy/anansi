@@ -12,8 +12,8 @@
              :data (contents _r :data)))
 (defmethod restore :occupant [state parent]
            (let [r (do-restore state parent)]
-             (set-content r :unique-name (:unique-name state))
-             (set-content r :data (:data state))
+             (restore-content r :unique-name (:unique-name state))
+             (restore-content r :data (:data state))
              r))
 
 ;(attribute (manifestable :picture))  ; FIXME add default picture of silhouette 

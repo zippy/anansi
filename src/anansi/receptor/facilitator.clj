@@ -13,25 +13,26 @@
              :image-url (contents _r :image-url)))
 (defmethod restore :facilitator [state parent]
            (let [r (do-restore state parent)]
-             (set-content r :image-url (:image-url state))
+             (restore-content r :image-url (:image-url state))
              r))
 
 (signal participant request-stick [_r _f participant-address]
+    (rsync _r
         (let [stick (contents _r :stick-scape)]
           (if (= [] (--> address->resolve _r stick :have-it))
-            (--> key->set _r stick participant-address :have-it)
-            (--> key->set _r stick participant-address :want-it))))
+              (--> key->set _r stick participant-address :have-it)
+              (--> key->set _r stick participant-address :want-it)))))
 
 (signal participant release-stick [_r _f participant-address]
         (let [stick (contents _r :stick-scape)
               want-it (--> address->resolve _r stick :want-it)]
-          (rsync 
+          (rsync _r
            (--> key->delete _r stick participant-address)
            (if (not= [] want-it)
              (--> key->set _r stick (first want-it) :have-it)))))
 
 (signal matrice give-stick [_r _f participant-address]
         (let [stick (contents _r :stick-scape)]
-          (rsync  (--> address->delete _r stick :have-it)
+          (rsync  _r (--> address->delete _r stick :have-it)
                    (--> key->set _r stick participant-address :have-it))
 ))

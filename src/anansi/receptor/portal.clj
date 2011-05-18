@@ -11,7 +11,7 @@
              :target (contents _r :target)))
 (defmethod restore :portal [state parent]
            (let [r (do-restore state parent)]
-             (set-content r :target (:target state))
+             (restore-content r :target (:target state))
              r))
 
 (signal self enter [_r _f unique-name occupant-data]

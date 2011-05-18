@@ -10,8 +10,8 @@
 
 (def *changes* (ref 0))
 
-(defmacro rsync [& body]
-  `(dosync (alter *changes* + 1) ~@body))
+(defmacro rsync [r & body]
+  `(dosync (alter *changes* + 1) (if (not (nil? ~r)) (alter ~r assoc :changes (+ 1 (:changes @~r)))) ~@body))
 
 (def *signals* (ref {}))
 (defn get-signal [s] {s @*signals*})
@@ -40,9 +40,11 @@
          ~'r (ref {:type ~'type
                    :parent ~parent,
                    :receptors (ref {}),
-                   :address ~'addr})
+                   :address ~'addr
+                   :changes 0})
          ]
-     (rsync (alter ~'receptors assoc ~'ns-str ~'addr)
+     (rsync ~parent
+            (alter ~'receptors assoc ~'ns-str ~'addr)
             (alter ~'receptors assoc ~'addr ~'r)
             (alter ~'r assoc :contents (ref (manifest ~'r ~@args)))
             ~'r
@@ -52,9 +54,17 @@
   "get an item out of the manifest"
   [receptor key] (key @(:contents @receptor)))
 
+(defn- _set-content
+  [receptor key value]
+  (alter (:contents @receptor) assoc key value))
+
 (defn set-content
   "set the value of a manifest item"
-  [receptor key value] (rsync (alter (:contents @receptor) assoc key value)))
+  [receptor key value] (rsync receptor (_set-content receptor key value)))
+
+(defn restore-content
+  "set the value of a manifest item without updating the changes count"
+  [receptor key value] (dosync (_set-content receptor key value)))
 
 (defn parent-of
   "return the receptor that is a receptor's parent"
@@ -91,7 +101,7 @@
 (defn destroy-receptor
   "destroy a contained receptor by address"
   [receptor address]
-  (rsync ( alter (receptors-container receptor) dissoc address)))
+  (rsync receptor (alter (receptors-container receptor) dissoc address)))
 
 (defn get-scape
   "return the named scape recptor"
@@ -108,6 +118,7 @@
         rc @(:receptors r)
         s1 {:type (:type r),
             :address (:address r)
+            :changes (:changes r)
             }
         s (if (empty? rc) s1
               (assoc s1
@@ -132,14 +143,15 @@
             :address (:address state)
             :receptors (ref sr1)
             :parent parent
+            :changes (:changes state)
             :contents (ref c)
             }
         ]
-    (dosync (alter r merge r1))
-    (let [ss-addr (:scapes-scape-addr state)]
-      (if ss-addr (let [ss (get-receptor r ss-addr)]
-                    (doseq [[k v]  @(contents ss :map)] (set-content r k (get-receptor r v))) 
-                    (set-content r :scapes-scape ss))))
+    (dosync (alter r merge r1)
+            (let [ss-addr (:scapes-scape-addr state)]
+              (if ss-addr (let [ss (get-receptor r ss-addr)]
+                            (doseq [[k v]  @(contents ss :map)] (restore-content r k (get-receptor r v))) 
+                            (restore-content r :scapes-scape ss)))))
     r)
   )
 
@@ -165,7 +177,7 @@
   (if (some #{*server-state-file-name*} (.list (java.io.File. ".")))
     (let [f (slurp *server-state-file-name*)]
       (if f
-        (rsync (alter *receptors* merge @(unserialize-receptors (with-in-str f (read)))))
+        (rsync nil (alter *receptors* merge @(unserialize-receptors (with-in-str f (read)))))
         )
       )
     ))

@@ -12,7 +12,7 @@
              :name (contents _r :name)))
 (defmethod restore :user [state parent]
            (let [r (do-restore state parent)]
-             (set-content r :name (:name state))
+             (restore-content r :name (:name state))
              r))
 
 (signal self disconnect [_r _f]

@@ -39,12 +39,12 @@
            )
 (defmethod restore :commons-room [state parent]
            (let [r (do-restore state parent)]
-             (set-content r :objects (ref {})) ;TODO actually restore the objects...
-             (set-content r :password (:password state))
-             (set-content r :matrice-scape (get-receptor r (:matrice-scape state)))
-             (set-content r :door (get-receptor r (:door state)))
-             (set-content r :door-log (ref (:door-log state)))
-             (set-content r :talking-stick (get-receptor r (:talking-stick state)))
+             (restore-content r :objects (ref {})) ;TODO actually restore the objects...
+             (restore-content r :password (:password state))
+             (restore-content r :matrice-scape (get-receptor r (:matrice-scape state)))
+             (restore-content r :door (get-receptor r (:door state)))
+             (restore-content r :door-log (ref (:door-log state)))
+             (restore-content r :talking-stick (get-receptor r (:talking-stick state)))
              r))
 
 ;;; MATRICE signals
@@ -61,8 +61,9 @@
 
 (defn do-move [_r address x y]
  ( let [coords (contents _r :coords-scape)]
-   (--> address->delete _r coords address)
-   (--> key->set _r coords [x y] address)))
+   (rsync _r
+    (--> address->delete _r coords address)
+    (--> key->set _r coords [x y] address))))
 
 (signal matrice move [_r _f {address :addr x :x y :y}]
         (if (matrice? _r _f)
@@ -71,7 +72,7 @@
           ))
 (signal matrice update-status [_r _f {address :addr  status :status}]
         (if (agent-or-matrice? _r _f address)
-          (do (--> key->set _r (contents _r :status-scape) address (keyword status)) nil)
+          (rsync _r (--> key->set _r (contents _r :status-scape) address (keyword status)) nil)
           (throw (RuntimeException. "no agency"))
           ))
 
@@ -80,7 +81,7 @@
               addr (address-of o)
               coords (contents _r :coords-scape)
               objects (contents _r :objects)]
-          (rsync (alter objects assoc name o)
+          (rsync _r (alter objects assoc name o)
                   ( do-move _r addr x y)
                   )
           addr))
@@ -90,7 +91,7 @@
 
 ;;; DOOR signals
 (signal door enter [_r _f {unique-name :name occupant-data :data password :password}]
-        (rsync
+        (rsync _r
          (let [o (--> anansi.receptor.portal/self->enter _r (contents _r :door) unique-name occupant-data)
                seats (contents _r :seat-scape)
                occupants (contents _r :occupant-scape)
@@ -111,7 +112,7 @@
     addr))
 
 (signal door leave [_r _f unique-name]
-        (rsync
+        (rsync _r
          (let [seats (contents _r :seat-scape)
                occupants (contents _r :occupant-scape)
                agents (contents _r :agent-scape)
@@ -135,7 +136,7 @@
               ~'stick (contents ~'_r :talking-stick)
               ]
              (if (not (agent-or-matrice? ~'_r ~'_f ~'addr)) (throw (RuntimeException. "no agency")))
-             (--> ~signal ~'_r ~'stick ~'addr)
+             (rsync ~'_r (--> ~signal ~'_r ~'stick ~'addr))
           )
            ))
 (forward-stick-signal participant->request-stick stick request)

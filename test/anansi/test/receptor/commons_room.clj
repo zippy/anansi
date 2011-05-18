@@ -104,10 +104,10 @@
     (testing "state-pretty"
       ;; cant actually test the contents because addresses change...
       (is (= (into #{} (keys  (state r false)))
-             #{:receptors :matrices :scapes :type :talking-stick :address})))
+             #{:receptors :matrices :scapes :type :talking-stick :address :changes})))
     (testing "state-full"
       (is (= (into #{} (keys  (state r true)))
-             #{:scapes-scape-addr :receptors :type :address :door-log :door :matrice-scape :talking-stick :password}))
+             #{:scapes-scape-addr :receptors :type :address :door-log :door :matrice-scape :talking-stick :password :changes}))
       (comment is (= nil (restore (state r true) nil))))
     (testing "restore"
       (is (=  (state r true) (state (restore (state r true) nil) true))))

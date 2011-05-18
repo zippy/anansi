@@ -45,9 +45,9 @@
     
     (--> key->set r (contents r :s1-scape) :test-key :test-val)
     (is (= (state r false)
-           {:scapes {:s1-scape {:test-key :test-val}, :s2-scape {}}, :receptors {:last-address 4, 4 {:scapes {:s1-scape {}, :s2-scape {}}, :receptors {:last-address 3}, :type :test-receptor, :address 4}}, :type :test-receptor, :address 1}))
+           {:scapes {:s1-scape {:test-key :test-val}, :s2-scape {}}, :receptors {:last-address 4, 4 {:scapes {:s1-scape {}, :s2-scape {}}, :receptors {:last-address 3}, :type :test-receptor, :address 4, :changes 4}}, :type :test-receptor, :address 1, :changes 4}))
     (is (= (state r true)
-            {:scapes-scape-addr 1,:receptors {:last-address 4, 4 {:scapes-scape-addr 1 :receptors {:last-address 3, 3 {:map {}, :type :scape, :address 3}, 2 {:map {}, :type :scape, :address 2}, 1 {:map {:s1-scape 2, :s2-scape 3}, :type :scape, :address 1}}, :type :test-receptor, :address 4}, 3 {:map {}, :type :scape, :address 3}, 2 {:map {:test-key :test-val}, :type :scape, :address 2}, 1 {:map {:s1-scape 2, :s2-scape 3}, :type :scape, :address 1}}, :type :test-receptor, :address 1})))
+            {:scapes-scape-addr 1, :receptors {:last-address 4, 4 {:scapes-scape-addr 1, :receptors {:last-address 3, 3 {:map {}, :type :scape, :address 3, :changes 0}, 2 {:map {}, :type :scape, :address 2, :changes 0}, 1 {:map {:s1-scape 2, :s2-scape 3}, :type :scape, :address 1, :changes 2}}, :type :test-receptor, :address 4, :changes 4}, 3 {:map {}, :type :scape, :address 3, :changes 0}, 2 {:map {:test-key :test-val}, :type :scape, :address 2, :changes 1}, 1 {:map {:s1-scape 2, :s2-scape 3}, :type :scape, :address 1, :changes 2}}, :type :test-receptor, :address 1, :changes 4})))
   
   (testing "restore"
     (let [restored (restore (state r true) nil)]
