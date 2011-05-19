@@ -70,7 +70,7 @@
 (defn launch-server [port]
   (defonce server (create-server (Integer. port) anansi-handle-client))
   (load-receptors)
-  (comment doto (Thread. #(let [x (ref 0)]
+  (doto (Thread. #(let [x (ref 0)]
                     (while true (do (if (not= @x @*changes*)
                                       (do (spit *server-state-file-name* (serialize-receptors *receptors*))
                                           (dosync (ref-set x @*changes*))))
