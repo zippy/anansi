@@ -105,3 +105,8 @@
         to (if (= to-addr 0 ) host (get-receptor host to-addr))]
     (state to full?)))
 
+(defn sp
+  "Set prompt"
+  [j]
+  (dosync (ref-set *prompt*(read-json j))))
+

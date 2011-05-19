@@ -75,3 +75,12 @@
     (let [host-state (gs (json-str {:addr 0}))]
       (is (=  (:type host-state) :host))
       )))
+
+(def-command-test sp-test
+  (testing "set prompt"
+    (is (= @*prompt* nil))
+    (sp (json-str ">"))
+    (is (= @*prompt* ">"))
+    (sp "null")
+    (is (= @*prompt* nil))
+))

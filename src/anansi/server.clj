@@ -55,13 +55,14 @@
          (print "\n")))
       
        
-      (print prompt) (flush)
-
+      (if (not (nil? @*prompt*)) (print @*prompt*))
+      (flush)
       (try (loop [input (read-line)]
              (when input
                (pprint-json (execute input))
                (print "\n")
-               (print prompt) (flush)
+               (if (not (nil? @*prompt*)) (print @*prompt*))
+               (flush)
                (if (not *done*) (recur (read-line)) )
                ))
            (finally (cleanup))))))

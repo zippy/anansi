@@ -4,6 +4,6 @@
 
 (def *user-name*)
 
-(def prompt "> ")
+(def *prompt* (ref nil))
 (def user-streams (ref {}))
 (def *done*)
