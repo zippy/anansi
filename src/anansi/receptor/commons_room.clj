@@ -116,7 +116,7 @@
                addr (address-of o)]
            (if (not (check-password _r password)) (throw (RuntimeException. "incorrect room password")))
            (if (--> key->resolve _r occupants unique-name) (throw (RuntimeException. (str "'" unique-name "' is already in the room"))))
-           (alter (contents _r :door-log) conj {:who unique-name, :what "entered", :when (java.util.Date.)})
+           (alter (contents _r :door-log) conj {:who unique-name, :what "entered", :when (.toString (java.util.Date.))})
            (--> key->set _r (contents _r :agent-scape) addr _f)
            (--> key->set _r (contents _r :status-scape) addr :present)
            (comment address->push seats addr)
