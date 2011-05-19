@@ -72,9 +72,16 @@
 
 (def-command-test gs-test
   (testing "get state"
-    (let [host-state (gs (json-str {:addr 0}))]
-      (is (=  (:type host-state) :host))
-      )))
+    (is (=  (:type (gs (json-str {:addr 0}))) :host))
+    (is (=  (:type (gs)) :host))
+    ))
+
+(def-command-test gc-test
+  (testing "get count"
+    (is (= (gc) @*changes*))
+    (let [room-addr 
+          (ss (json-str {:to 0 :signal "self->host-room" :params {:name "the-room" :password "pass" :matrice-address 33}}))]
+      (comment is (= (gc (json-str {:addr room-addr})) (:changes @(get-receptor (get-host) room-addr)))))))
 
 (def-command-test sp-test
   (testing "set prompt"

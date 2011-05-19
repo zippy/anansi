@@ -94,14 +94,17 @@
 
 (defn gc
   "Get last changes count"
-  []
-  @*changes*)
+  [& j]
+  (if (nil? j)
+    @*changes*
+    (let [{addr :addr} (read-json (first j))]
+      (:changes @(get-receptor (get-host) addr)))))
 
 (defn gs
   "Get state"
-  [j]
+  [& j]
   (let [host (get-host)
-        {to-addr :addr full? :full} (read-json j)
+        {to-addr :addr full? :full} (if (nil? j) {:addr 0} (read-json (first j)))
         to (if (= to-addr 0 ) host (get-receptor host to-addr))]
     (state to full?)))
 

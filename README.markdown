@@ -45,12 +45,12 @@ for example:
 
     > ss {"to":0, "signal":"self->host-room", "params": {"name": "the room", "password": "pass", "matrice-address":33}}
 
-Get the state changes count.  You can use this to poll to see if the state has changed.
+Get the state changes count of a receptor (with no param returns the global changes count):
 
-    > gc
+    > gc {"addr":0}
     {"status":"ok", "result":20}
     
-Get the state of a receptor: (you can set full to true for more detailed state info)
+Get the state of a receptor: (you can set full to true for more detailed state info; with no argument returns state of host)
 
     > gs {"addr":0}
     {"status":"ok",
