@@ -44,3 +44,12 @@ Returns a three item vector of a server receptor, a writable stream that is a cl
       (do (receptor ~'host nil)
           (dosync  (commute user-streams assoc *user-name* (get-receptor (get-host) (s-> self->host-user (get-host) *user-name*)))))
       ~@body)))
+
+(comment import '(java.util.concurrent Excecutors))
+(comment def *pool* (Exe cutors/newFixedThreadPool
+                 (+ 2 (.availableProcessors (Runtime/getRuntime)))))
+(comment defn dothreads! [f & {thread-count :threads
+                       exec-count :times
+                       :or {thread-count 1 exec-count 1}}]
+  (dotimes [t thread-count]
+    (.submit *pool* #(dotimes [_ exec-count] (f)))))

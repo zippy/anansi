@@ -51,6 +51,10 @@ To change an occupant's status send the room a "matrice->update-status" signal:
         addr: <address of occupant>
         x: <x coord>
         y: <y coord>
+    matrice->sit:
+        addr: <address of occupant>
+        seat: <seat number to assign occupant to>
+
 #### scapes
 
 ##### matrice
@@ -64,6 +68,9 @@ maps 2D coordinates onto addresses (occupant or object)
 
 ##### occupant
 maps names onto occupant addreses
+
+##### chair
+maps chair number onto occupant address
 
 ### talking-stick
 #### signals

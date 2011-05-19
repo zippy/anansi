@@ -12,7 +12,8 @@
         r (receptor commons-room nil (address-of m) "password")
         occupants (contents r :occupant-scape)
         coords (contents r :coords-scape)
-        status (contents r :status-scape)]
+        status (contents r :status-scape)
+        chairs (contents r :chair-scape)]
     (set! *print-level* 10)
     (testing "initialization"
       (is (= [(address-of m)] (s-> address->resolve (contents r :matrice-scape) :matrice)))
@@ -77,14 +78,21 @@
         ;; leave works if from matrice
         (--> door->enter u r {:password "password" :name "zippy" :data {:name "Eric"}})
         (--> door->leave m r "zippy")))
-    (testing "move"
-      (let [addr (--> door->enter u r {:password "password" :name "zippy" :data {:name "Eric"}})]
+    (let [addr (--> door->enter u r {:password "password" :name "zippy" :data {:name "Eric"}})] 
+      (testing "move"
         ;; refuse if not from matrice
         (is (thrown-with-msg? RuntimeException #"not matrice" (-->  matrice->move u r {:addr addr :x 100 :y 100})))
         (--> matrice->move m r {:addr addr :x 100 :y 100} )
         (is (= addr (s-> key->resolve coords [100 100])))
         (--> matrice->move m r {:addr addr :x 20 :y 20})
-        (is (= [[20 20]] (s-> address->resolve coords addr)))))
+        (is (= [[20 20]] (s-> address->resolve coords addr))))
+      (testing "sit"
+        ;; refuse if not from matrice
+        (is (thrown-with-msg? RuntimeException #"not matrice" (-->  matrice->sit u r {:addr addr :chair 1})))
+        (--> matrice->sit m r {:addr addr :chair 1} )
+        (is (= addr (s-> key->resolve chairs 1)))
+        (--> matrice->sit m r {:addr addr :chair 4})
+        (is (= [4] (s-> address->resolve chairs addr)))))
     (testing "talking-stick"
       (--> door->enter u-art r {:password "password" :name "art" :data {:name "Art"}})
       (let [f (contents r :talking-stick)

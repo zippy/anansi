@@ -18,7 +18,7 @@
                                :door (receptor portal _r)
                                :door-log (ref [])
                                :talking-stick (receptor facilitator _r "")}
-                          :agent :coords :occupant :status)))
+                          :agent :coords :occupant :status :chair)))
 
 (defmethod state :commons-room [_r full?]
            (let [base-state (state-convert _r full?)]
@@ -70,6 +70,16 @@
           (do-move _r address x y)
           (throw (RuntimeException. "not matrice"))
           ))
+
+(signal matrice sit [_r _f {address :addr c :chair}]
+        (if (matrice? _r _f)
+          ( let [chairs (contents _r :chair-scape)]
+            (rsync _r
+                   (--> address->delete _r chairs address)
+                   (--> key->set _r chairs c address)))
+          (throw (RuntimeException. "not matrice"))
+          ))
+
 (signal matrice update-status [_r _f {address :addr  status :status}]
         (if (agent-or-matrice? _r _f address)
           (rsync _r (--> key->set _r (contents _r :status-scape) address (keyword status)) nil)
