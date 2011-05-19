@@ -119,6 +119,13 @@
       (comment is (= nil (restore (state r true) nil))))
     (testing "restore"
       (is (=  (state r true) (state (restore (state r true) nil) true))))
+    (testing "make matrice"
+       ;; refuse if not from matrice
+      (is (thrown-with-msg? RuntimeException #"not matrice" (-->  matrice->make-matrice u r {:addr 1})))
+      (--> matrice->make-matrice m r {:addr (address-of u)} )
+      (is (= :matrice (s-> key->resolve (contents r :matrice-scape) (address-of u))))
+      (is (= [(address-of m) (address-of u)] (s-> address->resolve (contents r :matrice-scape) :matrice)))
+      )
     ))
 
 (comment set-person-image )

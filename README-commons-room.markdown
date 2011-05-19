@@ -44,6 +44,8 @@ To change an occupant's status send the room a "matrice->update-status" signal:
     stick->request: <name>
     stick->release: <name>
     stick->give: <name>
+    matrice->make-matrice:
+        addr: <address of user to grant matrice status to>
     matrice->update-status:
         addr: <address of occupant>
         status: <string value of status state>

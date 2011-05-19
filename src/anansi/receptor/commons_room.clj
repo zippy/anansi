@@ -80,6 +80,14 @@
           (throw (RuntimeException. "not matrice"))
           ))
 
+(signal matrice make-matrice [_r _f {address :addr}]
+        (if (matrice? _r _f)
+          (rsync _r
+                 (--> key->set _r (contents _r :matrice-scape) address :matrice)
+                 )
+          (throw (RuntimeException. "not matrice"))
+          ))
+
 (signal matrice update-status [_r _f {address :addr  status :status}]
         (if (agent-or-matrice? _r _f address)
           (rsync _r (--> key->set _r (contents _r :status-scape) address (keyword status)) nil)
