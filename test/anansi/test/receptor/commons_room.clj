@@ -76,7 +76,7 @@
         (let [le (last @(contents r :door-log))]
             (is (= "zippy" (:who le)))
             (is (= "left" (:what le)))
-            (is (instance? java.util.Date (:when le))))
+            (is (re-find #"^... ... [0-9][0-9] [0-9][0-9]:[0-9][0-9]:[0-9][0-9] ... 20[0-9][0-9]" (:when le))))
         (comment is (= nil (contents (contents r :seat-scape) :map)))
         (is (= [] (s-> address->resolve occupants address-of-o)))
         (is (= (s-> key->all (contents r :occupant-scape)) [] ))
