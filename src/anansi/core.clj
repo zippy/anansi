@@ -4,6 +4,7 @@
   anansi.core
   (:use [anansi.server :only [launch-server]]
         [anansi.ceptr]
+        [anansi.user]
         [anansi.receptor.host]
         [anansi.receptor.scape]
         [anansi.receptor.user]
