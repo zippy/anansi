@@ -61,10 +61,12 @@
 
       (testing "status"
         (let [addr (s-> key->resolve occupants "zippy")]
-          (is (nil? (--> matrice->update-status m r {:addr addr :status "asleep"} )))
-          (is (= (s-> key->resolve status addr) :asleep))
+          (is (= (s-> key->resolve status addr) :present))
+          (is (nil? (--> matrice->update-status m r {:addr addr :status "away"} )))
+          (is (= (s-> key->resolve status addr) :away))
           (--> matrice->update-status u r {:addr addr :status "tired"} )
           (is (= (s-> key->resolve status addr) :tired))
+          (is (= [:tired] (s-> address->all status)))
           (is (thrown-with-msg? RuntimeException #"no agency" (--> matrice->update-status u-art r {:addr addr :status "asleep"})))
           )
         )
