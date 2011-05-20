@@ -145,7 +145,7 @@
                status (contents _r :status-scape)
                addr (resolve-occupant _r occupants unique-name)]
            (if (not ( agent-or-matrice? _r _f addr)) (throw (RuntimeException. "no agency")))
-           (alter (contents _r :door-log) conj {:who unique-name, :what "left", :when (toString. (java.util.Date.))})
+           (alter (contents _r :door-log) conj {:who unique-name, :what "left", :when (.toString (java.util.Date.))})
            (comment address->delete seats addr)
            (--> address->delete _r occupants addr)
            (--> key->delete _r agents addr)
