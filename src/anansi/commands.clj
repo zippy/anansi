@@ -3,7 +3,7 @@
      :doc "Commands that can be excecuted at the server's command line"}  
   anansi.commands
   (:use [anansi.user]
-        [anansi.util :only [modify-keys modify-vals]]
+        [anansi.util :only [modify-keys modify-vals]]        
         [anansi.server-constants]
         [anansi.ceptr])
   (:use [clojure.string :only [join]]
