@@ -21,7 +21,7 @@
        "</form></body></html>"))
        
 (defroutes main-routes
-  (GET "/stuff/:file.:ext" [file ext] (try (slurp (str file "." ext)) (catch Exception e (str {:status :error
+  (GET "/stuff/:file.:ext" [file ext] (try (slurp (str "htdocs/" file "." ext)) (catch Exception e (str {:status :error
                                      :result (str "exception raised: " e)}))))
   (GET "/" [] (view-form))
   (POST "/" [cmd data] (try  (json-str (execute (str cmd " " data)))
