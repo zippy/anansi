@@ -51,6 +51,14 @@
         ;; on entering occupant is present
         (is (= (s-> key->resolve status address-of-o) :present))
         )
+      (testing "make make agent"
+        ;; refuse if not from matrice
+        (is (thrown-with-msg? RuntimeException #"not matrice" (-->  matrice->make-agent u r {:occupant 1 :addr 1})))
+        (--> matrice->make-agent m r {:occupant address-of-o :addr (address-of u-art)} )
+        (is (= (address-of u-art) (s-> key->resolve (contents r :agent-scape) address-of-o)))
+        (--> matrice->make-agent m r {:occupant address-of-o :addr (address-of u)} )
+        )
+
       (testing "status"
         (let [addr (s-> key->resolve occupants "zippy")]
           (is (nil? (--> matrice->update-status m r {:addr addr :status "asleep"} )))
