@@ -40,11 +40,12 @@
 (defroutes main-routes
   (GET "/" [] (view-form))
   (POST "/" [cmd data username] (try
-                                  (get-user username)
-                                  (let [result 
-                                        (json-str (execute (if (or (= data "") (nil? data)) cmd (str cmd " " data))))]
-                                    (dosync (commute user-streams dissoc username))
-                                    result)
+                                  (binding [*user-name* username]
+                                    (get-user *user-name*)
+                                    (let [result 
+                                          (json-str (execute (if (or (= data "") (nil? data)) cmd (str cmd " " data))))]
+                                      (dosync (commute user-streams dissoc username))
+                                      result))
                                   (catch Exception e
                                     (.printStackTrace e *err*)
                                     (str {:status :error
