@@ -40,8 +40,8 @@
        "<input type=\"submit\"/>"
        "</form></body></html>"))
 (defroutes main-routes
-  (GET "/" [] (view-form))
-  (POST "/" [cmd data username] (try
+  (GET "/cmd" [] (view-form))
+  (POST "/cmd" [cmd data username] (try
                                   (if (or (= username "") (nil? username)) (throw (RuntimeException. "missing username")))
                                   (binding [*user-name* username]
                                     (get-user *user-name*)
@@ -53,7 +53,7 @@
                                     (.printStackTrace e *err*)
                                     (str {:status :error
                                           :result (str "exception raised: " e)}))))
-  (route/files "/stuff" {:root "htdocs"})
+  (route/files "/" {:root "htdocs"})
   (route/not-found "Page not found"))
 (def app
      (handler/site main-routes))
