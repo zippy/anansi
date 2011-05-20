@@ -9,8 +9,8 @@
   (:use compojure.core, ring.adapter.jetty)
   
   (:require [compojure.route :as route]
-            [compojure.handler :as handler]))
-
+            [compojure.handler :as handler]
+            [ring.util.response :as response]))
 
 (defn view-form []
   (str "<html><head></head><body>"
@@ -19,19 +19,15 @@
        "Data <input type=\"text\" name=\"data\"/>"
        "<input type=\"submit\"/>"
        "</form></body></html>"))
-       
 (defroutes main-routes
-  (GET "/stuff/:file.:ext" [file ext] (try (slurp (str "htdocs/" file "." ext)) (catch Exception e (str {:status :error
-                                     :result (str "exception raised: " e)}))))
   (GET "/" [] (view-form))
   (POST "/" [cmd data] (try  (json-str (execute (str cmd " " data)))
                              ;(pprint-json (execute (str cmd data)))
                              (catch Exception e
                                (.printStackTrace e *err*)
                                (str {:status :error
-                                     :result (str "exception raised: " e)}))
-                             
-                             ))
+                                     :result (str "exception raised: " e)}))))
+  (route/files "/stuff" {:root "htdocs"})
   (route/not-found "Page not found"))
 (def app
      (handler/site main-routes))
