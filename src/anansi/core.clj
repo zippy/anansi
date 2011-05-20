@@ -21,7 +21,7 @@
        "</form></body></html>"))
 (defroutes main-routes
   (GET "/" [] (view-form))
-  (POST "/" [cmd data] (try  (json-str (execute (str cmd " " data)))
+  (POST "/" [cmd data] (try  (json-str (execute (if (or (= data "") (nil? data)) cmd (str cmd " " data))))
                              ;(pprint-json (execute (str cmd data)))
                              (catch Exception e
                                (.printStackTrace e *err*)
