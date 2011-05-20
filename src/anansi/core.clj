@@ -36,11 +36,13 @@
        "<form method=\"post\">"
        "Command <input type=\"text\" name=\"cmd\"/>"
        "Data <input type=\"text\" name=\"data\"/>"
+       "Username <input type=\"text\" name=\"username\"/>"
        "<input type=\"submit\"/>"
        "</form></body></html>"))
 (defroutes main-routes
   (GET "/" [] (view-form))
   (POST "/" [cmd data username] (try
+                                  (if (or (= username "") (nil? username)) (throw (RuntimeException. "missing username")))
                                   (binding [*user-name* username]
                                     (get-user *user-name*)
                                     (let [result 
