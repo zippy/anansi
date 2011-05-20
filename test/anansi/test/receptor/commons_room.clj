@@ -41,7 +41,7 @@
         (let [le (last @(contents r :door-log))]
           (is (= "zippy" (:who le)))
           (is (= "entered" (:what le)))
-          (is (instance? java.util.Date (:when le))))
+          (is (re-find #"^... ... [0-9][0-9] [0-9][0-9]:[0-9][0-9]:[0-9][0-9] ... 20[0-9][0-9]" (:when le))))
         ;; sender of enter is in the agent scape for the occupant
         (is (= (address-of u) (s-> key->resolve (contents r :agent-scape) address-of-o)))
         (comment is (= (s-> key->resolve (contents r :seat-scape) 0) address-of-o))
