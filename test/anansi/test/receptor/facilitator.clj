@@ -26,6 +26,15 @@
       (s-> participant->release-stick f 2)
       (is (= [] (s-> address->resolve stick :want-it)))
       (is (= [] (s-> address->resolve stick :have-it))))
+    (testing "if you said you want the stick, and then you release the stick, you don't want it any more"
+      (s-> participant->request-stick f 1)
+      (s-> participant->request-stick f 2)
+      (is (= [2] (s-> address->resolve stick :want-it)))
+      (is (= [1] (s-> address->resolve stick :have-it)))
+      (s-> participant->release-stick f 2)
+      (is (= [] (s-> address->resolve stick :want-it)))
+      (is (= [1] (s-> address->resolve stick :have-it)))
+      )
     (testing "you get the stick if the matrice gives it to you"
       (s-> matrice->give-stick f 1)
       (is (= [1] (s-> address->resolve stick :have-it)))

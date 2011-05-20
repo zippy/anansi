@@ -25,11 +25,13 @@
 
 (signal participant release-stick [_r _f participant-address]
         (let [stick (contents _r :stick-scape)
-              want-it (--> address->resolve _r stick :want-it)]
+              want-it (--> address->resolve _r stick :want-it)
+              have-it (--> address->resolve _r stick :have-it)]
           (rsync _r
-           (--> key->delete _r stick participant-address)
-           (if (not= [] want-it)
-             (--> key->set _r stick (first want-it) :have-it)))))
+                 (--> key->delete _r stick participant-address)
+                 (if (not (some #{participant-address} want-it))
+                   (if (not= [] want-it)
+                     (--> key->set _r stick (first want-it) :have-it))))))
 
 (signal matrice give-stick [_r _f participant-address]
         (let [stick (contents _r :stick-scape)]
