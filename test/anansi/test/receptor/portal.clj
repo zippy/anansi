@@ -1,6 +1,7 @@
 (ns anansi.test.receptor.portal
   (:use [anansi.receptor.portal] :reload)
   (:use [anansi.ceptr])
+  (:use [anansi.receptor.occupant])
   (:use [clojure.test]))
 
 (deftest portal
@@ -15,7 +16,9 @@
       (is (= (contents p2 :target) (address-of p1))))
     (testing "enter signal"
       (let [o (s-> self->enter p1 "zippy" {:name "Eric H-B" :image "http://gravatar.com/userimage/x.jpg" :phone "123/456-7890"})]
-        (is (= (get-receptor r (address-of o)) o))))
+        (is (= (get-receptor r (address-of o)) o))
+        (is (= (:data (state o true))  {:name "Eric H-B", :image "http://gravatar.com/userimage/x.jpg", :phone "123/456-7890"}))
+        (is (= (:unique-name (state o true)) "zippy"))))
     (testing "state"
       (is (= (:target (state p1 true))
              0)))
