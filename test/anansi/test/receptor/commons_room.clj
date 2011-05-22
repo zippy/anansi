@@ -128,7 +128,8 @@
     (testing "state-pretty"
       ;; cant actually test the contents because addresses change...
       (is (= (into #{} (keys  (state r false)))
-             #{:receptors :matrices :scapes :type :talking-stick :address :changes})))
+             #{:receptors :matrices :scapes :type :talking-stick :address :changes :occupants}))
+      (is (=  {"art" {:name "Art"}, "zippy" {:name "Eric"}} (:occupants (state r false)))))
     (testing "state-full"
       (is (= (into #{} (keys  (state r true)))
              #{:scapes-scape-addr :receptors :type :address :door-log :door :matrice-scape :talking-stick :password :changes}))

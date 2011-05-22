@@ -36,6 +36,7 @@
                    ;;             :objects (map state @(contents _r :objects))
                    :matrices (s-> key->all (contents _r :matrice-scape))
                    :talking-stick (state (contents _r :talking-stick) full?)
+                   :occupants (into {} (map (fn [[name addr]] [name (:data (state (get-receptor _r addr) false))]) @(contents (contents _r :occupant-scape) :map)))
                    )))
            )
 (defmethod restore :commons-room [state parent]
