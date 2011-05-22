@@ -70,6 +70,12 @@
           (is (thrown-with-msg? RuntimeException #"no agency" (--> matrice->update-status u-art r {:addr addr :status "asleep"})))
           )
         )
+      (testing "update-data"
+        (is (thrown-with-msg? RuntimeException #"no agency" (--> occupant->update-data u-art r {:name "zippy"})))
+        (--> occupant->update-data u r {:name "zippy" :data {:name "E E B"}})
+        (is (= {:name "E E B"} (:data (state (get-receptor r address-of-o) true))))
+        (--> occupant->update-data u r {:name "zippy" :data "Herbert" :key :name})
+        )
       (testing "door-leave"
         ;; refuse leave if not from agent
         (is (thrown-with-msg? RuntimeException #"no agency" (--> door->leave u-art r "zippy")))

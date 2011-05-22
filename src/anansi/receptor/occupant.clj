@@ -16,6 +16,12 @@
              (restore-content r :data (:data state))
              r))
 
+(signal self update [_r _f data key]
+        (rsync _r
+               (if (nil? key)
+                 (set-content _r :data data)
+                 (set-content _r :data (assoc (contents _r :data) key data))
+                 )))
 ;(attribute (manifestable :picture))  ; FIXME add default picture of silhouette 
 ;(attribute (manifestable :full-name))
 ;(attribute (manifestable :contact-info))

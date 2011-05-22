@@ -7,7 +7,8 @@
   (:use [anansi.receptor.list-scape])
   (:use [anansi.receptor.portal])
   (:use [anansi.receptor.object])
-  (:use [anansi.receptor.facilitator]))
+  (:use [anansi.receptor.facilitator]
+        [anansi.receptor.occupant]))
 
 (defmethod manifest :commons-room [_r matrice-address password]
            (let [ms (receptor scape _r)]
@@ -184,3 +185,13 @@
               ]
           (--> participant->release-stick _r stick addr)
           ))
+
+
+(signal occupant update-data [_r _f {name :name  data :data key :key}]
+        (let [occupants (contents _r :occupant-scape)
+              addr (resolve-occupant _r occupants name)]
+          (if (agent-or-matrice? _r _f addr)
+            (rsync _r (--> self->update _r (get-receptor _r addr) data key))
+            (throw (RuntimeException. "no agency"))
+            )))
+
