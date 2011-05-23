@@ -2,7 +2,7 @@
 
 The commons-room is a set of receptors that implement a facilitation architecture for a virtual room.  We are using the commons-room as a prototyping example as we build out the ceptr protocols, but also as a "eat-your-own-dog-food" example, to coordinate participation in mixed physical/virtual meetings.
 
-![commons-room screen-shot](https://skitch.com/zippy314/fy3qp/commons-room-ui-test)
+![commons-room screen-shot](https://img.skitch.com/20110523-q1sgujimdwp5x6h5r4qmr21r8w.jpg)
 
 This file documents the signals that can be sent to the commons-room receptor complex.  For documentation on UI access to the commons room see [the commons room UI project](https://github.com/metacurrency/Commons-Room-UI).
 
