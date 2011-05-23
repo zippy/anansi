@@ -1,6 +1,12 @@
 # commons-room
 
-## Examples
+The commons-room is a set of receptors that implement a facilitation architecture for a virtual room.  We are using the commons-room as a prototyping example as we build out the ceptr protocols, but also as a "eat-your-own-dog-food" example, to coordinate participation in mixed physical/virtual meetings.
+
+![commons-room screen-shot](https://skitch.com/zippy314/fy3qp/commons-room-ui-test)
+
+This file documents the signals that can be sent to the commons-room receptor complex.  For documentation on UI access to the commons room see [the commons room UI project](https://github.com/metacurrency/Commons-Room-UI).
+
+## Examples using the telnet access:
 
 To create a new room send the host a "self->host-room" signal, make sure to use your user address as the matrice-address:
 
@@ -29,6 +35,7 @@ To change an occupant's status send the room a "matrice->update-status" signal:
     > ss {"to":5, "signal":"matrice->update-status", "params": {"addr":8 "status":"away"}}
     {"status":"ok", "result":null}
 
+For a complete list of signals that the commons-room can receive, see the API below.
   
 
 ## API
