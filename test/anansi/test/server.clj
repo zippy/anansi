@@ -23,7 +23,7 @@
       (Thread/sleep 2000)
       (is (re-find #"\{\"status\":\"ok\", \"result\":\{\"user-address\":([0-9]+), \"host-address\":0\}\}\n" (.toString server-stream) )))
     (testing "creating a room"
-      (.write client-stream (str "ss "(json-str {:to 0 :signal "self->host-room" :params {:name "the-room" :password "pass" :matrice-address 5}}) "\n"))
+      (.write client-stream (str "ss "(json-str {:to 0 :signal "self->host-room" :params {:name "the-room" :password "pass" :matrice-address 5 :data {}}}) "\n"))
       (Thread/sleep 1000)
       (is (re-find #"\{\"status\":\"ok\", \"result\":[0-9]+\}\n$" (.toString server-stream))))
     (let [[m room-addr] (re-find #"\{\"status\":\"ok\", \"result\":([0-9]+)\}\n$" (.toString server-stream))] 

@@ -7,10 +7,11 @@
 (deftest host
   (let [h (receptor host nil)]
     (testing "host-room"
-      (let [addr (s-> self->host-room h {:name "the room" :password "pass" :matrice-address 1})
+      (let [addr (s-> self->host-room h {:name "the room" :password "pass" :matrice-address 1 :data {:background-url "http://someure.com/pic.jpg"}})
             r (get-receptor h addr)]
         (is (= addr (s-> key->resolve (contents h :room-scape) "the room")))
         (is (= (contents r :password) "pass") )
+        (is (= (contents r :data) {:background-url "http://someure.com/pic.jpg"}) )
         (is (= (s-> key->all (get-scape r :matrice-scape)) [1]) )
         )
       )

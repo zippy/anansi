@@ -9,7 +9,7 @@
   (let [m (receptor user nil "eric" nil)
         u (receptor user nil "zippy" nil)
         u-art (receptor user nil "art" nil)
-        r (receptor commons-room nil (address-of m) "password")
+        r (receptor commons-room nil (address-of m) "password" {:room-name "fun house"})
         occupants (contents r :occupant-scape)
         coords (contents r :coords-scape)
         status (contents r :status-scape)
@@ -17,6 +17,7 @@
     (set! *print-level* 10)
     (testing "initialization"
       (is (= [(address-of m)] (s-> address->resolve (contents r :matrice-scape) :matrice)))
+      (is (= {:room-name "fun house"} (contents r :data)))
       )
     (testing "incorporate"
       (let [flower-address (s-> matrice->incorporate r :flower "http://images.com/flower.jpg" 0 0)
@@ -128,11 +129,11 @@
     (testing "state-pretty"
       ;; cant actually test the contents because addresses change...
       (is (= (into #{} (keys  (state r false)))
-             #{:receptors :matrices :scapes :type :talking-stick :address :changes :occupants}))
+             #{:receptors :matrices :scapes :type :talking-stick :address :changes :occupants :data}))
       (is (=  {"art" {:name "Art"}, "zippy" {:name "Eric"}} (:occupants (state r false)))))
     (testing "state-full"
       (is (= (into #{} (keys  (state r true)))
-             #{:scapes-scape-addr :receptors :type :address :door-log :door :matrice-scape :talking-stick :password :changes}))
+             #{:data :scapes-scape-addr :receptors :type :address :door-log :door :matrice-scape :talking-stick :password :changes}))
       (comment is (= nil (restore (state r true) nil))))
     (testing "restore"
       (is (=  (state r true) (state (restore (state r true) nil) true))))

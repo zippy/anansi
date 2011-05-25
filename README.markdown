@@ -85,7 +85,7 @@ Send a signal to a receptor.  The ss command which takes a single json object as
 
 for example:
 
-    > ss {"to":0, "signal":"self->host-room", "params": {"name": "the room", "password": "pass", "matrice-address":33}}
+    > ss {"to":0, "signal":"self->host-room", "params": {"name": "the room", "password": "pass", "matrice-address":5, "data": {}}}
     {"status":"ok", "result":35}
 
 #### gc

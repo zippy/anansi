@@ -10,7 +10,7 @@
   (:use [anansi.receptor.facilitator]
         [anansi.receptor.occupant]))
 
-(defmethod manifest :commons-room [_r matrice-address password]
+(defmethod manifest :commons-room [_r matrice-address password data]
            (let [ms (receptor scape _r)]
              (s-> key->set ms matrice-address :matrice)
              (make-scapes _r  {:password password
@@ -18,7 +18,9 @@
                                :matrice-scape ms
                                :door (receptor portal _r)
                                :door-log (ref [])
-                               :talking-stick (receptor facilitator _r "")}
+                               :talking-stick (receptor facilitator _r "")
+                               :data data
+                               }
                           :agent :coords :occupant :status :chair)))
 
 (defmethod state :commons-room [_r full?]
@@ -31,12 +33,14 @@
                  :door (address-of (contents _r :door))
                  :talking-stick (address-of (contents _r :talking-stick))
                  :door-log @(contents _r :door-log)
+                 :data (contents _r :data)
                  )
                (assoc base-state 
                    ;;             :objects (map state @(contents _r :objects))
-                   :matrices (s-> key->all (contents _r :matrice-scape))
-                   :talking-stick (state (contents _r :talking-stick) full?)
-                   :occupants (into {} (map (fn [[name addr]] [name (:data (state (get-receptor _r addr) false))]) @(contents (contents _r :occupant-scape) :map)))
+                 :data (contents _r :data)
+                 :matrices (s-> key->all (contents _r :matrice-scape))
+                 :talking-stick (state (contents _r :talking-stick) full?)
+                 :occupants (into {} (map (fn [[name addr]] [name (:data (state (get-receptor _r addr) false))]) @(contents (contents _r :occupant-scape) :map)))
                    )))
            )
 (defmethod restore :commons-room [state parent]
@@ -47,6 +51,7 @@
              (restore-content r :door (get-receptor r (:door state)))
              (restore-content r :door-log (ref (:door-log state)))
              (restore-content r :talking-stick (get-receptor r (:talking-stick state)))
+             (restore-content r :data (:data state))
              r))
 
 ;;; MATRICE signals

@@ -10,14 +10,14 @@ This file documents the signals that can be sent to the commons-room receptor co
 
 To create a new room send the host a "self->host-room" signal, make sure to use your user address as the matrice-address:
 
-    > ss {"to":0, "signal":"self->host-room", "params": {"name":"the room", "password":"pass", "matrice-address":4}}
+    > ss {"to":0, "signal":"self->host-room", "params": {"name":"the room", "password":"pass", "matrice-address":4, "data": {"bg-url":"http://someurl.com/bg.jpg"}}}
     {"status":"ok", "result":5}
 
 The result of the self->host-room command is the address of the room, which you use to send it these signals:
 
-To add an occupant to the room, send the room a "door->enter" signal:
+To add an occupant to the room, send the room a "door->enter" signal.  Note that the current UI will render the full-name if added to the data hash, and will use the data hash email field to render an avatar image from gravatar.com:
 
-    > ss {"to":5, "signal":"door->enter", "params": {"password": "pass" "name":"zippy", "data": {"image-url": "http://images.com/img.jpg"}}}
+    > ss {"to":5, "signal":"door->enter", "params": {"password": "pass" "name":"zippy", "data": {"full-name""email":"user@email.com"}}}
     {"status":"ok", "result":8}
 
 To move an occupant to a coordinate in the room send the room a "matrice->move":
@@ -35,13 +35,24 @@ To change an occupant's status send the room a "matrice->update-status" signal:
     > ss {"to":5, "signal":"matrice->update-status", "params": {"addr":8 "status":"away"}}
     {"status":"ok", "result":null}
 
-For a complete list of signals that the commons-room can receive, see the API below.
+For a complete list of signals that the commons-room can receive, and
+for the signals sent to the host to create a room, see the API below.
   
 
 ## API
 
+### host
+#### signals
+    host->room:
+        params:
+            name: <name for the room>
+            password: <room password>
+            matrice-address: <address of the user who is the initial matrice>
+            data: <a hash of any other data you want to store for the room, i.e. a background url, etc>               
+    host->user:
+        name: <a unique user-name>
 
-###commons-room
+### commons-room
 #### signals
     door->enter:
         name: <unique name for the occupant>
