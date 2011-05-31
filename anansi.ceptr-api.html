@@ -34,7 +34,7 @@ namespace.
     <a class="wiki_link" href="api-index.html">API Index</a><br />
     <a class="wiki_link" href="#">Namespaces:</a>
     <ul id="left-sidebar-list">
-      <li><a href="anansi.ceptr-api.html" class="wiki_link">anansi.ceptr</a></li><li><a href="anansi.commands-api.html" class="wiki_link">anansi.commands</a></li><li><a href="anansi.core-api.html" class="wiki_link">anansi.core</a></li><li><a href="anansi.grammar-api.html" class="wiki_link">anansi.grammar</a></li><li><a href="anansi.map-utilities-api.html" class="wiki_link">anansi.map-utilities</a></li><li><a href="anansi.receptor.commons-room-api.html" class="wiki_link">anansi.receptor.commons-room</a></li><li><a href="anansi.receptor.facilitator-api.html" class="wiki_link">anansi.receptor.facilitator</a></li><li><a href="anansi.receptor.host-api.html" class="wiki_link">anansi.receptor.host</a></li><li><a href="anansi.receptor.list-scape-api.html" class="wiki_link">anansi.receptor.list-scape</a></li><li><a href="anansi.receptor.object-api.html" class="wiki_link">anansi.receptor.object</a></li><li><a href="anansi.receptor.occupant-api.html" class="wiki_link">anansi.receptor.occupant</a></li><li><a href="anansi.receptor.portal-api.html" class="wiki_link">anansi.receptor.portal</a></li><li><a href="anansi.receptor.scape-api.html" class="wiki_link">anansi.receptor.scape</a></li><li><a href="anansi.receptor.user-api.html" class="wiki_link">anansi.receptor.user</a></li><li><a href="anansi.util-api.html" class="wiki_link">anansi.util</a></li>
+      <li><a href="anansi.ceptr-api.html" class="wiki_link">anansi.ceptr</a></li><li><a href="anansi.commands-api.html" class="wiki_link">anansi.commands</a></li><li><a href="anansi.core-api.html" class="wiki_link">anansi.core</a></li><li><a href="anansi.grammar-api.html" class="wiki_link">anansi.grammar</a></li><li><a href="anansi.map-utilities-api.html" class="wiki_link">anansi.map-utilities</a></li><li><a href="anansi.receptor.commons-room-api.html" class="wiki_link">anansi.receptor.commons-room</a></li><li><a href="anansi.receptor.facilitator-api.html" class="wiki_link">anansi.receptor.facilitator</a></li><li><a href="anansi.receptor.host-api.html" class="wiki_link">anansi.receptor.host</a></li><li><a href="anansi.receptor.list-scape-api.html" class="wiki_link">anansi.receptor.list-scape</a></li><li><a href="anansi.receptor.object-api.html" class="wiki_link">anansi.receptor.object</a></li><li><a href="anansi.receptor.occupant-api.html" class="wiki_link">anansi.receptor.occupant</a></li><li><a href="anansi.receptor.portal-api.html" class="wiki_link">anansi.receptor.portal</a></li><li><a href="anansi.receptor.scape-api.html" class="wiki_link">anansi.receptor.scape</a></li><li><a href="anansi.receptor.user-api.html" class="wiki_link">anansi.receptor.user</a></li><li><a href="anansi.server-constants-api.html" class="wiki_link">anansi.server-constants</a></li><li><a href="anansi.util-api.html" class="wiki_link">anansi.util</a></li>
     </ul>
   </div>
 </div>
@@ -63,6 +63,8 @@ namespace.
       <a href="#anansi.ceptr/p-&gt;">p-&gt;</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.ceptr/parent-of">parent-of</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.ceptr/restore-content">restore-content</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#anansi.ceptr/s-&gt;">s-&gt;</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
@@ -156,6 +158,15 @@ by <span id="author">Eric Harris-Braun</span><br />
   <pre id="var-usage">Usage: (parent-of receptor)
 </pre>
   <pre id="var-docstr">return the receptor that is a receptor's parent</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.ceptr/restore-content">restore-content</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (restore-content receptor key value)
+</pre>
+  <pre id="var-docstr">set the value of a manifest item without updating the changes count</pre>
   
 </div><div id="var-entry">
   <br />
