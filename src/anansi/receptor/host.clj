@@ -8,7 +8,7 @@
         [anansi.receptor.scape]))
 
 (defmethod manifest :host [_r]
-           (make-scapes _r {} :room :user))
+           (make-scapes _r {} :room :user :stream))
 
 ;; TODO make this an generalized receptor host
 (comment defmacro make-receptor [n p & a] `(receptor ~(symbol (str (name n))) ~p ~@a))
@@ -17,6 +17,13 @@
         (rsync _r
          (let [names (contents _r :room-scape)
                r (receptor commons-room _r matrice-address password data) ;;(make-receptor type _r args)
+               addr (address-of r)]
+           (--> key->set _r names receptor-name addr)
+           addr)))
+(signal self host-streamscape [_r _f {receptor-name :name password :password matrice-address :matrice-address data :data}]
+        (rsync _r
+         (let [names (contents _r :stream-scape)
+               r (receptor streamscapes _r matrice-address password data) ;;(make-receptor type _r args)
                addr (address-of r)]
            (--> key->set _r names receptor-name addr)
            addr)))

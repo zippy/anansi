@@ -12,9 +12,16 @@
         (is (= addr (s-> key->resolve (contents h :room-scape) "the room")))
         (is (= (contents r :password) "pass") )
         (is (= (contents r :data) {:background-url "http://someure.com/pic.jpg"}) )
-        (is (= (s-> key->all (get-scape r :matrice-scape)) [1]) )
-        )
-      )
+        (is (= (s-> key->all (get-scape r :matrice-scape)) [1]))))
+
+    (testing "host-streamscape"
+      (let [addr (s-> self->host-streamscape h {:name "erics-streamscape" :password "pass" :matrice-address 1 :data {}})
+            r (get-receptor h addr)]
+        (is (= addr (s-> key->resolve (contents h :stream-scape) "erics-streamscape")))
+        (is (= (contents r :password) "pass") )
+        (is (= (contents r :data) {}) )
+        (is (= (s-> key->all (get-scape r :matrice-scape)) [1]) )))
+    
     (testing "host-user"
       (let [addr (s-> self->host-user h "zippy")
             u (get-receptor h addr)]
