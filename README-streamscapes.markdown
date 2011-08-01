@@ -1,5 +1,5 @@
 # streamscapes
-Streamscapes is a set of receptors that implement a communications workflow integration platform.  We are using the streamscapes as a prototyping example as we build out the ceptr protocols, but also as a "eat-your-own-dog-food" example, to coordinate our communications, and solve the massive flow problems we experience with the currently available tools.
+Streamscapes is a set of receptors that implement a communications workflow integration platform.  We are using streamscapes as a prototyping example as we build out the ceptr protocols, but also as a "eat-your-own-dog-food" example, to coordinate our communications, and solve the massive flow problems we experience with the currently available tools.
 
 This file documents the signals that can be sent to the streamscapes receptor complex.  There is currently no streamscapes UI.
 
