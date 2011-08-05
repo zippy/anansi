@@ -8,18 +8,18 @@
 (deftest channel
   (let [m (receptor user nil "eric" nil)
         r (receptor streamscapes nil (address-of m) "password" {:datax "x"})
-        c (receptor channel r :email-stream)]
+        cc (receptor channel r :email-stream)]
     (testing "contents"
-      (is (= :email-stream (contents c :name)))
+      (is (= :email-stream (contents cc :name)))
       )
     (testing "receive"
-      (let [droplet-address (s-> stream->receive c {:to "to-addr" :envelope {:from "rfc-822-email" :subject "text/plain" :body "text/html"} :content {:from "test@example.com" :subject "Hi there!" :body "<b>Hello world!</b>"}})
+      (let [droplet-address (s-> stream->receive cc {:to "to-addr" :envelope {:from "rfc-822-email" :subject "text/plain" :body "text/html"} :content {:from "test@example.com" :subject "Hi there!" :body "<b>Hello world!</b>"}})
             d (get-receptor r droplet-address)]
-        (is (= (address-of c)  (contents d :from) ))
+        (is (= (address-of cc)  (contents d :from) ))
         (is (= :email-stream  (contents d :aspect) ))
         (is (= "to-addr" (contents d :to)))
         (is (= {:from "rfc-822-email" :subject "text/plain" :body "text/html"} (contents d :envelope)))
         (is (= {:from "test@example.com" :subject "Hi there!" :body "<b>Hello world!</b>"} (contents d :content)))))
     (testing "restore"
-      (is (=  (state c true) (state (restore (state c true) nil) true))))
+      (is (=  (state cc true) (state (restore (state cc true) nil) true))))
     ))
