@@ -3,6 +3,7 @@
      :doc "Email Bridge receptor"}
   anansi.streamscapes.bridge-email
   (:use [anansi.ceptr]
+        [anansi.receptor.scape]
         [anansi.streamscapes.streamscapes]
         [anansi.streamscapes.channel]))
 
@@ -24,11 +25,33 @@
              r))
 
 (defn handle-message [_r message]
-  (--> stream->receive _r (parent-of _r)
-       {:to "to-addr"
-        :envelope {:from "rfc-822-email" :subject "text/plain" :body "text/html"}
-        :content {:from (javax.mail.internet.InternetAddress/toString (.getFrom message))
-                  :subject (.getSubject message)
-                  :body (.getContent message)}})
+  (let [id (first (.getHeader message "Message-Id"))
+        ss (parent-of (parent-of _r))
+        ids (contents ss :id-scape)
+        da (s-> address->resolve ids id)]
+    (if (empty? da)
+      (--> stream->receive _r (parent-of _r)
+           {:id id
+            :to "to-addr"
+            :envelope {:from "rfc-822-email" :subject "text/plain" :body "text/html"}
+            :content {:from (javax.mail.internet.InternetAddress/toString (.getFrom message))
+                      :subject (.getSubject message)
+                      :body (.getContent message)}})
+      (first da)
+      )
+    )
+  
   )
+
+(defn pull-messages [_r]
+  (let [props (java.util.Properties.)
+        session (doto (javax.mail.Session/getInstance (java.util.Properties.)) (.setDebug false))
+        store (.getStore session (contents _r :protocol))]
+    (.connect store (contents _r :host) (contents _r :account) (contents _r :password))
+    (let [folder (. store getFolder "inbox")]
+      (.open folder (javax.mail.Folder/READ_ONLY ))
+      (let [messages (.getMessages folder)]
+        (for [m messages] (handle-message _r m))
+        (.close store)
+        ))))
 

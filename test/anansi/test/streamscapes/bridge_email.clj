@@ -12,6 +12,7 @@
     (. msg addRecipients javax.mail.Message$RecipientType/TO to)
     (. msg setSubject subject)
     (. msg setText body)
+    (. msg addHeader "Message-Id" (str "<"(format "%f" (rand 2)) "%example.com>"))
     msg)
   )
 
@@ -25,6 +26,8 @@
           )
     (testing "restore"
       (is (=  (state cc true) (state (restore (state cc true) nil) true))))
+    (testing "internal functionss: pull-messages"
+      )
     (testing "internal functions: handle-message"
       (is (= (parent-of b) cc))
       (let [message (create-java-email-message {:to "dest@example.com" :from "test@example.com" :subject "Hi there!" :body "<b>Hello world!</b>"})
@@ -36,6 +39,7 @@
         (is (= "to-addr" (contents d :to)))
         (is (= {:from "rfc-822-email" :subject "text/plain" :body "text/html"} (contents d :envelope)))
         (is (= {:from "test@example.com" :subject "Hi there!" :body "<b>Hello world!</b>"} (contents d :content)))
+        (is (= droplet-address (handle-message b message)))
         )
       )
     ))

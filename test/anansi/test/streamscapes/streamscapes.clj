@@ -10,15 +10,17 @@
         u (receptor user nil "zippy" nil)
         r (receptor streamscapes nil (address-of m) "password" {:datax "x"})
         aspects (contents r :aspect-scape)
+        ids (contents r :id-scape)
         ]
     (testing "initialization"
       (is (= [(address-of m)] (s-> address->resolve (contents r :matrice-scape) :matrice)))
       (is (= {:datax "x"} (contents r :data)))
       )
     (testing "droplets"
-      (let [droplet-address (s-> matrice->incorporate r {:from "from-addr" :to "to-addr" :aspect :some-aspect :envelope {:part1 "address of part1 grammar"} :content {:part1 "part1 content"}})
+      (let [droplet-address (s-> matrice->incorporate r {:id "some-unique-id" :from "from-addr" :to "to-addr" :aspect :some-aspect :envelope {:part1 "address of part1 grammar"} :content {:part1 "part1 content"}})
             d (get-receptor r droplet-address)]
         (are [x y] (= x y)
+             (contents d :id) "some-unique-id"
              (contents d :from) "from-addr"
              (contents d :to) "to-addr"
              (contents d :aspect) :some-aspect
@@ -26,5 +28,7 @@
              (contents d :content) {:part1 "part1 content"}
              (address-of d) droplet-address
              :some-aspect (s-> key->resolve aspects droplet-address)
+             "some-unique-id" (s-> key->resolve ids droplet-address)
              [droplet-address] (s-> address->resolve aspects :some-aspect)
+             [droplet-address] (s-> address->resolve ids "some-unique-id")
              )))))

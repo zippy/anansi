@@ -13,7 +13,7 @@
                                :matrice-scape ms
                                :data data
                                }
-                          :aspect
+                          :aspect :id
                           )))
 
 (defmethod state :streamscapes [_r full?]
@@ -36,11 +36,14 @@
              (restore-content r :data (:data state))
              r))
 
-(signal matrice incorporate [_r _f {from :from to :to aspect :aspect envelope :envelope content :content}]
+(signal matrice incorporate [_r _f {id :id from :from to :to aspect :aspect envelope :envelope content :content}]
         (rsync _r
-               (let [d (receptor droplet _r from to aspect envelope content)
+               (let [d (receptor droplet _r id from to aspect envelope content)
                      addr (address-of d)
                      aspects (contents _r :aspect-scape)
+                     ids (contents _r :id-scape)
                      ]
                  (--> key->set _r aspects addr aspect)
+                 (--> key->set _r ids addr id)
+
                  addr)))
