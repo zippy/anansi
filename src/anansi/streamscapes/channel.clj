@@ -15,9 +15,9 @@
            (let [r (do-restore state parent)]
              (restore-content r :name (:name state))
              r))
-(signal stream receive [_r _f {id :id to :to  envelope :envelope content :content}]
+(signal stream receive [_r _f {id :id to :to from :from envelope :envelope content :content}]
         (rsync _r
                (let [p (parent-of _r)
-                     droplet-address (--> matrice->incorporate _r p {:id id :from (address-of _r) :to to :aspect (contents _r :name) :envelope envelope :content content})
+                     droplet-address (--> channel->incorporate _r p {:id id :from from :to to :aspect (contents _r :name) :envelope envelope :content content})
                      ]
                  droplet-address)))

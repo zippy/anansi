@@ -2,6 +2,7 @@
   (:use [anansi.streamscapes.bridge-email] :reload)
   (:use [anansi.streamscapes.channel])
   (:use [anansi.ceptr])
+  (:use [anansi.receptor.scape])
   (:use [anansi.streamscapes.streamscapes])
   (:use [clojure.test]))
 
@@ -9,7 +10,7 @@
   (let [session (doto (javax.mail.Session/getInstance (java.util.Properties.)) (.setDebug false))
         msg (javax.mail.internet.MimeMessage. session)]
     (. msg setFrom (javax.mail.internet.InternetAddress. from))
-    (. msg addRecipients javax.mail.Message$RecipientType/TO to)
+    (. msg addRecipient javax.mail.Message$RecipientType/TO (javax.mail.internet.InternetAddress. to))
     (. msg setSubject subject)
     (. msg setText body)
     (. msg addHeader "Message-Id" (str "<"(format "%f" (rand 2)) "%example.com>"))
@@ -19,8 +20,11 @@
 (deftest bridge-email
   (let [m (receptor user nil "eric" nil)
         r (receptor streamscapes nil (address-of m) "password" {:datax "x"})
+        eric (receptor ident r {:name "Eric"})
         cc (receptor channel r :email-stream)
-        b (receptor bridge-email cc {:host "mail.example.com" :account "someuser" :password "pass" :protocol "pop3"})]
+        b (receptor bridge-email cc {:host "mail.example.com" :account "someuser" :password "pass" :protocol "pop3"})
+        email-ids (contents r :email-id-scape)]
+    (--> key->set b email-ids "eric@example.com" (address-of eric))
     (testing "contents"
       (is (= "mail.example.com" (contents b :host)))
           )
@@ -30,13 +34,13 @@
       )
     (testing "internal functions: handle-message"
       (is (= (parent-of b) cc))
-      (let [message (create-java-email-message {:to "dest@example.com" :from "test@example.com" :subject "Hi there!" :body "<b>Hello world!</b>"})
+      (let [message (create-java-email-message {:to "eric@example.com" :from "test@example.com" :subject "Hi there!" :body "<b>Hello world!</b>"})
             droplet-address (handle-message b message)
             d (get-receptor r droplet-address)
             ]
-        (is (= (address-of cc)  (contents d :from) ))
+        (is (= (address-of eric) (contents d :to) ))
+        (is (= (s-> key->resolve email-ids "test@example.com")  (contents d :from) ))
         (is (= :email-stream  (contents d :aspect) ))
-        (is (= "to-addr" (contents d :to)))
         (is (= {:from "rfc-822-email" :subject "text/plain" :body "text/html"} (contents d :envelope)))
         (is (= {:from "test@example.com" :subject "Hi there!" :body "<b>Hello world!</b>"} (contents d :content)))
         (is (= droplet-address (handle-message b message)))

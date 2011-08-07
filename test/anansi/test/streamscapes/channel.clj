@@ -13,9 +13,9 @@
       (is (= :email-stream (contents cc :name)))
       )
     (testing "receive"
-      (let [droplet-address (s-> stream->receive cc {:id "some-id" :to "to-addr" :envelope {:from "rfc-822-email" :subject "text/plain" :body "text/html"} :content {:from "test@example.com" :subject "Hi there!" :body "<b>Hello world!</b>"}})
+      (let [droplet-address (s-> stream->receive cc {:id "some-id" :to "to-addr" :from "from-addr" :envelope {:from "rfc-822-email" :subject "text/plain" :body "text/html"} :content {:from "test@example.com" :subject "Hi there!" :body "<b>Hello world!</b>"}})
             d (get-receptor r droplet-address)]
-        (is (= (address-of cc)  (contents d :from) ))
+        (is (= "from-addr"  (contents d :from) ))
         (is (= "some-id"  (contents d :id) ))
         (is (= :email-stream  (contents d :aspect) ))
         (is (= "to-addr" (contents d :to)))

@@ -13,7 +13,7 @@
                                :matrice-scape ms
                                :data data
                                }
-                          :aspect :id
+                          :aspect :id :email-id
                           )))
 
 (defmethod state :streamscapes [_r full?]
@@ -36,14 +36,25 @@
              (restore-content r :data (:data state))
              r))
 
-(signal matrice incorporate [_r _f {id :id from :from to :to aspect :aspect envelope :envelope content :content}]
-        (rsync _r
-               (let [d (receptor droplet _r id from to aspect envelope content)
-                     addr (address-of d)
-                     aspects (contents _r :aspect-scape)
-                     ids (contents _r :id-scape)
-                     ]
-                 (--> key->set _r aspects addr aspect)
-                 (--> key->set _r ids addr id)
+(defn do-incorporate [_r _f {id :id from :from to :to aspect :aspect envelope :envelope content :content}]
+  (rsync _r
+         (let [d (receptor droplet _r id from to aspect envelope content)
+               addr (address-of d)
+               aspects (contents _r :aspect-scape)
+               ids (contents _r :id-scape)
+               ]
+           (--> key->set _r aspects addr aspect)
+           (--> key->set _r ids addr id)
+           addr))
+  )
 
-                 addr)))
+(signal channel incorporate [_r _f params]
+        ; add in authentication to make sure that _f is one of this
+        ; streamscape instance's channels
+        (do-incorporate _r _f params)
+        )
+
+(signal matrice incorporate [_r _f params]
+        ; add in authentication to make sure that _f is a matrice
+        (do-incorporate _r _f params)
+)
