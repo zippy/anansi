@@ -5,7 +5,6 @@
   (:use [anansi.ceptr]
         [anansi.receptor.scape]
         [anansi.streamscapes.streamscapes]
-        [anansi.streamscapes.ident]
         [anansi.streamscapes.channel]))
 
 (defmethod manifest :bridge-email [_r {host :host account :account password :password protocol :protocol}]
@@ -25,13 +24,6 @@
              (restore-content r :protocol (:protocol state))
              r))
 
-(defn resolve-or-create-email-ident [_r email-idents email-address]
-  (or (--> key->resolve _r email-idents email-address)
-      (let [ident (receptor ident _r {:name (str "name for " email-address)})
-            ident-address (address-of ident)]
-        (--> key->set _r email-idents email-address ident-address)
-        ident-address)) ;; see if we have the name in the java email object
-  )
 
 (defn handle-message [_r message]
   "process an e-mail: do  look-up to see if we've already created a droplet for this id, and also map the email to/from addresses into identities."
@@ -40,11 +32,10 @@
         ids (get-scape ss :id)
         da (s-> address->resolve ids id)]
     (if (empty? da)
-      (let [email-idents (get-scape ss :email-ident)
-            to (.toString (first (.getRecipients message javax.mail.Message$RecipientType/TO)))
+      (let [to (.toString (first (.getRecipients message javax.mail.Message$RecipientType/TO)))
             from (javax.mail.internet.InternetAddress/toString (.getFrom message))
-            to-id (resolve-or-create-email-ident ss email-idents to)
-            from-id (resolve-or-create-email-ident ss email-idents from)]
+            to-id (do-identify ss {:email to} false) ;figure out how to get name out of email
+            from-id (do-identify ss {:email from} false)]
         (--> stream->receive _r (parent-of _r)
              {:id id
               :to to-id

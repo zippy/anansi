@@ -3,9 +3,7 @@
      :doc "Identity receptor"}
   anansi.streamscapes.ident
   (:use [anansi.ceptr]
-        [anansi.receptor.scape]
-        [anansi.streamscapes.streamscapes]
-        [anansi.streamscapes.channel]))
+        [anansi.streamscapes.streamscapes]))
 
 (defmethod manifest :ident [_r {name :name}]
            {:name name})

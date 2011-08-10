@@ -9,12 +9,24 @@
   (let [m (receptor user nil "eric" nil)
         u (receptor user nil "zippy" nil)
         r (receptor streamscapes nil (address-of m) "password" {:datax "x"})
+        email-idents (get-scape r :email-ident)
         aspects (get-scape r :aspect)
         ids (get-scape r :id)
         ]
     (testing "initialization"
       (is (= [(address-of m)] (s-> address->resolve (get-scape r :matrice) :matrice)))
       (is (= {:datax "x"} (contents r :data)))
+      )
+    (testing "identity"
+      (let [identity-address1 (s-> matrice->identify r {:email "eric@example.com" :name "Eric"})
+            identity-address2 (s-> matrice->identify r {:email "eric@otherexample.com" :name "Eric"})
+            ident-names (get-scape r :ident-name)]
+        (is (= identity-address1 (s-> key->resolve email-idents "eric@example.com")))
+        (is (= [identity-address1 identity-address2] (s-> address->resolve ident-names "Eric")))
+        (is (= identity-address2 (s-> key->resolve email-idents "eric@otherexample.com")))
+        (is (thrown-with-msg? RuntimeException #"identity for eric@example.com already exists" (s-> matrice->identify r {:email "eric@example.com"})))
+        (is (= identity-address1 (do-identify r {:email "eric@example.com"} false)))
+        )
       )
     (testing "droplets"
       (let [droplet-address (s-> matrice->incorporate r {:id "some-unique-id" :from "from-addr" :to "to-addr" :aspect :some-aspect :envelope {:part1 "address of part1 grammar"} :content {:part1 "part1 content"}})
