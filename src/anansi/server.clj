@@ -43,7 +43,7 @@
        (set! *user-name* (get-unique-user-name (read-line)))
        (let [host (get-host)
              x  (if (nil? host) (throw (RuntimeException. (str host "R: " (keys @*receptors*)))))
-             users (contents host :user-scape)
+             users (get-scape host :user)
              user-address (s-> self->host-user host *user-name*) ;; creates or returns existing user receptor address
              user (get-receptor host user-address)]
          (--> key->set host users *user-name* user-address )

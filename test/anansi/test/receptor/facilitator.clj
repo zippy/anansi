@@ -6,7 +6,7 @@
 
 (deftest facilitator
   (let [f (receptor facilitator nil "some-url")
-        stick (contents f :stick-scape)]
+        stick (get-scape f :stick)]
     (testing "contents"
       (is (= (contents f :image-url) "some-url")))
     (testing "you get the stick if nobody has it when you say you want it"

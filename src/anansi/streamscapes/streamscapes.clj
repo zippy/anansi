@@ -21,12 +21,12 @@
              (if full?
                (assoc base-state
                  :password (contents _r :password)
-                 :matrice-scape (address-of (contents _r :matrice-scape))
+                 :matrice-scape (address-of (get-scape _r :matrice))
                  :data (contents _r :data)
                  )
                (assoc base-state 
                  :data (contents _r :data)
-                 :matrices (s-> key->all (contents _r :matrice-scape))
+                 :matrices (s-> key->all (get-scape _r :matrice))
                    )))
            )
 (defmethod restore :streamscapes [state parent]
@@ -40,8 +40,8 @@
   (rsync _r
          (let [d (receptor droplet _r id from to aspect envelope content)
                addr (address-of d)
-               aspects (contents _r :aspect-scape)
-               ids (contents _r :id-scape)
+               aspects (get-scape _r :aspect)
+               ids (get-scape _r :id)
                ]
            (--> key->set _r aspects addr aspect)
            (--> key->set _r ids addr id)

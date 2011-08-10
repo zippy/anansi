@@ -34,13 +34,14 @@
   )
 
 (defn handle-message [_r message]
+  "process an e-mail: do  look-up to see if we've already created a droplet for this id, and also map the email to/from addresses into identities."
   (let [id (first (.getHeader message "Message-Id"))
         ss (parent-of (parent-of _r))
-        ids (contents ss :id-scape)
-        email-ids (contents ss :email-id-scape)
+        ids (get-scape ss :id)
         da (s-> address->resolve ids id)]
     (if (empty? da)
-      (let [to (.toString (first (.getRecipients message javax.mail.Message$RecipientType/TO)))
+      (let [email-ids (get-scape ss :email-id)
+            to (.toString (first (.getRecipients message javax.mail.Message$RecipientType/TO)))
             from (javax.mail.internet.InternetAddress/toString (.getFrom message))
             to-id (resolve-or-create-email-ident ss email-ids to)
             from-id (resolve-or-create-email-ident ss email-ids from)]

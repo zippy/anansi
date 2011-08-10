@@ -29,7 +29,7 @@
                (assoc base-state
                  :password (contents _r :password)
                  ;; TODO object state
-                 :matrice-scape (address-of (contents _r :matrice-scape))
+                 :matrice-scape (address-of (get-scape _r :matrice))
                  :door (address-of (contents _r :door))
                  :talking-stick (address-of (contents _r :talking-stick))
                  :door-log @(contents _r :door-log)
@@ -38,9 +38,9 @@
                (assoc base-state 
                    ;;             :objects (map state @(contents _r :objects))
                  :data (contents _r :data)
-                 :matrices (s-> key->all (contents _r :matrice-scape))
+                 :matrices (s-> key->all (get-scape _r :matrice))
                  :talking-stick (state (contents _r :talking-stick) full?)
-                 :occupants (into {} (map (fn [[name addr]] [name (:data (state (get-receptor _r addr) false))]) @(contents (contents _r :occupant-scape) :map)))
+                 :occupants (into {} (map (fn [[name addr]] [name (:data (state (get-receptor _r addr) false))]) @(contents (get-scape _r :occupant) :map)))
                    )))
            )
 (defmethod restore :commons-room [state parent]
@@ -59,15 +59,15 @@
 ;; handle collisions when incorporating things onto the same place?
 
 (defn matrice? [_r _f]
-  (= :matrice (--> key->resolve _r (contents  _r :matrice-scape) _f )))
+  (= :matrice (--> key->resolve _r (get-scape  _r :matrice) _f )))
 
 (defn agent-or-matrice? [_r _f occupant-address]
   (or
-   (= _f (--> key->resolve _r (contents  _r :agent-scape) occupant-address))
+   (= _f (--> key->resolve _r (get-scape  _r :agent) occupant-address))
    (matrice? _r _f)))
 
 (defn do-move [_r address x y]
- ( let [coords (contents _r :coords-scape)]
+ ( let [coords (get-scape _r :coords)]
    (rsync _r
     (--> address->delete _r coords address)
     (--> key->set _r coords [x y] address))))
@@ -80,7 +80,7 @@
 
 (signal matrice sit [_r _f {address :addr c :chair}]
         (if (matrice? _r _f)
-          ( let [chairs (contents _r :chair-scape)]
+          ( let [chairs (get-scape _r :chair)]
             (rsync _r
                    (--> address->delete _r chairs address)
                    (--> key->set _r chairs c address)))
@@ -90,7 +90,7 @@
 (signal matrice make-matrice [_r _f {address :addr}]
         (if (matrice? _r _f)
           (rsync _r
-                 (--> key->set _r (contents _r :matrice-scape) address :matrice)
+                 (--> key->set _r (get-scape _r :matrice) address :matrice)
                  )
           (throw (RuntimeException. "not matrice"))
           ))
@@ -98,21 +98,21 @@
 (signal matrice make-agent [_r _f {occupant :occupant address :addr}]
         (if (matrice? _r _f)
           (rsync _r
-                 (--> key->set _r (contents _r :agent-scape) occupant address)
+                 (--> key->set _r (get-scape _r :agent) occupant address)
                  )
           (throw (RuntimeException. "not matrice"))
           ))
 
 (signal matrice update-status [_r _f {address :addr  status :status}]
         (if (agent-or-matrice? _r _f address)
-          (rsync _r (--> key->set _r (contents _r :status-scape) address (keyword status)) nil)
+          (rsync _r (--> key->set _r (get-scape _r :status) address (keyword status)) nil)
           (throw (RuntimeException. "no agency"))
           ))
 
 (signal matrice incorporate [_r _f name picture_url x y]
         (let [o (receptor object _r picture_url)
               addr (address-of o)
-              coords (contents _r :coords-scape)
+              coords (get-scape _r :coords)
               objects (contents _r :objects)]
           (rsync _r (alter objects assoc name o)
                   ( do-move _r addr x y)
@@ -126,14 +126,14 @@
 (signal door enter [_r _f {unique-name :name occupant-data :data password :password}]
         (rsync _r
          (let [o (--> anansi.receptor.portal/self->enter _r (contents _r :door) unique-name occupant-data)
-               seats (contents _r :seat-scape)
-               occupants (contents _r :occupant-scape)
+               seats (get-scape _r :seat)
+               occupants (get-scape _r :occupant)
                addr (address-of o)]
            (if (not (check-password _r password)) (throw (RuntimeException. "incorrect room password")))
            (if (--> key->resolve _r occupants unique-name) (throw (RuntimeException. (str "'" unique-name "' is already in the room"))))
            (alter (contents _r :door-log) conj {:who unique-name, :what "entered", :when (.toString (java.util.Date.))})
-           (--> key->set _r (contents _r :agent-scape) addr _f)
-           (--> key->set _r (contents _r :status-scape) addr :present)
+           (--> key->set _r (get-scape _r :agent) addr _f)
+           (--> key->set _r (get-scape _r :status) addr :present)
            (comment address->push seats addr)
            (--> key->set _r occupants unique-name addr)
            (address-of o))
@@ -146,10 +146,10 @@
 
 (signal door leave [_r _f unique-name]
         (rsync _r
-         (let [seats (contents _r :seat-scape)
-               occupants (contents _r :occupant-scape)
-               agents (contents _r :agent-scape)
-               status (contents _r :status-scape)
+         (let [seats (get-scape _r :seat)
+               occupants (get-scape _r :occupant)
+               agents (get-scape _r :agent)
+               status (get-scape _r :status)
                addr (resolve-occupant _r occupants unique-name)]
            (if (not ( agent-or-matrice? _r _f addr)) (throw (RuntimeException. "no agency")))
            (alter (contents _r :door-log) conj {:who unique-name, :what "left", :when (.toString (java.util.Date.))})
@@ -164,7 +164,7 @@
 ;; but I don't know how to do that yet.
 (defmacro forward-stick-signal [signal aspect name]
   `(signal ~aspect ~name [~'_r ~'_f ~'unique-name]
-           (let [~'occupants (contents ~'_r :occupant-scape)
+           (let [~'occupants (get-scape ~'_r :occupant)
               ~'addr (resolve-occupant ~'_r ~'occupants ~'unique-name)
               ~'stick (contents ~'_r :talking-stick)
               ]
@@ -177,7 +177,7 @@
 (forward-stick-signal matrice->give-stick stick give)
 
 (comment signal stick request [_r _f unique-name]
-        (let [occupants (contents _r :occupant-scape)
+        (let [occupants (get-scape _r :occupant)
               addr (resolve-occupant _r occupants unique-name)
               stick (contents _r :talking-stick)
               ]
@@ -185,7 +185,7 @@
           ))
 
 (comment signal stick release [_r _f unique-name]
-        (let [occupants (contents _r :occupant-scape)
+        (let [occupants (get-scape _r :occupant)
               addr (resolve-occupant _r occupants unique-name)
               stick (contents _r :talking-stick)
               ]
@@ -194,7 +194,7 @@
 
 
 (signal occupant update-data [_r _f {name :name  data :data key :key}]
-        (let [occupants (contents _r :occupant-scape)
+        (let [occupants (get-scape _r :occupant)
               addr (resolve-occupant _r occupants name)]
           (if (agent-or-matrice? _r _f addr)
             (rsync _r (--> self->update _r (get-receptor _r addr) data key))

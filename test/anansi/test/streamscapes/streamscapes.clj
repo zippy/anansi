@@ -9,11 +9,11 @@
   (let [m (receptor user nil "eric" nil)
         u (receptor user nil "zippy" nil)
         r (receptor streamscapes nil (address-of m) "password" {:datax "x"})
-        aspects (contents r :aspect-scape)
-        ids (contents r :id-scape)
+        aspects (get-scape r :aspect)
+        ids (get-scape r :id)
         ]
     (testing "initialization"
-      (is (= [(address-of m)] (s-> address->resolve (contents r :matrice-scape) :matrice)))
+      (is (= [(address-of m)] (s-> address->resolve (get-scape r :matrice) :matrice)))
       (is (= {:datax "x"} (contents r :data)))
       )
     (testing "droplets"

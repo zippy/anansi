@@ -58,7 +58,7 @@
     (set! *print-level* 10)
     (let [room-addr 
           (ss (json-str {:to 0 :signal "self->host-room" :params {:name "the-room" :password "pass" :matrice-address 33}}))]
-      (is (= ["the-room"] (s-> address->resolve (contents (get-host) :room-scape) room-addr) )))
+      (is (= ["the-room"] (s-> address->resolve (get-scape (get-host) :room) room-addr) )))
     ))
 
 (def-command-test rl-test

@@ -39,11 +39,11 @@
     (destroy-receptor nil (address-of r))
     (is (= nil (get-receptor nil (address-of r)))))
   (testing "get-scape"
-    (is (= (get-scape r :s1-scape) (get-receptor r (--> key->resolve r (get-receptor r 1) :s1-scape )))))
+    (is (= (get-scape r :s1) (get-receptor r (--> key->resolve r (get-receptor r 1) :s1-scape )))))
   (testing "state"
     (receptor test-receptor r "cow")
     
-    (--> key->set r (contents r :s1-scape) :test-key :test-val)
+    (--> key->set r (get-scape r :s1) :test-key :test-val)
     (is (= (state r false)
            {:scapes {:s1-scape {:test-key :test-val}, :s2-scape {}}, :receptors {:last-address 4, 4 {:scapes {:s1-scape {}, :s2-scape {}}, :receptors {:last-address 3}, :type :test-receptor, :address 4, :changes 4}}, :type :test-receptor, :address 1, :changes 4}))
     (is (= (state r true)
@@ -52,8 +52,8 @@
   (testing "restore"
     (let [restored (restore (state r true) nil)]
       (is (= (state r true) (state restored true)))
-      (is (= (state (get-scape r :scapes-scape) true) (state (get-scape restored :scapes-scape) true)))
-      (is (= (state (get-scape r :s1-scape) true) (state (get-scape restored :s1-scape) true))))
+      (is (= (state (get-scape r :scapes) true) (state (get-scape restored :scapes) true)))
+      (is (= (state (get-scape r :s1) true) (state (get-scape restored :s1) true))))
     )
   (testing "serialization"
     (let [s (serialize-receptors *receptors*)

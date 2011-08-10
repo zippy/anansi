@@ -103,10 +103,13 @@
   [receptor address]
   (rsync receptor (alter (receptors-container receptor) dissoc address)))
 
+(defn scapify [scape-name]
+  (keyword (str (name scape-name) "-scape")))
+
 (defn get-scape
   "return the named scape recptor"
   [receptor scape-name]
-  (contents receptor scape-name))
+  (contents receptor (scapify scape-name)))
 
 (defn scape-state [_r scape-name]
   @(contents (contents _r scape-name) :map))
@@ -124,7 +127,7 @@
               (assoc s1
                 :receptors (assoc (modify-vals (fn [x] (state x full?))  (filter (fn [[k v]] (and (not= k :last-address) (or full? (not= (:type @v) :scape)) )) rc))
                              :last-address (:last-address rc))))
-        ss (contents receptor :scapes-scape)]
+        ss (get-scape receptor :scapes)]
     (if (and (not full?) ss)
       (let [scapes (keys @(contents ss :map))] ;; this is cheating 
         (assoc s :scapes (into {} (map (fn [sn] [sn (scape-state receptor sn)] ) scapes))))

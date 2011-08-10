@@ -21,7 +21,7 @@
  [username]
  (dosync
       (let [host (get-host)
-            users (contents host :user-scape)
+            users (get-scape host :user)
             user-address (s-> self->host-user host username) ;; creates or returns existing user receptor address
             user (get-receptor host user-address)]
         (--> key->set host users username user-address )

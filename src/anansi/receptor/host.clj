@@ -15,21 +15,21 @@
 (comment defn do-make-receptor [n p & a] (receptor '(symbol (str (name n))) p a))
 (signal self host-room [_r _f {receptor-name :name password :password matrice-address :matrice-address data :data}]
         (rsync _r
-         (let [names (contents _r :room-scape)
+         (let [names (get-scape _r :room)
                r (receptor commons-room _r matrice-address password data) ;;(make-receptor type _r args)
                addr (address-of r)]
            (--> key->set _r names receptor-name addr)
            addr)))
 (signal self host-streamscape [_r _f {receptor-name :name password :password matrice-address :matrice-address data :data}]
         (rsync _r
-         (let [names (contents _r :stream-scape)
+         (let [names (get-scape _r :stream)
                r (receptor streamscapes _r matrice-address password data) ;;(make-receptor type _r args)
                addr (address-of r)]
            (--> key->set _r names receptor-name addr)
            addr)))
 (signal self host-user [_r _f receptor-name]
         (rsync _r
-         (let [names (contents _r :user-scape)
+         (let [names (get-scape _r :user)
                existing-addr (--> key->resolve _r names receptor-name)
                addr (if existing-addr existing-addr (address-of (receptor user _r receptor-name nil))) ;; (make-receptor type _r args)                
                ]

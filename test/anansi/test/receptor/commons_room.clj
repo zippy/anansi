@@ -10,13 +10,13 @@
         u (receptor user nil "zippy" nil)
         u-art (receptor user nil "art" nil)
         r (receptor commons-room nil (address-of m) "password" {:room-name "fun house"})
-        occupants (contents r :occupant-scape)
-        coords (contents r :coords-scape)
-        status (contents r :status-scape)
-        chairs (contents r :chair-scape)]
+        occupants (get-scape r :occupant)
+        coords (get-scape r :coords)
+        status (get-scape r :status)
+        chairs (get-scape r :chair)]
     (set! *print-level* 10)
     (testing "initialization"
-      (is (= [(address-of m)] (s-> address->resolve (contents r :matrice-scape) :matrice)))
+      (is (= [(address-of m)] (s-> address->resolve (get-scape r :matrice) :matrice)))
       (is (= {:room-name "fun house"} (contents r :data)))
       )
     (testing "incorporate"
@@ -44,8 +44,8 @@
           (is (= "entered" (:what le)))
           (is (re-find #"^... ... [0-9][0-9] [0-9][0-9]:[0-9][0-9]:[0-9][0-9] ... 20[0-9][0-9]" (:when le))))
         ;; sender of enter is in the agent scape for the occupant
-        (is (= (address-of u) (s-> key->resolve (contents r :agent-scape) address-of-o)))
-        (comment is (= (s-> key->resolve (contents r :seat-scape) 0) address-of-o))
+        (is (= (address-of u) (s-> key->resolve (get-scape r :agent) address-of-o)))
+        (comment is (= (s-> key->resolve (get-scape r :seat) 0) address-of-o))
         (is (= (s-> key->all occupants) ["zippy"] ))
         ;; entering again fails
         (is (thrown-with-msg? RuntimeException #"'zippy' is already in the room" (s-> door->enter r {:password "password" :name  "zippy" :data {:name "e"}})))
@@ -56,7 +56,7 @@
         ;; refuse if not from matrice
         (is (thrown-with-msg? RuntimeException #"not matrice" (-->  matrice->make-agent u r {:occupant 1 :addr 1})))
         (--> matrice->make-agent m r {:occupant address-of-o :addr (address-of u-art)} )
-        (is (= (address-of u-art) (s-> key->resolve (contents r :agent-scape) address-of-o)))
+        (is (= (address-of u-art) (s-> key->resolve (get-scape r :agent) address-of-o)))
         (--> matrice->make-agent m r {:occupant address-of-o :addr (address-of u)} )
         )
 
@@ -86,11 +86,11 @@
             (is (= "zippy" (:who le)))
             (is (= "left" (:what le)))
             (is (re-find #"^... ... [0-9][0-9] [0-9][0-9]:[0-9][0-9]:[0-9][0-9] ... 20[0-9][0-9]" (:when le))))
-        (comment is (= nil (contents (contents r :seat-scape) :map)))
+        (comment is (= nil (get-scape (contents r :seat) :map)))
         (is (= [] (s-> address->resolve occupants address-of-o)))
-        (is (= (s-> key->all (contents r :occupant-scape)) [] ))
-        (is (= (s-> key->all (contents r :agent-scape)) [] ))
-        (is (= (s-> key->all (contents r :status-scape)) [] ))
+        (is (= (s-> key->all (get-scape r :occupant)) [] ))
+        (is (= (s-> key->all (get-scape r :agent)) [] ))
+        (is (= (s-> key->all (get-scape r :status)) [] ))
         (is (nil? (get-receptor r address-of-o)))
         ;; leave works if from matrice
         (--> door->enter u r {:password "password" :name "zippy" :data {:name "Eric"}})
@@ -113,7 +113,7 @@
     (testing "talking-stick"
       (--> door->enter u-art r {:password "password" :name "art" :data {:name "Art"}})
       (let [f (contents r :talking-stick)
-            s (contents f :stick-scape)
+            s (get-scape f :stick)
             zippy_addr (s-> key->resolve occupants "zippy")
             art_addr (s-> key->resolve occupants "art") ]
         ;; refuse if not from agent
@@ -141,8 +141,8 @@
        ;; refuse if not from matrice
       (is (thrown-with-msg? RuntimeException #"not matrice" (-->  matrice->make-matrice u r {:addr 1})))
       (--> matrice->make-matrice m r {:addr (address-of u)} )
-      (is (= :matrice (s-> key->resolve (contents r :matrice-scape) (address-of u))))
-      (is (= [(address-of m) (address-of u)] (s-> address->resolve (contents r :matrice-scape) :matrice)))
+      (is (= :matrice (s-> key->resolve (get-scape r :matrice) (address-of u))))
+      (is (= [(address-of m) (address-of u)] (s-> address->resolve (get-scape r :matrice) :matrice)))
       )
     ))
 
