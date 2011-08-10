@@ -13,7 +13,7 @@
                                :matrice-scape ms
                                :data data
                                }
-                          :aspect :id :email-id
+                          :aspect :id :email-ident
                           )))
 
 (defmethod state :streamscapes [_r full?]

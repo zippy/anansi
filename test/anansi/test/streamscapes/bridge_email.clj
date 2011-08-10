@@ -23,14 +23,15 @@
         eric (receptor ident r {:name "Eric"})
         cc (receptor channel r :email-stream)
         b (receptor bridge-email cc {:host "mail.example.com" :account "someuser" :password "pass" :protocol "pop3"})
-        email-ids (get-scape r :email-id)]
-    (--> key->set b email-ids "eric@example.com" (address-of eric))
+        email-idents (get-scape r :email-ident)]
+    (--> key->set b email-idents "eric@example.com" (address-of eric))
     (testing "contents"
       (is (= "mail.example.com" (contents b :host)))
           )
     (testing "restore"
       (is (=  (state cc true) (state (restore (state cc true) nil) true))))
     (testing "internal functionss: pull-messages"
+      ;; testing this requires spoofing an e-mail server for the java mail stuff, so it's not done.
       )
     (testing "internal functions: handle-message"
       (is (= (parent-of b) cc))
@@ -39,7 +40,7 @@
             d (get-receptor r droplet-address)
             ]
         (is (= (address-of eric) (contents d :to) ))
-        (is (= (s-> key->resolve email-ids "test@example.com")  (contents d :from) ))
+        (is (= (s-> key->resolve email-idents "test@example.com")  (contents d :from) ))
         (is (= :email-stream  (contents d :aspect) ))
         (is (= {:from "rfc-822-email" :subject "text/plain" :body "text/html"} (contents d :envelope)))
         (is (= {:from "test@example.com" :subject "Hi there!" :body "<b>Hello world!</b>"} (contents d :content)))

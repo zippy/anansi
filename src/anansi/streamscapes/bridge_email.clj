@@ -25,11 +25,11 @@
              (restore-content r :protocol (:protocol state))
              r))
 
-(defn resolve-or-create-email-ident [_r email-ids email-address]
-  (or (--> key->resolve _r email-ids email-address)
+(defn resolve-or-create-email-ident [_r email-idents email-address]
+  (or (--> key->resolve _r email-idents email-address)
       (let [ident (receptor ident _r {:name (str "name for " email-address)})
             ident-address (address-of ident)]
-        (--> key->set _r email-ids email-address ident-address)
+        (--> key->set _r email-idents email-address ident-address)
         ident-address)) ;; see if we have the name in the java email object
   )
 
@@ -40,11 +40,11 @@
         ids (get-scape ss :id)
         da (s-> address->resolve ids id)]
     (if (empty? da)
-      (let [email-ids (get-scape ss :email-id)
+      (let [email-idents (get-scape ss :email-ident)
             to (.toString (first (.getRecipients message javax.mail.Message$RecipientType/TO)))
             from (javax.mail.internet.InternetAddress/toString (.getFrom message))
-            to-id (resolve-or-create-email-ident ss email-ids to)
-            from-id (resolve-or-create-email-ident ss email-ids from)]
+            to-id (resolve-or-create-email-ident ss email-idents to)
+            from-id (resolve-or-create-email-ident ss email-idents from)]
         (--> stream->receive _r (parent-of _r)
              {:id id
               :to to-id
