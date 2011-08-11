@@ -34,8 +34,8 @@
     (if (empty? da)
       (let [to (.toString (first (.getRecipients message javax.mail.Message$RecipientType/TO)))
             from (javax.mail.internet.InternetAddress/toString (.getFrom message))
-            to-id (do-identify ss {:email to} false) ;figure out how to get name out of email
-            from-id (do-identify ss {:email from} false)]
+            to-id (do-identify ss {:identifiers {:email to}} false) ;figure out how to get name out of email
+            from-id (do-identify ss {:identifiers {:email from}} false)]
         (--> stream->receive _r (parent-of _r)
              {:id id
               :to to-id

@@ -38,11 +38,6 @@
   (testing "destroy receptor"
     (destroy-receptor nil (address-of r))
     (is (= nil (get-receptor nil (address-of r)))))
-  (testing "get-scape"
-    (is (= (get-scape r :s1) (get-receptor r (--> key->resolve r (get-receptor r 1) :s1-scape ))))
-    (is (thrown-with-msg? RuntimeException #":fish scape doesn't exist" (get-scape r :fish)))
-    (is (= (get-scape r :squid true) (get-receptor r (--> key->resolve r (get-receptor r 1) :squid-scape ))))
-    )
   (testing "state"
     (receptor test-receptor r "cow")
     

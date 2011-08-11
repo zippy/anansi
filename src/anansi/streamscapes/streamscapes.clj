@@ -50,11 +50,15 @@
            (--> key->set _r ids addr id)
            addr)))
 
+(defn scape-identifier-key [identifier]
+  (keyword (str (name identifier) "-ident")))
+
 (defn do-identify
   "add an identity receptor into the streamscape, scaping the email and name appropriately"
   ([_r params] (do-identify _r params true))
-  ([_r {email :email name :name} throw-if-exists]
-     (let [email-idents (get-scape _r :email-ident)
+  ([_r {identifiers :identifiers name :name} throw-if-exists]
+     (let [email (:email identifiers)
+           email-idents (get-scape _r (scape-identifier-key :email) true)
            iaddr (--> key->resolve _r email-idents email)
            exists (not (nil? iaddr))]
            

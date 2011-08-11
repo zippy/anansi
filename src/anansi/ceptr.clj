@@ -54,7 +54,7 @@
   "get an item out of the manifest"
   [receptor key] (key @(:contents @receptor)))
 
-(defn- _set-content
+(defn _set-content
   [receptor key value]
   (alter (:contents @receptor) assoc key value))
 
@@ -106,24 +106,12 @@
 (defn scapify [scape-name]
   (keyword (str (name scape-name) "-scape")))
 
+(defn scape-state [_r scape-name]
+  @(contents (contents _r scape-name) :map))
+
 (defn _get-scape [receptor scape-name]
   (contents receptor (scapify scape-name))
   )
-
-(defn get-scape
-  "return the named scape recptor"
-  ([receptor scape-name]
-     (get-scape receptor scape-name false))
-  ([receptor scape-name create-if-non-existent]
-     (let [scape (_get-scape receptor scape-name)]
-       (if (nil? scape)
-         (if create-if-non-existent
-           :not-implemented ;(add-scape receptor scape-name)
-           (throw (RuntimeException. (str scape-name " scape doesn't exist"))))
-         scape))))
-
-(defn scape-state [_r scape-name]
-  @(contents (contents _r scape-name) :map))
 
 (defn state-convert
   "worker function to serialize the standard contents of a recptor"
@@ -195,3 +183,4 @@
         )
       )
     ))
+
