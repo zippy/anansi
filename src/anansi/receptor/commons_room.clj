@@ -126,7 +126,7 @@
 (signal door enter [_r _f {unique-name :name occupant-data :data password :password}]
         (rsync _r
          (let [o (--> anansi.receptor.portal/self->enter _r (contents _r :door) unique-name occupant-data)
-               seats (get-scape _r :seat)
+               ; seats (get-scape _r :seat)
                occupants (get-scape _r :occupant)
                addr (address-of o)]
            (if (not (check-password _r password)) (throw (RuntimeException. "incorrect room password")))
@@ -134,7 +134,7 @@
            (alter (contents _r :door-log) conj {:who unique-name, :what "entered", :when (.toString (java.util.Date.))})
            (--> key->set _r (get-scape _r :agent) addr _f)
            (--> key->set _r (get-scape _r :status) addr :present)
-           (comment address->push seats addr)
+           ; (address->push seats addr)
            (--> key->set _r occupants unique-name addr)
            (address-of o))
          ))
@@ -146,14 +146,14 @@
 
 (signal door leave [_r _f unique-name]
         (rsync _r
-         (let [seats (get-scape _r :seat)
+         (let [;seats (get-scape _r :seat)
                occupants (get-scape _r :occupant)
                agents (get-scape _r :agent)
                status (get-scape _r :status)
                addr (resolve-occupant _r occupants unique-name)]
            (if (not ( agent-or-matrice? _r _f addr)) (throw (RuntimeException. "no agency")))
            (alter (contents _r :door-log) conj {:who unique-name, :what "left", :when (.toString (java.util.Date.))})
-           (comment address->delete seats addr)
+           ;(comment address->delete seats addr)
            (--> address->delete _r occupants addr)
            (--> key->delete _r agents addr)
            (--> key->delete _r status addr)

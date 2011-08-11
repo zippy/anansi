@@ -106,10 +106,21 @@
 (defn scapify [scape-name]
   (keyword (str (name scape-name) "-scape")))
 
+(defn _get-scape [receptor scape-name]
+  (contents receptor (scapify scape-name))
+  )
+
 (defn get-scape
   "return the named scape recptor"
-  [receptor scape-name]
-  (contents receptor (scapify scape-name)))
+  ([receptor scape-name]
+     (get-scape receptor scape-name false))
+  ([receptor scape-name create-if-non-existent]
+     (let [scape (_get-scape receptor scape-name)]
+       (if (nil? scape)
+         (if create-if-non-existent
+           :not-implemented ;(add-scape receptor scape-name)
+           (throw (RuntimeException. (str scape-name " scape doesn't exist"))))
+         scape))))
 
 (defn scape-state [_r scape-name]
   @(contents (contents _r scape-name) :map))
@@ -127,7 +138,7 @@
               (assoc s1
                 :receptors (assoc (modify-vals (fn [x] (state x full?))  (filter (fn [[k v]] (and (not= k :last-address) (or full? (not= (:type @v) :scape)) )) rc))
                              :last-address (:last-address rc))))
-        ss (get-scape receptor :scapes)]
+        ss (_get-scape receptor :scapes)]
     (if (and (not full?) ss)
       (let [scapes (keys @(contents ss :map))] ;; this is cheating 
         (assoc s :scapes (into {} (map (fn [sn] [sn (scape-state receptor sn)] ) scapes))))
