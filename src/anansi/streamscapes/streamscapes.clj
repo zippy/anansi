@@ -15,7 +15,7 @@
                                :matrice-scape ms
                                :data data
                                }
-                          :aspect :id :email-ident :ident-name
+                          :aspect :id
                           )))
 
 (defmethod state :streamscapes [_r full?]
@@ -53,6 +53,8 @@
 
 (defn scape-identifier-key [identifier]
   (keyword (str (name identifier) "-ident")))
+(defn scape-identifier-attribute-key [identifier]
+  (keyword (str "ident-"(name identifier))))
 
 (defn find-identity-by-identifier
   "given an identifier name and identifier value return the identity address if it exists"
@@ -68,23 +70,27 @@
   )
 
 (defn do-identify
-  "add an identity receptor into the streamscape, scaping the identifiers and name appropriately"
+  "add an identity receptor into the streamscape, scaping the identifiers and attributes appropriately"
   ([_r params] (do-identify _r params true))
-  ([_r {identifiers :identifiers name :name} throw-if-exists]
-     (let [iaddrs (find-identities _r identifiers)
+  ([_r {identifiers :identifiers attrs :attributes} throw-if-exists]
+     (let [attrs1 (if (nil? attrs) {} attrs)
+           attributes (if (nil? (:name attrs1))
+                        (assoc attrs1 :name (str "name for " (vals identifiers)) )
+                        attrs1)
+           iaddrs (find-identities _r identifiers)
            iaddr (first iaddrs)
            exists (not (nil? iaddr))]
        (if (and exists throw-if-exists) (throw (RuntimeException. (str "identity already exists for identifiers: " (join ", " (vals identifiers))))))
        (if (not (nil? (first (rest iaddrs))))
          (into [] iaddrs)
          (rsync _r
-                (let [iname (if (nil? name) (str "name for " (vals identifiers)) name)
-                      ident-address (if exists iaddr (address-of (receptor ident _r {:name iname})))
-                      ident-names (get-scape _r :ident-name)]
+                (let [ident-address (if exists iaddr (address-of (receptor ident _r {:name (:name attributes)})))]
                   (doall (for [[i v] identifiers
                                 :let [iscape (get-scape _r (scape-identifier-key i) true)]]
                            (--> key->set _r iscape v ident-address)))
-                  (--> key->set _r ident-names ident-address iname)
+                  (doall (for [[a v] attributes
+                                :let [iscape (get-scape _r (scape-identifier-attribute-key a) true)]]
+                           (--> key->set _r iscape ident-address v)))
                   ident-address))))))
 
 (signal channel incorporate [_r _f params]

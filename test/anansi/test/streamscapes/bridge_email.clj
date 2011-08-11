@@ -23,7 +23,7 @@
         eric (receptor ident r {:name "Eric"})
         cc (receptor channel r :email-stream)
         b (receptor bridge-email cc {:host "mail.example.com" :account "someuser" :password "pass" :protocol "pop3"})
-        email-idents (get-scape r :email-ident)]
+        email-idents (get-scape r :email-ident true)]
     (--> key->set b email-idents "eric@example.com" (address-of eric))
     (testing "contents"
       (is (= "mail.example.com" (contents b :host)))
