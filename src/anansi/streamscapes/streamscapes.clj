@@ -5,6 +5,7 @@
   (:use [anansi.ceptr])
   (:use [anansi.receptor.scape])
   (:use [anansi.streamscapes.ident])
+  (:use [clojure.string :only [join]])
   )
 
 (defmethod manifest :streamscapes [_r matrice-address password data]
@@ -53,22 +54,36 @@
 (defn scape-identifier-key [identifier]
   (keyword (str (name identifier) "-ident")))
 
+(defn find-identity-by-identifier
+  "given an identifier name and identifier value return the identity address if it exists"
+  [_r identifier value]
+  (let [scape (_get-scape _r (scape-identifier-key identifier))]
+    (if (nil? scape) nil (--> key->resolve _r scape value)))
+  )
+
+(defn find-identities
+  "given a set of identifiers return a lazy seq of all the identities that match those identifiers"
+  [_r identifiers]
+  (distinct (keep identity (for [[i v] identifiers] (find-identity-by-identifier _r i v))))
+  )
+
 (defn do-identify
-  "add an identity receptor into the streamscape, scaping the email and name appropriately"
+  "add an identity receptor into the streamscape, scaping the identifiers and name appropriately"
   ([_r params] (do-identify _r params true))
   ([_r {identifiers :identifiers name :name} throw-if-exists]
-     (let [email (:email identifiers)
-           email-idents (get-scape _r (scape-identifier-key :email) true)
-           iaddr (--> key->resolve _r email-idents email)
+     (let [iaddrs (find-identities _r identifiers)
+           iaddr (first iaddrs)
            exists (not (nil? iaddr))]
-           
-       (if (and exists throw-if-exists)
-         (throw (RuntimeException. (str "identity for " email " already exists")))
+       (if (and exists throw-if-exists) (throw (RuntimeException. (str "identity already exists for identifiers: " (join ", " (vals identifiers))))))
+       (if (not (nil? (first (rest iaddrs))))
+         (into [] iaddrs)
          (rsync _r
-                (let [iname (if (nil? name) (str "name for " email) name)
+                (let [iname (if (nil? name) (str "name for " (vals identifiers)) name)
                       ident-address (if exists iaddr (address-of (receptor ident _r {:name iname})))
                       ident-names (get-scape _r :ident-name)]
-                  (--> key->set _r email-idents email ident-address)
+                  (doall (for [[i v] identifiers
+                                :let [iscape (get-scape _r (scape-identifier-key i) true)]]
+                           (--> key->set _r iscape v ident-address)))
                   (--> key->set _r ident-names ident-address iname)
                   ident-address))))))
 
