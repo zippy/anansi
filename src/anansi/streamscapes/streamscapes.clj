@@ -15,7 +15,7 @@
                                :matrice-scape ms
                                :data data
                                }
-                          :aspect :id
+                          :aspect :id :delivery
                           )))
 
 (defmethod state :streamscapes [_r full?]
