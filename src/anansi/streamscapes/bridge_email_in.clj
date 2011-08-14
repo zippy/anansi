@@ -1,22 +1,22 @@
 (ns
   #^{:author "Eric Harris-Braun"
      :doc "Email Bridge receptor"}
-  anansi.streamscapes.bridge-email
+  anansi.streamscapes.bridge-email-in
   (:use [anansi.ceptr]
         [anansi.receptor.scape]
         [anansi.streamscapes.streamscapes]
         [anansi.streamscapes.channel]))
 
-(defmethod manifest :bridge-email [_r {host :host account :account password :password protocol :protocol}]
+(defmethod manifest :bridge-email-in [_r {host :host account :account password :password protocol :protocol}]
            {:host host :account account :password password :protocol protocol})
-(defmethod state :bridge-email [_r full?]
+(defmethod state :bridge-email-in [_r full?]
            (assoc (state-convert _r full?)
              :host (contents _r :host)
              :account (contents _r :account)
              :password (contents _r :password)
              :protocol (contents _r :protocol)
              ))
-(defmethod restore :bridge-email [state parent]
+(defmethod restore :bridge-email-in [state parent]
            (let [r (do-restore state parent)]
              (restore-content r :host (:host state))
              (restore-content r :account (:account state))

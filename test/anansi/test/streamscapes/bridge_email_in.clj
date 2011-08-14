@@ -1,5 +1,5 @@
-(ns anansi.test.streamscapes.bridge-email
-  (:use [anansi.streamscapes.bridge-email] :reload)
+(ns anansi.test.streamscapes.bridge-email-in
+  (:use [anansi.streamscapes.bridge-email-in] :reload)
   (:use [anansi.streamscapes.channel])
   (:use [anansi.ceptr])
   (:use [anansi.receptor.scape])
@@ -17,12 +17,12 @@
     msg)
   )
 
-(deftest bridge-email
+(deftest bridge-email-in
   (let [m (receptor user nil "eric" nil)
         r (receptor streamscapes nil (address-of m) "password" {:datax "x"})
         eric (receptor ident r {:name "Eric"})
         cc (receptor channel r :email-stream)
-        b (receptor bridge-email cc {:host "mail.example.com" :account "someuser" :password "pass" :protocol "pop3"})
+        b (receptor bridge-email-in cc {:host "mail.example.com" :account "someuser" :password "pass" :protocol "pop3"})
         email-idents (get-scape r :email-ident true)]
     (--> key->set b email-idents "eric@example.com" (address-of eric))
     (testing "contents"
