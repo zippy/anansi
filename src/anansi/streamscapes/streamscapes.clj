@@ -106,3 +106,18 @@
         ; TODO add in authentication to make sure that _f is a matrice
         (do-identify _r params))
 
+(signal matrice make-channel [_r _f params]
+        ; TODO add in authentication to make sure that _f is a matrice
+        (rsync _r
+               (let [cc (receptor :channel _r (:name params))
+                     {{in-bridge :bridge  in-params :params} :in
+                      {out-bridge :bridge delivery-signal :delivery-signal out-params :params} :out} params
+                     in-bridge-address (if in-bridge
+                                         (receptor in-bridge cc in-params))
+                     out-bridge-address (if out-bridge
+                                          (let [b (receptor out-bridge cc out-params)]
+                                            (--> key->set cc (get-scape cc :deliverer) :deliverer [(address-of b) delivery-signal])
+                                            b))
+                     ]
+                 (address-of cc))))
+

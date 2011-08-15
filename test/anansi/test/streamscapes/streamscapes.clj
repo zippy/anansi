@@ -2,7 +2,9 @@
   (:use [anansi.streamscapes.streamscapes] :reload)
   (:use [anansi.ceptr]
         [anansi.receptor.scape]   
-        [anansi.receptor.user])
+        [anansi.receptor.user]
+        [anansi.streamscapes.channel :only [get-delivery-bridge]]
+        [anansi.streamscapes.bridge-email-out :only [channel->deliver]])
   (:use [clojure.test]))
 
 (deftest streamscapes
@@ -50,4 +52,17 @@
              "some-unique-id" (s-> key->resolve ids droplet-address)
              [droplet-address] (s-> address->resolve aspects :some-aspect)
              [droplet-address] (s-> address->resolve ids "some-unique-id")
-             )))))
+             )))
+    (testing "channels"
+      (let [channel-address (s-> matrice->make-channel r {:name :email-stream
+                                                          :in {:bridge :bridge-email-in :params {:host "mail.example.com" :account "someuser" :password "pass" :protocol "pop3"}}
+                                                          :out {:bridge :bridge-email-out :delivery-signal channel->deliver :params {:host "mail.harris-braun.com" :account "eric@harris-braun.com" :password "some-password" :protocol "smtps" :port 25}}
+                                                          })
+            cc (get-receptor r channel-address)
+            [bridge-address delivery-signal] (get-delivery-bridge cc)
+            db (get-receptor cc bridge-address)]
+        (set! *print-level* 6)
+
+        (is (= (:type @db) :bridge-email-out))
+        (is (= (contents db :host) "mail.harris-braun.com"))
+        (is (= (:type @(get-receptor cc 3)) :bridge-email-in))))))
