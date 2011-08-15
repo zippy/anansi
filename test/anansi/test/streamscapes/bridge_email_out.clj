@@ -27,6 +27,7 @@
             i-from (s-> matrice->identify r {:identifiers {:email "eric@harris-braun.com"} :attributes {:name "Eric"}})
             droplet-address (s-> matrice->incorporate r {:to i-to :from i-from :envelope {:subject "text/plain" :body "text/html"} :content {:subject "Hi there!" :body "<b>Hello world!</b>"}})
             result (s-> stream->send cc {:droplet-address droplet-address })
+            ;;            d (get-receptor r droplet-address)
             deliveries (get-scape r :delivery)
             ]
         (let [[{ aspect :aspect time :time}] (s-> address->resolve deliveries droplet-address)]

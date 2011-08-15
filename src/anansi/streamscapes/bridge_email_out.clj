@@ -31,7 +31,8 @@
 (signal channel deliver [_r _f {droplet-address :droplet-address}] 
         (let [
               props (java.util.Properties.)
-              ss (parent-of  (parent-of _r))
+              cc (parent-of _r)
+              ss (parent-of  cc)
               d (get-receptor ss droplet-address)
               ]
 
@@ -60,8 +61,9 @@
           
               (. msg setSubject (:subject content))
               (. msg setText (:body content))
-          
-              (. msg setHeader "X-Mailer", "msgsend")
+              
+              (. msg setHeader "Content-Type", (:body envelope))
+              (. msg setHeader "X-Mailer", (str "Streamscapes-channel: " (name (contents cc :name))))
               (. msg setHeader "X-Streamscapes-Droplet-Address", (str (address-of ss) "." droplet-address))
               (. msg setSentDate (java.util.Date.))
             
