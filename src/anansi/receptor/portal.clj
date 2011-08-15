@@ -15,7 +15,7 @@
              r))
 
 (signal self enter [_r _f unique-name occupant-data]
-        (receptor occupant
+        (receptor :occupant
                   (let [t-addr (contents _r :target)]
                     (if (= t-addr 0) (parent-of _r) (get-receptor _r t-addr)))
                   unique-name occupant-data)

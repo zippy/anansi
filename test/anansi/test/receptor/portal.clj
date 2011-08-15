@@ -6,9 +6,9 @@
 
 (deftest portal
   (set! *print-level* 6)
-  (let [r (receptor test-receptor nil "fish")
-        p1 (receptor portal r)
-        p2 (receptor portal r (address-of p1))
+  (let [r (receptor :test-receptor nil "fish")
+        p1 (receptor :portal r)
+        p2 (receptor :portal r (address-of p1))
         ]
     (testing "default target"
       (is (= (contents p1 :target) 0)))

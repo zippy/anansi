@@ -5,7 +5,7 @@
   (:use [clojure.test]))
 
 (deftest ident
-  (let [i (receptor ident nil {:name "joe"})]
+  (let [i (receptor :ident nil {:name "joe"})]
     (testing "contents"
       (is (= "joe" (contents i :name)))
       )

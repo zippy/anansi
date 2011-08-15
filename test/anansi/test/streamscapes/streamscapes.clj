@@ -6,9 +6,9 @@
   (:use [clojure.test]))
 
 (deftest streamscapes
-  (let [m (receptor user nil "eric" nil)
-        u (receptor user nil "zippy" nil)
-        r (receptor streamscapes nil (address-of m) "password" {:datax "x"})
+  (let [m (receptor :user nil "eric" nil)
+        u (receptor :user nil "zippy" nil)
+        r (receptor :streamscapes nil (address-of m) "password" {:datax "x"})
         aspects (get-scape r :aspect)
         ids (get-scape r :id)
         ]

@@ -8,11 +8,11 @@
   (:use [clj-time.core :only [now]]))
 
 (deftest bridge-email-out
-  (let [m (receptor user nil "eric" nil)
-        r (receptor streamscapes nil (address-of m) "password" {:datax "x"})
-        eric (receptor ident r {:name "Eric"})
-        cc (receptor channel r :email-stream)
-        b (receptor bridge-email-out cc {:host "mail.harris-braun.com" :account "eric@harris-braun.com" :password "some-password" :protocol "smtps" :port 25})
+  (let [m (receptor :user nil "eric" nil)
+        r (receptor :streamscapes nil (address-of m) "password" {:datax "x"})
+        eric (receptor :ident r {:name "Eric"})
+        cc (receptor :channel r :email-stream)
+        b (receptor :bridge-email-out cc {:host "mail.harris-braun.com" :account "eric@harris-braun.com" :password "some-password" :protocol "smtps" :port 25})
         ]
     
     (testing "contents"

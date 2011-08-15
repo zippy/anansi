@@ -4,7 +4,7 @@
   (:use [clojure.test]))
 
 (deftest user
-  (let [u (receptor user nil "zippy" :the-stream)]
+  (let [u (receptor :user nil "zippy" :the-stream)]
     (testing "contents"
       (is (= (contents u :name) "zippy"))
       (is (= (contents u :stream) :the-stream)))

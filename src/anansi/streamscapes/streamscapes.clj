@@ -9,7 +9,7 @@
   )
 
 (defmethod manifest :streamscapes [_r matrice-address password data]
-           (let [ms (receptor scape _r)]
+           (let [ms (receptor :scape _r)]
              (s-> key->set ms matrice-address :matrice)
              (make-scapes _r  {:password password
                                :matrice-scape ms
@@ -42,7 +42,7 @@
   "add a droplet receptor into the streamscape"
   [_r _f {id :id from :from to :to aspect :aspect envelope :envelope content :content}]
   (rsync _r
-         (let [d (receptor droplet _r id from to aspect envelope content)
+         (let [d (receptor :droplet _r id from to aspect envelope content)
                addr (address-of d)
                aspects (get-scape _r :aspect)
                ids (get-scape _r :id)
@@ -84,7 +84,7 @@
        (if (not (nil? (first (rest iaddrs))))
          (into [] iaddrs)
          (rsync _r
-                (let [ident-address (if exists iaddr (address-of (receptor ident _r {:name (:name attributes)})))]
+                (let [ident-address (if exists iaddr (address-of (receptor :ident _r {:name (:name attributes)})))]
                   (doall (for [[i v] identifiers
                                 :let [iscape (get-scape _r (scape-identifier-key i) true)]]
                            (--> key->set _r iscape v ident-address)))

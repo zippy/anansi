@@ -36,7 +36,7 @@
          ~'receptors (receptors-container ~parent)
          ~'c (~'ns-str @~'receptors)
          ~'addr (if (nil? ~'c) 1 (+ ~'c 1))
-         ~'type (keyword '~name)
+         ~'type (keyword ~name)
          ~'r (ref {:type ~'type
                    :parent ~parent,
                    :receptors (ref {}),

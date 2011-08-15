@@ -4,7 +4,7 @@
   (:use [clojure.test]))
 
 (deftest scape
-  (let [s (receptor scape nil)]
+  (let [s (receptor :scape nil)]
     (s-> key->set s :a 1)
     (s-> key->set s :b 1)
     (testing "contents"
@@ -30,7 +30,7 @@
     ))
 
 (deftest scape-creation-test
-  (let [r (receptor test-receptor nil)]
+  (let [r (receptor :test-receptor nil)]
     (testing "get-scape"
       (is (= (get-scape r :s1) (get-receptor r (--> key->resolve r (get-receptor r 1) :s1-scape ))))
       (is (thrown-with-msg? RuntimeException #":fish scape doesn't exist" (get-scape r :fish)))

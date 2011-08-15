@@ -6,10 +6,10 @@
   (:use [clojure.test]))
 
 (deftest commons-room
-  (let [m (receptor user nil "eric" nil)
-        u (receptor user nil "zippy" nil)
-        u-art (receptor user nil "art" nil)
-        r (receptor commons-room nil (address-of m) "password" {:room-name "fun house"})
+  (let [m (receptor :user nil "eric" nil)
+        u (receptor :user nil "zippy" nil)
+        u-art (receptor :user nil "art" nil)
+        r (receptor :commons-room nil (address-of m) "password" {:room-name "fun house"})
         occupants (get-scape r :occupant)
         coords (get-scape r :coords)
         status (get-scape r :status)

@@ -18,11 +18,11 @@
   )
 
 (deftest bridge-email-in
-  (let [m (receptor user nil "eric" nil)
-        r (receptor streamscapes nil (address-of m) "password" {:datax "x"})
-        eric (receptor ident r {:name "Eric"})
-        cc (receptor channel r :email-stream)
-        b (receptor bridge-email-in cc {:host "mail.example.com" :account "someuser" :password "pass" :protocol "pop3"})
+  (let [m (receptor :user nil "eric" nil)
+        r (receptor :streamscapes nil (address-of m) "password" {:datax "x"})
+        eric (receptor :ident r {:name "Eric"})
+        cc (receptor :channel r :email-stream)
+        b (receptor :bridge-email-in cc {:host "mail.example.com" :account "someuser" :password "pass" :protocol "pop3"})
         email-idents (get-scape r :email-ident true)]
     (--> key->set b email-idents "eric@example.com" (address-of eric))
     (testing "contents"

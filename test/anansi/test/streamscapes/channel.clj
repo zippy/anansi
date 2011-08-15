@@ -15,9 +15,9 @@
         error)
 
 (deftest channel
-  (let [m (receptor user nil "eric" nil)
-        r (receptor streamscapes nil (address-of m) "password" {:datax "x"})
-        cc (receptor channel r :email-stream)]
+  (let [m (receptor :user nil "eric" nil)
+        r (receptor :streamscapes nil (address-of m) "password" {:datax "x"})
+        cc (receptor :channel r :email-stream)]
     (testing "contents"
       (is (= :email-stream (contents cc :name))))
 
@@ -32,7 +32,7 @@
         (is (= {:from "test@example.com" :subject "Hi there!" :body "<b>Hello world!</b>"} (contents d :content)))))
 
     (testing "send"
-      (let [b (receptor test-send-bridge-email cc {})
+      (let [b (receptor :test-send-bridge-email cc {})
             
             _ (s-> key->set (get-scape cc :deliverer) :deliverer [(address-of b) channel->deliver])
             i-to (s-> matrice->identify r {:identifiers {:email "eric@example.com"} :attributes {:name "Eric"}})

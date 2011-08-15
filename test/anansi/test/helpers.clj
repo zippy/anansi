@@ -24,7 +24,7 @@ Returns a three item vector of a server receptor, a writable stream that is a cl
                                       *receptors* (ref {})
                                       *signals* (ref {})
                                       ]
-                              (receptor host nil)
+                              (receptor :host nil)
                               (anansi.server/anansi-handle-client r out)))
            ]
        (doto thread  .start)
@@ -41,7 +41,7 @@ Returns a three item vector of a server receptor, a writable stream that is a cl
 ;;               *room-addr* (s-> self->host-room *host* "the room" )
               *server-state-file-name* "testing-server.state"
               *print-level* 10]
-      (do (receptor ~'host nil)
+      (do (receptor :host nil)
           (dosync  (commute user-streams assoc *user-name* (get-receptor (get-host) (s-> self->host-user (get-host) *user-name*)))))
       ~@body)))
 

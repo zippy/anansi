@@ -5,7 +5,7 @@
   (:use [clojure.test]))
 
 (deftest facilitator
-  (let [f (receptor facilitator nil "some-url")
+  (let [f (receptor :facilitator nil "some-url")
         stick (get-scape f :stick)]
     (testing "contents"
       (is (= (contents f :image-url) "some-url")))

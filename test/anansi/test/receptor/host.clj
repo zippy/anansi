@@ -5,7 +5,7 @@
   (:use [clojure.test]))
 
 (deftest host
-  (let [h (receptor host nil)]
+  (let [h (receptor :host nil)]
     (testing "host-room"
       (let [addr (s-> self->host-room h {:name "the room" :password "pass" :matrice-address 1 :data {:background-url "http://someure.com/pic.jpg"}})
             r (get-receptor h addr)]

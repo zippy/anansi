@@ -50,9 +50,9 @@
 (defn make-scapes
   "instantiate a scape (utility function for building the manifests)"
   [_r manifest & scapes]
-  (let [ss (receptor scape _r)
+  (let [ss (receptor :scape _r)
         m  (into manifest (map (fn [s] (let [key (scapify s)
-                                      s (receptor scape _r)]
+                                      s (receptor :scape _r)]
                                   (--> key->set _r ss key (address-of s))
                                   [key s])) scapes))
         ]
@@ -65,7 +65,7 @@
   [_r scape-name]
   (if (nil? (_get-scape _r scape-name))
     (rsync _r
-           (let [s (receptor scape _r)
+           (let [s (receptor :scape _r)
                  key (scapify scape-name)
                  ss (get-scape _r :scapes)]
              (--> key->set _r ss key (address-of s))

@@ -11,14 +11,14 @@
         [anansi.receptor.occupant]))
 
 (defmethod manifest :commons-room [_r matrice-address password data]
-           (let [ms (receptor scape _r)]
+           (let [ms (receptor :scape _r)]
              (s-> key->set ms matrice-address :matrice)
              (make-scapes _r  {:password password
                                :objects (ref {})
                                :matrice-scape ms
-                               :door (receptor portal _r)
+                               :door (receptor :portal _r)
                                :door-log (ref [])
-                               :talking-stick (receptor facilitator _r "")
+                               :talking-stick (receptor :facilitator _r "")
                                :data data
                                }
                           :agent :coords :occupant :status :chair)))
@@ -110,7 +110,7 @@
           ))
 
 (signal matrice incorporate [_r _f name picture_url x y]
-        (let [o (receptor object _r picture_url)
+        (let [o (receptor :object _r picture_url)
               addr (address-of o)
               coords (get-scape _r :coords)
               objects (contents _r :objects)]

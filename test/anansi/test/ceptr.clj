@@ -9,7 +9,7 @@
            (make-scapes _r {:x (apply str  "the receptor contents: " args)} :s1 :s2)
            )
 
-(def r (receptor test-receptor nil "fish"))
+(def r (receptor :test-receptor nil "fish"))
 (signal self test-signal [_r _f param]
         (str "from " _f " with param " param ))
 
@@ -39,7 +39,7 @@
     (destroy-receptor nil (address-of r))
     (is (= nil (get-receptor nil (address-of r)))))
   (testing "state"
-    (receptor test-receptor r "cow")
+    (receptor :test-receptor r "cow")
     
     (--> key->set r (get-scape r :s1) :test-key :test-val)
     (is (= (state r false)

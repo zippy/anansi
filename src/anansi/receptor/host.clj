@@ -11,19 +11,19 @@
            (make-scapes _r {} :room :user :stream))
 
 ;; TODO make this an generalized receptor host
-(comment defmacro make-receptor [n p & a] `(receptor ~(symbol (str (name n))) ~p ~@a))
-(comment defn do-make-receptor [n p & a] (receptor '(symbol (str (name n))) p a))
+;; (defmacro make-receptor [n p & a] `(receptor :~(symbol (str (name n))) ~p ~@a))
+;; (defn do-make-receptor [n p & a] (receptor :'(symbol (str (name n))) p a))
 (signal self host-room [_r _f {receptor-name :name password :password matrice-address :matrice-address data :data}]
         (rsync _r
          (let [names (get-scape _r :room)
-               r (receptor commons-room _r matrice-address password data) ;;(make-receptor type _r args)
+               r (receptor :commons-room _r matrice-address password data) ;;(make-receptor type _r args)
                addr (address-of r)]
            (--> key->set _r names receptor-name addr)
            addr)))
 (signal self host-streamscape [_r _f {receptor-name :name password :password matrice-address :matrice-address data :data}]
         (rsync _r
          (let [names (get-scape _r :stream)
-               r (receptor streamscapes _r matrice-address password data) ;;(make-receptor type _r args)
+               r (receptor :streamscapes _r matrice-address password data) ;;(make-receptor type _r args)
                addr (address-of r)]
            (--> key->set _r names receptor-name addr)
            addr)))
@@ -31,7 +31,7 @@
         (rsync _r
          (let [names (get-scape _r :user)
                existing-addr (--> key->resolve _r names receptor-name)
-               addr (if existing-addr existing-addr (address-of (receptor user _r receptor-name nil))) ;; (make-receptor type _r args)                
+               addr (if existing-addr existing-addr (address-of (receptor :user _r receptor-name nil))) ;; (make-receptor type _r args)                
                ]
            (--> key->set _r names receptor-name addr)
            addr)))
