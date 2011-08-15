@@ -61,8 +61,6 @@
             cc (get-receptor r channel-address)
             [bridge-address delivery-signal] (get-delivery-bridge cc)
             db (get-receptor cc bridge-address)]
-        (set! *print-level* 6)
-
         (is (= (:type @db) :bridge-email-out))
         (is (= (contents db :host) "mail.harris-braun.com"))
         (is (= (:type @(get-receptor cc 3)) :bridge-email-in))))))
