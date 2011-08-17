@@ -34,7 +34,6 @@
       ;; testing this requires spoofing an e-mail server for the java mail stuff, so it's not done.
       )
     (testing "internal functions: handle-message"
-      (is (= (parent-of b) cc))
       (let [message (create-java-email-message {:to "eric@example.com" :from "test@example.com" :subject "Hi there!" :body "<b>Hello world!</b>"})
             droplet-address (handle-message b message)
             d (get-receptor r droplet-address)
