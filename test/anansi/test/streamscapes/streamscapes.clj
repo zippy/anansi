@@ -3,7 +3,7 @@
   (:use [anansi.ceptr]
         [anansi.receptor.scape]   
         [anansi.receptor.user]
-        [anansi.streamscapes.channel :only [get-delivery-bridge]]
+        [anansi.streamscapes.channel :only [get-deliverer-bridge get-receiver-bridge]]
         [anansi.streamscapes.bridge-email-out :only [channel->deliver]])
   (:use [clojure.test]))
 
@@ -53,14 +53,20 @@
              [droplet-address] (s-> address->resolve aspects :some-aspect)
              [droplet-address] (s-> address->resolve ids "some-unique-id")
              )))
-    (testing "channels"
+    
+    (testing "streamscapes receive"
+      (is (thrown-with-msg? RuntimeException #"channel not found: fish" (s-> streamscapes->receive r {:aspect "fish"}))))
+    
+    (testing "email-channel"
       (let [channel-address (s-> matrice->make-channel r {:name :email-stream
                                                           :in {:bridge :bridge-email-in :params {:host "mail.example.com" :account "someuser" :password "pass" :protocol "pop3"}}
                                                           :out {:bridge :bridge-email-out :delivery-signal channel->deliver :params {:host "mail.harris-braun.com" :account "eric@harris-braun.com" :password "some-password" :protocol "smtps" :port 25}}
                                                           })
             cc (get-receptor r channel-address)
-            [bridge-address delivery-signal] (get-delivery-bridge cc)
-            db (get-receptor cc bridge-address)]
+            [out-bridge-address delivery-signal] (get-deliverer-bridge cc)
+            [in-bridge-address receive-signal] (get-receiver-bridge cc)
+            db (get-receptor cc out-bridge-address)]
+        (is (= cc (find-channel-by-name r :email-stream)))
         (is (= (:type @db) :bridge-email-out))
         (is (= (contents db :host) "mail.harris-braun.com"))
-        (is (= (:type @(get-receptor cc 3)) :bridge-email-in))))))
+        (is (= (:type @(get-receptor cc in-bridge-address)) :bridge-email-in))))))

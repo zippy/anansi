@@ -23,11 +23,12 @@
     (testing "restore"
       (is (=  (state b true) (state (restore (state b true) nil) true))))
     (testing "internal functions: handle-message"
-      (let [message {:to eric-ss-addr :from zippy-ss-addr :envelope {:subject "text/plain" :body "text/html"} :content {:subject "Hi there!" :body "<b>Hello world!</b>"}}
+      (let [message {:id "1.2" :to eric-ss-addr :from zippy-ss-addr :envelope {:subject "text/plain" :body "text/html"} :content {:subject "Hi there!" :body "<b>Hello world!</b>"}}
             droplet-address (handle-message b message)
             d (get-receptor r droplet-address)
             ]
-        (is (= eric-addr (contents d :to) ))
+        (is (= "1.2" (contents d :id)))
+        (is (= eric-addr (contents d :to)))
         (is (= zippy-addr (contents d :from) ))
         (is (= (s-> key->resolve ss-addr-idents zippy-ss-addr)  (contents d :from) ))
         (is (= :local-stream  (contents d :aspect) ))

@@ -5,7 +5,7 @@
   (:use [anansi.ceptr]))
 
 (defmethod manifest :droplet [_r id from to aspect envelope content]
-           {:id id :from from :to to :aspect aspect :envelope envelope :content content})
+           {:id (if (or (nil? id) (= id "")) (str (address-of (parent-of _r)) "." (address-of _r)) id) :from from :to to :aspect aspect :envelope envelope :content content})
 (defmethod state :droplet [_r full?]
            (assoc (state-convert _r full?)
              :id (contents _r :id)

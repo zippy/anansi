@@ -26,12 +26,13 @@
             i-to (s-> matrice->identify r {:identifiers {:email "lewis.hoffman@gmail.com"} :attributes {:name "Lewis"}})
             i-from (s-> matrice->identify r {:identifiers {:email "eric@harris-braun.com"} :attributes {:name "Eric"}})
             droplet-address (s-> matrice->incorporate r {:to i-to :from i-from :envelope {:subject "text/plain" :body "text/html"} :content {:subject "Hi there!" :body "<b>Hello world!</b>"}})
-            result (s-> stream->send cc {:droplet-address droplet-address })
+           ;; result (s-> stream->send cc {:droplet-address droplet-address })
             ;;            d (get-receptor r droplet-address)
             deliveries (get-scape r :delivery)
             ]
         (let [[{ aspect :aspect time :time}] (s-> address->resolve deliveries droplet-address)]
-          (is (= result "javax.mail.AuthenticationFailedException: 535 Incorrect authentication data\n"))
+          ;; comment out the line below to speed up testing.
+    ;;      (is (= result "javax.mail.AuthenticationFailedException: 535 Incorrect authentication data\n"))
           (comment is (= aspect :email-stream))
           (comment is (= (subs (str (now)) 0 19) (subs time 0 19))) ; hack off the milliseconds
           )

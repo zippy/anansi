@@ -19,11 +19,14 @@
 (defmacro signal [aspect name args & body]
   "Creates a signal function on an aspect"
   `(do
-     (defn ~(symbol (str aspect "->" name)) ~args ~@body)
-     (dosync (alter *signals* assoc (keyword (str (ns-name *ns*) "." '~aspect "." '~name)) '~args))))
+     (let [~'signal-function (defn ~(symbol (str aspect "->" name)) ~args ~@body)]
+       (dosync (alter *signals* assoc (keyword (str (ns-name *ns*) "." '~aspect "." '~name)) {:fn ~'signal-function :args '~args})))))
+
+(defn get-signal-function [namespace aspect name]
+  (:fn ((keyword (str namespace "." aspect "." name)) @*signals*)))
 
 (defmulti manifest (fn [receptor & args] (:type @receptor)))
-(defmethod manifest :default [receptor & args] {})
+(defmethod manifest :default [receptor  & args] {})
 
 (defmulti state (fn [receptor full?] (:type @receptor)))
 (defmulti restore (fn [s p] (:type s)))
@@ -184,3 +187,8 @@
       )
     ))
 
+(defn find-receptors [receptor f]
+  "utility function to search the list of receptors by an arbitrary function"
+  (let [rc @(:receptors @receptor)]
+    (map (fn [[_ v]] v) (filter (fn [[k r]] (and (not= k :last-address) (or (f r)) )) rc)))
+  )

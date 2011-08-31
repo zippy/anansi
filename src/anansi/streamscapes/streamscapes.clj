@@ -48,7 +48,7 @@
                ids (get-scape _r :id)
                ]
            (--> key->set _r aspects addr aspect)
-           (--> key->set _r ids addr id)
+           (--> key->set _r ids addr (contents d :id)) ;;don't use given id!
            addr)))
 
 (defn scape-identifier-key [identifier]
@@ -110,10 +110,13 @@
         ; TODO add in authentication to make sure that _f is a matrice
         (rsync _r
                (let [cc (receptor :channel _r (:name params))
-                     {{in-bridge :bridge  in-params :params} :in
+                     {{in-bridge :bridge receive-signal :receive-signal in-params :params} :in
                       {out-bridge :bridge delivery-signal :delivery-signal out-params :params} :out} params
                      in-bridge-address (if in-bridge
-                                         (receptor in-bridge cc in-params))
+                                         (let [b (receptor in-bridge cc in-params)]
+                                           (--> key->set cc (get-scape cc :receiver) :receiver [(address-of b) receive-signal])
+                                           b)
+                                         )
                      out-bridge-address (if out-bridge
                                           (let [b (receptor out-bridge cc out-params)]
                                             (--> key->set cc (get-scape cc :deliverer) :deliverer [(address-of b) delivery-signal])
@@ -121,3 +124,15 @@
                      ]
                  (address-of cc))))
 
+(defn find-channel-by-name [_r name]
+  (first (find-receptors _r (fn [r] (and (= :channel (:type @r)) (= (contents r :name) name)))))
+  )
+
+(signal streamscapes receive [_r _f message]
+        (let [name (:aspect message)
+              cc (find-channel-by-name _r name)
+              ]
+          (if (nil? cc)
+            (throw (RuntimeException. (str "channel not found: " name))))
+          (--> (get-signal-function "anansi.streamscapes.channel" "bridge" "receive") _r cc message)
+          ))

@@ -58,4 +58,10 @@
           u (unserialize-receptors s)]
       (is (= s (serialize-receptors u))))
     )
+  (testing "search receptors"
+    (let [a (receptor :a r)
+          b (receptor :b r)
+          b1 (receptor :b r)]
+      (is (= a (first (find-receptors r (fn [_r] (= :a (:type @_r))))))))
+    )
   )

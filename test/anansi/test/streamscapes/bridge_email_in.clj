@@ -13,7 +13,7 @@
     (. msg addRecipient javax.mail.Message$RecipientType/TO (javax.mail.internet.InternetAddress. to))
     (. msg setSubject subject)
     (. msg setText body)
-    (. msg addHeader "Message-Id" (str "<"(format "%f" (rand 2)) "%example.com>"))
+    (. msg addHeader "Message-Id" (str "<123456%example.com>"))
     msg)
   )
 
@@ -39,6 +39,7 @@
             d (get-receptor r droplet-address)
             ]
         (is (= (address-of eric) (contents d :to) ))
+        (is (= "<123456%example.com>" (contents d :id)))
         (is (= (s-> key->resolve email-idents "test@example.com")  (contents d :from) ))
         (is (= :email-stream  (contents d :aspect) ))
         (is (= {:from "rfc-822-email" :subject "text/plain" :body "text/html"} (contents d :envelope)))
