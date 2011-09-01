@@ -35,6 +35,8 @@
         (is (thrown-with-msg? RuntimeException #"identity already exists for identifiers: eric@example.com" (s-> matrice->identify r {:identifiers {:email "eric@example.com"}})))
         (is (= [identity-address1 identity-address2] (do-identify r {:identifiers {:email "eric@example.com" :ssn 123456789}} false)))
         (is (= identity-address1 (do-identify r {:identifiers { :email "eric@example.com"}} false)))
+        (is (= identity-address1 (do-identify r {:identifiers { :email "eric@example.com" :irc "zippy314"}} false)))
+        (is (= identity-address1 (do-identify r {:identifiers { :irc "zippy314"}} false)))
         )
       )
     (testing "droplets"
