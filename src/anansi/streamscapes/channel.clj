@@ -8,7 +8,7 @@
   (:use [clj-time.core :only [now]]))
 
 (defmethod manifest :channel [_r name]
-           (make-scapes _r {:name name} :deliverer :receiver)
+           (make-scapes _r {:name name} :deliverer :receiver :controller)
            )
 (defmethod state :channel [_r full?]
            (assoc (state-convert _r full?)
@@ -18,10 +18,18 @@
            (let [r (do-restore state parent)]
              (restore-content r :name (:name state))
              r))
+
+(defn get-channel-receptor [_r name]
+  (--> key->resolve _r (get-scape _r name) name))
+
+(defn get-controller [_r]
+  (get-channel-receptor _r :controller))
+
 (defn get-deliverer-bridge [_r]
-  (--> key->resolve _r (get-scape _r :deliverer) :deliverer))
+  (get-channel-receptor _r :deliverer))
+
 (defn get-receiver-bridge [_r]
-  (--> key->resolve _r (get-scape _r :receiver) :receiver))
+  (get-channel-receptor _r :receiver))
 
 ; the receive signal is called by the receiver bridge to create a new droplet
 (signal stream receive [_r _f {id :id to :to from :from envelope :envelope content :content}]

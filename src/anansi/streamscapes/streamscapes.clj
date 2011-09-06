@@ -4,7 +4,8 @@
   anansi.streamscapes.streamscapes
   (:use [anansi.ceptr])
   (:use [anansi.receptor.scape])
-  (:use [anansi.streamscapes.ident])
+  (:use [anansi.streamscapes.ident]
+        [anansi.streamscapes.droplet])
   (:use [clojure.string :only [join]])
   )
 
@@ -48,7 +49,10 @@
                ids (get-scape _r :id)
                ]
            (--> key->set _r aspects addr aspect)
-           (--> key->set _r ids addr (contents d :id)) ;;don't use given id!
+           (--> key->set _r ids addr (contents d :id)) 
+                                        ; don't use the id from the
+                                        ; params because it may have been nil in which
+                                        ; case the instantiation code will have created the id on the fly
            addr)))
 
 (defn scape-identifier-key [identifier]
@@ -109,19 +113,13 @@
 (signal matrice make-channel [_r _f params]
         ; TODO add in authentication to make sure that _f is a matrice
         (rsync _r
-               (let [cc (receptor :channel _r (:name params))
-                     {{in-bridge :bridge receive-signal :receive-signal in-params :params} :in
-                      {out-bridge :bridge delivery-signal :delivery-signal out-params :params} :out} params
-                     in-bridge-address (if in-bridge
-                                         (let [b (receptor in-bridge cc in-params)]
-                                           (--> key->set cc (get-scape cc :receiver) :receiver [(address-of b) receive-signal])
-                                           b)
-                                         )
-                     out-bridge-address (if out-bridge
-                                          (let [b (receptor out-bridge cc out-params)]
-                                            (--> key->set cc (get-scape cc :deliverer) :deliverer [(address-of b) delivery-signal])
-                                            b))
-                     ]
+               (let [cc (receptor :channel _r (:name params))]
+                 (doall
+                  (map (fn [[receptor-type p]]
+                               (let [{receptor-role :role signal :signal receptor-params :params} p
+                                     r (receptor receptor-type cc receptor-params)]
+                                 (--> key->set cc (get-scape cc receptor-role) receptor-role [(address-of r) signal])))
+                             (:receptors params)))
                  (address-of cc))))
 
 (defn find-channel-by-name [_r name]

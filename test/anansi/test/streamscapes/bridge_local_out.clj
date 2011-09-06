@@ -13,7 +13,7 @@
   (let [m (receptor :user nil "eric" nil)
         r (receptor :streamscapes nil (address-of m) "password" {:datax "x"})
         c-out-addr (s-> matrice->make-channel r {:name :local-stream
-                                                 :out {:bridge :bridge-local-out :delivery-signal channel->deliver :params {}}
+                                                 :receptors { :bridge-local-out {:role :deliverer :signal channel->deliver :params {}}}
                                                  })
         c-out (get-receptor r c-out-addr)
         eric-ss-addr (address-of r)
@@ -21,7 +21,7 @@
         u (receptor :user nil "zippy" nil)
         ru (receptor :streamscapes nil (address-of u) "password" {:datax "x"})
         c-in-addr (s-> matrice->make-channel ru {:name :local-stream
-                                                 :in {:bridge :bridge-local-in :receive-signal cheat->receive :params {}}
+                                                 :receptors {:bridge-local-in {:role :receiver :signal cheat->receive :params {}}}
                                                  })
 
         zippy-ss-addr (address-of ru)

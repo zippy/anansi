@@ -3,8 +3,10 @@
   (:use [anansi.ceptr]
         [anansi.receptor.scape]   
         [anansi.receptor.user]
-        [anansi.streamscapes.channel :only [get-deliverer-bridge get-receiver-bridge]]
-        [anansi.streamscapes.bridge-email-out :only [channel->deliver]])
+        [anansi.streamscapes.channel :only [get-deliverer-bridge get-receiver-bridge get-controller]]
+        [anansi.streamscapes.bridge-email-out :only [channel->deliver]]
+        [anansi.streamscapes.channels.irc-controller :only [channel->control]]
+        [anansi.streamscapes.channels.irc-bridge-in])
   (:use [clojure.test]))
 
 (deftest streamscapes
@@ -61,8 +63,9 @@
     
     (testing "email-channel"
       (let [channel-address (s-> matrice->make-channel r {:name :email-stream
-                                                          :in {:bridge :bridge-email-in :params {:host "mail.example.com" :account "someuser" :password "pass" :protocol "pop3"}}
-                                                          :out {:bridge :bridge-email-out :delivery-signal channel->deliver :params {:host "mail.harris-braun.com" :account "eric@harris-braun.com" :password "some-password" :protocol "smtps" :port 25}}
+                                                          :receptors {
+                                                                      :bridge-email-in {:role :receiver :params {:host "mail.example.com" :account "someuser" :password "pass" :protocol "pop3"}}
+                                                                      :bridge-email-out {:role :deliverer :signal channel->deliver :params {:host "mail.harris-braun.com" :account "eric@harris-braun.com" :password "some-password" :protocol "smtps" :port 25}}}
                                                           })
             cc (get-receptor r channel-address)
             [out-bridge-address delivery-signal] (get-deliverer-bridge cc)
@@ -71,4 +74,20 @@
         (is (= cc (find-channel-by-name r :email-stream)))
         (is (= (:type @db) :bridge-email-out))
         (is (= (contents db :host) "mail.harris-braun.com"))
-        (is (= (:type @(get-receptor cc in-bridge-address)) :bridge-email-in))))))
+        (is (= (:type @(get-receptor cc in-bridge-address)) :bridge-email-in))))
+    (testing "irc-channel"
+      (let [channel-address (s-> matrice->make-channel r {:name :irc-stream
+                                                          :receptors {:irc-bridge-in {:role :receiver :params {} }
+                                                                      :irc-controller {:role :controller :signal channel->control :params {:host "irc.freenode.net" :port 6667 :user "Eric" :nick "zippy31415"}}}
+                                                          })
+            cc (get-receptor r channel-address)
+            [controller-address control-signal] (get-controller cc)
+            [out-bridge-address delivery-signal] (get-deliverer-bridge cc)
+            [in-bridge-address receive-signal] (get-receiver-bridge cc)
+            db (get-receptor cc controller-address)]
+        (is (= cc (find-channel-by-name r :irc-stream)))
+        (is (= (:type @db) :irc-controller))
+        (is (= (contents db :host) "irc.freenode.net"))
+        (is (= (contents db :port) 6667))
+        (is (= (:type @(get-receptor cc in-bridge-address)) :irc-bridge-in)))
+)))
