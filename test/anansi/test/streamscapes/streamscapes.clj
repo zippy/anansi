@@ -4,7 +4,7 @@
         [anansi.receptor.scape]   
         [anansi.receptor.user]
         [anansi.streamscapes.channel :only [get-deliverer-bridge get-receiver-bridge get-controller]]
-        [anansi.streamscapes.bridge-email-out :only [channel->deliver]]
+        [anansi.streamscapes.channels.bridge-email-out :only [channel->deliver]]
         [anansi.streamscapes.channels.irc-controller :only [channel->control]]
         [anansi.streamscapes.channels.irc-bridge-in])
   (:use [clojure.test]))

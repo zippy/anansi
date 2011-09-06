@@ -1,7 +1,7 @@
 (ns
   #^{:author "Eric Harris-Braun"
      :doc "Email Bridge receptor"}
-  anansi.streamscapes.bridge-local-in
+  anansi.streamscapes.channels.bridge-local-in
   (:use [anansi.ceptr]
         [anansi.receptor.scape]
         [anansi.streamscapes.streamscapes]

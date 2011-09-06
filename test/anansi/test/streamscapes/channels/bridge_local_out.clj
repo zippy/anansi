@@ -1,10 +1,10 @@
-(ns anansi.test.streamscapes.bridge-local-out
-  (:use [anansi.streamscapes.bridge-local-out] :reload)
+(ns anansi.test.streamscapes.channels.bridge-local-out
+  (:use [anansi.streamscapes.channels.bridge-local-out] :reload)
   (:use [anansi.ceptr]
         [anansi.receptor.scape]
         [anansi.streamscapes.channel]
         [anansi.streamscapes.streamscapes]
-        [anansi.streamscapes.bridge-local-in]
+        [anansi.streamscapes.channels.bridge-local-in]
         )
   (:use [clojure.test])
   (:use [clj-time.core :only [now]]))

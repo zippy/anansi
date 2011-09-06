@@ -1,5 +1,5 @@
-(ns anansi.test.streamscapes.bridge-local-in
-  (:use [anansi.streamscapes.bridge-local-in] :reload)
+(ns anansi.test.streamscapes.channels.bridge-local-in
+  (:use [anansi.streamscapes.channels.bridge-local-in] :reload)
   (:use [anansi.streamscapes.channel])
   (:use [anansi.ceptr])
   (:use [anansi.receptor.scape])

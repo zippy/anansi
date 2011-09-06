@@ -1,5 +1,5 @@
-(ns anansi.test.streamscapes.bridge-email-out
-  (:use [anansi.streamscapes.bridge-email-out] :reload)
+(ns anansi.test.streamscapes.channels.bridge-email-out
+  (:use [anansi.streamscapes.channels.bridge-email-out] :reload)
   (:use [anansi.streamscapes.channel])
   (:use [anansi.ceptr])
   (:use [anansi.receptor.scape])

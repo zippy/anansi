@@ -1,7 +1,7 @@
 (ns
   #^{:author "Eric Harris-Braun"
      :doc "Local Bridge Out receptor"}
-  anansi.streamscapes.bridge-local-out
+  anansi.streamscapes.channels.bridge-local-out
   (:use [anansi.ceptr]
         [anansi.receptor.scape]
         [anansi.streamscapes.streamscapes]
