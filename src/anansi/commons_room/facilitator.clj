@@ -1,7 +1,7 @@
 (ns
   #^{:author "Eric Harris-Braun"
      :doc "Facilitator receptor"}
-  anansi.receptor.facilitator
+  anansi.commons-room.facilitator
   (:use [anansi.ceptr])
   (:use [anansi.receptor.scape]))
 

@@ -1,7 +1,7 @@
 (ns
   #^{:author "Eric Harris-Braun"
      :doc "Occupant receptor"}
-  anansi.receptor.occupant
+  anansi.commons-room.occupant
   (:use [anansi.ceptr]))
 
 (defmethod manifest :occupant [_r unique-name data]

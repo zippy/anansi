@@ -1,5 +1,5 @@
-(ns anansi.test.receptor.facilitator
-  (:use [anansi.receptor.facilitator] :reload)
+(ns anansi.test.commons-room.facilitator
+  (:use [anansi.commons-room.facilitator] :reload)
   (:use [anansi.ceptr])
   (:use [anansi.receptor.scape])
   (:use [clojure.test]))

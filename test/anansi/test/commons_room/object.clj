@@ -1,5 +1,5 @@
-(ns anansi.test.receptor.object
-  (:use [anansi.receptor.object] :reload)
+(ns anansi.test.commons-room.object
+  (:use [anansi.commons-room.object] :reload)
   (:use [anansi.ceptr])
   (:use [clojure.test]))
 

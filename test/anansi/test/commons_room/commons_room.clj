@@ -1,5 +1,5 @@
-(ns anansi.test.receptor.commons-room
-  (:use [anansi.receptor.commons-room] :reload)
+(ns anansi.test.commons-room.commons-room
+  (:use [anansi.commons-room.commons-room] :reload)
   (:use [anansi.ceptr]
         [anansi.receptor.scape]   
         [anansi.receptor.user])

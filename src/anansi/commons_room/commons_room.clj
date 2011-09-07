@@ -1,14 +1,14 @@
 (ns
   #^{:author "Eric Harris-Braun"
      :doc "Commons-room receptor"}
-  anansi.receptor.commons-room
+  anansi.commons-room.commons-room
   (:use [anansi.ceptr])
   (:use [anansi.receptor.scape])
   (:use [anansi.receptor.list-scape])
-  (:use [anansi.receptor.portal])
-  (:use [anansi.receptor.object])
-  (:use [anansi.receptor.facilitator]
-        [anansi.receptor.occupant]))
+  (:use [anansi.commons-room.portal])
+  (:use [anansi.commons-room.object])
+  (:use [anansi.commons-room.facilitator]
+        [anansi.commons-room.occupant]))
 
 (defmethod manifest :commons-room [_r matrice-address password data]
            (let [ms (receptor :scape _r)]

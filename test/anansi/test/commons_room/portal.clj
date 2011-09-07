@@ -1,7 +1,7 @@
-(ns anansi.test.receptor.portal
-  (:use [anansi.receptor.portal] :reload)
+(ns anansi.test.commons-room.portal
+  (:use [anansi.commons-room.portal] :reload)
   (:use [anansi.ceptr])
-  (:use [anansi.receptor.occupant])
+  (:use [anansi.commons-room.occupant])
   (:use [clojure.test]))
 
 (deftest portal

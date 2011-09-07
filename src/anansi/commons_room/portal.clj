@@ -1,7 +1,7 @@
 (ns
   #^{:author "Eric Harris-Braun"
      :doc "Portal receptor"}
-  anansi.receptor.portal
+  anansi.commons-room.portal
   (:use [anansi.ceptr]))
 
 (defmethod manifest :portal [_r & [target-addr]]

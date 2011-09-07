@@ -1,5 +1,5 @@
-(ns anansi.test.receptor.occupant
-  (:use [anansi.receptor.occupant] :reload)
+(ns anansi.test.commons-room.occupant
+  (:use [anansi.commons-room.occupant] :reload)
   (:use [anansi.ceptr])
   (:use [clojure.test]))
 
