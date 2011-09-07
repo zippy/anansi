@@ -67,7 +67,7 @@ Scape receptors are used to establish the relationships between receptors contai
     address->all
     address->delete
 
-Currently scapes are implemented to establish unique and non-unique mapping relationships between receptors and some value.  The "key" is the unique side of the map, and the "address" is the non-unique side.  So, for example, you might create a scape to map a set of contained receptors onto an x,y grid where the key is an x,y pair and the address is a receptor address.  This allows for a scape where only one receptor can be in each x,y location (i.e. unique mapping).  Alternatively you could use the address of the receptor as the key, and the x,y pair as the address.
+Currently scapes are implemented to establish unique and non-unique mapping relationships between receptors and some value.  The "key" is the unique side of the map, and the "address" is the non-unique side.  So, for example, you might create a scape to map a set of contained receptors onto an x,y grid where the key is an x,y pair and the address is a receptor address.  This allows for a scape where only one receptor can be in each x,y location (i.e. unique mapping).  Alternatively you could use the address of the receptor as the key, and the x,y pair as the address.  This nomenclature is obviously pretty confusing, and subject to change.
 
 
 ## Glossary- TBD
@@ -79,4 +79,8 @@ Currently scapes are implemented to establish unique and non-unique mapping rela
 ### Signal
 ### Address
 ### Manifest
+### Carrier
+### Substrate
+### User
+### Identity
 
