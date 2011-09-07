@@ -1,19 +1,19 @@
-(ns anansi.test.streamscapes.channels.bridge-local-out
-  (:use [anansi.streamscapes.channels.bridge-local-out] :reload)
+(ns anansi.test.streamscapes.channels.local-bridge-out
+  (:use [anansi.streamscapes.channels.local-bridge-out] :reload)
   (:use [anansi.ceptr]
         [anansi.receptor.scape]
         [anansi.streamscapes.channel]
         [anansi.streamscapes.streamscapes]
-        [anansi.streamscapes.channels.bridge-local-in]
+        [anansi.streamscapes.channels.local-bridge-in]
         )
   (:use [clojure.test])
   (:use [clj-time.core :only [now]]))
 
-(deftest bridge-local-out
+(deftest local-bridge-out
   (let [m (receptor :user nil "eric" nil)
         r (receptor :streamscapes nil (address-of m) "password" {:datax "x"})
         c-out-addr (s-> matrice->make-channel r {:name :local-stream
-                                                 :receptors { :bridge-local-out {:role :deliverer :signal channel->deliver :params {}}}
+                                                 :receptors { :local-bridge-out {:role :deliverer :signal channel->deliver :params {}}}
                                                  })
         c-out (get-receptor r c-out-addr)
         eric-ss-addr (address-of r)
@@ -21,7 +21,7 @@
         u (receptor :user nil "zippy" nil)
         ru (receptor :streamscapes nil (address-of u) "password" {:datax "x"})
         c-in-addr (s-> matrice->make-channel ru {:name :local-stream
-                                                 :receptors {:bridge-local-in {:role :receiver :signal cheat->receive :params {}}}
+                                                 :receptors {:local-bridge-in {:role :receiver :signal cheat->receive :params {}}}
                                                  })
 
         zippy-ss-addr (address-of ru)

@@ -1,5 +1,5 @@
-(ns anansi.test.streamscapes.channels.bridge-local-in
-  (:use [anansi.streamscapes.channels.bridge-local-in] :reload)
+(ns anansi.test.streamscapes.channels.local-bridge-in
+  (:use [anansi.streamscapes.channels.local-bridge-in] :reload)
   (:use [anansi.streamscapes.channel])
   (:use [anansi.ceptr])
   (:use [anansi.receptor.scape])
@@ -7,7 +7,7 @@
   (:use [clojure.test]))
 
 
-(deftest bridge-local-in
+(deftest local-bridge-in
   (let [m (receptor :user nil "eric" nil)
         r (receptor :streamscapes nil (address-of m) "password" {:datax "x"})
         eric-addr (s-> matrice->identify r {:identifiers {:ss-address (address-of r)} :attributes {:name "Eric"}})
@@ -17,7 +17,7 @@
         zippy-ss-addr (address-of ru)
         zippy-addr (s-> matrice->identify r {:identifiers {:ss-address (address-of ru)} :attributes {:name "Zippy"}})
         cc (receptor :channel r :local-stream)
-        b (receptor :bridge-local-in cc {})
+        b (receptor :local-bridge-in cc {})
         ss-addr-idents (get-scape r :ss-address-ident)]
     
     (testing "restore"

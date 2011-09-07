@@ -1,5 +1,5 @@
-(ns anansi.test.streamscapes.channels.bridge-email-out
-  (:use [anansi.streamscapes.channels.bridge-email-out] :reload)
+(ns anansi.test.streamscapes.channels.email-bridge-out
+  (:use [anansi.streamscapes.channels.email-bridge-out] :reload)
   (:use [anansi.streamscapes.channel])
   (:use [anansi.ceptr])
   (:use [anansi.receptor.scape])
@@ -7,12 +7,12 @@
   (:use [clojure.test])
   (:use [clj-time.core :only [now]]))
 
-(deftest bridge-email-out
+(deftest email-bridge-out
   (let [m (receptor :user nil "eric" nil)
         r (receptor :streamscapes nil (address-of m) "password" {:datax "x"})
         eric (receptor :ident r {:name "Eric"})
         cc (receptor :channel r :email-stream)
-        b (receptor :bridge-email-out cc {:host "mail.harris-braun.com" :account "eric@harris-braun.com" :password "some-password" :protocol "smtps" :port 25})
+        b (receptor :email-bridge-out cc {:host "mail.harris-braun.com" :account "eric@harris-braun.com" :password "some-password" :protocol "smtps" :port 25})
         ]
     
     (testing "contents"

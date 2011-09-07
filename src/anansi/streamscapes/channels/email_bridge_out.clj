@@ -1,16 +1,16 @@
 (ns
   #^{:author "Eric Harris-Braun"
      :doc "Email Bridge receptor"}
-  anansi.streamscapes.channels.bridge-email-out
+  anansi.streamscapes.channels.email-bridge-out
   (:use [anansi.ceptr]
         [anansi.receptor.scape]
         [anansi.streamscapes.streamscapes]
         [anansi.streamscapes.channel]))
 
-(defmethod manifest :bridge-email-out [_r {host :host account :account password :password protocol :protocol port :port}]
+(defmethod manifest :email-bridge-out [_r {host :host account :account password :password protocol :protocol port :port}]
            {:host host :account account :password password :protocol protocol :port port})
 
-(defmethod state :bridge-email-out [_r full?]
+(defmethod state :email-bridge-out [_r full?]
            (assoc (state-convert _r full?)
              :host (contents _r :host)
              :account (contents _r :account)
@@ -19,7 +19,7 @@
              :port (contents _r :port)
              ))
 
-(defmethod restore :bridge-email-out [state parent]
+(defmethod restore :email-bridge-out [state parent]
            (let [r (do-restore state parent)]
              (restore-content r :host (:host state))
              (restore-content r :account (:account state))

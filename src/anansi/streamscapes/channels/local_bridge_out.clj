@@ -1,17 +1,17 @@
 (ns
   #^{:author "Eric Harris-Braun"
      :doc "Local Bridge Out receptor"}
-  anansi.streamscapes.channels.bridge-local-out
+  anansi.streamscapes.channels.local-bridge-out
   (:use [anansi.ceptr]
         [anansi.receptor.scape]
         [anansi.streamscapes.streamscapes]
         [anansi.streamscapes.channel]))
 
-(defmethod manifest :bridge-local-out [_r params]
+(defmethod manifest :local-bridge-out [_r params]
            {})
-(defmethod state :bridge-local-out [_r full?]
+(defmethod state :local-bridge-out [_r full?]
           (state-convert _r full?))
-(defmethod restore :bridge-local-out [state parent]
+(defmethod restore :local-bridge-out [state parent]
   (let [r (do-restore state parent)]
     r))
 

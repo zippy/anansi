@@ -75,9 +75,9 @@ For a complete list of signals that streamscapes can receive see the API below.
         > ss {"to":0, "signal":"matrice->make-channel", "params": 
                 {"name":"email-stream", 
                  "receptors": 
-                    {"bridge-email-in": {"role":"receiver"
+                    {"email-bridge-in": {"role":"receiver"
                                          "params":{"host":"mail.example.com", "account": "someuser", "password":"pass", "protocol":"pop3"}}}
-                    {"bridge-email-in": {"role":"deliverer", "signal":"channel->deliver",
+                    {"email-bridge-in": {"role":"deliverer", "signal":"channel->deliver",
                                          "params":{"host":"mail.google.com", "account": "someuser", "password":"pass", "protocol":"smtps", "port":25}}}}}
 
     streamscapes->receive

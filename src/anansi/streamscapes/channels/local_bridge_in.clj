@@ -1,17 +1,17 @@
 (ns
   #^{:author "Eric Harris-Braun"
      :doc "Email Bridge receptor"}
-  anansi.streamscapes.channels.bridge-local-in
+  anansi.streamscapes.channels.local-bridge-in
   (:use [anansi.ceptr]
         [anansi.receptor.scape]
         [anansi.streamscapes.streamscapes]
         [anansi.streamscapes.channel]))
 
-(defmethod manifest :bridge-local-in [_r params]
+(defmethod manifest :local-bridge-in [_r params]
            {})
-(defmethod state :bridge-local-in [_r full?]
+(defmethod state :local-bridge-in [_r full?]
            (state-convert _r full?))
-(defmethod restore :bridge-local-in [state parent]
+(defmethod restore :local-bridge-in [state parent]
            (let [r (do-restore state parent)]
              r))
 
