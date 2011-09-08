@@ -9,7 +9,7 @@
         )
   (:use [clj-time.core :only [now]])
   (:use [clojure.java.io :only [reader writer]]
-        [clojure.contrib.server-socket :only [create-server close-server]])
+        [anansi.lib.server-socket :only [create-server close-server]])
   (:import (java.net Socket)
            (java.io PrintWriter InputStreamReader BufferedReader))
 )
@@ -20,21 +20,22 @@
   (println "SOCKET CLOSING!")
   )
 
-(defn make-handle-connection [fun]
-  (fn [in out]
-    (binding [*in* (reader in)
-              *out* (writer out)]
+(defn make-handle-connection [_r]
+  (fn [#^Socket s in out]
+    (let [from-ip (.getHostAddress (.getInetAddress s))]
+      (binding [*in* (reader in)
+                *out* (writer out)]
 
-      ;; We have to nest this in another binding call instead of using
-      ;; the one above so *in* and *out* will be bound to the socket
+        ;; We have to nest this in another binding call instead of using
+        ;; the one above so *in* and *out* will be bound to the socket
     
-      (binding [*done* false]
-        (try (loop [input (read-line)]
-               (when input
-                 (fun input)
-                 (if (not *done*) (recur (read-line)) )
-                 ))
-             (finally (cleanup)))))
+        (binding [*done* false]
+          (try (loop [input (read-line)]
+                 (when input
+                   (--> bridge->receive _r (parent-of _r) {:from from-ip :to "127.0.0.1" :message input})
+                   (if (not *done*) (recur (read-line)) )
+                   ))
+               (finally (cleanup))))))
     )) 
 
 (let [attributes #{:port :input-function}]
@@ -55,7 +56,7 @@
                 :status (let [listener (:socket @_r)]
                           (if (nil? listener) :closed :open))
                 :open (let [listener (create-server (Integer. (contents _r :port))
-                                                    (make-handle-connection (contents _r :input-function)))]
+                                                    (make-handle-connection _r))]
                         (dosync (alter _r assoc :socket listener)))
                 :close (do (close-server (:socket @_r))
                            (dosync (alter _r dissoc :socket))

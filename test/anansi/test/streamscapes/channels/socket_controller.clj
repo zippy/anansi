@@ -3,7 +3,8 @@
   (:use [anansi.streamscapes.channel])
   (:use [anansi.ceptr])
   (:use [anansi.receptor.scape])
-  (:use [anansi.streamscapes.streamscapes])
+  (:use [anansi.streamscapes.streamscapes]
+        [anansi.streamscapes.channels.socket-in :only [controller->receive]])
   (:use [clojure.test])
   (:import (java.net Socket)
            (java.io PrintWriter InputStreamReader BufferedReader)))
@@ -37,14 +38,17 @@
         r (receptor :streamscapes nil (address-of m) "password" {:datax "x"})
         eric (receptor :ident r {:name "Eric"})
         house (receptor :ident r {:name "my-house"})
-        channel-address (s-> matrice->make-channel r {:name :socket-stream
-                                                      :receptors {:socket-controller {:role :controller :signal channel->control :params {:port 3141 :input-function (fn [input] (println (str "processed: " input)))}}}
+        channel-address (s-> matrice->make-channel r
+                             {:name :socket-stream
+                              :receptors {:local-bridge-in {:role :receiver :signal controller->receive :params {}}
+                                          :socket-controller {:role :controller :signal channel->control :params {:port 3141 :input-function (fn [input ip] (println (str "from: " ip " processed: " input)))}}}
                                                           })
         cc (get-receptor r channel-address)
         [controller-address control-signal] (get-controller cc)
         b (get-receptor cc controller-address)
-        socket-idents (get-scape r :socket-ident true)]
-    (--> key->set b socket-idents "127.0.0.1" (address-of house))
+        ip-idents (get-scape r :ip-ident true)
+        droplet-ids (get-scape r :id)]
+    (--> key->set b ip-idents "127.0.0.1" (address-of eric))
 
     (testing "contents"
       (is (= 3141 (contents b :port))))
@@ -54,11 +58,25 @@
       (is (= (s-> channel->control b {:command :status}) :closed))
       (s-> channel->control b {:command :open})
       (is (= (s-> channel->control b {:command :status}) :open))
+      (is (= (count (s-> key->all droplet-ids)) 0))
       (let [conn (connect "127.0.0.1" 3141)]
-        (write conn "test message")
+        (write conn "test message 1")
+        (write conn "test message 2")
         )
-      (while (nil? (:val @*result*)) "idling")
-      (is (= (:val @*result*) "processed: test message"))
+
+      (while (< (count (s-> key->all droplet-ids)) 1) "idling")
+      
+      (let [droplet-id (first (s-> address->all droplet-ids))
+            d-addr (first (s-> key->all droplet-ids))
+            d (get-receptor r d-addr)
+            content (contents d :content)]
+        
+        (is (= droplet-id (contents d :id)))
+        (is (= "test message 1" (:message content)))
+        (is (= "127.0.0.1" (:from content)))
+        (is (= (s-> key->resolve ip-idents "127.0.0.1")  (contents d :from) ))
+        )
+      
       (s-> channel->control b {:command :close})
       (is (= (s-> channel->control b {:command :status}) :closed)))
     (testing "unknown control signal"
