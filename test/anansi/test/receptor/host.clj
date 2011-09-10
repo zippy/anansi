@@ -50,6 +50,12 @@
         (is (thrown-with-msg? RuntimeException #"authentication failed for user: squid"
               (--> interface->authenticate i h {:user "squid"})))
         ))
+    (testing "interface->new-user"
+      (let [i (receptor :some-interface h)]
+        (is (thrown-with-msg? RuntimeException #"username 'zippy' in use"
+              (--> interface->new-user i h {:user "zippy"})))
+        (is (= (--> interface->new-user i h {:user "eric"}) (resolve-name h "eric")))
+        ))
     (testing "restore"
       (is (=  (state h true) (state (restore (state h true) nil) true))))
     ))

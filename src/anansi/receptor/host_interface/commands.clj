@@ -37,3 +37,7 @@
 (defn authenticate [host iface user]
   (--> interface->authenticate iface host {:user user})
   )
+
+(defn new-user [host iface user]
+  (--> interface->new-user iface host {:user user})
+  )

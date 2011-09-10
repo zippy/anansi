@@ -57,4 +57,12 @@ Returns a two item vector of a writable stream that is a client, and the output 
       (wait server-stream)
       (is (re-find #"OK [0-9a-f]+\n\n> $"(.toString server-stream) ))
       )
+    (testing "new-user"
+      (.write client-stream "new-user zippy\n")
+      (wait server-stream)
+      (is (re-find #"ERROR username 'zippy' in use\n\n> " (.toString server-stream) ))
+      (.write client-stream "new-user zippo\n")
+      (wait server-stream)
+      (is (re-find #"OK [0-9]\n\n> " (.toString server-stream) ))
+      )
     ))

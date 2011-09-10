@@ -12,6 +12,11 @@
 (defmethod manifest :host [_r]
            (make-scapes _r {} :room :user :stream :session))
 
+(defn resolve-name [_r user]
+  "resolve a username to it's receptor address"
+  (let [ names (get-scape _r :user)]
+    (--> key->resolve _r names user)))
+
 ;; TODO make this an generalized receptor host
 ;; (defmacro make-receptor [n p & a] `(receptor :~(symbol (str (name n))) ~p ~@a))
 ;; (defn do-make-receptor [n p & a] (receptor :'(symbol (str (name n))) p a))
@@ -38,10 +43,6 @@
            (--> key->set _r names receptor-name addr)
            addr)))
 
-(defn resolve-name [_r user]
-  (let [ names (get-scape _r :user)]
-    (--> key->resolve _r names user)))
-
 (signal interface send-signal [_r _f {from-user :from to-addr :to signal :signal params :params}]
         (let [to (if (= to-addr 0 ) _r (get-receptor _r to-addr))
               user (get-receptor _r (resolve-name _r from-user))
@@ -59,3 +60,12 @@
                  (if (nil? user-address) (throw (RuntimeException. (str "authentication failed for user: " user))))
                  (--> key->set _r sessions s {:user user-address :time time :interface iface})
                  s)))
+
+(signal interface new-user [_r _f {user :user}]
+        (if (resolve-name _r user)
+          (throw (RuntimeException. (str "username '" user "' in use"))))
+        (rsync _r
+               (let [addr (address-of (receptor :user _r user nil))]
+                 (--> key->set _r (get-scape _r :user) user addr)
+                 addr))
+        )
