@@ -5,10 +5,12 @@
   (:use [anansi.ceptr]
         [anansi.receptor.commons-room]
         [anansi.receptor.user]
-        [anansi.receptor.scape]))
+        [anansi.receptor.scape]
+        [anansi.lib.sha :only [sha]])
+  (:use [clj-time.core :only [now]]))
 
 (defmethod manifest :host [_r]
-           (make-scapes _r {} :room :user :stream))
+           (make-scapes _r {} :room :user :stream :session))
 
 ;; TODO make this an generalized receptor host
 ;; (defmacro make-receptor [n p & a] `(receptor :~(symbol (str (name n))) ~p ~@a))
@@ -35,3 +37,25 @@
                ]
            (--> key->set _r names receptor-name addr)
            addr)))
+
+(defn resolve-name [_r user]
+  (let [ names (get-scape _r :user)]
+    (--> key->resolve _r names user)))
+
+(signal interface send-signal [_r _f {from-user :from to-addr :to signal :signal params :params}]
+        (let [to (if (= to-addr 0 ) _r (get-receptor _r to-addr))
+              user (get-receptor _r (resolve-name _r from-user))
+              ]
+          (--> (eval (symbol (str "anansi.receptor." (name (:type @to)) "/" signal))) user to params)))
+
+(signal interface authenticate [_r _f {user :user}]
+        (rsync _r
+               (let [sessions (get-scape _r :session)
+                     time (now)
+                     iface (:type @(get-receptor _r _f))
+                     s (sha (str time "-" iface))
+                     user-address (resolve-name _r user)
+                     ]
+                 (if (nil? user-address) (throw (RuntimeException. (str "authentication failed for user: " user))))
+                 (--> key->set _r sessions s {:user user-address :time time :interface iface})
+                 s)))
