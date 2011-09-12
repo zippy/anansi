@@ -44,19 +44,19 @@ Returns a two item vector of a writable stream that is a client, and the output 
         ]
     (testing "welcome"
       (wait server-stream)
-      (is  (.endsWith (.toString server-stream) "\nWelcome to the Anansi sever.\n\n> ")))
+      (is  (.endsWith (.toString server-stream) "\nWelcome to the Anansi sever.\n\nEnter your user name: ")))
     (testing "authenticate"
-      (.write client-stream "badcommand eric\n")
+      (.write client-stream "eric\n")
       (wait server-stream)
-      (is (re-find #"ERROR Unknown command: 'badcommand'\n"(.toString server-stream) )))
-    (testing "authenticate"
-      (.write client-stream "authenticate eric\n")
-      (wait server-stream)
-      (is (.endsWith (.toString server-stream) "ERROR authentication failed for user: eric\n\n> "))
-      (.write client-stream "authenticate zippy\n")
+      (is (.endsWith (.toString server-stream) "ERROR authentication failed for user: eric\nEnter your user name: "))
+      (.write client-stream "zippy\n")
       (wait server-stream)
       (is (re-find #"OK [0-9a-f]+\n\n> $"(.toString server-stream) ))
       )
+    (testing "unknown command"
+      (.write client-stream "badcommand eric\n")
+      (wait server-stream)
+      (is (re-find #"ERROR Unknown command: 'badcommand'\n"(.toString server-stream) )))
     (testing "new-user"
       (.write client-stream "new-user zippy\n")
       (wait server-stream)
@@ -64,5 +64,6 @@ Returns a two item vector of a writable stream that is a client, and the output 
       (.write client-stream "new-user zippo\n")
       (wait server-stream)
       (is (re-find #"OK [0-9]\n\n> " (.toString server-stream) ))
-      )
-    ))
+      )  )
+  
+    )

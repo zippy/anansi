@@ -34,7 +34,16 @@
          (print "\n")))
 (def *done*)
 (def *user*)
+(def *session*)
 (def *prompt* (ref "\n> "))
+
+(defn parse-and-execute [_r host input]
+  (let [[command arg-part] (.split input " +" 2)]
+    (condp = command
+        "new-user" (execute host _r command {:user arg-part})
+        {:status :error
+            :result (str "Unknown command: '" command "'")}))
+  )
 
 (defn make-handle-connection [host _r]
   (fn [in out]
@@ -45,20 +54,36 @@
 
         ;; We have to nest this in another binding call instead of using
         ;; the one above so *in* and *out* will be bound to the socket
-        (print "\nWelcome to the Anansi sever.\n")
-        (flush)
-        (binding [*done* false
-                  *user* nil]
-      
-          (if (not (nil? @*prompt*)) (print @*prompt*))
-          (flush)
-          (try (loop [input (read-line)]
-                 (when input
-                   (let [{status :status result :result} (execute host _r input)]
-                     (println (str (if (= status :ok) "OK" "ERROR") " " result) ))
-                   (if (not (nil? @*prompt*)) (print @*prompt*))
-                   (flush)
-                   (if (not *done*) (recur (read-line)) )
-                   ))
-               (finally nil (comment cleanup))))))))
+        (print "\nWelcome to the Anansi sever.\n\nEnter your user name: ") (flush)
+        (try
+          (binding [*done* false
+                    *user* nil
+                    *session* nil]
+            (loop [user-name (read-line)]
+              (when user-name
+                (let [{status :status result :result} (execute host _r "authenticate" {:user user-name})]
+                  (if (= :ok status)
+                    (do
+                      (println (str "OK " result))
+                      (flush)
+                      (set! *user* user-name)
+                      (set! *session* result))
+                    (do (print (str "ERROR " result "\nEnter your user name: "))
+                        (flush)
+                        (recur (read-line))))))
+              )
+            (if (not (nil? @*prompt*)) (print @*prompt*))
+                 (flush)
+                 (loop [input (read-line)]
+                   (when input
+                     (let [{status :status result :result} (parse-and-execute _r host input)]
+                       (println (str (if (= status :ok) "OK" "ERROR") " " result) ))
+                     (if (not (nil? @*prompt*)) (print @*prompt*))
+                     (flush)
+                     (if (not *done*) (recur (read-line)) )
+                     ))
+                 )          
+          (finally nil (comment cleanup))
+  ))))
 
+)
