@@ -47,10 +47,11 @@
         (rsync _r 
                (let [{prefix :prefix aspect :aspect signal-name :signal params :params session :session to-addr :to} p
                      {user-addr :user} (--> key->resolve _r (get-scape _r :session) session)
+                     _ (if (nil? user-addr) (throw (RuntimeException. (str "Unknown session: " session))))
                      to (if (= to-addr 0) _r to-addr)
                      user (get-receptor _r user-addr)
                      signal-function (get-signal-function (str "anansi." prefix) aspect signal-name)]
-                 (if (nil? signal-function) (throw (RuntimeException. (str "Unknown signal: " prefix "." aspect "->" signal-name) )))
+                 (if (nil? signal-function) (throw (RuntimeException. (str "Unknown signal: " prefix "." aspect "->" signal-name))))
                  (--> signal-function user to params))))
 
 (signal command authenticate [_r _f {user :user}]
