@@ -9,7 +9,7 @@
         )
   (:use [clj-time.core :only [now]])
   (:use [clojure.java.io :only [reader writer]]
-        [anansi.lib.server-socket :only [create-server close-server]])
+        [anansi.libs.server-socket :only [create-server close-server]])
   (:import (java.net Socket)
            (java.io PrintWriter InputStreamReader BufferedReader))
 )

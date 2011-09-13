@@ -6,7 +6,7 @@
         [anansi.receptor.commons-room]
         [anansi.receptor.user]
         [anansi.receptor.scape]
-        [anansi.lib.sha :only [sha]])
+        [anansi.libs.sha :only [sha]])
   (:use [clj-time.core :only [now]]))
 
 (defmethod manifest :host [_r]
