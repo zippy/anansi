@@ -18,20 +18,6 @@
            (let [r (do-restore state parent)]
              r))
 
-(comment dosync
-       (set! *user-name* (get-unique-user-name (read-line)))
-       (let [host (get-host)
-             x  (if (nil? host) (throw (RuntimeException. (str host "R: " (keys @*receptors*)))))
-             users (get-scape host :user)
-             user-address (s-> self->host-user host *user-name*) ;; creates or returns existing user receptor address
-             user (get-receptor host user-address)]
-         (--> key->set host users *user-name* user-address )
-         (--> self->connect host user *out*)
-         (commute user-streams assoc *user-name* user)
-         (pprint-json {:status :ok
-                       :result {:user-address user-address
-                                :host-address 0}})
-         (print "\n")))
 (def *done*)
 (def *user*)
 (def *session*)
