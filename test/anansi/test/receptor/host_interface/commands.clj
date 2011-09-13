@@ -6,8 +6,7 @@
         [anansi.receptor.scape])
   (:use [clojure.test]
         [clojure.contrib.io :only [writer]]))
-(comment = {:status :error :result "authentication failed for user: eric"}
-            (execute h i "authenticate" {:user "eric"}))
+
 (deftest commands
   (let [h (receptor :host nil)
         i (receptor :some-interface h {})]
@@ -18,10 +17,15 @@
     (testing "authenticate"
       (is (thrown-with-msg? RuntimeException #"authentication failed for user: eric"
             (authenticate h i {:user "eric"}))))
-    (testing "new-user"
-      (let [n-addr (new-user h i {:user "eric"})]
+    (let [n-addr (new-user h i {:user "eric"})]
+      (testing "new-user"
         (is (= n-addr (resolve-name h "eric"))))
-      )
-    (comment testing "send"
-      (id (= (resolve-name h "boink") (send-signal h i {:signal "self->host-user" :session xxx :to (address-of h) :params {"boink"}}))))
+      (testing "send"
+        (let [session (authenticate h i {:user "eric"})]
+          (is (re-find #"^[0-9a-f]+$" session))
+          (is (= (send-signal h i {:signal "host-user" :aspect "self" :prefix "receptor.host" :session session :to 0 :params "boink"})
+                 (resolve-name h "boink")))
+          (is (thrown-with-msg? RuntimeException #"Unknown signal: receptor.host.ceptr->pong"
+                (send-signal h i {:signal "pong" :aspect "ceptr" :prefix "receptor.host" :session session :to 0 :params nil}))
+              ))))
     ))

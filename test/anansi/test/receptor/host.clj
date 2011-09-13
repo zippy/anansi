@@ -8,6 +8,9 @@
 (deftest host
   (let [h (receptor :host nil)
         ha (address-of h)]
+    (testing "ping"
+      (is (re-find #"Hi [0-9]+! This is the host." (s-> ceptr->ping h nil)))
+      )
     (testing "host-room"
       (let [addr (s-> self->host-room h {:name "the room" :password "pass" :matrice-address 1 :data {:background-url "http://someure.com/pic.jpg"}})
             r (get-receptor h addr)]

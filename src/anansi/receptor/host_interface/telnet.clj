@@ -41,6 +41,8 @@
   (let [[command arg-part] (.split input " +" 2)]
     (condp = command
         "new-user" (execute host _r command {:user arg-part})
+        "send" (let [[_ to prefix aspect signal] (re-find #"^([0-9]+) (.*\..*)\.(.*)->(.*)$" arg-part)]
+                 (execute host _r "send-signal" {:to to :prefix prefix :aspect aspect :signal signal :session *session*}))
         {:status :error
             :result (str "Unknown command: '" command "'")}))
   )

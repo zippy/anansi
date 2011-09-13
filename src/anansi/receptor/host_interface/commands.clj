@@ -38,7 +38,12 @@
   (--> interface->new-user iface host params)
   )
 
-(comment defn send-signal [host iface session receptor-prefix aspect signal-name params]
-  (let [user (receptor host (--> key->resolve (get-scape host :session) host session))
-        signal-function (get-signal-function (str "anansi." receptor-prefix) aspect signal-name)]
-    (--> signal-function user to-receptor params)))
+(defn send-signal [host iface p]
+  (let [{prefix :prefix aspect :aspect signal-name :signal params :params session :session to-addr :to} p
+        {user-addr :user} (--> key->resolve iface (get-scape host :session) session)
+        to (if (= to-addr 0) host to-addr)
+        user (get-receptor host user-addr)
+        signal-function (get-signal-function (str "anansi." prefix) aspect signal-name)]
+    (if (nil? signal-function) (throw (RuntimeException. (str "Unknown signal: " prefix "." aspect "->" signal-name) )))
+    (--> signal-function user to params)
+  ))

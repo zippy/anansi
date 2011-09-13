@@ -69,3 +69,6 @@
                  (--> key->set _r (get-scape _r :user) user addr)
                  addr))
         )
+
+(signal ceptr ping [_r _f _]
+        (str "Hi " _f "! This is the host."))

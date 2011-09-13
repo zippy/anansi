@@ -12,12 +12,13 @@ Returns a two item vector of a writable stream that is a client, and the output 
      (let [out (java.io.StringWriter.)
            client-stream (java.io.PipedWriter.)
            r (java.io.BufferedReader. (java.io.PipedReader. client-stream))
+           sigs @*signals*
            thread (Thread. #(binding [*server-state-file-name* "testing-server.state"
                                       *done* false
                                       *changes* (ref 0)
                                       ;*user-name* "eric"
                                       *receptors* (ref {})
-                                      *signals* (ref {})
+                                      *signals* (ref sigs)
                                       *err* (java.io.PrintWriter. (writer "/dev/null"))
                                       ]
                               (receptor :host nil)
@@ -63,7 +64,10 @@ Returns a two item vector of a writable stream that is a client, and the output 
       (is (re-find #"ERROR username 'zippy' in use\n\n> " (.toString server-stream) ))
       (.write client-stream "new-user zippo\n")
       (wait server-stream)
-      (is (re-find #"OK [0-9]\n\n> " (.toString server-stream) ))
-      )  )
-  
-    )
+      (is (re-find #"OK [0-9]\n\n> " (.toString server-stream) )))
+    (testing "send-signal"
+      (.write client-stream "send 0 receptor.host.ceptr->ping\n")
+      (wait server-stream)
+      (is (re-find #"OK Hi [0-9]+! This is the host.\n\n> " (.toString server-stream) ))
+      )
+    ))
