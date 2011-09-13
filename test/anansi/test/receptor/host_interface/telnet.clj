@@ -1,7 +1,8 @@
 (ns anansi.test.receptor.host-interface.telnet
   (:use [anansi.receptor.host-interface.telnet] :reload)
   (:use [anansi.ceptr]
-        [anansi.receptor.host])
+        [anansi.receptor.host]
+        [anansi.test.helpers :only [write connect *result*]])
   (:use [clojure.test]
         [clojure.contrib.io :only [writer]]))
 
@@ -38,36 +39,50 @@ Returns a two item vector of a writable stream that is a client, and the output 
   )
 
 (deftest telnet-interface
+  
   (let [h (receptor :host nil)
-        r (receptor :telnet-host-interface h {})
-        z-addr (s-> self->host-user h "zippy")
-        [client-stream server-stream] (make-test-connection (make-handle-connection h r))
-        ]
-    (testing "welcome"
-      (wait server-stream)
-      (is  (.endsWith (.toString server-stream) "\nWelcome to the Anansi sever.\n\nEnter your user name: ")))
-    (testing "authenticate"
-      (.write client-stream "eric\n")
-      (wait server-stream)
-      (is (.endsWith (.toString server-stream) "ERROR authentication failed for user: eric\nEnter your user name: "))
-      (.write client-stream "zippy\n")
-      (wait server-stream)
-      (is (re-find #"OK [0-9a-f]+\n\n> $"(.toString server-stream) ))
+        r (receptor :telnet-host-interface h {})]
+    (testing "server"
+      (is (thrown-with-msg? RuntimeException #"Server not started."
+            (--> interface->stop h r)))
+      (--> interface->start h r {:port 12345})
+      (is (= #{:server-socket :connections} (set (keys (contents r :server)))))
+      (let [conn (connect "127.0.0.1" 12345)]
+        (while (< (count @*result*) 3) nil)
+        (is (= @*result* ["" "Welcome to the Anansi sever." ""]))
+        )
+      (is (thrown-with-msg? RuntimeException #"Server already started."
+            (--> interface->start h r {:port 12345})))
       )
-    (testing "unknown command"
-      (.write client-stream "badcommand eric\n")
-      (wait server-stream)
-      (is (re-find #"ERROR Unknown command: 'badcommand'\n"(.toString server-stream) )))
-    (testing "new-user"
-      (.write client-stream "new-user zippy\n")
-      (wait server-stream)
-      (is (re-find #"ERROR username 'zippy' in use\n\n> " (.toString server-stream) ))
-      (.write client-stream "new-user zippo\n")
-      (wait server-stream)
-      (is (re-find #"OK [0-9]\n\n> " (.toString server-stream) )))
-    (testing "send-signal"
-      (.write client-stream "send 0 receptor.host.ceptr->ping\n")
-      (wait server-stream)
-      (is (re-find #"OK Hi [0-9]+! This is the host.\n\n> " (.toString server-stream) ))
-      )
+    
+    (let [z-addr (s-> self->host-user h "zippy")
+          [client-stream server-stream] (make-test-connection (make-handle-connection h r))
+          ]
+      (testing "welcome"
+        (wait server-stream)
+        (is  (.endsWith (.toString server-stream) "\nWelcome to the Anansi sever.\n\nEnter your user name: ")))
+      (testing "authenticate"
+        (.write client-stream "eric\n")
+        (wait server-stream)
+        (is (.endsWith (.toString server-stream) "ERROR authentication failed for user: eric\nEnter your user name: "))
+        (.write client-stream "zippy\n")
+        (wait server-stream)
+        (is (re-find #"OK [0-9a-f]+\n\n> $"(.toString server-stream) ))
+        )
+      (testing "unknown command"
+        (.write client-stream "badcommand eric\n")
+        (wait server-stream)
+        (is (re-find #"ERROR Unknown command: 'badcommand'\n"(.toString server-stream) )))
+      (testing "new-user"
+        (.write client-stream "new-user zippy\n")
+        (wait server-stream)
+        (is (re-find #"ERROR username 'zippy' in use\n\n> " (.toString server-stream) ))
+        (.write client-stream "new-user zippo\n")
+        (wait server-stream)
+        (is (re-find #"OK [0-9]\n\n> " (.toString server-stream) )))
+      (testing "send-signal"
+        (.write client-stream "send 0 receptor.host.ceptr->ping\n")
+        (wait server-stream)
+        (is (re-find #"OK Hi [0-9]+! This is the host.\n\n> " (.toString server-stream) ))
+        ))
     ))

@@ -71,6 +71,17 @@ Scape receptors are used to establish the relationships between receptors contai
     user-scape
 > maps names to addresses
 
+### interface
+Interface receptors connect hosts to the external world so that commands can be executed.  Currently there are two interfaces: telnet and www. All interfaces must define start/stop signals as follows:
+
+    interface->start
+        description: starts the interface
+        params: as appropriate to the interface.  Bot www & telnet interfaces define:
+            port: <port number on which to listen for connections>
+    
+    interface->stop
+        description: close down the interface
+
 ### user
 #### signals
     self->connect [stream]

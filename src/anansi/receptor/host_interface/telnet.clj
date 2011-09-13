@@ -8,10 +8,10 @@
         [anansi.receptor.host]
         [anansi.receptor.host-interface.commands :only [execute]])
   (:use [clojure.java.io :only [reader writer]]
-        [clojure.contrib.server-socket :only [create-server]]))
+        [clojure.contrib.server-socket :only [create-server close-server]]))
 
 (defmethod manifest :telnet-host-interface [_r {}]
-           {})
+           {:server nil})
 (defmethod state :telnet-host-interface [_r full?]
            (state-convert _r full?))
 (defmethod restore :telnet-host-interface [state parent]
@@ -86,6 +86,19 @@
                      ))
                  )          
           (finally nil (comment cleanup))
-  ))))
+  )))))
 
-)
+(signal interface start [_r _f {port :port}]
+        (if (contents _r :server)
+          (throw (RuntimeException. "Server already started."))
+          (rsync _r
+                 (let [host (get-receptor (parent-of _r) _f)]
+                   (set-content _r :server (create-server (Integer. port) (make-handle-connection host _r)))))))
+
+(signal interface stop [_r _f]
+        (let [server (contents _r :server)]
+          (if (not server)
+            (throw (RuntimeException. "Server not started."))
+            (rsync _r
+                   (close-server server)
+                   (set-content _r :server nil)))))

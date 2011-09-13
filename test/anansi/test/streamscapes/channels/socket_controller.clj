@@ -4,34 +4,10 @@
   (:use [anansi.ceptr])
   (:use [anansi.receptor.scape])
   (:use [anansi.streamscapes.streamscapes]
-        [anansi.streamscapes.channels.socket-in :only [controller->receive]])
+        [anansi.streamscapes.channels.socket-in :only [controller->receive]]
+        [anansi.test.helpers :only [write connect]])
   (:use [clojure.test])
-  (:import (java.net Socket)
-           (java.io PrintWriter InputStreamReader BufferedReader)))
-
-
-(declare conn-handler)
-
-(def *result* (ref {}))
-
-(defn connect [host port]
-  (let [socket (Socket. host port)
-        in (BufferedReader. (InputStreamReader. (.getInputStream socket)))
-        out (PrintWriter. (.getOutputStream socket))
-        conn (ref {:in in :out out :socket socket})]
-    (doto (Thread. #(conn-handler conn)) (.start))
-    conn))
-
-(defn write [conn msg]
-  (doto (:out @conn)
-    (.println (str msg "\r"))
-    (.flush)))
-
-(defn conn-handler [conn]
-  (while 
-      (nil? (:exit @conn))
-    (let [msg (.readLine (:in @conn))]
-      (if (not (nil? msg)) (dosync (alter *result* assoc :val msg))))))
+  )
 
 (deftest socket-controller
   (let [m (receptor :user nil "eric" nil)
