@@ -24,8 +24,5 @@
         (let [session (authenticate h i {:user "eric"})]
           (is (re-find #"^[0-9a-f]+$" session))
           (is (= (send-signal h i {:signal "host-user" :aspect "self" :prefix "receptor.host" :session session :to 0 :params "boink"})
-                 (resolve-name h "boink")))
-          (is (thrown-with-msg? RuntimeException #"Unknown signal: receptor.host.ceptr->pong"
-                (send-signal h i {:signal "pong" :aspect "ceptr" :prefix "receptor.host" :session session :to 0 :params nil}))
-              ))))
+                 (resolve-name h "boink"))))))
     ))
