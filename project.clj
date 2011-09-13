@@ -2,7 +2,7 @@
   :description "a reference server implementation of the ceptr platform"
   :repositories {"java.net" "http://download.java.net/maven/2"
                  "clojars" "http://clojars.org/repo"}
-  :dependencies [[org.clojure/clojure "1.2.0"]
+  :dependencies [[org.clojure/clojure "1.2.1"]
                  [org.clojure/clojure-contrib "1.2.0"]
                  [compojure "0.6.3"]
                  [ring "0.3.7"]

@@ -4,8 +4,7 @@
   anansi.streamscapes.streamscapes
   (:use [anansi.ceptr])
   (:use [anansi.receptor.scape])
-  (:use [anansi.streamscapes.ident]
-        [anansi.streamscapes.droplet])
+  (:use [anansi.streamscapes.droplet])
   (:use [clojure.string :only [join]])
   )
 
