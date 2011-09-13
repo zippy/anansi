@@ -41,6 +41,30 @@ Scape receptors are used to establish the relationships between receptors contai
             name: <name of the room>
             password: <room access password>
             matrice-address: <address of initial admin>
+
+    command->authenticate:
+        description: command to establish a session for a user on some interface
+        params:
+            user: <username to authenticate>
+        returns:
+            <session key>
+    command->new-user:
+        description: command to create a new user
+        params:
+            name: <unique user name>
+    command->send-signal:
+        description: command to send a signal from a user (based on an authenticated session)
+        params:
+            session: <session-key returned by auth command>
+            prefix: <signal prefix i.e. "receptor.host" or "streamscapes.streamscapes">  currently this is the directory.receptor name
+            aspect: <signal aspect i.e. "command" or "self" or "host">
+            signal: <signal name>
+            params: <any params for the signal>
+            to: <destination receptor address>
+    ceptr->ping:
+        description: returns a hello response
+            params: nil
+    
 #### scapes
     room-scape
 > maps names to addresses

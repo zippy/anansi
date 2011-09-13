@@ -43,13 +43,17 @@
            (--> key->set _r names receptor-name addr)
            addr)))
 
-(signal interface send-signal [_r _f {from-user :from to-addr :to signal :signal params :params}]
-        (let [to (if (= to-addr 0 ) _r (get-receptor _r to-addr))
-              user (get-receptor _r (resolve-name _r from-user))
-              ]
-          (--> (eval (symbol (str "anansi.receptor." (name (:type @to)) "/" signal))) user to params)))
+(signal command send-signal [_r _f p]
+        (rsync _r 
+               (let [{prefix :prefix aspect :aspect signal-name :signal params :params session :session to-addr :to} p
+                     {user-addr :user} (--> key->resolve _r (get-scape _r :session) session)
+                     to (if (= to-addr 0) _r to-addr)
+                     user (get-receptor _r user-addr)
+                     signal-function (get-signal-function (str "anansi." prefix) aspect signal-name)]
+                 (if (nil? signal-function) (throw (RuntimeException. (str "Unknown signal: " prefix "." aspect "->" signal-name) )))
+                 (--> signal-function user to params))))
 
-(signal interface authenticate [_r _f {user :user}]
+(signal command authenticate [_r _f {user :user}]
         (rsync _r
                (let [sessions (get-scape _r :session)
                      time (now)
@@ -61,7 +65,7 @@
                  (--> key->set _r sessions s {:user user-address :time time :interface iface})
                  s)))
 
-(signal interface new-user [_r _f {user :user}]
+(signal command new-user [_r _f {user :user}]
         (if (resolve-name _r user)
           (throw (RuntimeException. (str "username '" user "' in use"))))
         (rsync _r
