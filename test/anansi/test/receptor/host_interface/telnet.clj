@@ -4,7 +4,10 @@
         [anansi.receptor.host]
         [anansi.test.helpers :only [write connect *result*]])
   (:use [clojure.test]
-        [clojure.contrib.io :only [writer]]))
+        [clojure.contrib.io :only [writer]]
+        [aleph.tcp]
+        [lamina.core]
+        [gloss.core]))
 
 (defn make-test-connection
   "Create a server and a client for testing purposes.
@@ -47,9 +50,9 @@ Returns a two item vector of a writable stream that is a client, and the output 
             (--> interface->stop h r)))
       (--> interface->start h r {:port 12345})
       (is (= #{:server-socket :connections} (set (keys (contents r :server)))))
-      (let [conn (connect "127.0.0.1" 12345)]
-        (while (< (count @*result*) 3) nil)
-        (is (= @*result* ["" "Welcome to the Anansi sever." ""]))
+      (let [rch (tcp-client {:host "localhost", :port 12345, :frame (string :utf-8 :delimiters ["\n"])})]
+        (is (= (wait-for-message @rch) ""))
+        (is (= (wait-for-message @rch) "Welcome to the Anansi sever."))
         )
       (is (thrown-with-msg? RuntimeException #"Server already started."
             (--> interface->start h r {:port 12345})))
