@@ -14,13 +14,22 @@
         [net.cgrand.moustache])
   )
 
-(defmethod manifest :http-host-interface [_r {}]
-           {:server nil})
-(defmethod state :http-host-interface [_r full?]
-           (state-convert _r full?))
-(defmethod restore :http-host-interface [state parent]
-           (let [r (do-restore state parent)]
-             r))
+(let [attributes #{:auto-start}]
+
+  (defmethod manifest :http-host-interface [_r params]
+             (into {:server nil} (map (fn [a] [a (a params)]) attributes)))
+  (defmethod state :http-host-interface [_r full?]
+             (merge (state-convert _r full?)
+                    (into {} (map (fn [a] [a (contents _r a)]) attributes))))
+  (defmethod restore :http-host-interface [state parent]
+             (let [r (do-restore state parent)]
+               (doall (map (fn [a] (restore-content r a (a state))) attributes))
+               r))
+  )
+(declare interface->start)
+(defmethod animate :http-host-interface [_r]
+           (let [auto-start (contents _r :auto-start)]
+             (if auto-start (s-> interface->start _r auto-start))))
 
 (defn welcome [request]
   {:status 200

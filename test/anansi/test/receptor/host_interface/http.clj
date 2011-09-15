@@ -40,5 +40,11 @@
       (--> interface->stop h r)
       (is (= nil (contents r :server)))
       (is (thrown-with-msg? java.net.ConnectException #"Connection refused" (api-req "some-command" {:x 1})))
+      )
+    (testing "autostart"
+      (let [asr (receptor :http-host-interface h {:auto-start {:port 12345}})]
+        (is (thrown-with-msg? RuntimeException #"Server already started."
+              (--> interface->start h asr {:port 12345})))
+        (--> interface->stop h asr))
       )))
  
