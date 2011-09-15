@@ -26,7 +26,7 @@
            {:status :ok
             :result (command-function host iface params)}))
        (catch Exception e
-         (.printStackTrace e *err*)
+        ; (.printStackTrace e *err*)
          {:status :error
           :result (.getMessage e)})))
 

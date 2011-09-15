@@ -10,6 +10,7 @@
   (:use [lamina.core]
         [aleph.http]
         [aleph.core]
+        [aleph.formats]
         [net.cgrand.moustache])
   )
 
@@ -21,18 +22,34 @@
            (let [r (do-restore state parent)]
              r))
 
+(defn welcome [request]
+  {:status 200
+   :headers {"content-type" "text/plain"}
+   :body "Welcome to the Anansi sever."})
+
 (defn make-http-handler [host _r]
-  (fn [request]
-    {:status 200
-     :headers {"content-type" "text/plain"}
-     :body "Welcome to the Anansi sever."}
-   ))
+  (app
+   [""] {:get welcome}
+   ["api"] {:post (fn [request]
+                    (let [{command :cmd params :params} (decode-json (:body request))
+                          result (execute host _r command params)]
+                      (try
+                        {:status 200
+                         :content-type "application/json"
+                         :body result}
+                        (catch Exception e
+                           (.printStackTrace e *err*)
+                           {:status 500
+                            :content-type "text/plain"
+                            :body (.getMessage e)})
+                        )))})
+  )
 
 (signal interface start [_r _f {port :port}]
         (if (contents _r :server)
           (throw (RuntimeException. "Server already started."))
           (rsync _r
-                 (let [host (get-receptor (parent-of _r) _f)]
+                 (let [host (parent-of _r)]
                    (set-content _r :server (start-http-server (wrap-ring-handler (make-http-handler host _r)) {:port port}))))))
 
 (signal interface stop [_r _f]
