@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>anansi.receptor.user API reference (Anansi)</title>
+    <title>anansi.libs.server-socket API reference (Anansi)</title>
     <link href="static/favicon.png" rel="icon" />
     <link href="static/favicon.png" rel="shortcut icon" />
     <link media="all" type="text/css" href="static/clojure.css" rel="stylesheet" />
@@ -47,23 +47,55 @@ namespace.
   <h1 class="nopad">Table of Contents</h1>
   <div style="margin-left: 1em;" class="toc-section">
     <a href="#toc0">Overview</a>
-    
+    <div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.libs.server-socket/create-repl-server">create-repl-server</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#anansi.libs.server-socket/create-server">create-server</a>
+    </div>
     <br />
   </div>
 </div>
 </div>
-                <div id="content-tag"><h1 id="overview">API for <span id="namespace-name">anansi.receptor.user</span></h1>
-by <span id="author">Eric Harris-Braun</span><br />
+                <div id="content-tag"><h1 id="overview">API for <span id="namespace-name">anansi.libs.server-socket</span></h1>
+by <span id="author">Craig McDaniel</span><br />
 <br />Usage:
 <pre>
 (ns your-namespace
-  (:require <span id="long-name">anansi.receptor.user</span>))
+  (:require <span id="long-name">anansi.libs.server-socket</span>))
 </pre><pre>
 </pre><h2>Overview</h2>
-<pre id="namespace-docstr">User receptor</pre>
+<pre id="namespace-docstr">Server socket library - includes REPL on socket:  modified by Eric Harris-Braun for anansi</pre>
 <br />
 <h2>Public Variables and Functions</h2>
+<div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.libs.server-socket/create-repl-server">create-repl-server</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (create-repl-server port backlog bind-addr)
+       (create-repl-server port backlog)
+       (create-repl-server port)
+</pre>
+  <pre id="var-docstr">create a repl on a socket</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="anansi.libs.server-socket/create-server">create-server</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (create-server port fun backlog bind-addr)
+       (create-server port fun backlog)
+       (create-server port fun)
+</pre>
+  <pre id="var-docstr">Creates a server socket on port. Upon accept, a new thread is
+created which calls:
 
+(fun input-stream output-stream)
+
+Optional arguments support specifying a listen backlog and binding
+to a specific endpoint.</pre>
+  
+</div>
 
 
 </div>
