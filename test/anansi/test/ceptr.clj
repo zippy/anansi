@@ -8,6 +8,9 @@
            ;;{:x (apply str  "the receptor contents: " args)}
            (make-scapes _r {:x (apply str  "the receptor contents: " args)} :s1 :s2)
            )
+(defmethod animate :test-receptor [_r]
+           (dosync (_set-content _r :animated true)
+                   _r))
 
 (def r (receptor :test-receptor nil "fish"))
 (signal self test-signal [_r _f param]
@@ -57,6 +60,9 @@
     (let [s (serialize-receptors *receptors*)
           u (unserialize-receptors s)]
       (is (= s (serialize-receptors u))))
+    )
+  (testing "animate"
+    (is (= true (contents r :animated)))
     )
   (testing "search receptors"
     (let [a (receptor :a r)

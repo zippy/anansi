@@ -31,6 +31,9 @@
 (defmulti state (fn [receptor full?] (:type @receptor)))
 (defmulti restore (fn [s p] (:type s)))
 
+(defmulti animate (fn [receptor] (:type @receptor)))
+(defmethod animate :default [receptor] receptor)
+
 (defn receptors-container [receptor] (if (nil? receptor) *receptors* (:receptors @receptor)))
 
 (defmacro receptor [name parent & args]
@@ -50,6 +53,7 @@
             (alter ~'receptors assoc ~'ns-str ~'addr)
             (alter ~'receptors assoc ~'addr ~'r)
             (alter ~'r assoc :contents (ref (manifest ~'r ~@args)))
+            (animate ~'r)
             ~'r
             )))
 
@@ -157,6 +161,7 @@
               (if ss-addr (let [ss (get-receptor r ss-addr)]
                             (doseq [[k v]  @(contents ss :map)] (restore-content r k (get-receptor r v))) 
                             (restore-content r :scapes-scape ss)))))
+    (animate r)
     r)
   )
 
