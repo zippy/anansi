@@ -23,10 +23,17 @@
       (is (re-find #"^class aleph.http.server" (str (class (contents r :server)))))
       (is (thrown-with-msg? RuntimeException #"Server already started."
             (--> interface->start h r {:port 12345})))
-      (let [resp (sync-http-request {:method :get, :url "http://localhost:12345"})]
-        (is (= (bytes->string (:body resp)) "Welcome to the Anansi sever."))
+      )
+    (testing "static files"
+      (let [resp (sync-http-request {:method :get, :url "http://localhost:12345/nonexistent"})]
+        (is (= 404 (:status resp)))
+        (is (= "Not Found" (bytes->string (:body resp))))
+        )
+      (let [resp (sync-http-request {:method :get, :url "http://localhost:12345/"})]
+        (is (= "<html><title>Anansi</title><body><h2>Welcome to the Anansi sever!</h2><img src=\"web.jpg\" /></body></html>" (bytes->string (:body resp))))
         )
       )
+        
     (testing "authenticate"
       (is (= (:body (api-req "authenticate" {:user "eric"})) {:status "error", :result "authentication failed for user: eric"}))
       (let [b (:body (api-req "authenticate" {:user "zippy"}))

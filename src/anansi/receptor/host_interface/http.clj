@@ -11,7 +11,10 @@
         [aleph.http]
         [aleph.core]
         [aleph.formats]
-        [net.cgrand.moustache])
+        [ring.middleware.file]
+        [ring.util.response :only [file-response]]
+        [net.cgrand.moustache]
+        [clojure.contrib.duck-streams :only [pwd]])
   )
 
 (let [attributes #{:auto-start}]
@@ -36,23 +39,38 @@
    :headers {"content-type" "text/plain"}
    :body "Welcome to the Anansi sever."})
 
+(def file-not-found 
+  {:status 404
+   :body "Not Found"})
+
+(defn server-error [e]
+  {:status 500
+   :content-type "text/plain"
+   :body (.getMessage e)}
+  )
+
+(defn file-handler [request]
+  (try
+    (if-let [file (file-response (str "public" (:uri request)))]
+      file
+      file-not-found
+      )
+    (catch Exception e
+      (server-error e))
+    ))
+
 (defn make-http-handler [host _r]
   (app
-   [""] {:get welcome}
    ["api"] {:post (fn [request]
-                    (let [{command :cmd params :params} (decode-json (:body request))
-                          result (execute host _r command params)]
-                      (try
+                    (try
+                      (let [{command :cmd params :params} (decode-json (:body request))
+                            result (execute host _r command params)] 
                         {:status 200
                          :content-type "application/json"
-                         :body result}
-                        (catch Exception e
-                           (.printStackTrace e *err*)
-                           {:status 500
-                            :content-type "text/plain"
-                            :body (.getMessage e)})
-                        )))})
-  )
+                         :body result})
+                      (catch Exception e
+                        (server-error e))))}
+   [&] file-handler))
 
 (signal interface start [_r _f {port :port}]
         (if (contents _r :server)
