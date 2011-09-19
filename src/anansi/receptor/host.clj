@@ -63,7 +63,7 @@
                      user-address (resolve-name _r user)
                      ]
                  (if (nil? user-address) (throw (RuntimeException. (str "authentication failed for user: " user))))
-                 (--> key->set _r sessions s {:user user-address :time time :interface iface})
+                 (--> key->set _r sessions s {:user user-address :time (str time) :interface iface})
                  s)))
 
 (signal command new-user [_r _f {user :user}]
@@ -74,6 +74,12 @@
                  (--> key->set _r (get-scape _r :user) user addr)
                  addr))
         )
+
+(signal command get-state [_r _f {receptor-address :receptor}]
+        (let [receptor (if (= 0 receptor-address) _r (get-receptor _r receptor-address))]
+          (if (nil? receptor)
+            (throw (RuntimeException. (str "unknown receptor: " receptor-address))))
+          (state receptor false)))
 
 (signal ceptr ping [_r _f _]
         (str "Hi " _f "! This is the host."))

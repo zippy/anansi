@@ -63,6 +63,13 @@
               (--> command->new-user i h {:user "zippy"})))
         (is (= (--> command->new-user i h {:user "eric"}) (resolve-name h "eric")))
         ))
+    (testing "command->get-state"
+      (let [i (receptor :some-interface h)
+            addr (resolve-name h "eric")]
+        (is (thrown-with-msg? RuntimeException #"unknown receptor: 0"
+              (--> command->get-state i h {:receptor "0"})))
+        (is (= {:name "eric", :type :user, :address addr, :changes 0} (--> command->get-state i h {:receptor addr}) ))
+        ))
     (testing "restore"
       (is (=  (state h true) (state (restore (state h true) nil) true))))
     ))

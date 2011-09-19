@@ -24,5 +24,10 @@
         (let [session (authenticate h i {:user "eric"})]
           (is (re-find #"^[0-9a-f]+$" session))
           (is (= (send-signal h i {:signal "host-user" :aspect "self" :prefix "receptor.host" :session session :to 0 :params "boink"})
-                 (resolve-name h "boink"))))))
+                 (resolve-name h "boink")))
+          (testing "get-state"
+            (is (= {:name "eric", :type :user, :address n-addr, :changes 0} (get-state h i {:receptor n-addr})))
+            )
+        ))
     ))
+)

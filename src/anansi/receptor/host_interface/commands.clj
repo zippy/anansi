@@ -41,3 +41,7 @@
 (defn send-signal [host iface params]
   (--> command->send-signal iface host params)
 )
+
+(defn get-state [host iface params]
+  (--> command->get-state iface host params)
+)

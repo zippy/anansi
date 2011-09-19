@@ -60,6 +60,19 @@
                              (if (not ( nil? r))
                                (ceptr->command {:cmd "new-user" :params {:user r}}  test-callback)))))
 
-(defn send-signal [params] (ceptr->command {:cmd "send-signal" :params (assoc params :session session)} test-callback))
+(defn send-signal
+  ([params] (send-signal params test-callback))
+  ([params callback] (ceptr->command {:cmd "send-signal" :params (assoc params :session session)} callback))
+)
 
 (defn ping [] (send-signal {:to 0 :prefix "receptor.host" :aspect "ceptr" :signal "ping"}))
+
+(defn make-ss [] (send-signal {:to 0 :prefix "receptor.host" :aspect "self" :signal "host-streamscape" :params {:name "zippy" :matrice-address 7}}))
+
+(defn gs-callback [e]
+  (let [{status :status result :result} (process-xhr-result e)]
+    (debug/log (str "State:" (u/clj->json result)))
+    )
+  )
+
+(defn get-state [] (ceptr->command {:cmd "get-state" :params {:receptor 0}} gs-callback))
