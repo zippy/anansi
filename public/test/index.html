@@ -1,0 +1,44 @@
+<!doctype html>
+<!--[if lt IE 7 ]> <html lang="en" class="no-js ie6"> <![endif]-->
+<!--[if IE 7 ]>    <html lang="en" class="no-js ie7"> <![endif]-->
+<!--[if IE 8 ]>    <html lang="en" class="no-js ie8"> <![endif]-->
+<!--[if IE 9 ]>    <html lang="en" class="no-js ie9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html lang="en" class="no-js">   <!--<![endif]-->
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <title>Anansi Testing</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--[if lt IE 9]>
+        <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+    <link rel="stylesheet" href="css/test.css">
+    <link rel="stylesheet" href="css/dialog.css">
+    <style>
+      .modal-dialog {
+      width: 430px;
+      }
+    </style>
+
+  </head>
+  <body>
+    <div id="container"></div>
+
+  <script type="text/javascript" src="out/goog/base.js"></script>
+  <script type="text/javascript" src="test.js"></script>
+  <script type="text/javascript">
+    goog.require('test.core');
+  </script>
+ <button onclick="test.core.auth.setVisible(true)">
+ Authenticate </button>
+ <button onclick="test.core.new_user.setVisible(true)"> New
+ User </button>
+<button onclick="alert(test.core.session)"> Session? </button>
+<button onclick="test.core.ping()"> Ping </button>
+
+<div id="session"></div>
+
+    <div id="debug" class="goog-debug-panel"></div>
+  </body>
+</html>

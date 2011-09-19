@@ -9,7 +9,12 @@
         [lamina.core]))
 
 (defn api-req [command params]
-  (sync-http-request {:method :post, :url "http://localhost:12345/api", :auto-transform :true, :body (encode-json->bytes {:cmd command :params params}) } 1000)
+  (sync-http-request {:method :post,
+                      :url "http://localhost:12345/api"
+                      :auto-transform :true
+                      :body (encode-json->bytes {:cmd command :params params})
+                      :probes {:errors nil-channel}}
+                     1000)
   )
 (deftest http-interface
   

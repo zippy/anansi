@@ -12,9 +12,12 @@
         [aleph.core]
         [aleph.formats]
         [ring.middleware.file]
+        [ring.middleware.params]
         [ring.util.response :only [file-response]]
         [net.cgrand.moustache]
-        [clojure.contrib.duck-streams :only [pwd]])
+        [clojure.contrib.duck-streams :only [pwd]]
+        [clojure.string :only [trim]]
+        [clojure.walk :only [keywordize-keys]])
   )
 
 (let [attributes #{:auto-start}]
@@ -44,9 +47,12 @@
    :body "Not Found"})
 
 (defn server-error [e]
-  {:status 500
-   :content-type "text/plain"
-   :body (.getMessage e)}
+  (do
+    (println "server error: " (.getMessage e))
+    (.printStackTrace e *err*)
+    {:status 200
+     :content-type "application/json"
+     :body {:status :error :result (.getMessage e)} })
   )
 
 (defn file-handler [request]
@@ -63,13 +69,24 @@
   (app
    ["api"] {:post (fn [request]
                     (try
-                      (let [{command :cmd params :params} (decode-json (:body request))
-                            result (execute host _r command params)] 
+                      (let [b (trim (bytes->string (:body request)))
+                            {command :cmd params :params} (clojure.contrib.json/read-json b)]
+                        (println (str "POST REQUEST: from " (:remote-addr request) " for: " b))
                         {:status 200
                          :content-type "application/json"
-                         :body result})
+                         :body (execute host _r command params)
+                         })
                       (catch Exception e
-                        (server-error e))))}
+                        (server-error e))))
+            :get (wrap-params (fn [request]
+                                (try
+                                  {:status 500
+                                   :content-type "text/plain"
+                                   :body "post json reqests only"}
+                                  (catch Exception e
+                                    (server-error e)))
+                                ))}
+
    [&] file-handler))
 
 (signal interface start [_r _f {port :port}]

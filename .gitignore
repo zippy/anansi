@@ -11,3 +11,4 @@ anansi-server.state
 META-INF/
 anansi.iml
 htdocs
+public/test/out
