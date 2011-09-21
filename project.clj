@@ -13,7 +13,8 @@
                   :exclusions [javax.activation/activation]]
                  ]
   :dev-dependencies [[swank-clojure "1.2.1"]
-                      [autodoc "0.7.1" :exclusions [org.clojure/clojure-contrib 
+                     [midje "1.3-alpha1"]
+                     [autodoc "0.7.1" :exclusions [org.clojure/clojure-contrib 
                                                     org.clojure/clojure]]
 ;;                      [org.clojars.mjul/lein-cuke "1.1.0"]
                      ]
