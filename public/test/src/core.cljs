@@ -73,31 +73,61 @@
 (defn make-ss [] (send-signal {:to 0 :prefix "receptor.host" :aspect "self" :signal "host-streamscape" :params {:name "zippy" :matrice-address 7}}))
 
 (defn build-receptor-contents [r]
+  (goog.events.listen (this.contentElement, goog.events.EventType.CLICK, this.openEditor)) ;
   (u/clj->json r))
 
 (defn build-scape-contents [s]
   (cond (keyword? s) (name s)
         (or (nil? s) (empty? s) (= "" s)) ""
-        true
-        (u/clj->json s)))
+        (map? s) (let [x (into [:div.scape-items]
+                           (map (fn [[k v]]
+                                  (if (map? v)
+                                    [:div.scape-item [:h3 (name k)] (into [:ul] (map (fn [[kk vv]] [:li (str (name kk) ": " (str vv))]) v))]
+                                    [:div.scape-item [:h3 (str (name k) "@" v) ]])) s))]
+                   (tdom/build x))
+        true (u/clj->json s)))
 
 (defn gs-callback [e]
-  (let [{status :status result :result} (process-xhr-result e)]
+  (let [{status :status result :result} (process-xhr-result e)
+        relem (tdom/get-element :the-receptor)
+        ]
     (debug/log (str "State:" (u/clj->json result)))
-    (tdom/remove-children :scapes)    (tdom/remove-children :receptors)
-
-    (let [scapes  (into  [] (map (fn [[k v]]
-                                   (let [scape (name k)
-                                         [n _] (string/split scape #"-")
-                                         ]
-                                     {:title (str n "s") :content (build-scape-contents v)})) (:scapes result)))
-          receptors (into  [] (map (fn [[raddr r]]
-                                   (let [rtype (:type r)]
-                                     {:title (str rtype "-" (name raddr)) :content (build-receptor-contents r)})) (filter (fn [[k v]] (not= k :last-address)) (:receptors result))
-                                     ))
+    (tdom/remove-children :the-receptor
+                           )
+    (dom/append relem (tdom/element "h2" (str "Receptor: " (name (:type result)) " @ " (:address result))))
+    (let [scapes (:scapes result)
+          receptors (:receptors result)
           ]
-      (z/make-zips scapes (dom/get-element :scapes))
-      (z/make-zips receptors (dom/get-element :receptors))
-      )))
+      (if (> (count scapes) 0)
+        (let [scapes-vec  (into  [] (map (fn [[k v]]
+                                           (let [scape (name k)
+                                                 [n _] (string/split scape #"-")
+                                                 ]
+                                             {:title (str n "s (" (count v) ")") :content (build-scape-contents v)})) scapes))
+              x (comment into  [] (map (fn [[raddr r]]
+                                         (let [rtype (:type r)]
+                                           {:title (str rtype "@" (name raddr)) :content (build-receptor-contents r)})) (filter (fn [[k v]] (not= k :last-address)) receptors)
+                                           ))
+              ]
+          (tdom/get-element :the-receptor)
+          (dom/append relem (tdom/build [:div#scapes [:h3 "Scapes"]]))
+          (z/make-zips scapes-vec (dom/get-element :scapes))
+          )
+        (dom/append relem (tdom/build [:div#scapes [:h3 "No Scapes"]])))
+      (if (> (count receptors) 0)
+        (do 
+          (dom/append relem (tdom/build [:div#receptors [:h3 "Receptors"]]))        
+          (doseq [[raddr r] (filter (fn [[k v]] (not= k :last-address)) (:receptors result))]
+            (let [html-id (keyword (str "r-" (name raddr)))]
+              (dom/append (dom/get-element :receptors) (tdom/build [:div.rbutton [(keyword (str "x#" (name html-id))) {:onclick (str "test.core.get_state(" (name raddr) ");")} (str (:type r) "@" (name raddr))]]))
+              (goog.events.listen (tdom/get-element html-id)
+                                  goog.events.EventType.CLICK, (hidfn (js/parseInt (name raddr))))
+              )
+            ))))))
 
-(defn get-state [] (ceptr->command {:cmd "get-state" :params {:receptor 0}} gs-callback))
+(defn get-state [r] (ceptr->command {:cmd "get-state" :params {:receptor r}} gs-callback))
+(defn hidfn [hid]
+  (fn [e] (get-state hid)))
+
+
+

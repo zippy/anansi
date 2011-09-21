@@ -23,19 +23,13 @@
 
   </head>
   <body>
-    <div id="scapes-container">
-      <h2>Scapes</h2>
-      <div id="scapes"></div>
-    </div>
-    <div id="receptors-container">
-      <h2>Receptors</h2>
-      <div id="receptors"></div>
-    </div>
+
   <script type="text/javascript" src="out/goog/base.js"></script>
   <script type="text/javascript" src="test.js"></script>
   <script type="text/javascript">
     goog.require('test.core');
   </script>
+<div id="controls">
  <button onclick="test.core.auth.setVisible(true)">
  Authenticate </button>
  <button onclick="test.core.new_user.setVisible(true)"> New
@@ -43,10 +37,12 @@
 <button onclick="alert(test.core.session)"> Session? </button>
 <button onclick="test.core.ping()"> Ping </button>
 <button onclick="test.core.make_ss()"> Make SS </button>
-<button onclick="test.core.get_state()"> Get State </button>
+<button onclick="test.core.get_state(0)"> Get State </button>
 
 <div id="session"></div>
 
     <div id="debug" class="goog-debug-panel"></div>
+</div>
+<div id="the-receptor"></div>
   </body>
 </html>

@@ -15,6 +15,21 @@ body {
 }
 
 
+.rbutton {
+  border: 1px solid #369;
+  background-color: #ddd;
+  width: auto;
+  display: inline;
+  padding: 2px;
+  margin: 2px;
+}
+
+div#controls {
+ margin: 10px;
+ float: right;
+ width: 500px;
+}
+
 /* Misc. styles used for logging and debugging. */
 fieldset {
   padding: 4px 8px;
