@@ -3,11 +3,21 @@
   (:use [anansi.ceptr]
         [anansi.receptor.scape]
         [anansi.receptor.user])
+  (:use [midje.sweet])
   (:use [clojure.test]))
 
-(deftest host
-  (let [h (receptor :host nil)
-        ha (address-of h)]
+(let [h (receptor :host nil)
+      ha (address-of h)]
+  (facts "scaping relationships"
+    (scape-relationship (get-scape h :room) :key) => :name
+    (scape-relationship (get-scape h :room) :address) => :address
+    (scape-relationship (get-scape h :user) :key) => :name
+    (scape-relationship (get-scape h :user) :address) => :address
+    (scape-relationship (get-scape h :stream) :key) => :name
+    (scape-relationship (get-scape h :stream) :address) => :address
+    (scape-relationship (get-scape h :session) :key) => :sha
+    (scape-relationship (get-scape h :session) :address) => :user-addr-time-interface-map)
+  (deftest host
     (testing "ping"
       (is (re-find #"Hi [0-9]+! This is the host." (s-> ceptr->ping h nil)))
       )

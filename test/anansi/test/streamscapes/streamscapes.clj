@@ -7,15 +7,24 @@
         [anansi.streamscapes.channels.email-bridge-out :only [channel->deliver]]
         [anansi.streamscapes.channels.irc-controller :only [channel->control]]
         [anansi.streamscapes.channels.irc-bridge-in])
+  (:use [midje.sweet])
   (:use [clojure.test]))
 
-(deftest streamscapes
-  (let [m (receptor :user nil "eric" nil)
+(let [m (receptor :user nil "eric" nil)
         u (receptor :user nil "zippy" nil)
         r (receptor :streamscapes nil (address-of m) "password" {:datax "x"})
         aspects (get-scape r :aspect)
         ids (get-scape r :id)
-        ]
+        ] 
+  (facts "scaping relationships"
+    (scape-relationship (get-scape r :delivery) :key) => :streamscapes-aspect-time-map
+    (scape-relationship (get-scape r :delivery) :address) => :address
+    (scape-relationship (get-scape r :id) :key) => :address
+    (scape-relationship (get-scape r :id) :address) => :streamscapes-channel-address
+    (scape-relationship (get-scape r :aspect) :key) => :address
+    (scape-relationship (get-scape r :aspect) :address) => :streamscapes-aspect)
+
+  (deftest streamscapes
     (testing "initialization"
       (is (= [(address-of m)] (s-> address->resolve (get-scape r :matrice) :matrice)))
       (is (= {:datax "x"} (contents r :data)))
@@ -90,4 +99,4 @@
         (is (= (contents db :host) "irc.freenode.net"))
         (is (= (contents db :port) 6667))
         (is (= (:type @(get-receptor cc in-bridge-address)) :irc-bridge-in)))
-)))
+      )))

@@ -15,7 +15,9 @@
                                :matrice-scape ms
                                :data data
                                }
-                          :aspect :id :delivery
+                          {:name :aspect :relationship {:key :address :address :streamscapes-aspect}}
+                          {:name :id :relationship {:key :address :address :streamscapes-channel-address}}
+                          {:name :delivery :relationship {:key :streamscapes-aspect-time-map :address :address}}
                           )))
 
 (defmethod state :streamscapes [_r full?]

@@ -10,7 +10,11 @@
   (:use [clj-time.core :only [now]]))
 
 (defmethod manifest :host [_r]
-           (make-scapes _r {} :room :user :stream :session))
+           (make-scapes _r {}
+                        {:name :room :relationship {:key :name :address :address}}
+                        {:name :user :relationship {:key :name :address :address}}
+                        {:name :stream :relationship {:key :name :address :address}}
+                        {:name :session :relationship {:key :sha :address :user-addr-time-interface-map}}))
 
 (defn resolve-name [_r user]
   "resolve a username to it's receptor address"
