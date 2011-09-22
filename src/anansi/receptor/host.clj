@@ -3,9 +3,9 @@
      :doc "Host receptor"}
   anansi.receptor.host
   (:use [anansi.ceptr]
-        [anansi.receptor.commons-room]
         [anansi.receptor.user]
         [anansi.receptor.scape]
+        [anansi.streamscapes.streamscapes]
         [anansi.libs.sha :only [sha]])
   (:use [clj-time.core :only [now]]))
 
