@@ -73,17 +73,23 @@
 (defn make-ss [] (send-signal {:to 0 :prefix "receptor.host" :aspect "self" :signal "host-streamscape" :params {:name "zippy" :matrice-address 7}}))
 
 (defn build-receptor-contents [r]
-  (goog.events.listen (this.contentElement, goog.events.EventType.CLICK, this.openEditor)) ;
   (u/clj->json r))
 
 (defn build-scape-contents [s]
   (cond (keyword? s) (name s)
         (or (nil? s) (empty? s) (= "" s)) ""
-        (map? s) (let [x (into [:div.scape-items]
+        (map? s) (let [{kr :key ar :address} (:relationship s)
+                       napair (and (= kr "name") (= ar "address"))
+                       anpair (and (= kr "address") (= ar "name"))
+                       x (into [:div.scape-items]
                            (map (fn [[k v]]
                                   (if (map? v)
                                     [:div.scape-item [:h3 (name k)] (into [:ul] (map (fn [[kk vv]] [:li (str (name kk) ": " (str vv))]) v))]
-                                    [:div.scape-item [:h3 (str (name k) "@" v) ]])) (:values s)))]
+                                    [:div.scape-item (cond napair (add-receptor-button nil v (str (name k) " (@" v ")"))
+                                                           anpair (add-receptor-button nil k (str (name v) " (@" k ")"))
+                                                           t [:h3 (str "key:" (str k) " val:" (str v))]
+                                                       )
+                                     [:h3 ]])) (:values s)))]; 
                    (tdom/build x))
         true (u/clj->json s)))
 
@@ -121,13 +127,20 @@
       (if (> (count receptors) 0)
         (do 
           (dom/append relem (tdom/build [:div#receptors [:h3 "Receptors"]]))        
-          (doseq [[raddr r] (filter (fn [[k v]] (not= k :last-address)) (:receptors result))]
-            (let [html-id (keyword (str "r-" (name raddr)))]
-              (dom/append (dom/get-element :receptors) (tdom/build [:div.rbutton [(keyword (str "x#" (name html-id))) (str (:type r) "@" (name raddr))]]))
-              (goog.events.listen (tdom/get-element html-id)
-                                  goog.events.EventType.CLICK, (hidfn (js/parseInt (name raddr))))
+          (doseq [[r-addr r] (filter (fn [[k v]] (not= k :last-address)) (:receptors result))]
+            (let [raddr (name r-addr)
+                  html-id (keyword (str "r-" raddr))]
+              (add-receptor-button (dom/get-element :receptors) raddr (str (:type r) "@" raddr))
               )
             ))))))
+
+(defn add-receptor-button [parent raddr text]
+  (let [
+        elem (tdom/build [:div.rbutton [:x text]])]
+
+    (if (not (nil? parent)) (dom/append parent elem))
+    (goog.events.listen elem goog.events.EventType.CLICK, (hidfn (js/parseInt raddr)))
+    elem))
 
 (defn get-state [r] (ceptr->command {:cmd "get-state" :params {:receptor r}} gs-callback))
 (defn hidfn [hid]
