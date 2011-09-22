@@ -83,9 +83,13 @@
                            (map (fn [[k v]]
                                   (if (map? v)
                                     [:div.scape-item [:h3 (name k)] (into [:ul] (map (fn [[kk vv]] [:li (str (name kk) ": " (str vv))]) v))]
-                                    [:div.scape-item [:h3 (str (name k) "@" v) ]])) s))]
+                                    [:div.scape-item [:h3 (str (name k) "@" v) ]])) (:values s)))]
                    (tdom/build x))
         true (u/clj->json s)))
+
+(defn build-scape-title [n s]
+  (let [{v :values {kr :key ar :address} :relationship} s]
+    (str n "s (" (count v) ")" (if (nil? kr) " no-rel-defined" (str " " (name kr) "->" (name ar))))))
 
 (defn gs-callback [e]
   (let [{status :status result :result} (process-xhr-result e)
@@ -99,11 +103,11 @@
           receptors (:receptors result)
           ]
       (if (> (count scapes) 0)
-        (let [scapes-vec  (into  [] (map (fn [[k v]]
+        (let [scapes-vec  (into  [] (map (fn [[k s]]
                                            (let [scape (name k)
                                                  [n _] (string/split scape #"-")
                                                  ]
-                                             {:title (str n "s (" (count v) ")") :content (build-scape-contents v)})) scapes))
+                                             {:title (build-scape-title n s) :content (build-scape-contents s)})) scapes))
               x (comment into  [] (map (fn [[raddr r]]
                                          (let [rtype (:type r)]
                                            {:title (str rtype "@" (name raddr)) :content (build-receptor-contents r)})) (filter (fn [[k v]] (not= k :last-address)) receptors)
@@ -119,7 +123,7 @@
           (dom/append relem (tdom/build [:div#receptors [:h3 "Receptors"]]))        
           (doseq [[raddr r] (filter (fn [[k v]] (not= k :last-address)) (:receptors result))]
             (let [html-id (keyword (str "r-" (name raddr)))]
-              (dom/append (dom/get-element :receptors) (tdom/build [:div.rbutton [(keyword (str "x#" (name html-id))) {:onclick (str "test.core.get_state(" (name raddr) ");")} (str (:type r) "@" (name raddr))]]))
+              (dom/append (dom/get-element :receptors) (tdom/build [:div.rbutton [(keyword (str "x#" (name html-id))) (str (:type r) "@" (name raddr))]]))
               (goog.events.listen (tdom/get-element html-id)
                                   goog.events.EventType.CLICK, (hidfn (js/parseInt (name raddr))))
               )
