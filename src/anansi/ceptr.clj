@@ -114,7 +114,9 @@
   (keyword (str (name scape-name) "-scape")))
 
 (defn scape-state [_r scape-name]
-  @(contents (contents _r scape-name) :map))
+  "return the public (not full?) scape-state as a map"
+  (let [s (contents _r scape-name)]
+    {:values @(contents s :map) :relationship (contents s :relationship)}))
 
 (defn _get-scape [receptor scape-name]
   (contents receptor (scapify scape-name))

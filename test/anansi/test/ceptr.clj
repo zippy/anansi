@@ -6,7 +6,7 @@
     (set! *print-level* 6)
 (defmethod manifest :test-receptor [_r & args]
            ;;{:x (apply str  "the receptor contents: " args)}
-           (make-scapes _r {:x (apply str  "the receptor contents: " args)} :s1 :s2)
+           (make-scapes _r {:x (apply str  "the receptor contents: " args)} {:name :s1 :relationship {:key :x :address :y}} :s2)
            )
 (defmethod animate :test-receptor [_r]
            (dosync (_set-content _r :animated true)
@@ -46,9 +46,15 @@
     
     (--> key->set r (get-scape r :s1) :test-key :test-val)
     (is (= (state r false)
-           {:scapes {:s1-scape {:test-key :test-val}, :s2-scape {}}, :receptors {:last-address 4, 4 {:scapes {:s1-scape {}, :s2-scape {}}, :receptors {:last-address 3}, :type :test-receptor, :address 4, :changes 4}}, :type :test-receptor, :address 1, :changes 4}))
+           {:scapes {:s1-scape {:values  {:test-key :test-val} :relationship {:key :x :address :y}}, :s2-scape {:values {} :relationship {:key nil :address nil}}}, :receptors {:last-address 4, 4 {:scapes {:s1-scape {:values {} :relationship {:key :x :address :y}}, :s2-scape {:values {} :relationship {:key nil :address nil}}}, :receptors {:last-address 3}, :type :test-receptor, :address 4, :changes 4}}, :type :test-receptor, :address 1, :changes 4}))
     (is (= (state r true)
-            {:scapes-scape-addr 1, :receptors {:last-address 4, 4 {:scapes-scape-addr 1, :receptors {:last-address 3, 3 {:map {}, :type :scape, :address 3, :changes 0}, 2 {:map {}, :type :scape, :address 2, :changes 0}, 1 {:map {:s1-scape 2, :s2-scape 3}, :type :scape, :address 1, :changes 2}}, :type :test-receptor, :address 4, :changes 4}, 3 {:map {}, :type :scape, :address 3, :changes 0}, 2 {:map {:test-key :test-val}, :type :scape, :address 2, :changes 1}, 1 {:map {:s1-scape 2, :s2-scape 3}, :type :scape, :address 1, :changes 2}}, :type :test-receptor, :address 1, :changes 4})))
+           {:scapes-scape-addr 1, :receptors
+            {:last-address 4,
+             4 {:scapes-scape-addr 1, :receptors {:last-address 3, 3 {:relationship {:key nil, :address nil}, :map {}, :type :scape, :address 3, :changes 0}, 2 {:relationship {:key :x, :address :y}, :map {}, :type :scape, :address 2, :changes 0}, 1 {:relationship {:key :scape-name, :address :address}, :map {:s1-scape 2, :s2-scape 3}, :type :scape, :address 1, :changes 2}}, :type :test-receptor, :address 4, :changes 4},
+             3 {:relationship {:key nil, :address nil}, :map {}, :type :scape, :address 3, :changes 0},
+             2 {:relationship {:key :x, :address :y}, :map {:test-key :test-val}, :type :scape, :address 2, :changes 1},
+             1 {:relationship {:key :scape-name, :address :address}, :map {:s1-scape 2, :s2-scape 3}, :type :scape, :address 1, :changes 2}}, :type :test-receptor, :address 1, :changes 4}
+            )))
   
   (testing "restore"
     (let [restored (restore (state r true) nil)]
@@ -68,6 +74,4 @@
     (let [a (receptor :a r)
           b (receptor :b r)
           b1 (receptor :b r)]
-      (is (= a (first (find-receptors r (fn [_r] (= :a (:type @_r))))))))
-    )
-  )
+      (is (= a (first (find-receptors r (fn [_r] (= :a (:type @_r))))))))))

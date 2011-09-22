@@ -7,3 +7,4 @@
 (let [r (ref {4 5})
       n (keyword (last (re-find #"@(.*)$" (str r))))]
   (fact (snapshot {:a 2, :b r}) => {:a 2, :b {n {4 5}}}))
+

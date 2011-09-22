@@ -5,15 +5,18 @@
   (:use [anansi.ceptr])
   (:use [anansi.map-utilities]))
 
-(defmethod manifest :scape [_r]
-           {:map (ref (sorted-map))} )
+(defmethod manifest :scape [_r & [key addr]]
+           {:map (ref (sorted-map))
+            :relationship {:key key :address addr}} )
 
 (defmethod state :scape [_r full?]
            (assoc (state-convert _r full?)
-             :map @(contents _r :map)))
+             :map @(contents _r :map)
+             :relationship (contents _r :relationship)))
 (defmethod restore :scape [state parent]
            (let [r (do-restore state parent)]
              (restore-content r :map (ref (:map state)))
+             (restore-content r :relationship (:relationship state))
              r))
 
 ;; Signals on the key aspect
@@ -47,14 +50,20 @@
            (throw (RuntimeException. (str scape-name " scape doesn't exist"))))
          scape))))
 
+(defn- build-scape-def [d]
+  (cond (map? d) {:name (scapify (:name d)) :relationship (:relationship d)}
+        (keyword? d) {:name (scapify d)}
+        (string? d) {:name (keyword (scapify d))}
+        true (throw (RuntimeException. (str "Can't understand '" d "' as a scape definition")))))
+
 (defn make-scapes
   "instantiate a scape (utility function for building the manifests)"
   [_r manifest & scapes]
-  (let [ss (receptor :scape _r)
-        m  (into manifest (map (fn [s] (let [key (scapify s)
-                                      s (receptor :scape _r)]
-                                  (--> key->set _r ss key (address-of s))
-                                  [key s])) scapes))
+  (let [ss (receptor :scape _r :scape-name :address)
+        m  (into manifest (map (fn [def] (let [{scape-name :name {key-rel :key addr-rel :address} :relationship} (build-scape-def def)
+                                            s (receptor :scape _r key-rel addr-rel)]
+                                  (--> key->set _r ss scape-name (address-of s))
+                                  [scape-name s])) scapes))
         ]
     (assoc m :scapes-scape ss)
     )
@@ -72,3 +81,8 @@
              (_set-content _r key s)
              s))
     (throw (RuntimeException. (str scape-name " scape already exists")))))
+
+(defn scape-relationship
+  "return the relationship information about the scape"
+  [_r aspect]
+  (aspect (contents _r :relationship)))
