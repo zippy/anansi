@@ -125,7 +125,7 @@
 ;;; DOOR signals
 (signal door enter [_r _f {unique-name :name occupant-data :data password :password}]
         (rsync _r
-         (let [o (--> anansi.receptor.portal/self->enter _r (contents _r :door) unique-name occupant-data)
+         (let [o (--> anansi.commons-room.portal/self->enter _r (contents _r :door) unique-name occupant-data)
                ; seats (get-scape _r :seat)
                occupants (get-scape _r :occupant)
                addr (address-of o)]
