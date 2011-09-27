@@ -5,7 +5,7 @@
   (:use [clojure.test]))
 
 (deftest scape
-  (let [s (receptor :scape nil :name :address)]
+  (let [s (make-receptor scape-def nil :name :address)]
     (s-> key->set s :a 1)
     (s-> key->set s :b 1)
     (testing "contents"
@@ -22,19 +22,21 @@
         (s-> address->delete s 1)
         (is (= [] (s-> address->resolve s 1))))
     (testing "restore"
-      (is (=  (state s true) (state (restore (state s true) nil) true))))
+      (is (=  (receptor-state s true) (receptor-state (receptor-restore (receptor-state s true) nil) true))))
     
     ))
 
-(let [s (receptor :scape nil :a :b)]
+(let [s (make-receptor scape-def nil :a :b)]
   (s-> key->set s :a 1)
   (facts "Serialization"
-    (:map (state s false)) => (just {:a 1})
-    (state s false) => (contains {:type :scape, :relationship {:key :a :address :b}})
-    (state s true) => (contains {:type :scape, :relationship {:key :a :address :b}})))
+    (:map (receptor-state s false)) => (just {:a 1})
+    (receptor-state s false) => (contains {:fingerprint :anansi.receptor.scape.scape, :relationship {:key :a :address :b}})
+    (receptor-state s true) => (contains {:fingerprint :anansi.receptor.scape.scape, :relationship {:key :a :address :b}})))
+
+(def t-def (receptor-def "test-receptor" (scapes :s1)))
 
 (deftest scape-creation-test
-  (let [r (receptor :test-receptor nil)]
+  (let [r (make-receptor t-def nil {})]
     (testing "get-scape"
       (is (= (get-scape r :s1) (get-receptor r (--> key->resolve r (get-receptor r 1) :s1-scape ))))
       (is (thrown-with-msg? RuntimeException #":fish scape doesn't exist" (get-scape r :fish)))
@@ -51,18 +53,18 @@
       )))
 
 (facts "about creating scapes during manifestion"
-  (let [r (receptor :test-receptor nil)
+  (let [r (make-receptor t-def nil {})
         m (make-scapes r {:x :y} {:name :a :relationship {:key :r1 :address :r2}} :b)
-        ss (state (:scapes-scape m) true)
+        ss (receptor-state (:scapes-scape m) true)
         ]
     (keys m) => (just #{:scapes-scape :a-scape :b-scape :x})
     ss => (contains {:relationship {:key :scape-name, :address :address}})
     (keys (:map ss)) => (just #{:a-scape :b-scape})
-    (state (get-receptor r (s-> key->resolve (:scapes-scape m) :a-scape)) true) => (contains {:relationship {:key :r1, :address :r2}, :map {}})
+    (receptor-state (get-receptor r (s-> key->resolve (:scapes-scape m) :a-scape)) true) => (contains {:relationship {:key :r1, :address :r2}, :map {}})
 ))
 
 (facts "relationship description"
-  (let [r (receptor :scape nil :address :name)]
+  (let [r (make-receptor scape-def nil :address :name)]
     (scape-relationship r :key) => :address
     (scape-relationship r :address) => :name
     ))

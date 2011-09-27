@@ -1,21 +1,28 @@
 (ns anansi.test.streamscapes.channels.irc-bridge-out
   (:use [anansi.streamscapes.channels.irc-bridge-out] :reload)
-  (:use [anansi.streamscapes.channel])
-  (:use [anansi.ceptr])
-  (:use [anansi.receptor.scape])
-  (:use [anansi.streamscapes.streamscapes])
+  (:use [anansi.ceptr]
+        [anansi.receptor.scape]
+        [anansi.receptor.user :only [user-def]]
+        [anansi.streamscapes.streamscapes]
+        [anansi.streamscapes.ident :only [ident-def]]
+        [anansi.streamscapes.channel :only [channel-def]])
+  (:use [midje.sweet])
   (:use [clojure.test]))
 
 (deftest irc-bridge-out
-  (let [m (receptor :user nil "eric" nil)
-        r (receptor :streamscapes nil (address-of m) "password" {:datax "x"})
-        eric (receptor :ident r {:name "Eric"})
-        cc (receptor :channel r :irc-stream)
-        b (receptor :irc-bridge-out cc {})
+  (let [m (make-receptor user-def nil "eric")
+        r (make-receptor streamscapes-def nil {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
+        eric (make-receptor ident-def r {:attributes {:name "Eric"}})
+        cc (make-receptor channel-def r :irc-stream)
+        b (make-receptor irc-bridge-out-def cc {})
         irc-idents (get-scape r :irc-ident true)]
     (--> key->set b irc-idents "zippy" (address-of eric))
-    ;    (testing "contents" )
-    (testing "restore"
-      (is (=  (state cc true) (state (restore (state cc true) nil) true))))
     
+    (fact
+      (receptor-state b false) => (contains {:fingerprint :anansi.streamscapes.channels.irc-bridge-out.irc-bridge-out}))
+    
+    (facts "about restoring serialized receptor"
+      (let [state (receptor-state b true)]
+        state => (receptor-state (receptor-restore state nil) true)
+        ))
     ))

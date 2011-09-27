@@ -7,9 +7,11 @@
   (:use [clojure.test]
         [clojure.contrib.io :only [writer]]))
 
+(def some-interface-def (receptor-def "some-interface"))
+
 (deftest commands
-  (let [h (receptor :host nil)
-        i (receptor :some-interface h {})]
+  (let [h (make-receptor host-def nil {})
+        i (make-receptor some-interface-def h {})]
     (binding [*err* (java.io.PrintWriter. (writer "/dev/null"))]
       (testing "execute"  
         (is (= {:status :error :result "authentication failed for user: eric"}
@@ -26,7 +28,7 @@
           (is (= (send-signal h i {:signal "host-user" :aspect "self" :prefix "receptor.host" :session session :to 0 :params "boink"})
                  (resolve-name h "boink")))
           (testing "get-state"
-            (is (= {:name "eric", :type :user, :address n-addr, :changes 0} (get-state h i {:receptor n-addr})))
+            (is (= {:name "eric", :fingerprint :anansi.receptor.user.user, :address n-addr, :changes 0} (get-state h i {:receptor n-addr})))
             )
         ))
     ))

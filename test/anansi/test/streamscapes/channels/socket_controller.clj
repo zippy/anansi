@@ -1,23 +1,27 @@
 (ns anansi.test.streamscapes.channels.socket-controller
   (:use [anansi.streamscapes.channels.socket-controller] :reload)
-  (:use [anansi.streamscapes.channel])
-  (:use [anansi.ceptr])
-  (:use [anansi.receptor.scape])
-  (:use [anansi.streamscapes.streamscapes]
-        [anansi.streamscapes.channels.socket-in :only [controller->receive]]
+  (:use [anansi.ceptr]
+        [anansi.receptor.scape]
+        [anansi.receptor.user :only [user-def]]
+        [anansi.streamscapes.channel]
+        [anansi.streamscapes.streamscapes]
+        [anansi.streamscapes.ident :only [ident-def]]
+        [anansi.streamscapes.channels.socket-in :only [socket-in-def controller->receive]]
         [anansi.test.helpers :only [write connect]])
+  (:use [midje.sweet])
   (:use [clojure.test])
   )
 
+(defn test-input-function [input ip] (println (str "from: " ip " processed: " input)))
 (deftest socket-controller
-  (let [m (receptor :user nil "eric" nil)
-        r (receptor :streamscapes nil (address-of m) "password" {:datax "x"})
-        eric (receptor :ident r {:name "Eric"})
-        house (receptor :ident r {:name "my-house"})
+  (let [m (make-receptor user-def nil "eric")
+        r (make-receptor streamscapes-def nil {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
+        eric (make-receptor ident-def r {:attributes {:name "Eric"}})
+        house (make-receptor ident-def r {:attributes {:name "my-house"}})
         channel-address (s-> matrice->make-channel r
                              {:name :socket-stream
-                              :receptors {:local-bridge-in {:role :receiver :signal controller->receive :params {}}
-                                          :socket-controller {:role :controller :signal channel->control :params {:port 3141 :input-function (fn [input ip] (println (str "from: " ip " processed: " input)))}}}
+                              :receptors {socket-in-def {:role :receiver :signal controller->receive :params {}}
+                                          socket-controller-def {:role :controller :signal channel->control :params {:attributes {:port 3141 :input-function test-input-function}}}}
                                                           })
         cc (get-receptor r channel-address)
         [controller-address control-signal] (get-controller cc)
@@ -25,11 +29,15 @@
         ip-idents (get-scape r :ip-ident true)
         droplet-ids (get-scape r :id)]
     (--> key->set b ip-idents "127.0.0.1" (address-of eric))
-
+    
+    (fact
+      (receptor-state b false) => (contains {:port 3141 :input-function fn?}))
     (testing "contents"
       (is (= 3141 (contents b :port))))
-    (testing "restore"
-      (is (=  (state cc true) (state (restore (state cc true) nil) true))))
+    (facts "about restoring serialized receptor"
+      (let [state (receptor-state b true)]
+        state => (receptor-state (receptor-restore state nil) true)
+        ))
     (testing "listening on a socket and receiving a signal on it"
       (is (= (s-> channel->control b {:command :status}) :closed))
       (s-> channel->control b {:command :open})

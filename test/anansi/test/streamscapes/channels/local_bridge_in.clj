@@ -1,27 +1,31 @@
 (ns anansi.test.streamscapes.channels.local-bridge-in
   (:use [anansi.streamscapes.channels.local-bridge-in] :reload)
-  (:use [anansi.streamscapes.channel])
-  (:use [anansi.ceptr])
-  (:use [anansi.receptor.scape])
-  (:use [anansi.streamscapes.streamscapes])
+  (:use [anansi.ceptr]
+        [anansi.receptor.scape]
+        [anansi.receptor.user :only [user-def]]
+        [anansi.streamscapes.streamscapes]
+        [anansi.streamscapes.channel :only [channel-def]])
+  (:use [midje.sweet])
   (:use [clojure.test]))
 
 
 (deftest local-bridge-in
-  (let [m (receptor :user nil "eric" nil)
-        r (receptor :streamscapes nil (address-of m) "password" {:datax "x"})
+  (let [m (make-receptor user-def nil "eric")
+        r (make-receptor streamscapes-def nil {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
         eric-addr (s-> matrice->identify r {:identifiers {:ss-address (address-of r)} :attributes {:name "Eric"}})
         eric-ss-addr (address-of r)
-        u (receptor :user nil "zippy" nil)
-        ru (receptor :streamscapes nil (address-of u) "password" {:datax "x"})
+        u (make-receptor user-def nil "zippy")
+        ru (make-receptor streamscapes-def nil {:matrice-addr (address-of u) :attributes {:_password "password" :data {:datax "x"}}})
         zippy-ss-addr (address-of ru)
         zippy-addr (s-> matrice->identify r {:identifiers {:ss-address (address-of ru)} :attributes {:name "Zippy"}})
-        cc (receptor :channel r :local-stream)
-        b (receptor :local-bridge-in cc {})
+        cc (make-receptor channel-def r {:attributes {:name :local-stream}})
+        b (make-receptor local-bridge-in-def cc {})
         ss-addr-idents (get-scape r :ss-address-ident)]
-    
-    (testing "restore"
-      (is (=  (state b true) (state (restore (state b true) nil) true))))
+
+    (facts "about restoring serialized receptor"
+      (let [state (receptor-state b true)]
+        state => (receptor-state (receptor-restore state nil) true)
+        ))
     (testing "internal functions: handle-message"
       (let [message {:id "1.2" :to eric-ss-addr :from zippy-ss-addr :envelope {:subject "text/plain" :body "text/html"} :content {:subject "Hi there!" :body "<b>Hello world!</b>"}}
             droplet-address (handle-message b message)

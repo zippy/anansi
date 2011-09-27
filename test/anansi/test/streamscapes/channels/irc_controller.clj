@@ -1,22 +1,26 @@
 (ns anansi.test.streamscapes.channels.irc-controller
   (:use [anansi.streamscapes.channels.irc-controller] :reload)
-  (:use [anansi.streamscapes.channel])
-  (:use [anansi.ceptr])
-  (:use [anansi.receptor.scape])
-  (:use [anansi.streamscapes.streamscapes]
-        [anansi.streamscapes.channels.irc-bridge-out :only [channel->deliver]]
-       )
+  (:use [anansi.ceptr]
+        [anansi.receptor.scape]
+                [anansi.receptor.user :only [user-def]]
+        [anansi.streamscapes.streamscapes]
+        [anansi.streamscapes.ident :only [ident-def]]
+        [anansi.streamscapes.channel]
+        [anansi.streamscapes.channels.irc-bridge-out :only [irc-bridge-out-def channel->deliver]]
+        [anansi.streamscapes.channels.irc-bridge-in :only [irc-bridge-in-def]]
+        )
+  (:use [midje.sweet])
   (:use [clojure.test]))
 
 (deftest irc-controller
-  (let [m (receptor :user nil "eric" nil)
-        r (receptor :streamscapes nil (address-of m) "password" {:datax "x"})
-        eric (receptor :ident r {:name "Eric"})
-        ceptr-channel (receptor :ident r {:name "ceptr channel"})
+  (let [m (make-receptor user-def nil "eric")
+        r (make-receptor streamscapes-def nil {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
+        eric (make-receptor ident-def r {:attributes {:name "Eric"}})
+        ceptr-channel (make-receptor ident-def r {:attributes {:name "ceptr channel"}})
         channel-address (s-> matrice->make-channel r {:name :irc-stream
-                                                      :receptors {:irc-bridge-in {:role :receiver :params {} }
-                                                                  :irc-bridge-out {:role :deliverer :signal channel->deliver :params {}}
-                                                                  :irc-controller {:role :controller :signal channel->control :params {:host "irc.freenode.net" :port 6667 :user "Eric" :nick "zippy31415"}}}
+                                                      :receptors {irc-bridge-in-def {:role :receiver :params {} }
+                                                                  irc-bridge-out-def {:role :deliverer :signal channel->deliver :params {}}
+                                                                  irc-controller-def {:role :controller :signal channel->control :params {:attributes {:host "irc.freenode.net" :port 6667 :user "Eric" :nick "zippy31415"}}}}
                                                           })
         cc (get-receptor r channel-address)
         [controller-address control-signal] (get-controller cc)
@@ -24,14 +28,23 @@
         irc-idents (get-scape r :irc-ident true)]
     (--> key->set b irc-idents "zippy31415" (address-of eric))
     (--> key->set b irc-idents "#ceptr" (address-of ceptr-channel))
-
+    
+    (fact
+      (receptor-state b false) => (contains {:fingerprint :anansi.streamscapes.channels.irc-controller.irc-controller
+                                             :user "Eric"
+                                             :nick "zippy31415"
+                                             :host "irc.freenode.net"
+                                             :port 6667}))
+    
+    (facts "about restoring serialized receptor"
+      (let [state (receptor-state b true)]
+        state => (receptor-state (receptor-restore state nil) true)
+        ))
     (testing "contents"
       (is (= "Eric" (contents b :user)))
       (is (= "zippy31415" (contents b :nick)))
       (is (= "irc.freenode.net" (contents b :host)))
       (is (= 6667 (contents b :port))))
-    (testing "restore"
-      (is (=  (state cc true) (state (restore (state cc true) nil) true))))
     (comment ;THIS TESTING CODE IS DISABLED BECAUSE I DON"T WANT TO
              ;RUN IT ALL THE TIME.
      testing "logging into irc server, joining a channel and sending a message"

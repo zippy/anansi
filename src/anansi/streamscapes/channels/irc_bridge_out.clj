@@ -9,13 +9,8 @@
 )
   (:use [clj-time.core :only [now]]))
 
-(defmethod manifest :irc-bridge-out [_r {}]
-           {})
-(defmethod state :irc-bridge-out [_r full?]
-           (state-convert _r full?))
-(defmethod restore :irc-bridge-out [state parent]
-           (let [r (do-restore state parent)]
-             r))
+(def irc-bridge-out-def (receptor-def "irc-bridge-out"))
+
 (signal channel deliver [_r _f {droplet-address :droplet-address}]
         (let [
               parent-channel (parent-of _r)

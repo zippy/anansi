@@ -11,8 +11,8 @@
 
 (defn -main
   ([cl-port web-port]
-     (let [h (receptor :host nil)
-           i (receptor :http-host-interface h {:auto-start {:port web-port}})]
+     (let [h (make-receptor host-def nil {})
+           i (make-receptor http-def h {:auto-start {:port web-port}})]
        (println (str "Starting web interface on port " web-port))
        (while true (Thread/sleep 10000))
        ;(launch-web-server web-port)       

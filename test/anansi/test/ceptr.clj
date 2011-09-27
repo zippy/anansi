@@ -1,6 +1,7 @@
 (ns anansi.test.ceptr
   (:use [anansi.ceptr] :reload)
   (:use [anansi.receptor.scape])
+  (:use [midje.sweet])
   (:use [clojure.test]))
 
     (set! *print-level* 6)
@@ -12,10 +13,39 @@
            (dosync (_set-content _r :animated true)
                    _r))
 
-(def r (receptor :test-receptor nil "fish"))
+(comment fact
+  (merge-forms '(fish 1 2 3)) => (throws RuntimeException "unknown receptor form 'fish'"))
+
+(fact
+  ('attributes (merge-forms '(attributes :a :b :c))) => (contains {:args '(:a :b :c)}))
+
+(facts "about validating receptor forms"
+  (validate-forms (merge-forms '(attributes))) => (throws RuntimeException "attributes receptor form requires a list of attributes")
+  (validate-forms (merge-forms '(attributes 1 2 3))) => nil)
+
+(def r-def (receptor-def "test-receptor"
+              (scapes {:name :s1 :relationship {:key :x :address :y}} :s2)
+              (attributes :x)
+              (animate [_r] (dosync (_set-content _r :animated true)
+                                    _r))))
+(facts "about receptor definition"
+  @*definitions* => (contains {:anansi.test.ceptr.test-receptor r-def})
+  (keys r-def) => (just [:fingerprint :attributes :scapes :manifest :animate :state :restore])
+  (:fingerprint r-def) => :anansi.test.ceptr.test-receptor
+  (:scapes r-def) => #{{:name :s1 :relationship {:key :x :address :y}} :s2}
+  (:attributes r-def) => #{:x}
+  (:animate r-def) => fn?)
+
+
+                                        ;(def r (receptor :test-receptor nil "fish"))
+(def r (make-receptor r-def nil {:attributes {:x "fish"}}))
+(fact (rdef r :attributes) => #{:x})
+
 (signal self test-signal [_r _f param]
         (str "from " _f " with param " param ))
 
+(fact (self->test-signal r nil 1)=> "from  with param 1")
+(fact (receptor-state r false) => (contains {:x "fish" :scapes {:s1-scape {:values {}, :relationship {:key :x, :address :y}}, :s2-scape {:values {}, :relationship {:key nil, :address nil}}}}))
 
 (deftest signaling
   (testing "creating a signal"
@@ -30,7 +60,7 @@
 (deftest receptors
   (set! *print-level* 10)
   (testing "contents"
-    (is (= (contents r :x) "the receptor contents: fish"))
+    (is (= (contents r :x) "fish"))
     (set-content r :x "the receptor contents: dog")
     (is (= (contents r :x) "the receptor contents: dog")))
   (testing "instantiate receptor"
@@ -41,26 +71,27 @@
   (testing "destroy receptor"
     (destroy-receptor nil (address-of r))
     (is (= nil (get-receptor nil (address-of r)))))
-  (testing "state"
-    (receptor :test-receptor r "cow")
-    
-    (--> key->set r (get-scape r :s1) :test-key :test-val)
-    (is (= (state r false)
-           {:scapes {:s1-scape {:values  {:test-key :test-val} :relationship {:key :x :address :y}}, :s2-scape {:values {} :relationship {:key nil :address nil}}}, :receptors {:last-address 4, 4 {:scapes {:s1-scape {:values {} :relationship {:key :x :address :y}}, :s2-scape {:values {} :relationship {:key nil :address nil}}}, :receptors {:last-address 3}, :type :test-receptor, :address 4, :changes 4}}, :type :test-receptor, :address 1, :changes 4}))
-    (is (= (state r true)
-           {:scapes-scape-addr 1, :receptors
-            {:last-address 4,
-             4 {:scapes-scape-addr 1, :receptors {:last-address 3, 3 {:relationship {:key nil, :address nil}, :map {}, :type :scape, :address 3, :changes 0}, 2 {:relationship {:key :x, :address :y}, :map {}, :type :scape, :address 2, :changes 0}, 1 {:relationship {:key :scape-name, :address :address}, :map {:s1-scape 2, :s2-scape 3}, :type :scape, :address 1, :changes 2}}, :type :test-receptor, :address 4, :changes 4},
-             3 {:relationship {:key nil, :address nil}, :map {}, :type :scape, :address 3, :changes 0},
-             2 {:relationship {:key :x, :address :y}, :map {:test-key :test-val}, :type :scape, :address 2, :changes 1},
-             1 {:relationship {:key :scape-name, :address :address}, :map {:s1-scape 2, :s2-scape 3}, :type :scape, :address 1, :changes 2}}, :type :test-receptor, :address 1, :changes 4}
-            )))
   
-  (testing "restore"
-    (let [restored (restore (state r true) nil)]
-      (is (= (state r true) (state restored true)))
-      (is (= (state (get-scape r :scapes) true) (state (get-scape restored :scapes) true)))
-      (is (= (state (get-scape r :s1) true) (state (get-scape restored :s1) true))))
+  (--> key->set r (get-scape r :s1) :test-key :test-val)
+  (facts "about getting state information from a receptor"
+    (receptor-state r false) => (contains {:x "the receptor contents: dog"
+                                           :scapes {:s1-scape {:values  {:test-key :test-val} :relationship {:key :x :address :y}}, :s2-scape {:values {} :relationship {:key nil :address nil}}}
+                                           :address 1
+                                           :changes 4
+                                           :fingerprint :anansi.test.ceptr.test-receptor
+                                           :receptors {:last-address 3}})
+    (receptor-state r true) => (contains {:x "the receptor contents: dog"
+                                          :scapes-scape-addr 1
+                                          :address 1
+                                          :changes 4
+                                          :fingerprint :anansi.test.ceptr.test-receptor
+                                          :receptors {:last-address 3, 3 {:relationship {:key nil, :address nil}, :map {}, :fingerprint :anansi.receptor.scape.scape, :address 3, :changes 0}, 2 {:relationship {:key :x, :address :y}, :map {:test-key :test-val}, :fingerprint :anansi.receptor.scape.scape, :address 2, :changes 1}, 1 {:relationship {:key :scape-name, :address :address}, :map {:s1-scape 2, :s2-scape 3}, :fingerprint :anansi.receptor.scape.scape, :address 1, :changes 2}}})
+    )
+  (facts "about restoring receptors from state data"
+    (let [restored (receptor-restore (receptor-state r true) nil)]
+      (receptor-state r true) => (receptor-state restored true)
+      (receptor-state (get-scape r :scapes) true) => (receptor-state (get-scape restored :scapes) true)
+      (receptor-state (get-scape r :s1) true) => (receptor-state (get-scape restored :s1) true))
     )
   (testing "serialization"
     (let [s (serialize-receptors *receptors*)
@@ -75,3 +106,11 @@
           b (receptor :b r)
           b1 (receptor :b r)]
       (is (= a (first (find-receptors r (fn [_r] (= :a (:type @_r))))))))))
+
+(def r2 (receptor-def "r2" (attributes :data :_password)))
+(facts "about receptors with private attributes"
+  (let [r (make-receptor r2 nil {:attributes {:data "fish" :_password "secret"}})]
+    (receptor-state r true) => (contains {:data "fish" :_password "secret"})
+    (contains? (receptor-state r false) :_password) => false
+    )
+  )

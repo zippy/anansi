@@ -9,12 +9,11 @@
         [anansi.libs.sha :only [sha]])
   (:use [clj-time.core :only [now]]))
 
-(defmethod manifest :host [_r]
-           (make-scapes _r {}
-                        {:name :room :relationship {:key :name :address :address}}
-                        {:name :user :relationship {:key :name :address :address}}
-                        {:name :stream :relationship {:key :name :address :address}}
-                        {:name :session :relationship {:key :sha :address :user-addr-time-interface-map}}))
+(def host-def (receptor-def "host" (scapes
+                                    {:name :room :relationship {:key :name :address :address}}
+                                    {:name :user :relationship {:key :name :address :address}}
+                                    {:name :stream :relationship {:key :name :address :address}}
+                                    {:name :session :relationship {:key :sha :address :user-addr-time-interface-map}})))
 
 (defn resolve-name [_r user]
   "resolve a username to it's receptor address"
@@ -34,7 +33,7 @@
 (signal self host-streamscape [_r _f {receptor-name :name password :password matrice-address :matrice-address data :data}]
         (rsync _r
          (let [names (get-scape _r :stream)
-               r (receptor :streamscapes _r matrice-address password data) ;;(make-receptor type _r args)
+               r (make-receptor streamscapes-def _r {:matrice-addr matrice-address :attributes {:_password  password :data data}}) ;;(make-receptor type _r args)
                addr (address-of r)]
            (--> key->set _r names receptor-name addr)
            addr)))
@@ -42,7 +41,7 @@
         (rsync _r
          (let [names (get-scape _r :user)
                existing-addr (--> key->resolve _r names receptor-name)
-               addr (if existing-addr existing-addr (address-of (receptor :user _r receptor-name nil))) ;; (make-receptor type _r args)                
+               addr (if existing-addr existing-addr (address-of (make-receptor user-def _r receptor-name))) ;; (make-receptor type _r args)                
                ]
            (--> key->set _r names receptor-name addr)
            addr)))
@@ -62,7 +61,7 @@
         (rsync _r
                (let [sessions (get-scape _r :session)
                      time (now)
-                     iface (:type @(get-receptor _r _f))
+                     iface (rdef (get-receptor _r _f) :fingerprint)
                      s (sha (str time "-" iface))
                      user-address (resolve-name _r user)
                      ]
@@ -74,7 +73,7 @@
         (if (resolve-name _r user)
           (throw (RuntimeException. (str "username '" user "' in use"))))
         (rsync _r
-               (let [addr (address-of (receptor :user _r user nil))]
+               (let [addr (address-of (make-receptor user-def _r user))]
                  (--> key->set _r (get-scape _r :user) user addr)
                  addr))
         )
@@ -83,7 +82,7 @@
         (let [receptor (if (= 0 receptor-address) _r (get-receptor _r receptor-address))]
           (if (nil? receptor)
             (throw (RuntimeException. (str "unknown receptor: " receptor-address))))
-          (state receptor false)))
+          (receptor-state receptor false)))
 
 (signal ceptr ping [_r _f _]
         (str "Hi " _f "! This is the host."))

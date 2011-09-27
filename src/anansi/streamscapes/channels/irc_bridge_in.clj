@@ -8,13 +8,7 @@
         [anansi.streamscapes.channel])
   (:use [clj-time.core :only [now]]))
 
-(defmethod manifest :irc-bridge-in [_r {}]
-           {})
-(defmethod state :irc-bridge-in [_r full?]
-           (state-convert _r full?))
-(defmethod restore :irc-bridge-in [state parent]
-           (let [r (do-restore state parent)]
-             r))
+(def irc-bridge-in-def (receptor-def "irc-bridge-in"))
 
 (defn handle-message [_r msg]
   "process an IRC message"

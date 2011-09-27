@@ -52,19 +52,10 @@
   (write conn (str "NICK " nick))
   (write conn (str "USER " nick " 0 * :" user)))
 
-(let [attributes #{:host :port :user :nick}]
+(def irc-controller-def (receptor-def "irc-controller"
+                                      (attributes :host :port :user :nick)))
 
-  (defmethod manifest :irc-controller [_r params]
-             (into {} (map (fn [a] [a (a params)]) attributes)))
-  (defmethod state :irc-controller [_r full?]
-             (merge (state-convert _r full?)
-                    (into {} (map (fn [a] [a (contents _r a)]) attributes))))
-  (defmethod restore :irc-controller [state parent]
-             (let [r (do-restore state parent)]
-               (doall (map (fn [a] (restore-content r a (a state))) attributes))
-               r))
-
-  (signal channel control [_r _f control-params]
+(signal channel control [_r _f control-params]
           (let [{command :command params :params} control-params]
             (condp = command
                 :status (let [conn (:irc-connection @_r)]
@@ -81,4 +72,4 @@
                            (dosync (alter _r dissoc :irc-connection))
                            )
                 :msg (write (:irc-connection @_r) (str "PRIVMSG " (:to params) " :" (:message params)))
-              (throw (RuntimeException. (str "Unknown control command: " command)))))))
+              (throw (RuntimeException. (str "Unknown control command: " command))))))

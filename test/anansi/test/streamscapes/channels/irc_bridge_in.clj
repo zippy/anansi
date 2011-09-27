@@ -1,26 +1,34 @@
 (ns anansi.test.streamscapes.channels.irc-bridge-in
   (:use [anansi.streamscapes.channels.irc-bridge-in] :reload)
-  (:use [anansi.streamscapes.channel])
-  (:use [anansi.ceptr])
-  (:use [anansi.receptor.scape])
-  (:use [anansi.streamscapes.streamscapes])
+  (:use [anansi.ceptr]
+        [anansi.receptor.scape]
+        [anansi.receptor.user :only [user-def]]
+        [anansi.streamscapes.streamscapes]
+        [anansi.streamscapes.channel :only [channel-def]]
+        [anansi.streamscapes.ident :only [ident-def]])
+  (:use [midje.sweet])
   (:use [clojure.test]))
 
 (deftest irc-bridge-in
-  (let [m (receptor :user nil "eric" nil)
-        r (receptor :streamscapes nil (address-of m) "password" {:datax "x"})
-        eric (receptor :ident r {:name "Eric"})
-        art (receptor :ident r {:name "Art"})
-        ceptr-channel (receptor :ident r {:name "ceptr-channel"})
-        cc (receptor :channel r :irc-stream)
-        b (receptor :irc-bridge-in cc {})
+  (let [m (make-receptor user-def nil "eric")
+        r (make-receptor streamscapes-def nil {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
+        eric (make-receptor ident-def r {:attributes {:name "Eric"}})
+        art (make-receptor ident-def r {:attributes {:name "Art"}})
+        ceptr-channel (make-receptor ident-def r {:attributes {:name "ceptr-channel"}})
+        cc (make-receptor channel-def r {:attributes {:name :irc-stream}})
+        b (make-receptor irc-bridge-in-def cc {})
         irc-idents (get-scape r :irc-ident true)]
     (--> key->set b irc-idents "zippy" (address-of eric))
     (--> key->set b irc-idents "art" (address-of art))
     (--> key->set b irc-idents "#ceptr" (address-of ceptr-channel))
-    ;    (testing "contents" )
-    (testing "restore"
-      (is (=  (state cc true) (state (restore (state cc true) nil) true))))
+
+    (fact
+      (receptor-state b false) => (contains {:fingerprint :anansi.streamscapes.channels.irc-bridge-in.irc-bridge-in}))
+    
+    (facts "about restoring serialized receptor"
+      (let [state (receptor-state b true)]
+        state => (receptor-state (receptor-restore state nil) true)
+        ))
     
     (testing "internal functions: handle-message (message to channel)"
       (let [message ":zippy!zippy@72-13-84-243.somedomain.com PRIVMSG #ceptr :This is a dumb question but..."

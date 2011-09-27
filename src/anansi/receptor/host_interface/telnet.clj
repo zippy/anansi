@@ -10,13 +10,7 @@
   (:use [clojure.java.io :only [reader writer]]
         [clojure.contrib.server-socket :only [create-server close-server]]))
 
-(defmethod manifest :telnet-host-interface [_r {}]
-           {:server nil})
-(defmethod state :telnet-host-interface [_r full?]
-           (state-convert _r full?))
-(defmethod restore :telnet-host-interface [state parent]
-           (let [r (do-restore state parent)]
-             r))
+(def telnet-def (receptor-def "telnet" (manifest [_r {}] {:server nil})))
 
 (def *done*)
 (def *user*)

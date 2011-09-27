@@ -72,6 +72,10 @@
 
 (defn make-ss [] (send-signal {:to 0 :prefix "receptor.host" :aspect "self" :signal "host-streamscape" :params {:name "zippy" :matrice-address 7}}))
 
+(defn make-irc-channel []
+  (send-signal {:to 8 :prefix "streamscapes.streamscapes" :aspect "setup" :signal "new-channel"
+                :params {:type :irc, :name :freenode, :host "irc.freenode.net", :port 6667, :user "Eric", :nick "zippy31415"}}))
+
 (defn build-receptor-contents [r]
   (u/clj->json r))
 
@@ -104,7 +108,7 @@
     (debug/log (str "State:" (u/clj->json result)))
     (tdom/remove-children :the-receptor
                            )
-    (dom/append relem (tdom/element "h2" (str "Receptor: " (name (:type result)) " @ " (:address result))))
+    (dom/append relem (tdom/element "h2" (str "Receptor: " (name (:fingerprint result)) " @ " (:address result))))
     (let [scapes (:scapes result)
           receptors (:receptors result)
           ]
@@ -115,7 +119,7 @@
                                                  ]
                                              {:title (build-scape-title n s) :content (build-scape-contents s)})) scapes))
               x (comment into  [] (map (fn [[raddr r]]
-                                         (let [rtype (:type r)]
+                                         (let [rtype (:fingerprint r)]
                                            {:title (str rtype "@" (name raddr)) :content (build-receptor-contents r)})) (filter (fn [[k v]] (not= k :last-address)) receptors)
                                            ))
               ]
@@ -130,7 +134,7 @@
           (doseq [[r-addr r] (filter (fn [[k v]] (not= k :last-address)) (:receptors result))]
             (let [raddr (name r-addr)
                   html-id (keyword (str "r-" raddr))]
-              (add-receptor-button (dom/get-element :receptors) raddr (str (:type r) "@" raddr))
+              (add-receptor-button (dom/get-element :receptors) raddr (str (:fingerprint r) "@" raddr))
               )
             ))))))
 

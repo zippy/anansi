@@ -37,28 +37,17 @@
                    ))
                (finally (cleanup))))))
     )) 
+(def socket-controller-def (receptor-def "socket-controller" (attributes :port :input-function)))
 
-(let [attributes #{:port :input-function}]
-
-  (defmethod manifest :socket-controller [_r params]
-             (into {} (map (fn [a] [a (a params)]) attributes)))
-  (defmethod state :socket-controller [_r full?]
-             (merge (state-convert _r full?)
-                    (into {} (map (fn [a] [a (contents _r a)]) attributes))))
-  (defmethod restore :socket-controller [state parent]
-             (let [r (do-restore state parent)]
-               (doall (map (fn [a] (restore-content r a (a state))) attributes))
-               r))
-
-  (signal channel control [_r _f control-params]
-          (let [{command :command params :params} control-params]
-            (condp = command
-                :status (let [listener (:socket @_r)]
-                          (if (nil? listener) :closed :open))
-                :open (let [listener (create-server (Integer. (contents _r :port))
-                                                    (make-handle-connection _r))]
-                        (dosync (alter _r assoc :socket listener)))
-                :close (do (close-server (:socket @_r))
-                           (dosync (alter _r dissoc :socket))
-                           )
-              (throw (RuntimeException. (str "Unknown control command: " command)))))))
+(signal channel control [_r _f control-params]
+        (let [{command :command params :params} control-params]
+          (condp = command
+              :status (let [listener (:socket @_r)]
+                        (if (nil? listener) :closed :open))
+              :open (let [listener (create-server (Integer. (contents _r :port))
+                                                  (make-handle-connection _r))]
+                      (dosync (alter _r assoc :socket listener)))
+              :close (do (close-server (:socket @_r))
+                         (dosync (alter _r dissoc :socket))
+                         )
+              (throw (RuntimeException. (str "Unknown control command: " command))))))

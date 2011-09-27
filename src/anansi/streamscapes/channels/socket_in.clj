@@ -8,13 +8,7 @@
         [anansi.streamscapes.channel])
   (:use [clj-time.core :only [now]]))
 
-(defmethod manifest :socket-in [_r {}]
-           {})
-(defmethod state :socket-in [_r full?]
-           (state-convert _r full?))
-(defmethod restore :socket-in [state parent]
-           (let [r (do-restore state parent)]
-             r))
+(def socket-in-def (receptor-def "socket-in"))
 
 (defn handle-message [_r message]
   "process socket input"

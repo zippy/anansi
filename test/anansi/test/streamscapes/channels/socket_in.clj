@@ -1,22 +1,27 @@
 (ns anansi.test.streamscapes.channels.socket-in
   (:use [anansi.streamscapes.channels.socket-in] :reload)
-  (:use [anansi.streamscapes.channel])
-  (:use [anansi.ceptr])
-  (:use [anansi.receptor.scape])
-  (:use [anansi.streamscapes.streamscapes])
+  (:use [anansi.ceptr]
+        [anansi.receptor.scape]
+        [anansi.receptor.user :only [user-def]]
+        [anansi.streamscapes.streamscapes]
+        [anansi.streamscapes.channel :only [channel-def]]
+        [anansi.streamscapes.ident :only [ident-def]])
+  (:use [midje.sweet])
   (:use [clojure.test]))
 
 (deftest socket-in
-  (let [m (receptor :user nil "eric" nil)
+  (let [m (make-receptor user-def nil "eric")
         r (receptor :streamscapes nil (address-of m) "password" {:datax "x"})
-        eric (receptor :ident r {:name "Eric"})
-        cc (receptor :channel r :socket-stream)
-        b (receptor :socket-in cc {})
+        eric (make-receptor ident-def r {:attributes {:name "Eric"}})
+        cc (make-receptor channel-def r {:attributes {:name :socket-stream}})
+        b (make-receptor socket-in-def cc {})
         ip-idents (get-scape r :ip-ident true)]
     (--> key->set b ip-idents "127.0.0.0" (address-of eric))
-    ;    (testing "contents" )
-    (testing "restore"
-      (is (=  (state cc true) (state (restore (state cc true) nil) true))))
+
+    (facts "about restoring serialized receptor"
+      (let [state (receptor-state b true)]
+        state => (receptor-state (receptor-restore state nil) true)
+        ))
     
     (testing "internal functions: handle-message"
       (let [message "some message"

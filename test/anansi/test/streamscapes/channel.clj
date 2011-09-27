@@ -3,7 +3,9 @@
   (:use [anansi.streamscapes.channel] :reload)
   (:use [anansi.ceptr]
         [anansi.streamscapes.streamscapes]
-        [anansi.receptor.scape])
+        [anansi.receptor.scape]
+        [anansi.receptor.user :only [user-def]])
+  (:use [midje.sweet])
   (:use [clojure.test])
   (:use [clj-time.core :only [now]]))
 
@@ -15,11 +17,13 @@
         error)
 
 (deftest channel
-  (let [m (receptor :user nil "eric" nil)
+  (let [m (make-receptor user-def nil "eric")
         r (receptor :streamscapes nil (address-of m) "password" {:datax "x"})
-        cc (receptor :channel r :email-stream)]
-    (testing "contents"
-      (is (= :email-stream (contents cc :name))))
+        cc (make-receptor channel-def r { :attributes {:name :email-stream}})]
+    (fact (receptor-state cc false) => (contains {:name :email-stream
+                                                  :fingerprint :anansi.streamscapes.channel.channel
+                                                  :scapes {:controller-scape {:values {}, :relationship {:key nil, :address nil}}, :deliverer-scape {:values {}, :relationship {:key nil, :address nil}}, :receiver-scape {:values {}, :relationship {:key nil, :address nil}}}
+                                                  }))
 
     (testing "receive"
       (let [droplet-address (s-> stream->receive cc {:id "some-id" :to "to-addr" :from "from-addr" :envelope {:from "rfc-822-email" :subject "text/plain" :body "text/html"} :content {:from "test@example.com" :subject "Hi there!" :body "<b>Hello world!</b>"}})
@@ -32,7 +36,7 @@
         (is (= {:from "test@example.com" :subject "Hi there!" :body "<b>Hello world!</b>"} (contents d :content)))))
 
     (testing "send"
-      (let [b (receptor :test-send-bridge-email cc {})
+      (let [b (make-receptor (receptor-def "test-send-bridge-email") cc {})
             
             _ (s-> key->set (get-scape cc :deliverer) :deliverer [(address-of b) channel->deliver])
             i-to (s-> matrice->identify r {:identifiers {:email "eric@example.com"} :attributes {:name "Eric"}})
@@ -48,6 +52,11 @@
           (is (= aspect :email-stream))
           (is (= (subs (str (now)) 0 19) (subs time 0 19))) ; hack off the milliseconds
           )))
-
+    
+    (facts "about restoring serialized channel receptor"
+      (let [channel-state (receptor-state cc true)]
+        channel-state => (receptor-state (receptor-restore channel-state nil) true)
+        )
+      )
     (testing "restore"
-      (is (=  (state cc true) (state (restore (state cc true) nil) true))))))
+      (is (=  (receptor-state cc true) (receptor-state (receptor-restore (receptor-state cc true) nil) true))))))

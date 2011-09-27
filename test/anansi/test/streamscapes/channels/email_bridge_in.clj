@@ -1,9 +1,12 @@
 (ns anansi.test.streamscapes.channels.email-bridge-in
   (:use [anansi.streamscapes.channels.email-bridge-in] :reload)
-  (:use [anansi.streamscapes.channel])
-  (:use [anansi.ceptr])
-  (:use [anansi.receptor.scape])
-  (:use [anansi.streamscapes.streamscapes])
+  (:use [anansi.ceptr]
+        [anansi.receptor.scape]
+        [anansi.streamscapes.streamscapes]
+        [anansi.streamscapes.channel :only [channel-def]]
+        [anansi.streamscapes.ident :only [ident-def]]
+        [anansi.receptor.user :only [user-def]])
+  (:use [midje.sweet])
   (:use [clojure.test]))
 
 (defn create-java-email-message [{to :to from :from subject :subject body :body}]
@@ -18,18 +21,25 @@
   )
 
 (deftest email-bridge-in
-  (let [m (receptor :user nil "eric" nil)
-        r (receptor :streamscapes nil (address-of m) "password" {:datax "x"})
-        eric (receptor :ident r {:name "Eric"})
-        cc (receptor :channel r :email-stream)
-        b (receptor :email-bridge-in cc {:host "mail.example.com" :account "someuser" :password "pass" :protocol "pop3"})
+  (let [m (make-receptor user-def nil "eric")
+        r (make-receptor streamscapes-def nil {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
+        eric (make-receptor ident-def r {:attributes {:name "Eric"}})
+        cc (make-receptor channel-def r {:attributes {:name :email-stream}})
+        b (make-receptor email-bridge-in-def cc {:attributes {:host "mail.example.com" :account "someuser" :password "pass" :protocol "pop3"}})
         email-idents (get-scape r :email-ident true)]
     (--> key->set b email-idents "eric@example.com" (address-of eric))
+
+    (fact
+      (receptor-state b false) => (contains {:host "mail.example.com" :account "someuser" :password "pass" :protocol "pop3"}))
     (testing "contents"
       (is (= "mail.example.com" (contents b :host)))
           )
-    (testing "restore"
-      (is (=  (state cc true) (state (restore (state cc true) nil) true))))
+
+    (facts "about restoring serialized receptor"
+      (let [state (receptor-state b true)]
+        state => (receptor-state (receptor-restore state nil) true)
+        ))
+    
     (testing "internal functionss: pull-messages"
       ;; testing this requires spoofing an e-mail server for the java mail stuff, so it's not done.
       )
@@ -46,5 +56,5 @@
         (is (= {:from "test@example.com" :subject "Hi there!" :body "<b>Hello world!</b>"} (contents d :content)))
         (is (= droplet-address (handle-message b message)))
         )
-      )
-    ))
+      ))
+)

@@ -2,6 +2,7 @@
   (:use [anansi.receptor.host-interface.http] :reload)
   (:use [anansi.ceptr]
         [anansi.receptor.host])
+  (:use [midje.sweet])
   (:use [clojure.test]
         [clojure.contrib.io :only [writer]]
         [aleph.http]
@@ -18,8 +19,8 @@
   )
 (deftest http-interface
   
-  (let [h (receptor :host nil)
-        r (receptor :http-host-interface h {})
+  (let [h (make-receptor host-def nil {})
+        r (make-receptor http-def h {})
         z-addr (s-> self->host-user h "zippy")]
     (testing "starting interface"
       (is (thrown-with-msg? RuntimeException #"Server not started."
@@ -54,7 +55,8 @@
       (is (thrown-with-msg? java.net.ConnectException #"Connection refused" (api-req "some-command" {:x 1})))
       )
     (testing "autostart"
-      (let [asr (receptor :http-host-interface h {:auto-start {:port 12345}})]
+      (let [asr (make-receptor http-def h {:auto-start {:port 12345}})]
+        (fact (receptor-state asr false) => (contains {:auto-start {:port 12345}, :fingerprint :anansi.receptor.host-interface.http.http}))
         (is (thrown-with-msg? RuntimeException #"Server already started."
               (--> interface->start h asr {:port 12345})))
         (--> interface->stop h asr))

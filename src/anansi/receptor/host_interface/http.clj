@@ -20,22 +20,15 @@
         [clojure.walk :only [keywordize-keys]])
   )
 
-(let [attributes #{:auto-start}]
-
-  (defmethod manifest :http-host-interface [_r params]
-             (into {:server nil} (map (fn [a] [a (a params)]) attributes)))
-  (defmethod state :http-host-interface [_r full?]
-             (merge (state-convert _r full?)
-                    (into {} (map (fn [a] [a (contents _r a)]) attributes))))
-  (defmethod restore :http-host-interface [state parent]
-             (let [r (do-restore state parent)]
-               (doall (map (fn [a] (restore-content r a (a state))) attributes))
-               r))
-  )
 (declare interface->start)
-(defmethod animate :http-host-interface [_r]
-           (let [auto-start (contents _r :auto-start)]
-             (if auto-start (s-> interface->start _r auto-start))))
+(def http-def (receptor-def "http"
+                            (attributes :auto-start)
+                            (manifest [_r attrs]
+                                      (merge {:server nil} (extract-receptor-attributes-from-map _r attrs)))
+                            (animate [_r]
+                                     (let [auto-start (contents _r :auto-start)]
+                                       (if auto-start (s-> interface->start _r auto-start)))
+                                     )))
 
 (defn welcome [request]
   {:status 200
@@ -55,10 +48,19 @@
      :body {:status :error :result (.getMessage e)} })
   )
 
+(defn mime-type [f]
+  (condp =  (last (clojure.string/split (.getName f) #"\."))
+      "css" "text/css"
+      "js" "application/javascript"
+      "html" "text/html"
+      "text/plain")
+  )
+
 (defn file-handler [request]
   (try
-    (if-let [file (file-response (str "public" (:uri request)))]
-      file
+    (if-let [file (file-response (str "public" (:uri request)))
+             ]
+      (assoc file :headers {"content-type" (mime-type (:body file))})
       file-not-found
       )
     (catch Exception e

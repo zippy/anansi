@@ -5,19 +5,23 @@
   (:use [anansi.ceptr])
   (:use [anansi.map-utilities]))
 
-(defmethod manifest :scape [_r & [key addr]]
-           {:map (ref (sorted-map))
-            :relationship {:key key :address addr}} )
-
-(defmethod state :scape [_r full?]
-           (assoc (state-convert _r full?)
-             :map @(contents _r :map)
-             :relationship (contents _r :relationship)))
-(defmethod restore :scape [state parent]
-           (let [r (do-restore state parent)]
-             (restore-content r :map (ref (:map state)))
-             (restore-content r :relationship (:relationship state))
-             r))
+(def scape-def
+     (receptor-def "scape"
+                   (manifest [_r & [key addr]]
+                             {:map (ref (sorted-map))
+                              :relationship {:key key :address addr}}
+                             )
+                   (state [_r full?]
+                          (assoc (state-convert _r full?)
+                            :map @(contents _r :map)
+                            :relationship (contents _r :relationship))
+                          )
+                   (restore [state parent r-def]
+                            (let [r (do-restore state parent r-def)]
+                              (restore-content r :map (ref (:map state)))
+                              (restore-content r :relationship (:relationship state))
+                              r))
+                   ))
 
 ;; Signals on the key aspect
 (signal key set [_r _f key value]
@@ -59,9 +63,9 @@
 (defn make-scapes
   "instantiate a scape (utility function for building the manifests)"
   [_r manifest & scapes]
-  (let [ss (receptor :scape _r :scape-name :address)
+  (let [ss (make-receptor scape-def _r :scape-name :address)
         m  (into manifest (map (fn [def] (let [{scape-name :name {key-rel :key addr-rel :address} :relationship} (build-scape-def def)
-                                            s (receptor :scape _r key-rel addr-rel)]
+                                            s (make-receptor scape-def _r key-rel addr-rel)]
                                   (--> key->set _r ss scape-name (address-of s))
                                   [scape-name s])) scapes))
         ]
@@ -74,7 +78,7 @@
   [_r scape-name]
   (if (nil? (_get-scape _r scape-name))
     (rsync _r
-           (let [s (receptor :scape _r)
+           (let [s (make-receptor scape-def _r)
                  key (scapify scape-name)
                  ss (get-scape _r :scapes)]
              (--> key->set _r ss key (address-of s))

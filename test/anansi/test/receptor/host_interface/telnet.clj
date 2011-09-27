@@ -25,7 +25,7 @@ Returns a two item vector of a writable stream that is a client, and the output 
                                       *signals* (ref sigs)
                                       *err* (java.io.PrintWriter. (writer "/dev/null"))
                                       ]
-                              (receptor :host nil)
+                              (make-receptor host-def nil {})
                               (connection-function r out)))
            ]
        (doto thread  .start)
@@ -43,8 +43,8 @@ Returns a two item vector of a writable stream that is a client, and the output 
 
 (deftest telnet-interface
   
-  (let [h (receptor :host nil)
-        r (receptor :telnet-host-interface h {})]
+  (let [h (make-receptor host-def nil {})
+        r (make-receptor telnet-def h {})]
     (testing "server"
       (is (thrown-with-msg? RuntimeException #"Server not started."
             (--> interface->stop h r)))

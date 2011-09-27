@@ -7,17 +7,10 @@
         [anansi.receptor.scape])
   (:use [clj-time.core :only [now]]))
 
-(defmethod manifest :channel [_r name]
-           (make-scapes _r {:name name} :deliverer :receiver :controller)
-           )
-(defmethod state :channel [_r full?]
-           (assoc (state-convert _r full?)
-             :name (contents _r :name)
-             ))
-(defmethod restore :channel [state parent]
-           (let [r (do-restore state parent)]
-             (restore-content r :name (:name state))
-             r))
+(def channel-def (receptor-def "channel"
+                               (attributes :name)
+                               (scapes :deliverer :receiver :controller)
+                               ))
 
 (defn get-channel-receptor [_r name]
   (--> key->resolve _r (get-scape _r name) name))

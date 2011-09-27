@@ -2,35 +2,37 @@
   (:use [anansi.streamscapes.channels.local-bridge-out] :reload)
   (:use [anansi.ceptr]
         [anansi.receptor.scape]
-        [anansi.streamscapes.channel]
+        [anansi.receptor.user :only [user-def]]
         [anansi.streamscapes.streamscapes]
+        [anansi.streamscapes.channel :only [channel-def stream->send]]
         [anansi.streamscapes.channels.local-bridge-in]
         )
   (:use [clojure.test])
+  (:use [midje.sweet])
   (:use [clj-time.core :only [now]]))
 
 (deftest local-bridge-out
-  (let [m (receptor :user nil "eric" nil)
-        r (receptor :streamscapes nil (address-of m) "password" {:datax "x"})
+  (let [m (make-receptor user-def nil "eric")
+        r (make-receptor streamscapes-def nil {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
         c-out-addr (s-> matrice->make-channel r {:name :local-stream
-                                                 :receptors { :local-bridge-out {:role :deliverer :signal channel->deliver :params {}}}
+                                                 :receptors {local-bridge-out-def {:role :deliverer :signal channel->deliver :params {}}}
                                                  })
         c-out (get-receptor r c-out-addr)
         eric-ss-addr (address-of r)
-        
-        u (receptor :user nil "zippy" nil)
-        ru (receptor :streamscapes nil (address-of u) "password" {:datax "x"})
+        u (make-receptor user-def nil "zippy")
+        ru (make-receptor streamscapes-def nil {:matrice-addr (address-of u) :attributes {:_password "password" :data {:datax "x"}}})
         c-in-addr (s-> matrice->make-channel ru {:name :local-stream
-                                                 :receptors {:local-bridge-in {:role :receiver :signal cheat->receive :params {}}}
+                                                 :receptors {local-bridge-in-def {:role :receiver :signal cheat->receive :params {}}}
                                                  })
-
         zippy-ss-addr (address-of ru)
         [b-out-addr _] (s-> key->resolve (get-scape c-out :deliverer) :deliverer)
         b-out (get-receptor c-out b-out-addr)
         ]
-    
-    (testing "restore"
-      (is (=  (state b-out true) (state (restore (state b-out true) nil) true))))
+    (facts "about restoring serialized receptor"
+      (let [state (receptor-state b-out true)]
+        state => (receptor-state (receptor-restore state nil) true)
+        ))
+
     (testing "sending locally"
       (let [zippy-droplet-ids (get-scape ru :id)]
         (is (= (count (s-> key->all zippy-droplet-ids)) 0))

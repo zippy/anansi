@@ -7,26 +7,8 @@
         [anansi.streamscapes.streamscapes]
         [anansi.streamscapes.channel]))
 
-(defmethod manifest :email-bridge-out [_r {host :host account :account password :password protocol :protocol port :port}]
-           {:host host :account account :password password :protocol protocol :port port})
-
-(defmethod state :email-bridge-out [_r full?]
-           (assoc (state-convert _r full?)
-             :host (contents _r :host)
-             :account (contents _r :account)
-             :password (contents _r :password)
-             :protocol (contents _r :protocol)
-             :port (contents _r :port)
-             ))
-
-(defmethod restore :email-bridge-out [state parent]
-           (let [r (do-restore state parent)]
-             (restore-content r :host (:host state))
-             (restore-content r :account (:account state))
-             (restore-content r :password (:password state))
-             (restore-content r :protocol (:protocol state))
-             (restore-content r :port (:port state))
-             r))
+(def email-bridge-out-def (receptor-def "email-bridge-out"
+                          (attributes :host :account :password :protocol :port)))
 
 (signal channel deliver [_r _f {droplet-address :droplet-address}] 
         (let [

@@ -13,8 +13,8 @@
     <!--[if lt IE 9]>
         <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
         <![endif]-->
-    <link rel="stylesheet" href="css/test.css">
-    <link rel="stylesheet" href="css/dialog.css">
+    <link rel="stylesheet" href="css/test.css" type="text/css">
+    <link rel="stylesheet" href="css/dialog.css" type="text/css">
     <style>
       .modal-dialog {
       width: 430px;
@@ -37,6 +37,7 @@
 <button onclick="alert(test.core.session)"> Session? </button>
 <button onclick="test.core.ping()"> Ping </button>
 <button onclick="test.core.make_ss()"> Make SS </button>
+<button onclick="test.core.make_irc_channel()"> Make IRC </button>
 <button onclick="test.core.get_state(0)"> Get State </button>
 
 <div id="session"></div>

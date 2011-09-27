@@ -7,14 +7,7 @@
         [anansi.streamscapes.streamscapes]
         [anansi.streamscapes.channel]))
 
-(defmethod manifest :local-bridge-in [_r params]
-           {})
-(defmethod state :local-bridge-in [_r full?]
-           (state-convert _r full?))
-(defmethod restore :local-bridge-in [state parent]
-           (let [r (do-restore state parent)]
-             r))
-
+(def local-bridge-in-def (receptor-def "local-bridge-in"))
 
 (defn handle-message [_r message]
   "process a locally received message: do  look-up to see if we've already created a droplet for this id, and also map the streamscapes-id to/from addresses into identities."

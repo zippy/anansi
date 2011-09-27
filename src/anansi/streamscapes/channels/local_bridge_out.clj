@@ -7,13 +7,7 @@
         [anansi.streamscapes.streamscapes]
         [anansi.streamscapes.channel]))
 
-(defmethod manifest :local-bridge-out [_r params]
-           {})
-(defmethod state :local-bridge-out [_r full?]
-          (state-convert _r full?))
-(defmethod restore :local-bridge-out [state parent]
-  (let [r (do-restore state parent)]
-    r))
+(def local-bridge-out-def (receptor-def "local-bridge-out"))
 
 (signal channel deliver [_r _f {droplet-address :droplet-address}] 
         (let [cc (parent-of _r)

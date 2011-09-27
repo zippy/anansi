@@ -7,23 +7,8 @@
         [anansi.streamscapes.streamscapes]
         [anansi.streamscapes.channel]))
 
-(defmethod manifest :email-bridge-in [_r {host :host account :account password :password protocol :protocol}]
-           {:host host :account account :password password :protocol protocol})
-(defmethod state :email-bridge-in [_r full?]
-           (assoc (state-convert _r full?)
-             :host (contents _r :host)
-             :account (contents _r :account)
-             :password (contents _r :password)
-             :protocol (contents _r :protocol)
-             ))
-(defmethod restore :email-bridge-in [state parent]
-           (let [r (do-restore state parent)]
-             (restore-content r :host (:host state))
-             (restore-content r :account (:account state))
-             (restore-content r :password (:password state))
-             (restore-content r :protocol (:protocol state))
-             r))
-
+(def email-bridge-in-def (receptor-def "email-bridge-in"
+                          (attributes :host :account :password :protocol)))
 
 (defn handle-message [_r message]
   "process an e-mail: do  look-up to see if we've already created a droplet for this id, and also map the email to/from addresses into identities."
@@ -45,10 +30,7 @@
                         :subject (.getSubject message)
                         :body (.getContent message)}}))
       (first da)
-      )
-    )
-  
-  )
+      )))
 
 (defn pull-messages [_r]
   (let [props (java.util.Properties.)
