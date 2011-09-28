@@ -17,18 +17,21 @@
 
   (set! *print-level* 6)
 (let [m (make-receptor user-def nil "eric")
-        u (make-receptor user-def nil "zippy")
-        r (make-receptor streamscapes-def nil {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
-        aspects (get-scape r :aspect)
-        ids (get-scape r :id)
-        ] 
+      u (make-receptor user-def nil "zippy")
+      r (make-receptor streamscapes-def nil {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
+      droplet-channels (get-scape r :droplet-channel)
+      channels (get-scape r :channel)
+      ids (get-scape r :id)
+      ] 
   (facts "scaping relationships"
-    (scape-relationship (get-scape r :delivery) :key) => :streamscapes-aspect-time-map
+    (scape-relationship (get-scape r :channel) :key) => :name
+    (scape-relationship (get-scape r :channel) :address) => :address
+    (scape-relationship (get-scape r :delivery) :key) => :streamscapes-channel-time-map
     (scape-relationship (get-scape r :delivery) :address) => :address
     (scape-relationship (get-scape r :id) :key) => :address
     (scape-relationship (get-scape r :id) :address) => :streamscapes-channel-address
-    (scape-relationship (get-scape r :aspect) :key) => :address
-    (scape-relationship (get-scape r :aspect) :address) => :streamscapes-aspect)
+    (scape-relationship droplet-channels :key) => :address
+    (scape-relationship droplet-channels :address) => :streamscapes-channel)
 
   (deftest streamscapes
     (testing "initialization"
@@ -57,24 +60,24 @@
         )
       )
     (testing "droplets"
-      (let [droplet-address (s-> matrice->incorporate r {:id "some-unique-id" :from "from-addr" :to "to-addr" :aspect :some-aspect :envelope {:part1 "address of part1 grammar"} :content {:part1 "part1 content"}})
+      (let [droplet-address (s-> matrice->incorporate r {:id "some-unique-id" :from "from-addr" :to "to-addr" :channel :some-channel :envelope {:part1 "address of part1 grammar"} :content {:part1 "part1 content"}})
             d (get-receptor r droplet-address)]
         (are [x y] (= x y)
              (contents d :id) "some-unique-id"
              (contents d :from) "from-addr"
              (contents d :to) "to-addr"
-             (contents d :aspect) :some-aspect
+             (contents d :channel) :some-channel
              (contents d :envelope) {:part1 "address of part1 grammar"}
              (contents d :content) {:part1 "part1 content"}
              (address-of d) droplet-address
-             :some-aspect (s-> key->resolve aspects droplet-address)
+             :some-channel (s-> key->resolve droplet-channels droplet-address)
              "some-unique-id" (s-> key->resolve ids droplet-address)
-             [droplet-address] (s-> address->resolve aspects :some-aspect)
+             [droplet-address] (s-> address->resolve droplet-channels :some-channel)
              [droplet-address] (s-> address->resolve ids "some-unique-id")
              )))
     
     (testing "streamscapes receive"
-      (is (thrown-with-msg? RuntimeException #"channel not found: fish" (s-> streamscapes->receive r {:aspect "fish"}))))
+      (is (thrown-with-msg? RuntimeException #"channel not found: fish" (s-> streamscapes->receive r {:channel "fish"}))))
     
     (testing "email-channel"
       (let [channel-address (s-> matrice->make-channel r {:name :email-stream
@@ -106,6 +109,11 @@
         (is (= (contents db :port) 6667))
         (is (= (rdef (get-receptor cc in-bridge-address) :fingerprint) :anansi.streamscapes.channels.irc-bridge-in.irc-bridge-in)))
       ))
+  (facts "about make-channel signal"
+    (receptor-state channels true) => (contains
+                                       {:map {:x :y}})
+    )
+
   (facts "about new-channel"
     (s-> setup->new-channel r {:type :fish :name :fisher}) => (throws RuntimeException "channel type 'fish' not implemented")
     (str (s-> setup->new-channel r {:type "irc" :name :fisher})) =>  #"[0-9]+"
@@ -116,4 +124,15 @@
       (find-channel-by-name r :irc-freenode-stream) => cc
       (contents db :host) => "irc.freenode.net"
       (contents db :port) => 6667))
+  (comment facts "about control-channel"
+    (s-> matrice->control-channel r {:type :fish :name :fisher}) => (throws RuntimeException "channel type 'fish' not implemented")
+    (str (s-> setup->new-channel r {:type "irc" :name :fisher})) =>  #"[0-9]+"
+    (let [channel-address (s-> setup->new-channel r {:type :irc, :name :freenode, :host "irc.freenode.net", :port 6667, :user "Eric", :nick "zippy31415"})
+          cc (get-receptor r channel-address)
+          [controller-address control-signal] (get-controller cc)
+          db (get-receptor cc controller-address)]
+      (find-channel-by-name r :irc-freenode-stream) => cc
+      (contents db :host) => "irc.freenode.net"
+      (contents db :port) => 6667))
   )
+

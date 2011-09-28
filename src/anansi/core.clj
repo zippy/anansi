@@ -2,12 +2,13 @@
     #^{:author "Eric Harris-Braun"
        :doc "A reference implementation of the ceptr platform"}
   anansi.core
+  (:require anansi.streamscapes.channels.irc-controller)
   (:use
    [anansi.ceptr]
    [anansi.receptor.host]
-   [anansi.receptor.host-interface.http]
+   [anansi.receptor.host-interface.http :only [http-def]]
    [anansi.server :only [launch-server]]
-        [anansi.web-server :only [launch-web-server]]))
+   [anansi.web-server :only [launch-web-server]]))
 
 (defn -main
   ([cl-port web-port]

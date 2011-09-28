@@ -18,7 +18,7 @@
 
 (deftest channel
   (let [m (make-receptor user-def nil "eric")
-        r (receptor :streamscapes nil (address-of m) "password" {:datax "x"})
+        r (make-receptor streamscapes-def nil {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
         cc (make-receptor channel-def r { :attributes {:name :email-stream}})]
     (fact (receptor-state cc false) => (contains {:name :email-stream
                                                   :fingerprint :anansi.streamscapes.channel.channel
@@ -28,9 +28,10 @@
     (testing "receive"
       (let [droplet-address (s-> stream->receive cc {:id "some-id" :to "to-addr" :from "from-addr" :envelope {:from "rfc-822-email" :subject "text/plain" :body "text/html"} :content {:from "test@example.com" :subject "Hi there!" :body "<b>Hello world!</b>"}})
             d (get-receptor r droplet-address)]
+        (fact (receptor-state d true) => :x)
         (is (= "from-addr"  (contents d :from) ))
         (is (= "some-id"  (contents d :id) ))
-        (is (= :email-stream  (contents d :aspect) ))
+        (is (= :email-stream  (contents d :channel) ))
         (is (= "to-addr" (contents d :to)))
         (is (= {:from "rfc-822-email" :subject "text/plain" :body "text/html"} (contents d :envelope)))
         (is (= {:from "test@example.com" :subject "Hi there!" :body "<b>Hello world!</b>"} (contents d :content)))))
@@ -48,8 +49,8 @@
         (is (= "Failed" result))
         (is (= [] (s-> address->resolve deliveries droplet-address)))
         (s-> stream->send cc {:droplet-address droplet-address :error nil})
-        (let [[{ aspect :aspect time :time}] (s-> address->resolve deliveries droplet-address)]
-          (is (= aspect :email-stream))
+        (let [[{ channel :channel time :time}] (s-> address->resolve deliveries droplet-address)]
+          (is (= channel :email-stream))
           (is (= (subs (str (now)) 0 19) (subs time 0 19))) ; hack off the milliseconds
           )))
     

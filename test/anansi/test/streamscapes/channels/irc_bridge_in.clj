@@ -52,7 +52,7 @@
         (is (re-find #"^zippy!zippy@72-13-84-243.somedomain.com-" (contents d :id)))
         (is (= (s-> key->resolve irc-idents "zippy")  (contents d :from) ))
         (is (= (s-> key->resolve irc-idents "art")  (contents d :to) ))
-        (is (= :irc-stream  (contents d :aspect) ))
+        (is (= :irc-stream  (contents d :channel) ))
         (is (= {:from "irc/from" :cmd "irc/command" :to "irc/user" :message "text/plain"} (contents d :envelope)))
         (is (= {:from "zippy!zippy@72-13-84-243.somedomain.com" :cmd  "PRIVMSG"  :to "art" :message "This is a dumb question but..."} (contents d :content)))
         )

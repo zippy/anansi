@@ -9,7 +9,8 @@
         [anansi.streamscapes.channels.irc-bridge-in :only [controller->receive]]
        ; [anansi.streamscapes.channels.irc]
         )
-  (:use [clj-time.core :only [now]])
+  (:use [clj-time.core :only [now]]
+        [clojure.contrib.json])
   (:import (java.net Socket)
            (java.io PrintWriter InputStreamReader BufferedReader))
 )
@@ -73,3 +74,9 @@
                            )
                 :msg (write (:irc-connection @_r) (str "PRIVMSG " (:to params) " :" (:message params)))
               (throw (RuntimeException. (str "Unknown control command: " command))))))
+
+(defn- write-json-clojure-lang-var [x #^PrintWriter out]
+    (.print out (json-str (str x)))) ;; or something useful here!
+
+(extend clojure.lang.Var clojure.contrib.json/Write-JSON
+    {:write-json write-json-clojure-lang-var})

@@ -10,9 +10,10 @@
   (:use [clojure.string :only [join]])
   )
 (def streamscapes-def (receptor-def "streamscapes"
-                       (scapes {:name :aspect :relationship {:key :address :address :streamscapes-aspect}}
-                               {:name :id :relationship {:key :address :address :streamscapes-channel-address}}
-                               {:name :delivery :relationship {:key :streamscapes-aspect-time-map :address :address}})
+                                    (scapes {:name :droplet-channel :relationship {:key :address :address :streamscapes-channel}}
+                                            {:name :channel :relationship {:key :name :address :address}}
+                                            {:name :id :relationship {:key :address :address :streamscapes-channel-address}}
+                                            {:name :delivery :relationship {:key :streamscapes-channel-time-map :address :address}})
                        (attributes :data :_password)
                        (manifest [_r {matrice-address :matrice-addr attrs :attributes}]
                                  (let [ms (make-receptor scape-def _r)]
@@ -35,14 +36,14 @@
 
 (defn do-incorporate
   "add a droplet receptor into the streamscape"
-  [_r _f {id :id from :from to :to aspect :aspect envelope :envelope content :content}]
+  [_r _f {id :id from :from to :to channel :channel envelope :envelope content :content}]
   (rsync _r
-         (let [d (make-receptor droplet-def _r id from to aspect envelope content)
+         (let [d (make-receptor droplet-def _r id from to channel envelope content)
                addr (address-of d)
-               aspects (get-scape _r :aspect)
+               channels (get-scape _r :droplet-channel)
                ids (get-scape _r :id)
                ]
-           (--> key->set _r aspects addr aspect)
+           (--> key->set _r channels addr channel)
            (--> key->set _r ids addr (contents d :id)) 
                                         ; don't use the id from the
                                         ; params because it may have been nil in which
@@ -107,21 +108,24 @@
 (signal matrice make-channel [_r _f params]
         ; TODO add in authentication to make sure that _f is a matrice
         (rsync _r
-               (let [cc (make-receptor (get-receptor-definition :anansi.streamscapes.channel.channel) _r {:attributes {:name (:name params)}})]
+               (let [n (:name params)
+                     cc (make-receptor (get-receptor-definition :anansi.streamscapes.channel.channel) _r {:attributes {:name n}})
+                     cc-addr (address-of cc)]
+                 (--> key->set _r (get-scape _r :channel) n cc-addr)
                  (doall
                   (map (fn [[r-def p]]
                                (let [{receptor-role :role signal :signal receptor-params :params} p
                                      r (make-receptor r-def cc receptor-params)]
                                  (--> key->set cc (get-scape cc receptor-role) receptor-role [(address-of r) signal])))
                              (:receptors params)))
-                 (address-of cc))))
+                 cc-addr)))
 
 (defn find-channel-by-name [_r name]
   (first (find-receptors _r (fn [r] (and (= :anansi.streamscapes.channel.channel (rdef r :fingerprint)) (= (contents r :name) name)))))
   )
 
 (signal streamscapes receive [_r _f message]
-        (let [name (:aspect message)
+        (let [name (:channel message)
               cc (find-channel-by-name _r name)
               ]
           (if (nil? cc)

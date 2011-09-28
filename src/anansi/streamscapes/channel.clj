@@ -28,7 +28,7 @@
 (signal stream receive [_r _f {id :id to :to from :from envelope :envelope content :content}]
         (rsync _r
                (let [ss (parent-of _r)
-                     droplet-address (--> channel->incorporate _r ss {:id id :from from :to to :aspect (contents _r :name) :envelope envelope :content content})
+                     droplet-address (--> channel->incorporate _r ss {:id id :from from :to to :channel (contents _r :name) :envelope envelope :content content})
                      ]
                  droplet-address)))
 
@@ -39,11 +39,11 @@
                  (let [droplet-address (:droplet-address params)
                        d (get-receptor ss droplet-address)
                        deliveries (get-scape ss :delivery)
-                       aspect (contents _r :name)
+                       channel (contents _r :name)
                        [bridge-address delivery-signal] (get-deliverer-bridge _r)
                        errors (--> delivery-signal _r (get-receptor _r bridge-address) params)]
                    (if (nil? errors)
-                     (--> key->set _r deliveries {:aspect aspect :time (str (now))} droplet-address))
+                     (--> key->set _r deliveries {:channel channel :time (str (now))} droplet-address))
                    errors))))
 
 ; hand a message to the bridge to be received

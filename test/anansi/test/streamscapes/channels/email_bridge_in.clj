@@ -51,7 +51,7 @@
         (is (= (address-of eric) (contents d :to) ))
         (is (= "<123456%example.com>" (contents d :id)))
         (is (= (s-> key->resolve email-idents "test@example.com")  (contents d :from) ))
-        (is (= :email-stream  (contents d :aspect) ))
+        (is (= :email-stream  (contents d :channel) ))
         (is (= {:from "rfc-822-email" :subject "text/plain" :body "text/html"} (contents d :envelope)))
         (is (= {:from "test@example.com" :subject "Hi there!" :body "<b>Hello world!</b>"} (contents d :content)))
         (is (= droplet-address (handle-message b message)))

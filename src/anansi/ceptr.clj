@@ -18,7 +18,10 @@
 
 (def *definitions* (ref {}))
 (defn get-receptor-definition [fingerprint]
-  (fingerprint @*definitions*))
+  (let [d (fingerprint @*definitions*)]
+    (if (nil? d) (throw (RuntimeException. (str "No receptor found for fingerprint: " fingerprint " Known fingerprints are:" (keys @*definitions*)))))
+    d
+    ))
 
 (defmacro signal [aspect name args & body]
   "Creates a signal function on an aspect"
@@ -282,7 +285,6 @@
 (defmethod restore :default [state parent] (do-restore state parent nil) )
 (defn receptor-restore [state parent]
   (let [r-def (get-receptor-definition (:fingerprint state))]
-    (if (nil? r-def) (throw (RuntimeException. (str "unknown fingerprint: " (:fingerprint state) "X:" (keys @*definitions*)))))
     ((:restore r-def) state parent r-def)))
 
 (defn serialize-receptors

@@ -35,7 +35,7 @@
         (is (= eric-addr (contents d :to)))
         (is (= zippy-addr (contents d :from) ))
         (is (= (s-> key->resolve ss-addr-idents zippy-ss-addr)  (contents d :from) ))
-        (is (= :local-stream  (contents d :aspect) ))
+        (is (= :local-stream  (contents d :channel) ))
         (is (= {:subject "text/plain" :body "text/html"} (contents d :envelope)))
         (is (= {:subject "Hi there!" :body "<b>Hello world!</b>"} (contents d :content)))
         (is (= droplet-address (handle-message b message)))

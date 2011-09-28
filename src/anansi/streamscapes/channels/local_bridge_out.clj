@@ -21,7 +21,7 @@
                   content (contents d :content)
                   envelope (contents d :envelope)
                   ]
-              (--> streamscapes->receive ss to-ss-addr {:id (contents d :id) :from from-ss-addr :to to-ss-addr :aspect :local-stream :envelope envelope :content content})
+              (--> streamscapes->receive ss to-ss-addr {:id (contents d :id) :from from-ss-addr :to to-ss-addr :channel :local-stream :envelope envelope :content content})
               nil)
             (catch Exception e
               (str e)))
