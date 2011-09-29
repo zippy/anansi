@@ -51,3 +51,11 @@
         (let [[bridge-address receive-signal] (get-receiver-bridge _r)
               b (get-receptor _r bridge-address)]
           (--> receive-signal _r b message)))
+
+(signal stream control [_r _f params]
+        (let [[controller-address control-signal] (get-controller _r)]
+             (if (nil? controller-address)
+               (throw (RuntimeException. (str "channel has no controller")))
+               )
+             (--> control-signal _r (get-receptor _r controller-address) params)))
+

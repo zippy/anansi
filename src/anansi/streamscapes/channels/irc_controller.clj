@@ -19,7 +19,7 @@
 (declare conn-handler)
 
 (defn connect [host port receiver]
-  (let [socket (Socket. host port)
+  (let [socket (Socket. host (Integer. port))
         in (BufferedReader. (InputStreamReader. (.getInputStream socket)))
         out (PrintWriter. (.getOutputStream socket))
         conn (ref {:in in :out out :socket socket :receiver receiver})]
@@ -41,7 +41,7 @@
     (let [msg (.readLine (:in @conn))
           ;[_1 _2 from-address command _3 params] (re-find #"^(:([^ ]*) )*([a-zA-Z]*)( (.*))*$" msg)
           ]
-      ; (println msg)
+       (println msg)
       (s-> controller->receive (:receiver @conn) msg)
       (cond 
        (re-find #"^ERROR :Closing Link:" msg) 
@@ -56,27 +56,38 @@
 (def irc-controller-def (receptor-def "irc-controller"
                                       (attributes :host :port :user :nick)))
 
+(defn get-status [_r]
+     (let [conn (:irc-connection @_r)]
+       (if (or (nil? conn) (closed? conn)) :closed :open))
+     )
+
 (signal channel control [_r _f control-params]
-          (let [{command :command params :params} control-params]
-            (condp = command
-                :status (let [conn (:irc-connection @_r)]
-                          (if (or (nil? conn) (closed? conn)) :closed :open))
-                :open (let [parent-channel (parent-of _r)
-                            [in-bridge-address receive-signal] (get-receiver-bridge parent-channel)
-                            ib (get-receptor parent-channel in-bridge-address)
-                            conn (connect (contents _r :host) (contents _r :port) ib)]
-                        (dosync (alter _r assoc :irc-connection conn))
-                        (login conn (contents _r :user) (contents _r :nick))
-                        )
-                :join (write (:irc-connection @_r) (str "JOIN " (:channel params)))
-                :close (do (write (:irc-connection @_r) "QUIT")
-                           (dosync (alter _r dissoc :irc-connection))
-                           )
-                :msg (write (:irc-connection @_r) (str "PRIVMSG " (:to params) " :" (:message params)))
+        (let [{command :command params :params} control-params]
+          (condp = command
+              :status (get-status _r)
+              :open (let [parent-channel (parent-of _r)
+                          [in-bridge-address receive-signal] (get-receiver-bridge parent-channel)
+                          ib (get-receptor parent-channel in-bridge-address)
+                          conn (connect (contents _r :host) (contents _r :port) ib)]
+                      (dosync (alter _r assoc :irc-connection conn))
+                      (login conn (contents _r :user) (contents _r :nick))
+                      nil
+                      )
+              :join (do (write (:irc-connection @_r) (str "JOIN " (:channel params)))
+                        nil)
+              :close (do
+                       (if (= :closed (get-status _r)) (throw (RuntimeException. "Channel not open")))
+                       (write (:irc-connection @_r) "QUIT")
+                         (dosync (alter _r dissoc :irc-connection))
+                         nil
+                         )
+              :msg (do (write (:irc-connection @_r) (str "PRIVMSG " (:to params) " :" (:message params)))
+                       nil)
               (throw (RuntimeException. (str "Unknown control command: " command))))))
 
 (defn- write-json-clojure-lang-var [x #^PrintWriter out]
     (.print out (json-str (str x)))) ;; or something useful here!
 
 (extend clojure.lang.Var clojure.contrib.json/Write-JSON
-    {:write-json write-json-clojure-lang-var})
+        {:write-json write-json-clojure-lang-var})
+

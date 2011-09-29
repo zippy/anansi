@@ -4,9 +4,12 @@
             [test.dom-helpers :as tdom]
             [goog.ui.Prompt :as prompt]
             [goog.events :as events]
+            [goog.style :as style]
             [goog.ui.LabelInput :as LabelInput]
             [goog.net.XhrIo :as xhr]
             [goog.debug.DebugWindow :as debugw]
+            [goog.ui.Dialog :as dialog]
+            [goog.ui.Button :as button]
             [test.debug :as debug]
             [goog.Uri :as uri]
             [goog.editor.Field :as field]
@@ -70,14 +73,68 @@
 
 (defn ping [] (send-signal {:to 0 :prefix "receptor.host" :aspect "ceptr" :signal "ping"}))
 
-(defn make-ss [] (send-signal {:to 0 :prefix "receptor.host" :aspect "self" :signal "host-streamscape" :params {:name "zippy" :matrice-address 7}}))
-
-(defn make-irc-channel []
-  (send-signal {:to 8 :prefix "streamscapes.streamscapes" :aspect "setup" :signal "new-channel"
-                :params {:type :irc, :name :freenode, :host "irc.freenode.net", :port 6667, :user "Eric", :nick "zippy31415"}}))
-
 (defn build-receptor-contents [r]
   (u/clj->json r))
+
+(defn make-ok-fn [fun inputs]
+  (fn [e]
+    (let [values (into {} (map (fn [[id li]] [id (. li (getValue))] ) inputs))]
+      (fun values)
+      (tdom/remove-children :work))))
+(defn make-irc [params]
+  (send-signal {:to 8 :prefix "streamscapes.streamscapes" :aspect "setup" :signal "new-channel"
+                :params (merge {:type :irc, :name :freenode} params)})
+  )
+
+
+(defn make-dialog [spec okfn]
+  (let [e (tdom/get-element :work)
+        inputs (into {} (map (fn [[id label]] [id (goog.ui.LabelInput. (name id))]) spec))
+        b (goog.ui.Button. "Submit")
+        bc (goog.ui.Button. "Cancel")
+        build-vec (into [:form] (map (fn [[id li]] (goog.dom.createDom "label" {"for" (name id)}) ) inputs))] ;(keyword (str "input#" (name id)))
+    (tdom/remove-children :work)
+                                        ;(dom/append e (tdom/build build-vec))
+;    (dom/append e (tdom/element "cow" {:style "color:red"} "dog"))
+    (doseq [[id li] inputs]
+      (dom/append e (tdom/element "label" {:for (name id)} (name id)) (tdom/element "input" {:id (name id)}))
+      (.decorate li (tdom/get-element id))
+      (.setValue li (id spec))
+      )
+    (let [domb (tdom/element :span#submit-button)
+          cancel (tdom/element :span#cancel-button)
+          ]
+      (dom/append e domb) (.render b domb)
+      (dom/append e cancel) (.render bc cancel)
+      (goog.events.listen domb goog.events.EventType.CLICK (make-ok-fn okfn inputs))
+      (goog.events.listen cancel goog.events.EventType.CLICK (fn [e] (tdom/remove-children :work)))
+      )
+    ))
+(defn make-irc-channel []
+  (make-dialog {:host "irc.freenode.net", :port 6667, :user "Eric", :nick "zippy31415"}
+             make-irc       
+             ))
+(defn make-ss []
+  (make-dialog {:name ""}
+               (fn [params]
+                 (send-signal {:to 0 :prefix "receptor.host" :aspect "self" :signal "host-streamscape" :params (merge {:matrice-address 7} params)})
+                 )))
+(defn irc-join []
+  (make-dialog {:channel "#ceptr"}
+               (fn [params]
+                 (send-signal {:to 8 :prefix "streamscapes.streamscapes" :aspect "matrice" :signal "control-channel"
+                               :params {:name :freenode :command :join :params params} }))))
+(defn irc-open []
+  (send-signal {:to 8 :prefix "streamscapes.streamscapes" :aspect "matrice" :signal "control-channel"
+                :params {:name :freenode :command :open}}))
+(defn irc-close []
+  (send-signal {:to 8 :prefix "streamscapes.streamscapes" :aspect "matrice" :signal "control-channel"
+                  :params {:name :freenode :command :close}}))
+
+(defn vis [elem val]
+  (style/showElement (tdom/get-element elem) val))
+(defn show [elem] (vis elem true))
+(defn hide [elem] (vis elem false))
 
 (defn build-scape-contents [s]
   (cond (keyword? s) (name s)

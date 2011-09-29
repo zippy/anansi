@@ -133,11 +133,23 @@
           (--> (get-signal-function "anansi.streamscapes.channel" "bridge" "receive") _r cc message)
           ))
 
-(signal setup new-channel [_r _f {raw-type :type stream-name :name host :host port :port user :user nick :nick}]
+(defn channel-name [n]
+                                        ;  (keyword (str (name type) "-" (name n) "-stream"))
+  n
+  )
+(signal setup new-channel [_r _f {raw-type :type n :name host :host port :port user :user nick :nick}]
         (let [type (keyword (name raw-type))]
-          (s-> matrice->make-channel _r {:name (keyword (str (name type) "-" (name stream-name) "-stream"))
+          (s-> matrice->make-channel _r {:name (channel-name n)
                                          :receptors
                                          (condp = type
                                              :irc {(get-receptor-definition :anansi.streamscapes.channels.irc-bridge-in.irc-bridge-in) {:role :receiver :params {} }
                                                    (get-receptor-definition :anansi.streamscapes.channels.irc-controller.irc-controller) {:role :controller :signal (get-signal-function "anansi.streamscapes.channels.irc-controller" "channel" "control") :params {:attributes {:host host :port port :user user :nick nick}}}}
                                              (throw (RuntimeException. (str "channel type '" (name type) "' not implemented" ))))})))
+
+(signal matrice control-channel [_r _f {n :name cmd :command params :params}]
+        ;; TODO should be doing a check on the from here ...
+        (let [cc (find-channel-by-name _r (channel-name n))]
+          (if (nil? cc)
+            (throw (RuntimeException. (str "channel not found: " n))))
+          (--> (get-signal-function "anansi.streamscapes.channel" "stream" "control") _r cc  {:command (keyword cmd) :params params})
+          ))

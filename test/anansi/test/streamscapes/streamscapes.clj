@@ -116,23 +116,29 @@
 
   (facts "about new-channel"
     (s-> setup->new-channel r {:type :fish :name :fisher}) => (throws RuntimeException "channel type 'fish' not implemented")
-    (str (s-> setup->new-channel r {:type "irc" :name :fisher})) =>  #"[0-9]+"
+    (str (s-> setup->new-channel r {:type "irc" :name :an-irc-channel})) =>  #"[0-9]+"
     (let [channel-address (s-> setup->new-channel r {:type :irc, :name :freenode, :host "irc.freenode.net", :port 6667, :user "Eric", :nick "zippy31415"})
           cc (get-receptor r channel-address)
           [controller-address control-signal] (get-controller cc)
+          [in-bridge-address receive-signal] (get-receiver-bridge cc)
           db (get-receptor cc controller-address)]
-      (find-channel-by-name r :irc-freenode-stream) => cc
-      (contents db :host) => "irc.freenode.net"
-      (contents db :port) => 6667))
-  (comment facts "about control-channel"
-    (s-> matrice->control-channel r {:type :fish :name :fisher}) => (throws RuntimeException "channel type 'fish' not implemented")
-    (str (s-> setup->new-channel r {:type "irc" :name :fisher})) =>  #"[0-9]+"
-    (let [channel-address (s-> setup->new-channel r {:type :irc, :name :freenode, :host "irc.freenode.net", :port 6667, :user "Eric", :nick "zippy31415"})
-          cc (get-receptor r channel-address)
-          [controller-address control-signal] (get-controller cc)
-          db (get-receptor cc controller-address)]
-      (find-channel-by-name r :irc-freenode-stream) => cc
-      (contents db :host) => "irc.freenode.net"
-      (contents db :port) => 6667))
+      (rdef (get-receptor cc in-bridge-address) :fingerprint) => :anansi.streamscapes.channels.irc-bridge-in.irc-bridge-in
+      (find-channel-by-name r :freenode) => cc
+      (receptor-state db false) => (contains {:fingerprint :anansi.streamscapes.channels.irc-controller.irc-controller
+                                             :user "Eric"
+                                             :nick "zippy31415"
+                                             :host "irc.freenode.net"
+                                             :port 6667})))
+  (facts "about control-channel"
+    (s-> matrice->control-channel r {:name :fish :command :fish}) => (throws RuntimeException "channel not found: :fish")
+    (s-> matrice->control-channel r {:name :freenode :command :fish}) => (throws RuntimeException "Unknown control command: :fish")
+    (s-> matrice->control-channel r {:name :freenode :command :status}) => :closed
+    (s-> matrice->control-channel r {:name :freenode :command :close}) => (throws RuntimeException "Channel not open")
+    (s-> matrice->control-channel r {:name :freenode :command :open}) => nil
+    (s-> matrice->control-channel r {:name :freenode :command :status}) => :open
+    (s-> matrice->control-channel r {:name :freenode :command :join :params {:channel "#ceptr"}}) => nil
+     (Thread/sleep 13000)
+    )
+  
   )
 
