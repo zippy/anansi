@@ -136,7 +136,7 @@
 (defn show [elem] (vis elem true))
 (defn hide [elem] (vis elem false))
 
-(defn build-scape-contents [s]
+(defn build-scape-contents [s address]
   (cond (keyword? s) (name s)
         (or (nil? s) (empty? s) (= "" s)) ""
         (map? s) (let [{kr :key ar :address} (:relationship s)
@@ -146,66 +146,94 @@
                            (map (fn [[k v]]
                                   (if (map? v)
                                     [:div.scape-item [:h3 (name k)] (into [:ul] (map (fn [[kk vv]] [:li (str (name kk) ": " (str vv))]) v))]
-                                    [:div.scape-item (cond napair (add-receptor-button nil v (str (name k) " (@" v ")"))
-                                                           anpair (add-receptor-button nil k (str (name v) " (@" k ")"))
-                                                           t [:h3 (str "key:" (str k) " val:" (str v))]
+                                    [:div.scape-item (cond napair (add-receptor-button nil (str address "." v)  (str (name k) " (@" v ")"))
+                                                           anpair (add-receptor-button nil (str address "." k) parent-address (str (name v) " (@" k ")"))
+                                                           true [:h3 (str "key:" (str k) " val:" (str v))]
                                                        )
-                                     [:h3 ]])) (:values s)))]; 
-                   (tdom/build x))
+                                     [:h3 ]])) (:values s)))]
+                   (try 
+                     (tdom/build x)
+                     (catch js/Object e (ll (u/clj->json x))))
+                   )
         true (u/clj->json s)))
 
 (defn build-scape-title [n s]
   (let [{v :values {kr :key ar :address} :relationship} s]
     (str n "s (" (count v) ")" (if (nil? kr) " no-rel-defined" (str " " (name kr) "->" (name ar))))))
 
+
 (defn gs-callback [e]
-  (let [{status :status result :result} (process-xhr-result e)
-        relem (tdom/get-element :the-receptor)
-        ]
+  (let [{status :status result :result} (process-xhr-result e)]
+    (def the-state result)
     (debug/log (str "State:" (u/clj->json result)))
-    (tdom/remove-children :the-receptor
-                           )
-    (dom/append relem (tdom/element "h2" (str "Receptor: " (name (:fingerprint result)) " @ " (:address result))))
-    (let [scapes (:scapes result)
-          receptors (:receptors result)
-          ]
-      (if (> (count scapes) 0)
-        (let [scapes-vec  (into  [] (map (fn [[k s]]
-                                           (let [scape (name k)
-                                                 [n _] (string/split scape #"-")
-                                                 ]
-                                             {:title (build-scape-title n s) :content (build-scape-contents s)})) scapes))
-              x (comment into  [] (map (fn [[raddr r]]
-                                         (let [rtype (:fingerprint r)]
-                                           {:title (str rtype "@" (name raddr)) :content (build-receptor-contents r)})) (filter (fn [[k v]] (not= k :last-address)) receptors)
-                                           ))
-              ]
-          (tdom/get-element :the-receptor)
-          (dom/append relem (tdom/build [:div#scapes [:h3 "Scapes"]]))
-          (z/make-zips scapes-vec (dom/get-element :scapes))
-          )
-        (dom/append relem (tdom/build [:div#scapes [:h3 "No Scapes"]])))
-      (if (> (count receptors) 0)
-        (do 
-          (dom/append relem (tdom/build [:div#receptors [:h3 "Receptors"]]))        
-          (doseq [[r-addr r] (filter (fn [[k v]] (not= k :last-address)) (:receptors result))]
-            (let [raddr (name r-addr)
-                  html-id (keyword (str "r-" raddr))]
-              (add-receptor-button (dom/get-element :receptors) raddr (str (:fingerprint r) "@" raddr))
-              )
-            ))))))
+    (tdom/remove-children :the-receptor)
+    (render-receptor the-state (tdom/get-element :the-receptor) "")))
+
+(defn parent-address [address]
+  (string/join "." (reverse (rest (reverse (string/split address #"\."))))))
+
+(defn render-receptor [state relem address]
+  (let [scapes (:scapes state)
+        receptors (into {} (filter (fn [[k v]] (not= k :last-address)) (:receptors state)))
+        fingerprint (:fingerprint state)
+        ]
+    (if (not= address "")
+      (let [pa (parent-address address)]
+        (add-receptor-button relem pa (str "Parent-@" pa))))
+    (dom/append relem (tdom/element "h2" (str "Receptor: " (name fingerprint) " @ " address)))
+    (js/alert fingerprint)
+    (if (= fingerprint "anansi.streamscapes.droplet.droplet")
+      (dom/append relem (tdom/build [:div#drop [:h3 "Droplet"] [:div.content (u/clj->json (:content state))] [:div.envelope (u/clj->json (:envelope state))]])))
+    (if (> (count scapes) 0)
+      (let [scapes-vec  (into  [] (map (fn [[k s]]
+                                         (let [scape (name k)
+                                               [n _] (string/split scape #"-")
+                                               ]
+                                           {:title (build-scape-title n s) :content (build-scape-contents s address)})) scapes))
+            x (comment into  [] (map (fn [[raddr r]]
+                                       (let [rtype (:fingerprint r)]
+                                         {:title (str rtype "@" (name raddr)) :content (build-receptor-contents r)})) (filter (fn [[k v]] (not= k :last-address)) receptors)
+                                         ))
+            ]
+          
+        (dom/append relem (tdom/build [:div#scapes [:h3 "Scapes"]]))
+        (z/make-zips scapes-vec (dom/get-element :scapes))
+        )
+      (dom/append relem (tdom/build [:div#scapes [:h3 "No Scapes"]])))
+    (if (> (count receptors) 0)
+      (do
+        (dom/append relem (tdom/build [:div#receptors [:h3 "Receptors"]]))        
+        (doseq [[r-addr r] receptors]
+          (let [raddr (str address "." (name r-addr) )
+                html-id (keyword (str "r-" raddr))]
+            
+            (add-receptor-button (dom/get-element :receptors) raddr (str (:fingerprint r) "@" raddr)))))
+      (dom/append relem (tdom/build [:div#receptors [:h3 "No Sub Receptors"]])))))
 
 (defn add-receptor-button [parent raddr text]
   (let [
         elem (tdom/build [:div.rbutton [:x text]])]
 
     (if (not (nil? parent)) (dom/append parent elem))
-    (goog.events.listen elem goog.events.EventType.CLICK, (hidfn (js/parseInt raddr)))
+    (goog.events.listen elem goog.events.EventType.CLICK, (hidfn raddr))
     elem))
 
+(defn get-receptor-by-address [state addr-list]
+  (let [a (keyword (first addr-list))
+        r (a (:receptors state))
+        ]
+    (if (= 1 (count addr-list))
+      r
+      (get-receptor-by-address r (rest addr-list)))
+    )
+  )
+
 (defn get-state [r] (ceptr->command {:cmd "get-state" :params {:receptor r}} gs-callback))
-(defn hidfn [hid]
-  (fn [e] (get-state hid)))
+(defn hidfn [address]
+  (fn [e] (let [r (if (= address "") the-state
+                     (get-receptor-by-address the-state (rest (string/split address #"\."))))]
+           (tdom/remove-children :the-receptor)
+           (render-receptor r (tdom/get-element :the-receptor) address))))
 
 
 

@@ -17,8 +17,7 @@ body {
 .rbutton {
   border: 1px solid #369;
   background-color: #ddd;
-  width: auto;
-  display: inline;
+  width: 350px;
   padding: 2px;
   margin: 2px;
 }
