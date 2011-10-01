@@ -13,7 +13,8 @@
                                     (scapes {:name :droplet-channel :relationship {:key :droplet-address :address :streamscapes-channel}}
                                             {:name :channel :relationship {:key :name :address :address}}
                                             {:name :id :relationship {:key :droplet-address :address :streamscapes-channel-address}}
-                                            {:name :delivery :relationship {:key :streamscapes-channel-time-map :address :droplet-address}})
+                                            {:name :delivery :relationship {:key :streamscapes-channel-time-map :address :droplet-address}}
+                                            {:name :receipt :relationship {:key :streamscapes-channel-time-map :address :droplet-address}})
                        (attributes :data :_password)
                        (manifest [_r {matrice-address :matrice-addr attrs :attributes}]
                                  (let [ms (make-receptor scape-def _r)]
@@ -85,10 +86,10 @@
          (rsync _r
                 (let [ident-address (if exists iaddr (address-of (make-receptor ident-def _r {:attributes {:name (:name attributes)}})))]
                   (doall (for [[i v] identifiers
-                                :let [iscape (get-scape _r (scape-identifier-key i) true)]]
+                                :let [iscape (get-scape _r (scape-identifier-key i) {:key (keyword (str (name i) "-identifier")) :address :ident-address})]]
                            (--> key->set _r iscape v ident-address)))
                   (doall (for [[a v] attributes
-                                :let [iscape (get-scape _r (scape-identifier-attribute-key a) true)]]
+                                :let [iscape (get-scape _r (scape-identifier-attribute-key a) {:key :ident-address :address (keyword (str (name a) "-attribute"))})]]
                            (--> key->set _r iscape ident-address v)))
                   ident-address))))))
 

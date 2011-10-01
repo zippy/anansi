@@ -27,10 +27,10 @@
     (scape-relationship (get-scape r :channel) :key) => :name
     (scape-relationship (get-scape r :channel) :address) => :address
     (scape-relationship (get-scape r :delivery) :key) => :streamscapes-channel-time-map
-    (scape-relationship (get-scape r :delivery) :address) => :address
-    (scape-relationship (get-scape r :id) :key) => :address
+    (scape-relationship (get-scape r :delivery) :address) => :droplet-address
+    (scape-relationship (get-scape r :id) :key) => :droplet-address
     (scape-relationship (get-scape r :id) :address) => :streamscapes-channel-address
-    (scape-relationship droplet-channels :key) => :address
+    (scape-relationship droplet-channels :key) => :droplet-address
     (scape-relationship droplet-channels :address) => :streamscapes-channel)
 
   (deftest streamscapes
@@ -46,6 +46,11 @@
             ssn-idents (get-scape r :ssn-ident)
             ident-eye-colors (get-scape r :ident-eye-color)
             ]
+        (is (= (scape-relationship ident-names :key) :ident-address))
+        (is (= (scape-relationship ident-names :address) :name-attribute))
+        (is (= (scape-relationship ssn-idents :key) :ssn-identifier))
+        (is (= (scape-relationship ssn-idents :address) :ident-address))
+
         (is (= identity-address1) (find-identities r {:email "eric@example.com"}))
         (is (= identity-address1 (s-> key->resolve email-idents "eric@example.com")))
         (is (= identity-address1 (s-> key->resolve ssn-idents 987564321)))
@@ -107,12 +112,10 @@
         (is (= (rdef db :fingerprint) :anansi.streamscapes.channels.irc-controller.irc-controller))
         (is (= (contents db :host) "irc.freenode.net"))
         (is (= (contents db :port) 6667))
-        (is (= (rdef (get-receptor cc in-bridge-address) :fingerprint) :anansi.streamscapes.channels.irc-bridge-in.irc-bridge-in)))
+        (is (= (rdef (get-receptor cc in-bridge-address) :fingerprint) :anansi.streamscapes.channels.irc-bridge-in.irc-bridge-in))
+        (is (= #{ :an-irc-channel, :email-stream, :freenode, :irc-stream} (set (keys (:map (receptor-state (get-scape r :channel) true)))))))
+      
       ))
-  (facts "about make-channel signal"
-    (receptor-state channels true) => (contains
-                                       {:map {:x :y}})
-    )
 
   (facts "about new-channel"
     (s-> setup->new-channel r {:type :fish :name :fisher}) => (throws RuntimeException "channel type 'fish' not implemented")
