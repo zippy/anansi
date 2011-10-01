@@ -10,10 +10,10 @@
   (:use [clojure.string :only [join]])
   )
 (def streamscapes-def (receptor-def "streamscapes"
-                                    (scapes {:name :droplet-channel :relationship {:key :address :address :streamscapes-channel}}
+                                    (scapes {:name :droplet-channel :relationship {:key :droplet-address :address :streamscapes-channel}}
                                             {:name :channel :relationship {:key :name :address :address}}
-                                            {:name :id :relationship {:key :address :address :streamscapes-channel-address}}
-                                            {:name :delivery :relationship {:key :streamscapes-channel-time-map :address :address}})
+                                            {:name :id :relationship {:key :droplet-address :address :streamscapes-channel-address}}
+                                            {:name :delivery :relationship {:key :streamscapes-channel-time-map :address :droplet-address}})
                        (attributes :data :_password)
                        (manifest [_r {matrice-address :matrice-addr attrs :attributes}]
                                  (let [ms (make-receptor scape-def _r)]
@@ -142,8 +142,12 @@
           (s-> matrice->make-channel _r {:name (channel-name n)
                                          :receptors
                                          (condp = type
-                                             :irc {(get-receptor-definition :anansi.streamscapes.channels.irc-bridge-in.irc-bridge-in) {:role :receiver :params {} }
-                                                   (get-receptor-definition :anansi.streamscapes.channels.irc-controller.irc-controller) {:role :controller :signal (get-signal-function "anansi.streamscapes.channels.irc-controller" "channel" "control") :params {:attributes {:host host :port port :user user :nick nick}}}}
+                                             :irc {(get-receptor-definition :anansi.streamscapes.channels.irc-bridge-in.irc-bridge-in)
+                                                   {:role :receiver :params {} }
+                                                   (get-receptor-definition :anansi.streamscapes.channels.irc-controller.irc-controller)
+                                                   {:role :controller
+                                                    :signal (get-signal-function "anansi.streamscapes.channels.irc-controller" "channel" "control")
+                                                    :params {:attributes {:host host :port port :user user :nick nick}}}}
                                              (throw (RuntimeException. (str "channel type '" (name type) "' not implemented" ))))})))
 
 (signal matrice control-channel [_r _f {n :name cmd :command params :params}]
