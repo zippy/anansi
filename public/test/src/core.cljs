@@ -181,7 +181,6 @@
       (let [pa (parent-address address)]
         (add-receptor-button relem pa (str "Parent-@" pa))))
     (dom/append relem (tdom/element "h2" (str "Receptor: " (name fingerprint) " @ " address)))
-    (js/alert fingerprint)
     (if (= fingerprint "anansi.streamscapes.droplet.droplet")
       (dom/append relem (tdom/build [:div#drop [:h3 "Droplet"] [:div.content (u/clj->json (:content state))] [:div.envelope (u/clj->json (:envelope state))]])))
     (if (> (count scapes) 0)
