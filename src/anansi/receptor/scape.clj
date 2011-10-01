@@ -50,7 +50,7 @@
      (let [scape (_get-scape receptor scape-name)]
        (if (nil? scape)
          (if create-if-non-existent
-           (add-scape receptor scape-name)
+           (add-scape receptor (if (map? create-if-non-existent) {:name scape-name :relationship create-if-non-existent} scape-name))
            (throw (RuntimeException. (str scape-name " scape doesn't exist"))))
          scape))))
 
@@ -75,16 +75,17 @@
 
 (defn add-scape
   "add a new scape into a receptor"
-  [_r scape-name]
-  (if (nil? (_get-scape _r scape-name))
-    (rsync _r
-           (let [s (make-receptor scape-def _r)
-                 key (scapify scape-name)
-                 ss (get-scape _r :scapes)]
-             (--> key->set _r ss key (address-of s))
-             (_set-content _r key s)
-             s))
-    (throw (RuntimeException. (str scape-name " scape already exists")))))
+  [_r params]
+  (let [{scape-name :name {key-rel :key addr-rel :address} :relationship} (if (map? params) params {:name params})]
+    (if (nil? (_get-scape _r scape-name))
+      (rsync _r
+             (let [s (make-receptor scape-def _r key-rel addr-rel)
+                   key (scapify scape-name)
+                   ss (get-scape _r :scapes)]
+               (--> key->set _r ss key (address-of s))
+               (_set-content _r key s)
+               s))
+      (throw (RuntimeException. (str scape-name " scape already exists"))))))
 
 (defn scape-relationship
   "return the relationship information about the scape"

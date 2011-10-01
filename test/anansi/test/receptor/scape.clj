@@ -40,12 +40,21 @@
     (testing "get-scape"
       (is (= (get-scape r :s1) (get-receptor r (--> key->resolve r (get-receptor r 1) :s1-scape ))))
       (is (thrown-with-msg? RuntimeException #":fish scape doesn't exist" (get-scape r :fish)))
-      (is (= (get-scape r :squid true) (get-receptor r (--> key->resolve r (get-receptor r 1) :squid-scape ))))
+      (is (= (get-scape r :squid true) (get-receptor r (--> key->resolve r (get-receptor r 1) :squid-scape))))
+      (let [s (get-scape r :animal {:key :name :address :address})]
+        (is (= s (get-receptor r (--> key->resolve r (get-receptor r 1) :animal-scape))))
+        (is (= (scape-relationship s :key) :name))
+        (is (= (scape-relationship s :address) :address)) 
+        )
       )
     (testing "add-scape"
       (is (= (add-scape r :boink) (get-receptor r (--> key->resolve r (get-receptor r 1) :boink-scape ))))
       (is (thrown-with-msg? RuntimeException #":boink scape already exists" (add-scape r :boink)))
-      )
+      (let [s (add-scape r {:name :fish :relationship {:key :fish-name, :address :address}})]
+        (is (contains? (:scapes (receptor-state r false)) :fish-scape))
+        (is (= (scape-relationship s :key) :fish-name))
+        (is (= (scape-relationship s :address) :address)) 
+        ))
     (testing "make-scapes"
       (let [m (make-scapes r {:x :y} :a :b)]
         (is (= #{:x :a-scape :b-scape :scapes-scape} (into #{} (keys m))))
