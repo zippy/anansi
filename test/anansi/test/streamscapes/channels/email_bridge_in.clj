@@ -11,9 +11,11 @@
 
 (defn create-java-email-message [{to :to from :from subject :subject body :body}]
   (let [session (doto (javax.mail.Session/getInstance (java.util.Properties.)) (.setDebug false))
+        to (javax.mail.internet.InternetAddress. to)
+        from (javax.mail.internet.InternetAddress. from)
         msg (javax.mail.internet.MimeMessage. session)]
-    (. msg setFrom (javax.mail.internet.InternetAddress. from))
-    (. msg addRecipient javax.mail.Message$RecipientType/TO (javax.mail.internet.InternetAddress. to))
+    (. msg setFrom from)
+    (. msg addRecipient javax.mail.Message$RecipientType/TO to)
     (. msg setSubject subject)
     (. msg setText body)
     (. msg addHeader "Message-Id" (str "<123456%example.com>"))
@@ -31,6 +33,7 @@
 
     (fact
       (receptor-state b false) => (contains {:host "mail.example.com" :account "someuser" :password "pass" :protocol "pop3"}))
+    
     (testing "contents"
       (is (= "mail.example.com" (contents b :host)))
           )
@@ -44,7 +47,7 @@
       ;; testing this requires spoofing an e-mail server for the java mail stuff, so it's not done.
       )
     (testing "internal functions: handle-message"
-      (let [message (create-java-email-message {:to "eric@example.com" :from "test@example.com" :subject "Hi there!" :body "<b>Hello world!</b>"})
+      (let [message (create-java-email-message {:to "eric@example.com" :from "\"Joe Blow\" <test@example.com>" :subject "Hi there!" :body "<b>Hello world!</b>"})
             droplet-address (handle-message b message)
             d (get-receptor r droplet-address)
             ]
@@ -52,9 +55,11 @@
         (is (= "<123456%example.com>" (contents d :id)))
         (is (= (s-> key->resolve email-idents "test@example.com")  (contents d :from) ))
         (is (= :email-stream  (contents d :channel) ))
-        (is (= {:from "rfc-822-email" :subject "text/plain" :body "text/html"} (contents d :envelope)))
+        (is (= {:from "rfc-822-email" :subject "text/plain" :body "text/plain"} (contents d :envelope)))
         (is (= {:from "test@example.com" :subject "Hi there!" :body "<b>Hello world!</b>"} (contents d :content)))
         (is (= droplet-address (handle-message b message)))
         )
-      ))
+      )
+    (fact (:scapes (receptor-state r false)) => (contains {:email-ident-scape {:values {"eric@example.com" 8, "test@example.com" 12}, :relationship {:key nil, :address nil}}, :ident-name-scape {:values {8 "name for (\"eric@example.com\")", 12 "Joe Blow"}, :relationship {:key :ident-address, :address :name-attribute}}}))
+    )
 )

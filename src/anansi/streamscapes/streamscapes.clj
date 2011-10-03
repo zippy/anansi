@@ -80,6 +80,7 @@
            iaddrs (find-identities _r identifiers)
            iaddr (first iaddrs)
            exists (not (nil? iaddr))]
+       
        (if (and exists throw-if-exists) (throw (RuntimeException. (str "identity already exists for identifiers: " (join ", " (vals identifiers))))))
        (if (not (nil? (first (rest iaddrs))))
          (into [] iaddrs)
@@ -89,7 +90,7 @@
                                 :let [iscape (get-scape _r (scape-identifier-key i) {:key (keyword (str (name i) "-identifier")) :address :ident-address})]]
                            (--> key->set _r iscape v ident-address)))
                   (doall (for [[a v] attributes
-                                :let [iscape (get-scape _r (scape-identifier-attribute-key a) {:key :ident-address :address (keyword (str (name a) "-attribute"))})]]
+                               :let [iscape (get-scape _r (scape-identifier-attribute-key a) {:key :ident-address :address (keyword (str (name a) "-attribute"))})]]
                            (--> key->set _r iscape ident-address v)))
                   ident-address))))))
 
@@ -138,17 +139,39 @@
                                         ;  (keyword (str (name type) "-" (name n) "-stream"))
   n
   )
-(signal setup new-channel [_r _f {raw-type :type n :name host :host port :port user :user nick :nick}]
-        (let [type (keyword (name raw-type))]
+(signal setup new-channel [_r _f params]
+        (let [{raw-type :type n :name} params
+              type (keyword (name raw-type))]
           (s-> matrice->make-channel _r {:name (channel-name n)
                                          :receptors
                                          (condp = type
-                                             :irc {(get-receptor-definition :anansi.streamscapes.channels.irc-bridge-in.irc-bridge-in)
-                                                   {:role :receiver :params {} }
-                                                   (get-receptor-definition :anansi.streamscapes.channels.irc-controller.irc-controller)
-                                                   {:role :controller
-                                                    :signal (get-signal-function "anansi.streamscapes.channels.irc-controller" "channel" "control")
-                                                    :params {:attributes {:host host :port port :user user :nick nick}}}}
+                                             :irc (let [{host :host port :port user :user nick :nick} params]
+                                                    {(get-receptor-definition :anansi.streamscapes.channels.irc-bridge-in.irc-bridge-in)
+                                                     {:role :receiver :params {} }
+                                                     (get-receptor-definition :anansi.streamscapes.channels.irc-controller.irc-controller)
+                                                     {:role :controller
+                                                      :signal (get-signal-function "anansi.streamscapes.channels.irc-controller" "channel" "control")
+                                                      :params {:attributes {:host host :port port :user user :nick nick}}}})
+                                             :email (let [{in :in out :out} params
+                                                          r1 (if (not (nil? in))
+                                                               {(get-receptor-definition :anansi.streamscapes.channels.email-bridge-in.email-bridge-in)
+                                                                {:role :receiver :params {:attributes in} }
+                                                                (get-receptor-definition :anansi.streamscapes.channels.email-controller.email-controller)
+                                                                {:role :controller
+                                                                 :signal (get-signal-function "anansi.streamscapes.channels.email-controller" "channel" "control")}
+                                                                }
+                                                               {}
+                                                               )
+                                                          r2 (if (not (nil? out))
+                                                               (merge
+                                                                r1
+                                                                {(get-receptor-definition :anansi.streamscapes.channels.email-bridge-out.email-bridge-out)
+                                                                 {:role :deliverer
+                                                                  :signal (get-signal-function "anansi.streamscapes.channels.email-bridge-out" "channel" "deliver")
+                                                                  :params {:attributes out}}})
+                                                               r1
+                                                               )]
+                                                      r2)
                                              (throw (RuntimeException. (str "channel type '" (name type) "' not implemented" ))))})))
 
 (signal matrice control-channel [_r _f {n :name cmd :command params :params}]

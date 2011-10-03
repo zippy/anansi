@@ -113,7 +113,7 @@
         (is (= (contents db :host) "irc.freenode.net"))
         (is (= (contents db :port) 6667))
         (is (= (rdef (get-receptor cc in-bridge-address) :fingerprint) :anansi.streamscapes.channels.irc-bridge-in.irc-bridge-in))
-        (is (= #{ :an-irc-channel, :email-stream, :freenode, :irc-stream} (set (keys (:map (receptor-state (get-scape r :channel) true)))))))
+        (is (= #{ :an-irc-channel, :email-stream, :freenode, :irc-stream, :email} (set (keys (:map (receptor-state (get-scape r :channel) true)))))))
       
       ))
 
@@ -131,16 +131,30 @@
                                              :user "Eric"
                                              :nick "zippy31415"
                                              :host "irc.freenode.net"
-                                             :port 6667})))
+                                              :port 6667})))
+  (facts "about new email channel"
+    (let [channel-address (s-> setup->new-channel r {:type :email, :name :email,
+                                                     :in {:host "mail.example.com" :account "someuser" :password "pass" :protocol "pop3"}
+                                                     :out {:host "mail.harris-braun.com" :account "eric@harris-braun.com" :password "some-password" :protocol "smtps" :port 25}})
+          cc (get-receptor r channel-address)
+          [out-bridge-address delivery-signal] (get-deliverer-bridge cc)
+          [in-bridge-address receive-signal] (get-receiver-bridge cc)
+          ]
+      
+      (receptor-state (get-receptor cc in-bridge-address) false) => (contains {:password "pass", :host "mail.example.com", :account "someuser", :protocol "pop3", :fingerprint :anansi.streamscapes.channels.email-bridge-in.email-bridge-in})
+      (receptor-state (get-receptor cc out-bridge-address) false) => (contains {:protocol "smtps", :account "eric@harris-braun.com", :host "mail.harris-braun.com", :fingerprint :anansi.streamscapes.channels.email-bridge-out.email-bridge-out, :port 25, :password "some-password"})
+      (find-channel-by-name r :email) => cc))
+  
   (facts "about control-channel"
     (s-> matrice->control-channel r {:name :fish :command :fish}) => (throws RuntimeException "channel not found: :fish")
     (s-> matrice->control-channel r {:name :freenode :command :fish}) => (throws RuntimeException "Unknown control command: :fish")
     (s-> matrice->control-channel r {:name :freenode :command :status}) => :closed
     (s-> matrice->control-channel r {:name :freenode :command :close}) => (throws RuntimeException "Channel not open")
-    (s-> matrice->control-channel r {:name :freenode :command :open}) => nil
-    (s-> matrice->control-channel r {:name :freenode :command :status}) => :open
-    (s-> matrice->control-channel r {:name :freenode :command :join :params {:channel "#ceptr"}}) => nil
-     (Thread/sleep 13000)
+; commented out in the name of speeding up the tests
+;    (s-> matrice->control-channel r {:name :freenode :command :open}) => nil
+;    (s-> matrice->control-channel r {:name :freenode :command :status}) => :open
+;    (s-> matrice->control-channel r {:name :freenode :command :join :params {:channel "#ceptr"}}) => nil
+;     (Thread/sleep 13000)
     )
   
   )
