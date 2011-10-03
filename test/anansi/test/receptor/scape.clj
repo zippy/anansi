@@ -77,3 +77,10 @@
     (scape-relationship r :key) => :address
     (scape-relationship r :address) => :name
     ))
+
+(facts "about scape querying"
+  (let [r (make-receptor scape-def nil :address :value)]
+    (doall (map (fn [i x] (s-> key->set r i x)) (range 10) (reverse (range 10))))
+    (set (query-scape r (fn ([address value] [(< value 5) address])))) => #{5 6 7 8 9}
+    )
+  )
