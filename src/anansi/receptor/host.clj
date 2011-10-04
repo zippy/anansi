@@ -78,24 +78,29 @@
                  addr))
         )
 
-(signal command get-state [_r _f {receptor-address :receptor scape-query :scape-query}]
+(signal command get-state [_r _f {receptor-address :receptor scape-query :scape-query scape-order :scape-order}]
         (let [receptor (if (= 0 receptor-address) _r (get-receptor _r receptor-address))]
           (if (nil? receptor)
             (throw (RuntimeException. (str "unknown receptor: " receptor-address))))
-          (let [state (receptor-state receptor false)]
-            (if (nil? scape-query)
-              state
-              (let [{scape-name :scape [qfn qv] :query} scape-query
-                    s (get-scape _r scape-name)
-                    qfun (condp = qfn
-                             "<" (fn ([k v] [(< (compare k qv) 0) v]))
-                             ">" (fn ([k v] [(> (compare k qv) 0) v]))
-                             "=" (fn ([k v] [(= k qv) v]))
-                             )
-                    receptors (set (query-scape s qfun))]
-                (assoc state :receptors (filter (fn [[key _]] (or (= key :last-address) (receptors key))) (:receptors state)))
-                )
-              ))))
+          (let [state (receptor-state receptor false)
+                qstate (if (nil? scape-query)
+                         state
+                         (let [{scape-name :scape [qfn qv] :query} scape-query
+                               s (get-scape _r scape-name)
+                               qfun (condp = qfn
+                                        "<" (fn ([k v] [(< (compare k qv) 0) v]))
+                                        ">" (fn ([k v] [(> (compare k qv) 0) v]))
+                                        "=" (fn ([k v] [(= k qv) v]))
+                                        )
+                               receptors (set (query-scape s qfun))]
+                           (assoc state :receptors (filter (fn [[key _]] (or (= key :last-address) (receptors key))) (:receptors state)))))
+                ostate (if (nil? scape-order)
+                         qstate
+                         (let [{scape-name :scape} scape-order
+                               s (get-scape _r scape-name)]
+                           (assoc qstate :receptor-order (sort-by-scape s (keys (:receptors qstate))))))]
+            ostate
+            )))
 
 (signal ceptr ping [_r _f _]
         (str "Hi " _f "! This is the host."))

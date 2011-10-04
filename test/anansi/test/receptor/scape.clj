@@ -84,3 +84,10 @@
     (set (query-scape r (fn ([address value] [(< value 5) address])))) => #{5 6 7 8 9}
     )
   )
+
+(facts "about sorting by scape"
+  (let [r (make-receptor scape-def nil :address :value)]
+    (doall (map (fn [i x] (s-> key->set r i x)) (map #(nth "zbcdefghij" %) (range 10)) (reverse (range 10))))
+    (sort-by-scape r [0 1 2 7 8 9]) => [8 7 2 1 0 9]
+    )
+  )
