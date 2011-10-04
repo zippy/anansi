@@ -103,4 +103,12 @@
       (:receptor-order state) => [j s]
       (set (keys (:receptors state))) => #{j s :last-address}
       )
+    (let [state (--> command->get-state i h {:receptor 0 :scape-order {:scape :user :offset 1}})]
+      (:receptor-order state) => [s z]
+      (set (keys (:receptors state))) => #{s z :last-address}
+      )
+    (let [state (--> command->get-state i h {:receptor 0 :scape-order {:scape :user :limit 1 :offset 1}})]
+      (:receptor-order state) => [s]
+      (set (keys (:receptors state))) => #{s :last-address}
+      )
 ))

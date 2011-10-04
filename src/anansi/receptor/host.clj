@@ -100,15 +100,16 @@
                            (assoc state :receptors (filter (fn [[key _]] (or (= key :last-address) (receptors key))) (:receptors state)))))
                 ostate (if (nil? scape-order)
                          qstate
-                         (let [{scape-name :scape limit :limit} scape-order
+                         (let [{scape-name :scape limit :limit o :offset} scape-order
                                s (get-scape _r scape-name)
-                               sorted (sort-by-scape s (keys (:receptors qstate)))
+                               offset (if (nil? o) 0 o)
+                               pre-sorted (drop offset (sort-by-scape s (keys (:receptors qstate))))
+                               sorted (if (nil? limit) pre-sorted (take limit pre-sorted))
                                ]
-                           (if (nil? limit)
+                           (if (and (nil? limit) (= 0 offset)) ;small optimization
                              (assoc qstate :receptor-order sorted)
-                             (let [lsorted (take limit sorted)
-                                   lset (set lsorted)]
-                               (assoc qstate :receptor-order lsorted :receptors (into {} (filter (fn [[k v]] (lset k)) (:receptors qstate))))
+                             (let [lset (set sorted)]
+                               (assoc qstate :receptor-order sorted :receptors (into {} (filter (fn [[k v]] (or (= k :last-address) (lset k))) (:receptors qstate))))
                                ))))]
             ostate
             )))
