@@ -82,6 +82,10 @@
         (let [receptor (if (= 0 receptor-address) _r (get-receptor _r receptor-address))]
           (if (nil? receptor)
             (throw (RuntimeException. (str "unknown receptor: " receptor-address))))
+          ; TODO all of these functions are very ineffictient,
+          ; espeically the sorting and limiting of the receptors.
+          ; They need to be made more efficient but that will have to
+          ; wait until we rebuild scaping into it's new form
           (let [state (receptor-state receptor false)
                 qstate (if (nil? scape-query)
                          state
@@ -96,9 +100,16 @@
                            (assoc state :receptors (filter (fn [[key _]] (or (= key :last-address) (receptors key))) (:receptors state)))))
                 ostate (if (nil? scape-order)
                          qstate
-                         (let [{scape-name :scape} scape-order
-                               s (get-scape _r scape-name)]
-                           (assoc qstate :receptor-order (sort-by-scape s (keys (:receptors qstate))))))]
+                         (let [{scape-name :scape limit :limit} scape-order
+                               s (get-scape _r scape-name)
+                               sorted (sort-by-scape s (keys (:receptors qstate)))
+                               ]
+                           (if (nil? limit)
+                             (assoc qstate :receptor-order sorted)
+                             (let [lsorted (take limit sorted)
+                                   lset (set lsorted)]
+                               (assoc qstate :receptor-order lsorted :receptors (into {} (filter (fn [[k v]] (lset k)) (:receptors qstate))))
+                               ))))]
             ostate
             )))
 

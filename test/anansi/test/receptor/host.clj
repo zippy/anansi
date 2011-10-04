@@ -98,4 +98,9 @@
     (set (keys (:receptors (--> command->get-state i h {:receptor 0 :scape-query {:scape :user :query [">" "s"]}})))) => #{s z :last-address}
     (set (keys (:receptors (--> command->get-state i h {:receptor 0 :scape-query {:scape :user :query ["<" "s"]}})))) => #{j :last-address}
     (set (keys (:receptors (--> command->get-state i h {:receptor 0 :scape-query {:scape :user :query ["=" "sam"]}})))) => #{s :last-address}
-    (:receptor-order (--> command->get-state i h {:receptor 0 :scape-order {:scape :user}})) => [j s z]))
+    (:receptor-order (--> command->get-state i h {:receptor 0 :scape-order {:scape :user}})) => [j s z]
+    (let [state (--> command->get-state i h {:receptor 0 :scape-order {:scape :user :limit 2}})]
+      (:receptor-order state) => [j s]
+      (set (keys (:receptors state))) => #{j s :last-address}
+      )
+))
