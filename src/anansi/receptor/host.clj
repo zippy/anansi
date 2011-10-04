@@ -78,11 +78,24 @@
                  addr))
         )
 
-(signal command get-state [_r _f {receptor-address :receptor}]
+(signal command get-state [_r _f {receptor-address :receptor scape-query :scape-query}]
         (let [receptor (if (= 0 receptor-address) _r (get-receptor _r receptor-address))]
           (if (nil? receptor)
             (throw (RuntimeException. (str "unknown receptor: " receptor-address))))
-          (receptor-state receptor false)))
+          (let [state (receptor-state receptor false)]
+            (if (nil? scape-query)
+              state
+              (let [{scape-name :scape [qfn qv] :query} scape-query
+                    s (get-scape _r scape-name)
+                    qfun (condp = qfn
+                             "<" (fn ([k v] [(< (compare k qv) 0) v]))
+                             ">" (fn ([k v] [(> (compare k qv) 0) v]))
+                             "=" (fn ([k v] [(= k qv) v]))
+                             )
+                    receptors (set (query-scape s qfun))]
+                (assoc state :receptors (filter (fn [[key _]] (or (= key :last-address) (receptors key))) (:receptors state)))
+                )
+              ))))
 
 (signal ceptr ping [_r _f _]
         (str "Hi " _f "! This is the host."))

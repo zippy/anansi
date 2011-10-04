@@ -86,4 +86,15 @@
       (let [state (receptor-state h true)]
         state => (receptor-state (receptor-restore state nil) true)
         ))
-    ))
+    )
+)
+(facts "about querys"
+  (let [h (make-receptor host-def nil {})
+        i (make-receptor some-interface-def h {})
+        z (--> command->new-user i h {:user "zippy"})
+        s (--> command->new-user i h {:user "sam"})
+        j (--> command->new-user i h {:user "jane"})
+        ]
+    (set (keys (:receptors (--> command->get-state i h {:receptor 0 :scape-query {:scape :user :query [">" "s"]}})))) => #{s z :last-address}
+    (set (keys (:receptors (--> command->get-state i h {:receptor 0 :scape-query {:scape :user :query ["<" "s"]}})))) => #{j :last-address}
+    (set (keys (:receptors (--> command->get-state i h {:receptor 0 :scape-query {:scape :user :query ["=" "sam"]}})))) => #{s :last-address}))
