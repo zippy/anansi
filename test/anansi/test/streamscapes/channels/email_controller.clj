@@ -15,13 +15,13 @@
       r (make-receptor streamscapes-def nil {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
       eric (make-receptor ident-def r {:attributes {:name "Eric"}})
       channel-address (s-> setup->new-channel r {:type :email, :name :email,
-                                                 :in {:host "mail.harris-braun.com" :account "eric@harris-braun.com" :password "fish314fish!!!" :protocol "pop3"}
+                                                 :in {:host "mail.harris-braun.com" :account "eric@harris-braun.com" :password "pass" :protocol "pop3"}
                                                  })
       cc (get-receptor r channel-address)
       [controller-address control-signal] (get-controller cc)
       b (get-receptor cc controller-address)]
   (facts "about email controller"
     (receptor-state b false) => (contains {:fingerprint :anansi.streamscapes.channels.email-controller.email-controller})
-    (s-> channel->control b {:command :check}) => (throws javax.mail.MessagingException "Connect failed")
+    (s-> channel->control b {:command :check}) => (throws javax.mail.AuthenticationFailedException "Authentication failed.")
     ))
 

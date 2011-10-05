@@ -28,7 +28,7 @@
     (testing "receive"
       (let [droplet-address (s-> stream->receive cc {:id "some-id" :to "to-addr" :from "from-addr" :envelope {:from "rfc-822-email" :subject "text/plain" :body "text/html"} :content {:from "test@example.com" :subject "Hi there!" :body "<b>Hello world!</b>"}})
             d (get-receptor r droplet-address)]
-        (fact (receptor-state d true) => :x)
+        (fact (receptor-state d true) => (contains {:id "some-id", :envelope {:from "rfc-822-email", :subject "text/plain", :body "text/html"}, :channel :email-stream, :content {:from "test@example.com", :subject "Hi there!", :body "<b>Hello world!</b>"}, :to "to-addr", :from "from-addr", :fingerprint :anansi.streamscapes.droplet.droplet}))
         (is (= "from-addr"  (contents d :from) ))
         (is (= "some-id"  (contents d :id) ))
         (is (= :email-stream  (contents d :channel) ))

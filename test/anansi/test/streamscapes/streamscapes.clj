@@ -8,6 +8,7 @@
         [anansi.streamscapes.channel :only [get-deliverer-bridge get-receiver-bridge get-controller]]
         [anansi.streamscapes.channels.email-bridge-out :only [channel->deliver email-bridge-out-def]]
         [anansi.streamscapes.channels.email-bridge-in :only [email-bridge-in-def]]
+        [anansi.streamscapes.channels.email-controller :only [email-controller-def]]
         [anansi.streamscapes.channels.irc-controller :only [channel->control]]
         [anansi.streamscapes.channels.irc-bridge-in]
         [anansi.streamscapes.channels.irc-controller :only [irc-controller-def]])
