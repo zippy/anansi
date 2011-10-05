@@ -43,7 +43,7 @@
                        [bridge-address delivery-signal] (get-deliverer-bridge _r)
                        errors (--> delivery-signal _r (get-receptor _r bridge-address) params)]
                    (if (nil? errors)
-                     (--> key->set _r deliveries {:channel channel :time (str (now))} droplet-address))
+                     (--> key->set _r deliveries (str (now)) droplet-address))
                    errors))))
 
 ; hand a message to the bridge to be received

@@ -26,7 +26,7 @@
   (facts "scaping relationships"
     (scape-relationship (get-scape r :channel) :key) => :name
     (scape-relationship (get-scape r :channel) :address) => :address
-    (scape-relationship (get-scape r :delivery) :key) => :streamscapes-channel-time-map
+    (scape-relationship (get-scape r :delivery) :key) => :timestamp
     (scape-relationship (get-scape r :delivery) :address) => :droplet-address
     (scape-relationship (get-scape r :id) :key) => :droplet-address
     (scape-relationship (get-scape r :id) :address) => :streamscapes-channel-address

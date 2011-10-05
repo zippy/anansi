@@ -13,8 +13,8 @@
                                     (scapes {:name :droplet-channel :relationship {:key :droplet-address :address :streamscapes-channel}}
                                             {:name :channel :relationship {:key :name :address :address}}
                                             {:name :id :relationship {:key :droplet-address :address :streamscapes-channel-address}}
-                                            {:name :delivery :relationship {:key :streamscapes-channel-time-map :address :droplet-address}}
-                                            {:name :receipt :relationship {:key :streamscapes-channel-time-map :address :droplet-address}})
+                                            {:name :delivery :relationship {:key :timestamp :address :droplet-address}}
+                                            {:name :receipt :relationship {:key :timestamp :address :droplet-address}})
                        (attributes :data :_password)
                        (manifest [_r {matrice-address :matrice-addr attrs :attributes}]
                                  (let [ms (make-receptor scape-def _r)]

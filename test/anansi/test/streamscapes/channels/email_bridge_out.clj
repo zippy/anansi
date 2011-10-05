@@ -38,9 +38,8 @@
             ; d (get-receptor r droplet-address)
             deliveries (get-scape r :delivery)
             ]
-        (let [[{ aspect :channel time :time}] (s-> address->resolve deliveries droplet-address)]
+        (let [[time] (s-> address->resolve deliveries droplet-address)]
           ; commented out because e-mail not actually sent
           ; (is (= result "javax.mail.AuthenticationFailedException: 535 Incorrect authentication data\n"))
-          (comment is (= channel :email-stream))
           (comment is (= (subs (str (now)) 0 19) (subs time 0 19))) ; hack off the milliseconds
           )))))

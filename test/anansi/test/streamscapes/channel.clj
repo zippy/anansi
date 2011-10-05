@@ -49,8 +49,7 @@
         (is (= "Failed" result))
         (is (= [] (s-> address->resolve deliveries droplet-address)))
         (s-> stream->send cc {:droplet-address droplet-address :error nil})
-        (let [[{ channel :channel time :time}] (s-> address->resolve deliveries droplet-address)]
-          (is (= channel :email-stream))
+        (let [[time] (s-> address->resolve deliveries droplet-address)]
           (is (= (subs (str (now)) 0 19) (subs time 0 19))) ; hack off the milliseconds
           )))
     

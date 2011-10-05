@@ -45,9 +45,8 @@
               deliveries (get-scape r :delivery)
               ]
 
-          (let [[{ channel :channel time :time}] (s-> address->resolve deliveries droplet-address)]
+          (let [[time] (s-> address->resolve deliveries droplet-address)]
             (is (= result nil))
-            (is (= channel :local-stream))
             (is (= (subs (str (now)) 0 19) (subs time 0 19))) ; hack off the milliseconds
             )
           (let [droplet-id (first (s-> address->all zippy-droplet-ids))
