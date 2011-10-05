@@ -10,6 +10,8 @@
             [goog.debug.DebugWindow :as debugw]
             [goog.ui.Dialog :as dialog]
             [goog.ui.Button :as button]
+            [goog.net.cookies :as cookie]
+            [goog.net.Cookies :as Cookie]
             [ss.debug :as debug]
             [goog.Uri :as uri]
             [goog.editor.Field :as field]
@@ -50,25 +52,51 @@
     )
   )
 
-(defn auth-callback [e]
-  (let [{status :status result :result} (process-xhr-result e)]
-    (def session result)
-    (tdom/set-text :session session)
-    )
+(defn set-session [s]
+  (tdom/set-text :session s)
+  (def the-session s)
+;  (cookie/set "ss-session" s)
+)
+
+(defn get-session []
+  the-session
+;  (cookie/get "ss-session")
   )
 
+(defn auth-callback [e]
+  (let [{status :status result :result} (process-xhr-result e)]
+    (set-session result)
+    (if (= status "ok")
+      (do (hide :authpane)
+          (show :container)
+          (refresh-stream))
+      (do (js/alert result)
+          (hide :container)
+          (show :authpane)
+          ))))
+
+(defn do-auth [] (.setVisible auth true))
 (def auth (goog.ui.Prompt. "Authenticate" "User"
                            (fn [r]
                              (if (not ( nil? r))
                                (ceptr->command {:cmd "authenticate" :params {:user r}}  auth-callback)))))
-(def new_user (goog.ui.Prompt. "New User" "User"
-                           (fn [r]
+
+(defn new-user-callback [e]
+  (let [{status :status result :result} (process-xhr-result e)]
+    (if (= status "ok")
+      (do (js/alert "Thanks! Now you need to authenticate.")
+          (do-auth))
+      (js/alert result))))
+
+(defn do-new-user [] (.setVisible new-user true))
+(def new-user (goog.ui.Prompt. "New User" "User"
+                               (fn [r]
                              (if (not ( nil? r))
-                               (ceptr->command {:cmd "new-user" :params {:user r}}  test-callback)))))
+                               (ceptr->command {:cmd "new-user" :params {:user r}}  new-user-callback)))))
 
 (defn send-signal
   ([params] (send-signal params test-callback))
-  ([params callback] (ceptr->command {:cmd "send-signal" :params (assoc params :session session)} callback))
+  ([params callback] (ceptr->command {:cmd "send-signal" :params (assoc params :session (get-session))} callback))
 )
 
 (defn ping [] (send-signal {:to 0 :prefix "receptor.host" :aspect "ceptr" :signal "ping"}))
@@ -124,7 +152,7 @@
    ))
 (defn check-email-callback [e]
   (let [{status :status result :result} (process-xhr-result e)]
-    (rs)
+    (refresh-stream)
     )
   )
 (defn email-check []
@@ -335,3 +363,6 @@
     (dom/append elem ())
     )
   )
+
+(defn check-auth []
+  (if (nil? (get-session) (do-auth))))
