@@ -253,7 +253,72 @@
         (assoc s :scapes (into {} (map (fn [sn] [sn (scape-state receptor sn)] ) scapes))))
       (if ss (assoc s :scapes-scape-addr (address-of ss)) s)
       )))
-(defn receptor-state [receptor full?] ((rdef receptor :state) receptor full?))
+
+(defn query-scape
+  "returns a lazy sequence of the results of the qfun filtered against the scape values
+qfun must be a function of two arguments: key, address and must return a vector pair of a boolean value of weather to include an entry for this pair, plus the value to be returned for this pair, which may anything."
+  [_r qfun]
+  (map (fn [[_ result ]] result) (filter (fn [[b r]] b) (map (fn [[k a]] (qfun k a) ) @(contents _r :map)))))
+
+(defn sort-by-scape
+  "takes a list of receptor addresses and returns them in order sorted by the scape key
+assumes that the scape has receptor addresses in the value of the map"
+  ([_r addresses] (sort-by-scape _r addresses false))
+  ([_r addresses descending?]
+     (let [a (set addresses)
+           m (filter (fn [[k v]] (a v)) @(contents _r :map)) ;scape pairs in receptor list 
+           sorted (map (fn [[k v]] v) (sort-by (fn [[k v]] k) m))
+           ]
+       (into [] (if descending? (reverse sorted) sorted)))))
+
+(defn scape-size
+  "returns the number of scaped items in the scape"
+  [_r]
+  (count @(contents _r :map))
+  )
+
+;; TODO all of these functions are very ineffictient,
+;; espeically the sorting and limiting of the receptors.
+;; They need to be made more efficient but that will have to
+;; wait until we rebuild scaping into it's new form
+(defn process-query
+  "takes a receptor state and applies a query to it"
+  [_r state query]
+  (let [{scape-query :scape-query scape-order :scape-order} query
+        qstate (if (nil? scape-query)
+                 state
+                 (let [{scape-name :scape [qfn qv] :query} scape-query
+                       s (_get-scape _r scape-name)
+                       qfun (condp = qfn
+                                "<" (fn ([k v] [(< (compare k qv) 0) v]))
+                                ">" (fn ([k v] [(> (compare k qv) 0) v]))
+                                "=" (fn ([k v] [(= k qv) v]))
+                                )
+                       receptors (set (query-scape s qfun))]
+                   (assoc state :receptors (filter (fn [[key _]] (receptors key)) (:receptors state)))))
+        ostate (if (nil? scape-order)
+                 qstate
+                 (let [{scape-name :scape limit :limit o :offset} scape-order
+                       s (_get-scape _r scape-name)
+                       offset (if (nil? o) 0 o)
+                       tstate (assoc qstate :receptor-total (scape-size s))
+                       pre-sorted (drop offset (sort-by-scape s (keys (:receptors tstate)) (:descending scape-order)))
+                       sorted (if (nil? limit) pre-sorted (take limit pre-sorted))
+                       ]
+                   (if (and (nil? limit) (= 0 offset)) ;small optimization
+                     (assoc tstate :receptor-order sorted)
+                     (let [lset (set sorted)]
+                       (assoc tstate :receptor-order sorted :receptors (into {} (filter (fn [[k v]] (lset k)) (:receptors qstate))))))))]
+    ostate))
+
+(defn receptor-state
+  "gets the receptor state: for serialization if full? is true or, for public consumption if full? is false or a query spec"
+  [receptor full?]
+  (let [query? (map? full?)
+        state ((rdef receptor :state) receptor (if (or (= full? false) query?) false true))]
+    (if query?
+      (process-query receptor state full?)
+      state)))
 
 (defmethod state :default [receptor full?]
            (state-convert receptor full?))

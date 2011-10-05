@@ -78,41 +78,11 @@
                  addr))
         )
 
-(signal command get-state [_r _f {receptor-address :receptor scape-query :scape-query scape-order :scape-order}]
+(signal command get-state [_r _f {receptor-address :receptor query :query}]
         (let [receptor (if (= 0 receptor-address) _r (get-receptor _r receptor-address))]
           (if (nil? receptor)
             (throw (RuntimeException. (str "unknown receptor: " receptor-address))))
-          ; TODO all of these functions are very ineffictient,
-          ; espeically the sorting and limiting of the receptors.
-          ; They need to be made more efficient but that will have to
-          ; wait until we rebuild scaping into it's new form
-          (let [state (receptor-state receptor false)
-                qstate (if (nil? scape-query)
-                         state
-                         (let [{scape-name :scape [qfn qv] :query} scape-query
-                               s (get-scape _r scape-name)
-                               qfun (condp = qfn
-                                        "<" (fn ([k v] [(< (compare k qv) 0) v]))
-                                        ">" (fn ([k v] [(> (compare k qv) 0) v]))
-                                        "=" (fn ([k v] [(= k qv) v]))
-                                        )
-                               receptors (set (query-scape s qfun))]
-                           (assoc state :receptors (filter (fn [[key _]] (or (= key :last-address) (receptors key))) (:receptors state)))))
-                ostate (if (nil? scape-order)
-                         qstate
-                         (let [{scape-name :scape limit :limit o :offset} scape-order
-                               s (get-scape _r scape-name)
-                               offset (if (nil? o) 0 o)
-                               pre-sorted (drop offset (sort-by-scape s (keys (:receptors qstate))))
-                               sorted (if (nil? limit) pre-sorted (take limit pre-sorted))
-                               ]
-                           (if (and (nil? limit) (= 0 offset)) ;small optimization
-                             (assoc qstate :receptor-order sorted)
-                             (let [lset (set sorted)]
-                               (assoc qstate :receptor-order sorted :receptors (into {} (filter (fn [[k v]] (or (= k :last-address) (lset k))) (:receptors qstate))))
-                               ))))]
-            ostate
-            )))
+          (receptor-state receptor (if (nil? query) false query))))
 
 (signal ceptr ping [_r _f _]
         (str "Hi " _f "! This is the host."))

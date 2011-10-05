@@ -91,20 +91,3 @@
   "return the relationship information about the scape"
   [_r aspect]
   (aspect (contents _r :relationship)))
-
-(defn query-scape
-  "returns a lazy sequence of the results of the qfun filtered against the scape values
-qfun must be a function of two arguments: key, address and must return a vector pair of a boolean value of weather to include an entry for this pair, plus the value to be returned for this pair, which may anything."
-  [_r qfun]
-  (map (fn [[_ result ]] result) (filter (fn [[b r]] b) (map (fn [[k a]] (qfun k a) ) @(contents _r :map)))))
-
-(defn sort-by-scape
-  "takes a list of receptor addresses and returns them in order sorted by the scape key
-assumes that the scape has receptor addresses in the value of the map"
-  [_r addresses]
-  (let [a (set addresses)
-        m (filter (fn [[k v]] (a v)) @(contents _r :map)) ;scape pairs in receptor list 
-        ]
-    (into [] (map (fn [[k v]] v) (sort-by (fn [[k v]] k) m)))
-    )
-  )

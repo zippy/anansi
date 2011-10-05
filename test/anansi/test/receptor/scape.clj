@@ -89,5 +89,6 @@
   (let [r (make-receptor scape-def nil :address :value)]
     (doall (map (fn [i x] (s-> key->set r i x)) (map #(nth "zbcdefghij" %) (range 10)) (reverse (range 10))))
     (sort-by-scape r [0 1 2 7 8 9]) => [8 7 2 1 0 9]
+    (sort-by-scape r [0 1 2 7 8 9] :descending) => [9 0 1 2 7 8]
     )
   )

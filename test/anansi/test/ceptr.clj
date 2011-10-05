@@ -114,3 +114,33 @@
     (contains? (receptor-state r false) :_password) => false
     )
   )
+
+(facts "about querys on public access to receptor contents"
+  (let [p (make-receptor r-def nil {:attributes {:x "parent"}})
+        z (address-of (make-receptor r-def p {:attributes {:x "zippy"}}))
+        s (address-of (make-receptor r-def p {:attributes {:x "sam"}}))
+        j (address-of (make-receptor r-def p {:attributes {:x "jane"}}))
+        ]
+    (--> key->set p (get-scape p :s1) "zippy" z)
+    (--> key->set p (get-scape p :s1) "sam" s)
+    (--> key->set p (get-scape p :s1) "jane" j)
+    
+    (set (keys (:receptors (receptor-state p {:scape-query {:scape :s1 :query [">" "s"]}})))) => #{s z}
+    (set (keys (:receptors (receptor-state p {:scape-query {:scape :s1 :query ["<" "s"]}})))) => #{j}
+    (set (keys (:receptors (receptor-state p {:scape-query {:scape :s1 :query ["=" "sam"]}})))) => #{s}
+    (:receptor-order (receptor-state p {:scape-order {:scape :s1}})) => [j s z]
+    (:receptor-order (receptor-state p {:scape-order {:scape :s1 :descending true}})) => [z s j]
+    (let [state (receptor-state p {:receptor 0 :scape-order {:scape :s1 :limit 2}})]
+      (:receptor-total state) => 3
+      (:receptor-order state) => [j s]
+      (set (keys (:receptors state))) => #{j s}
+      )
+    (let [state (receptor-state p {:scape-order {:scape :s1 :offset 1}})]
+      (:receptor-order state) => [s z]
+      (set (keys (:receptors state))) => #{s z}
+      )
+    (let [state (receptor-state p {:scape-order {:scape :s1 :limit 1 :offset 1}})]
+      (:receptor-order state) => [s]
+      (set (keys (:receptors state))) => #{s}
+      )
+))
