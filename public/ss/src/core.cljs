@@ -253,13 +253,13 @@
 (defn refresh-stream []
   (get-state 8))
 
-(defn get-state [r] (ceptr->command {:cmd "get-state" :params {:receptor r :query {:scape-order {:scape :receipt :limit 10 :descending true}}}} gs-callback))
+(defn get-state [r] (ceptr->command {:cmd "get-state" :params {:receptor r :query {:scape-order {:scape :delivery :limit 10 :descending true}}}} gs-callback))
+
 (defn hidfn [address]
   (fn [e] (let [r (if (= address "") the-state
                      (get-receptor-by-address the-state (rest (string/split address #"\."))))]
            (tdom/remove-children :the-receptor)
            (render-receptor r (tdom/get-element :the-receptor) address))))
-
 
 (defn rs []
   (let [s the-state]
@@ -277,8 +277,8 @@
       )
   )
 ;;TODO: iniffecient, this scans the receipt scape every time, we should have an inverse lookup...
-(defn droplet-received [s d]
-  (let [r (:values (:receipt-scape (:scapes s)))
+(defn droplet-date [s d scape]
+  (let [r (:values (scape (:scapes s)))
         a (:address d)
         [[t _]] (remove (fn [[_ address]] (not (= address a))) r)
         ]
@@ -291,7 +291,7 @@
 
 (defn get-droplet-preview [s chan d]
   (let [c (:content d)]
-    (str "Via:" (name chan) " Received: " (droplet-received s d) " From: " (resolve-ident s (:from d)) " " (:message c))))
+    (str "Via:" (name chan) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-ident s (:from d)) " " (:message c))))
 
 (defn get-html-from-body [body content-type]
   (if (re-find #"^multipart" content-type)
