@@ -7,9 +7,10 @@
         [anansi.streamscapes.ident :only [ident-def]]
         [anansi.receptor.user :only [user-def]])
   (:use [midje.sweet])
-  (:use [clojure.test]))
+  (:use [clojure.test])
+  (:use [clj-time.core :only [date-time]]))
 
-(defn create-java-email-message [{to :to from :from subject :subject body :body}]
+(defn create-java-email-message [{to :to from :from subject :subject body :body sent :sent}]
   (let [session (doto (javax.mail.Session/getInstance (java.util.Properties.)) (.setDebug false))
         to (javax.mail.internet.InternetAddress. to)
         from (javax.mail.internet.InternetAddress. from)
@@ -18,6 +19,7 @@
     (. msg addRecipient javax.mail.Message$RecipientType/TO to)
     (. msg setSubject subject)
     (. msg setText body)
+    (. msg setSentDate sent)
     (. msg addHeader "Message-Id" (str "<123456%example.com>"))
     msg)
   )
@@ -47,9 +49,11 @@
       ;; testing this requires spoofing an e-mail server for the java mail stuff, so it's not done.
       )
     (testing "internal functions: handle-message"
-      (let [message (create-java-email-message {:to "eric@example.com" :from "\"Joe Blow\" <test@example.com>" :subject "Hi there!" :body "<b>Hello world!</b>"})
+      (let [sent-date (date-time 2011 01 02 12 21)
+            message (create-java-email-message {:sent (java.util.Date. "2011/01/02 12:21") :to "eric@example.com" :from "\"Joe Blow\" <test@example.com>" :subject "Hi there!" :body "<b>Hello world!</b>"})
             droplet-address (handle-message b message)
             d (get-receptor r droplet-address)
+            deliveries (get-scape r :delivery)
             ]
         (is (= (address-of eric) (contents d :to) ))
         (is (= "<123456%example.com>" (contents d :id)))
@@ -58,6 +62,9 @@
         (is (= {:from "rfc-822-email" :subject "text/plain" :body "text/plain"} (contents d :envelope)))
         (is (= {:from "test@example.com" :subject "Hi there!" :body "<b>Hello world!</b>"} (contents d :content)))
         (is (= droplet-address (handle-message b message)))
+        (let [[time] (s-> address->resolve deliveries droplet-address)]
+          (fact (str sent-date) => time)
+          )
         )
       )
     (fact (:scapes (receptor-state r false)) => (contains {:email-ident-scape {:values {"eric@example.com" 8, "test@example.com" 12}, :relationship {:key nil, :address nil}}, :ident-name-scape {:values {8 "name for (\"eric@example.com\")", 12 "Joe Blow"}, :relationship {:key :ident-address, :address :name-attribute}}}))

@@ -25,11 +25,25 @@
   (get-channel-receptor _r :receiver))
 
 ; the receive signal is called by the receiver bridge to create a new droplet
-(signal stream receive [_r _f {id :id to :to from :from envelope :envelope content :content}]
+(signal stream receive [_r _f {id :id to :to from :from sent :sent envelope :envelope content :content}]
         (rsync _r
                (let [ss (parent-of _r)
+                    
+                     xx (try (prn "INCORPORATING:" {:id id :from from :to to :sent sent :channel (contents _r :name) :envelope envelope :content content} )
+                             (catch Exception e
+                               (prn "ERROR " e)
+                               :err
+                               ))
+                     yy (if (= xx :err) (do
+                                           (doseq [ [k v] content] (prn "Key: " k) (prn "Value: " v))
+                                           (prn "XXX" {:id id :from from :to to :channel (contents _r :name) :envelope envelope :content content})
+                                           ))
                      droplet-address (--> channel->incorporate _r ss {:id id :from from :to to :channel (contents _r :name) :envelope envelope :content content})
+                     receipts (get-scape ss :receipt)
+                     deliveries (get-scape ss :delivery)
                      ]
+                 (--> key->set _r receipts (str (now)) droplet-address)
+                 (--> key->set _r deliveries (if (nil? sent) (str (now)) sent) droplet-address)
                  droplet-address)))
 
 ; the send signal calls the deliverer bridge to deliver a droplet

@@ -26,13 +26,19 @@
                                                   }))
 
     (testing "receive"
-      (let [droplet-address (s-> stream->receive cc {:id "some-id" :to "to-addr" :from "from-addr" :envelope {:from "rfc-822-email" :subject "text/plain" :body "text/html"} :content {:from "test@example.com" :subject "Hi there!" :body "<b>Hello world!</b>"}})
+      (let [sent-date (str (now))
+            droplet-address (s-> stream->receive cc {:id "some-id" :to "to-addr" :from "from-addr" :sent sent-date :envelope {:from "rfc-822-email" :subject "text/plain" :body "text/html"} :content {:from "test@example.com" :subject "Hi there!" :body "<b>Hello world!</b>"}})
             d (get-receptor r droplet-address)
-            receipts (get-scape r :receipt)]
+            receipts (get-scape r :receipt)
+            deliveries (get-scape r :delivery)]
         (fact (receptor-state d true) => (contains {:id "some-id", :envelope {:from "rfc-822-email", :subject "text/plain", :body "text/html"}, :channel :email-stream, :content {:from "test@example.com", :subject "Hi there!", :body "<b>Hello world!</b>"}, :to "to-addr", :from "from-addr", :fingerprint :anansi.streamscapes.droplet.droplet}))
         (let [[time] (s-> address->resolve receipts droplet-address)]
+          (fact (= time sent-date) => false)
           (fact (subs (str (now)) 0 19) => (subs time 0 19)) ;hack off the milliseconds
           )
+        (let [[time] (s-> address->resolve deliveries droplet-address)]
+          (facts time => sent-date))
+
         (is (= "from-addr"  (contents d :from) ))
         (is (= "some-id"  (contents d :id) ))
         (is (= :email-stream  (contents d :channel) ))

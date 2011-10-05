@@ -5,7 +5,9 @@
   (:use [anansi.ceptr]
         [anansi.receptor.scape]
         [anansi.streamscapes.streamscapes]
-        [anansi.streamscapes.channel]))
+        [anansi.streamscapes.channel])
+  (:use [clj-time.core :only [date-time]]))
+
 
 (def email-bridge-in-def (receptor-def "email-bridge-in"
                           (attributes :host :account :password :protocol)))
@@ -46,11 +48,15 @@
             [from from-name] (parseInternetAddress (first (try (.getFrom message)
                                                                (catch Exception e [(javax.mail.internet.InternetAddress. (str "\"" e "\" <_err_@unknown.err>"))]))))
             to-id (do-identify ss {:identifiers {:email to} :attributes {:name to-name}} false)
-            from-id (do-identify ss {:identifiers {:email from} :attributes {:name from-name}} false)]
+            from-id (do-identify ss {:identifiers {:email from} :attributes {:name from-name}} false)
+            jd (.getSentDate message)
+            sent (if (nil? jd) nil (date-time (+ 1900 (.getYear jd)) (+ 1 (.getMonth jd)) (.getDate jd) (.getHours jd) (.getMinutes jd) (.getSeconds jd)))
+            ]
         (--> stream->receive _r (parent-of _r)
              {:id id
               :to to-id
               :from from-id
+              :sent (str sent)
               :envelope {:from "rfc-822-email" :subject "text/plain" :body (.getContentType message)}
               :content {:from from
                         :subject (.getSubject message)
