@@ -39,10 +39,8 @@
                  (let [droplet-address (:droplet-address params)
                        d (get-receptor ss droplet-address)
                        deliveries (get-scape ss :delivery)
-                     receipts (get-scape ss :receipt)
                        channel (contents _r :name)
                        [bridge-address delivery-signal] (get-deliverer-bridge _r)
-                 (--> key->set _r receipts (str (now)) droplet-address)
                        errors (--> delivery-signal _r (get-receptor _r bridge-address) params)]
                    (if (nil? errors)
                      (--> key->set _r deliveries (str (now)) droplet-address))
