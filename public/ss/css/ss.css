@@ -1,0 +1,154 @@
+/*
+Use of this source code is governed by an Apache 2.0 License.
+See the COPYING file for details.
+*/
+
+/* Copyright 2007 Google Inc.  All Rights Reserved. */
+/* */
+
+
+@import url(common.css);
+
+
+body {
+  background-color: #ffe;
+}
+
+div#flow-panel {
+  border-bottom: 1px solid #369;
+}
+.stream-control {
+   float: right;
+}
+#header {
+   clear:both;
+   float:left;
+   width:100%;
+}
+
+
+/* column container */
+.colmask {
+   position:relative;	/* This fixes the IE7 overflow hidden bug */
+   clear:both;
+   float:left;
+   width:100%;			/* width of whole page */
+   overflow:hidden;		/* This chops off any overhanging divs */
+}
+/* common column settings */
+.colright,
+.colmid,
+.colleft {
+   float:left;
+   width:100%;
+   position:relative;
+}
+.col1,
+.col2,
+.col3 {
+   float:left;
+   position:relative;
+   padding:0 0 1em 0;
+   overflow:hidden;
+}
+/* 2 Column (left menu) settings */
+.leftmenu {
+   background:#fff;		/* right column background colour */
+}
+.leftmenu .colleft {
+   right:75%;			/* right column width */
+   background:#f4f4f4;	/* left column background colour */
+}
+.leftmenu .col1 {
+   width:71%;			/* right column content width */
+   left:102%;			/* 100% plus left column left padding */
+}
+.leftmenu .col2 {
+   width:21%;			/* left column content width (column width minus left and right padding) */
+   left:6%;			/* (right column left and right padding) plus (left column left padding) */
+}
+/* Footer styles */
+#footer {
+	clear:both;
+	float:left;
+	width:100%;
+	border-top:1px solid #000;
+}
+#footer p {
+	padding:10px;
+	margin:0;
+}
+
+.rbutton {
+  border: 1px solid #369;
+  background-color: #ddd;
+  width: 350px;
+  padding: 2px;
+  margin: 2px;
+}
+
+div#controls {
+ margin: 10px;
+clear: both;
+ width: 90%;
+}
+
+/* Misc. styles used for logging and debugging. */
+fieldset {
+  padding: 4px 8px;
+  margin-bottom: 1em;
+}
+
+fieldset legend {
+  font-weight: bold;
+  color: #036;
+}
+
+label, input {
+  vertical-align: middle;
+}
+
+.hint {
+  font-size: 90%;
+  color: #369;
+}
+
+.goog-debug-panel {
+  border: 1px solid #369;
+}
+
+.goog-debug-panel .logdiv{
+   position: relative;
+   width: 100%;
+   height: auto;
+   border-bottom: dotted 1px;
+}
+.goog-debug-panel {
+   height: 300px; 
+   overflow: scroll;
+   overflow-x: scroll;
+   overflow-y: scroll;
+}
+.goog-debug-panel .logdiv .logmsg {
+  font: normal 10px "Lucida Sans Typewriter", "Courier New", Courier, fixed;
+}
+
+.perf {
+  margin: 0;
+  border: 0;
+  padding: 4px;
+  font: italic 95% Arial, sans-serif;
+  color: #999;
+}
+
+#perf {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  text-align: right;
+  margin: 0;
+  border: 0;
+  padding: 4px;
+  font: italic 95% Arial, sans-serif;
+  color: #999;
+}

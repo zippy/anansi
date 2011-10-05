@@ -1,0 +1,79 @@
+<!doctype html>
+<!--[if lt IE 7 ]> <html lang="en" class="no-js ie6"> <![endif]-->
+<!--[if IE 7 ]>    <html lang="en" class="no-js ie7"> <![endif]-->
+<!--[if IE 8 ]>    <html lang="en" class="no-js ie8"> <![endif]-->
+<!--[if IE 9 ]>    <html lang="en" class="no-js ie9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html lang="en" class="no-js">   <!--<![endif]-->
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <title>Anansi Testing</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--[if lt IE 9]>
+        <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+    <link rel="stylesheet" href="css/ss.css" type="text/css">
+    <link rel="stylesheet" href="css/dialog.css" type="text/css">
+    <style>
+      .modal-dialog {
+      width: 430px;
+      }
+    </style>
+
+  </head>
+  <body>
+
+  <script type="text/javascript" src="out/goog/base.js"></script>
+  <script type="text/javascript" src="ss.js"></script>
+  <script type="text/javascript">
+    goog.require('ss.core');
+  </script>
+<div id="header">
+  Header stuff goes here
+
+</div>
+<div class="colmask leftmenu">
+	<div class="colleft">
+		<div class="col1">
+			<!-- Column 1 start -->
+  <div id="flow-panel"><h3>flow</h3></div>
+  <div id="stream-panel"><div class="stream-control"><button onclick="ss.core.refresh_stream()">
+  Refresh </button></div> <h3>stream</h3></div>
+
+			<!-- Column 1 end -->
+		</div>
+		<div class="col2">
+			<!-- Column 2 start -->
+<div id="ss-panel"><h3>streamscapes</h3></div>
+			<!-- Column 2 end -->
+		</div>
+	</div>
+</div>
+<div id="footer">
+  Footer stuff goes here
+  <div id="controls">
+    <button onclick="ss.core.auth.setVisible(true)">
+      Authenticate </button>
+    <button onclick="ss.core.new_user.setVisible(true)"> New
+      User </button>
+    <button onclick="alert(ss.core.session)"> Session? </button>
+    <button onclick="ss.core.ping()"> Ping </button>
+    <button onclick="ss.core.make_ss()"> Make SS </button>
+    <button onclick="ss.core.make_irc_channel()"> Make IRC </button>
+    <button onclick="ss.core.irc_join()"> Join </button>
+    <button onclick="ss.core.irc_open()"> Open </button>
+    <button onclick="ss.core.irc_close()"> Close </button>
+    <button onclick="ss.core.make_email_channel()"> Make Email </button>
+    <button onclick="ss.core.email_check()"> Check Email </button>    
+    
+    <div id="work"></div>
+    
+    <div id="session"></div>
+    
+    <div id="debug" class="goog-debug-panel"></div>
+  </div>
+  <div id="the-receptor"></div>
+</div>
+  </body>
+</html>

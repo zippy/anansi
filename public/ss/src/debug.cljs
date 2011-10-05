@@ -1,0 +1,7 @@
+(ns ss.debug
+  (:require [ss.dom-helpers :as dom]
+            ))
+
+(defn log [txt]
+  (dom/insert-at (dom/get-element :debug) (dom/build [:div#thelog.logdiv [:div.logmsg txt]]) 0)
+  )
