@@ -156,7 +156,7 @@
   (make-dialog
    {:channel-name "email" :in-host "mail.harris-braun.com" :in-account "eric@harris-braun.com" :in-password "pass" :in-protocol "pop3"
     :out-host "mail.harris-braun.com" :out-account "eric@harris-braun.com" :out-password "pass" :out-protocol "smtps" :out-port 25}
-   make-email      
+   make-email
    ))
 
 (defn refresh-stream-callback [e]
@@ -310,7 +310,7 @@
 (defn refresh-stream []
   (get-state 8))
 
-(defn get-state [r] (ceptr->command {:cmd "get-state" :params {:receptor r :query {:scape-order {:scape :delivery :limit 10 :descending true}}}} gs-callback))
+(defn get-state [r] (ceptr->command {:cmd "get-state" :params {:receptor r :query {:scape-order {:scape :delivery :limit 40 :descending true}}}} gs-callback))
 
 (defn hidfn [address]
   (fn [e] (let [r (if (= address "") the-state
@@ -346,16 +346,24 @@
 (defn resolve-ident [s ident]
   ((keyword ident) (:values (:ident-name-scape (:scapes s)))))
 
-(defn get-droplet-preview [s chan d]
-  (let [c (:content d)]
-    (str "Via:" (name chan) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-ident s (:from d)) " " (:message c))))
-
 (defn get-html-from-body [body content-type]
   (if (re-find #"^multipart" content-type)
     (:content (first (filter (fn [part] (re-find #"^text/html" (:content-type part))) body)))
     (if (re-find #"^text/html" content-type)
       body
       (str "<pre>" body "</pre>"))))
+
+(defn zip-for-email-droplet [s d-addr channel]
+  (let [d ((:receptors s) d-addr)
+        body (:body (:content d))
+        content-type (:body (:envelope d))
+        html (tdom/build [:div (tdom/html (get-html-from-body body content-type))])
+        ]
+    (z/make-zips [{:title "Raw" :content (u/clj->json body)}] html)
+    {:title (str "Via:" (name channel) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-ident s (:from d)) " Subject: " (:subject (:content d)))
+     :content (tdom/build [:div [:div#html html]])}
+    )
+  )
 
 (defn render-stream [s]
   (let [elem (tdom/get-element :stream-panel)
@@ -367,15 +375,28 @@
     (dom/append elem (tdom/build [:h3 (str "stream: " (count (:receptors s)) " of " (:receptor-total s))]))
     (z/make-zips (map (fn [da]
                         (let [d-addr (keyword da)
-                              channel (droplet-channel-scape d-addr)
                               d ((:receptors s) d-addr)
-                              body (:body (:content d))
-                              content-type (:body (:envelope d))
-                              html (tdom/build [:div (tdom/html (get-html-from-body body content-type))])
+                              channel (droplet-channel-scape d-addr)
                               ]
-                          (z/make-zips [{:title "Raw" :content (u/clj->json body)}] html)
-                          {:title (get-droplet-preview s channel d)
-                           :content (tdom/build [:div  [:div#html html]])})) (:receptor-order s))
+                          ;; TODO: this a terrible cheat in that we
+                          ;; determine droplet type just by scanning
+                          ;; the channel name!  This should be fixed.
+                          (cond (re-find #"email" channel)
+                                (zip-for-email-droplet s d-addr channel)
+                                ;; twitter
+                                (re-find #"twitter" channel)
+                                {:title (str "Via:" (name channel) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-ident s (:from d)) " : " (:text (:content d)))
+                                 :content (tdom/build [:div [:div#default-droplet (u/clj->json (:content d)) ]]) }
+                                ;; IRC
+                                (re-find #"irc|freenode" channel)
+                                {:title (str "Via:" (name channel) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-ident s (:from d)) " : " (:message (:content d)))
+                                 :content (tdom/build [:div [:div#default-droplet (u/clj->json (:content d)) ]]) }
+                                ;;default zip
+                                true
+                                {:title (str "Via:" (name channel) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-ident s (:from d)))
+                                 :content (tdom/build [:div [:div#default-droplet (u/clj->json (:content d)) ]]) }
+                              )
+                          )) (:receptor-order s))
                  elem)))
 
 (defn short-fingerprint [r]
