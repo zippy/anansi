@@ -5,7 +5,8 @@
   (:use [anansi.ceptr]
         [anansi.receptor.scape]
         [anansi.streamscapes.streamscapes]
-        [anansi.streamscapes.channel])
+        [anansi.streamscapes.channel]
+        [anansi.util :only [javaDate2datetime]])
   (:use [clj-time.core :only [date-time]]))
 
 
@@ -50,7 +51,7 @@
             to-id (do-identify ss {:identifiers {:email to} :attributes {:name to-name}} false)
             from-id (do-identify ss {:identifiers {:email from} :attributes {:name from-name}} false)
             jd (.getSentDate message)
-            sent (if (nil? jd) nil (date-time (+ 1900 (.getYear jd)) (+ 1 (.getMonth jd)) (.getDate jd) (.getHours jd) (.getMinutes jd) (.getSeconds jd)))
+            sent (if (nil? jd) nil (javaDate2datetime jd))
             ]
         (--> stream->receive _r (parent-of _r)
              {:id id
@@ -72,7 +73,7 @@
     (let [folder (. store getFolder "inbox")]
       (.open folder (javax.mail.Folder/READ_ONLY ))
       (let [messages (.getMessages folder)]
-        (doseq [m messages] (handle-message _r m))
+        (doseq [m (take 20 messages)] (handle-message _r m))
         (.close store)
         ))))
 

@@ -1,4 +1,5 @@
-(ns anansi.util)
+(ns anansi.util
+  (:use [clj-time.core :only [date-time]]))
 
 ;; Generic Utilities - FIXME move to utility file
 
@@ -29,3 +30,6 @@
 (defn snapshot [m]
   "removes all refs from a map"
   (do-snapshot m #{}))
+
+(defn javaDate2datetime [jd]
+  (date-time (+ 1900 (.getYear jd)) (+ 1 (.getMonth jd)) (.getDate jd) (.getHours jd) (.getMinutes jd) (.getSeconds jd)))
