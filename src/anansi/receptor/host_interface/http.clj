@@ -75,6 +75,7 @@
                             {command :cmd params :params} (clojure.contrib.json/read-json b)]
                         (println (str "POST REQUEST: from " (:remote-addr request) " for: " b))
                         {:status 200
+                         :auto-transform true
                          :headers {"content-type" "application/json"
                                    "Access-Control-Allow-Origin" "*"}
                          :body (execute host _r command params)

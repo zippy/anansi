@@ -23,14 +23,14 @@
                           [in-bridge-address receive-signal] (get-receiver-bridge parent-channel)
                            ib (get-receptor parent-channel in-bridge-address)
                            result 
-                           (comment sync-http-request {:method :get,
-                                                      :url (str "https://api.twitter.com/1/statuses/user_timeline.json?screen_name=" (contents _r :screen-name))
-                                                      }
-                                                     10000)]
-                       (handle-message ib {:id_str "121470088258916352" :text "Some short tweet" :user {:screen_name (contents _r :screen-name)}})
-                       ;THIS IS WAY CHEATING!!  The controller needs
-                       ;to send this as a signal, not call it as a
-                       ;clojure function.
-;                       (pull-messages ib)
-                      )
+                           (sync-http-request {:method :get,
+                                               :url (str "https://api.twitter.com/1/statuses/user_timeline.json?screen_name=" (contents _r :screen-name))
+                                               :auto-transform true
+                                               }
+                                              10000)]
+                       ;;THIS IS WAY CHEATING!!  The controller needs
+                       ;;to send this as a signal, not call it as a
+                       ;;clojure function.
+                       (doseq [tweet (:body result)]
+                         (handle-message ib tweet)))
               (throw (RuntimeException. (str "Unknown control command: " command))))))

@@ -14,9 +14,10 @@
                       :url "http://localhost:12345/api"
                       :auto-transform :true
                       :body (encode-json->bytes {:cmd command :params params})
-                      :probes {:errors nil-channel}}
-                     1000)
-  )
+                                        ;                      :probes {:errors nil-channel}
+                      }
+                     1000))
+
 (deftest http-interface
   
   (let [h (make-receptor host-def nil {})
@@ -43,7 +44,7 @@
     (testing "authenticate"
       (is (= (:body (api-req "authenticate" {:user "eric"})) {:status "error", :result "authentication failed for user: eric"}))
       (let [b (:body (api-req "authenticate" {:user "zippy"}))
-             session (:result b)]
+            session (:result b)]
         (is (= "ok" (:status b)))
         (is (re-find #"^[0-9a-f]+$" session))
         (testing "send signal"

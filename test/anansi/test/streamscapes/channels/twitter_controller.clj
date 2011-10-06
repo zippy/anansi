@@ -22,6 +22,6 @@
     (receptor-state b false) => (contains {:screen-name "zippy314" :fingerprint :anansi.streamscapes.channels.twitter-controller.twitter-controller})
     (scape-size (get-scape r :id)) => 0
     (s-> channel->control b {:command :check})
-    (scape-size (get-scape r :id)) => 1
+    (scape-size (get-scape r :id)) => 20
     ))
 

@@ -4,7 +4,14 @@
                  "clojars" "http://clojars.org/repo"}
   :dependencies [[org.clojure/clojure "1.2.1"]
                  [org.clojure/clojure-contrib "1.2.0"]
-                 [aleph "0.2.0-beta1"]
+;                                  [aleph "0.2.0-beta1"]
+                 [lamina "0.4.0-beta2"]
+                 [org.jboss.netty/netty "3.2.4.Final"]
+                 [clj-http "0.1.3"]
+                 [gloss "0.2.0-beta2"]
+                 [user-agent-utils "1.2.3"]
+                 [potemkin "0.1.0"]
+
                  [net.cgrand/moustache "1.0.0"]
                  [compojure "0.6.3"]
                  [ring "0.3.7"]
