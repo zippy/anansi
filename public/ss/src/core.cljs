@@ -54,26 +54,34 @@
 
 (defn set-session [s]
   (tdom/set-text :session s)
-  (def the-session s)
-;  (cookie/set "ss-session" s)
+  (.set goog.net.cookies "ss-session" s -1)
 )
 
 (defn get-session []
-  the-session
-;  (cookie/get "ss-session")
+  (.get goog.net.cookies "ss-session"))
+
+(defn clear-session []
+  (.remove goog.net.cookies "ss-session"))
+
+(defn do-logged-in [session]
+  (do (set-session session)
+      (hide :authpane)
+      (show :container)
+      (refresh-stream)))
+
+(defn do-logged-out []
+  (do
+    (clear-session)
+    (hide :container)
+    (show :authpane))
   )
 
 (defn auth-callback [e]
   (let [{status :status result :result} (process-xhr-result e)]
-    (set-session result)
     (if (= status "ok")
-      (do (hide :authpane)
-          (show :container)
-          (refresh-stream))
+      (do-logged-in result)
       (do (js/alert result)
-          (hide :container)
-          (show :authpane)
-          ))))
+          (do-logged-out)))))
 
 (defn do-auth [] (.setVisible auth true))
 (def auth (goog.ui.Prompt. "Authenticate" "User"
@@ -386,4 +394,4 @@
   )
 
 (defn check-auth []
-  (if (nil? (get-session) (do-auth))))
+  (if (nil? (get-session)) (do-auth) (refresh-stream)))
