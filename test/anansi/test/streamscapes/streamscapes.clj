@@ -10,8 +10,10 @@
         [anansi.streamscapes.channels.email-bridge-in :only [email-bridge-in-def]]
         [anansi.streamscapes.channels.email-controller :only [email-controller-def]]
         [anansi.streamscapes.channels.irc-controller :only [channel->control]]
-        [anansi.streamscapes.channels.irc-bridge-in]
-        [anansi.streamscapes.channels.irc-controller :only [irc-controller-def]])
+        [anansi.streamscapes.channels.irc-bridge-in :only [irc-bridge-in-def]]
+        [anansi.streamscapes.channels.irc-controller :only [irc-controller-def]]
+        [anansi.streamscapes.channels.twitter-bridge-in :only [twitter-bridge-in-def]]
+        [anansi.streamscapes.channels.twitter-controller :only [twitter-controller-def]])
   (:use [midje.sweet])
   (:use [clojure.test])
 )
@@ -114,7 +116,7 @@
         (is (= (contents db :host) "irc.freenode.net"))
         (is (= (contents db :port) 6667))
         (is (= (rdef (get-receptor cc in-bridge-address) :fingerprint) :anansi.streamscapes.channels.irc-bridge-in.irc-bridge-in))
-        (is (= #{ :an-irc-channel, :email-stream, :freenode, :irc-stream, :email} (set (keys (:map (receptor-state (get-scape r :channel) true)))))))
+        (is (= #{ :an-irc-channel, :email-stream, :freenode, :irc-stream, :email, :twitterx} (set (keys (:map (receptor-state (get-scape r :channel) true)))))))
       
       ))
 
@@ -133,6 +135,15 @@
                                              :nick "zippy31415"
                                              :host "irc.freenode.net"
                                               :port 6667})))
+  (facts "about new twitter channel"
+    (let [channel-address (s-> setup->new-channel r {:type :twitter, :name :twitterx, :screen-name "zippy314"})
+          cc (get-receptor r channel-address)
+          [in-bridge-address receive-signal] (get-receiver-bridge cc)
+          [controller-address controller-signal] (get-controller cc)]
+      (receptor-state (get-receptor cc in-bridge-address) false) => (contains {:fingerprint :anansi.streamscapes.channels.twitter-bridge-in.twitter-bridge-in })
+      (find-channel-by-name r :twitterx) => cc
+      (receptor-state (get-receptor cc controller-address) false) => (contains {:fingerprint :anansi.streamscapes.channels.twitter-controller.twitter-controller :screen-name "zippy314"})
+      ))
   (facts "about new email channel"
     (let [channel-address (s-> setup->new-channel r {:type :email, :name :email,
                                                      :in {:host "mail.example.com" :account "someuser" :password "pass" :protocol "pop3"}

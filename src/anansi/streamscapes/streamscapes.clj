@@ -145,6 +145,12 @@
           (s-> matrice->make-channel _r {:name (channel-name n)
                                          :receptors
                                          (condp = type
+                                             :twitter (let [{screen-name :screen-name} params]
+                                                        {(get-receptor-definition :anansi.streamscapes.channels.twitter-bridge-in.twitter-bridge-in)
+                                                         {:role :receiver :params {}}
+                                                         (get-receptor-definition :anansi.streamscapes.channels.twitter-controller.twitter-controller)
+                                                         {:role :controller :params {:attributes {:screen-name screen-name}}
+                                                          :signal (get-signal-function "anansi.streamscapes.channels.twitter-controller" "channel" "control")}})
                                              :irc (let [{host :host port :port user :user nick :nick} params]
                                                     {(get-receptor-definition :anansi.streamscapes.channels.irc-bridge-in.irc-bridge-in)
                                                      {:role :receiver :params {} }

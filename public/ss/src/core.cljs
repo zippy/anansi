@@ -150,15 +150,36 @@
     :out-host "mail.harris-braun.com" :out-account "eric@harris-braun.com" :out-password "pass" :out-protocol "smtps" :out-port 25}
    make-email      
    ))
-(defn check-email-callback [e]
+
+(defn refresh-stream-callback [e]
   (let [{status :status result :result} (process-xhr-result e)]
     (refresh-stream)
     )
   )
+(defn twitter-check [c]
+  (send-signal {:to 8 :prefix "streamscapes.streamscapes" :aspect "matrice" :signal "control-channel"
+                :params {:name c :command :check} }
+               refresh-stream-callback)
+  )
+
+(defn make-twitter [p]
+  (let [screen-name (:twitter-name p)
+        params {:type :twitter :name (str "twitter-" screen-name) :screen-name screen-name}]
+    (send-signal {:to 8 :prefix "streamscapes.streamscapes" :aspect "setup" :signal "new-channel"
+                  :params params}))
+  )
+
+(defn make-twitter-channel []
+  (make-dialog
+   {:twitter-name "zippy314"}
+   make-twitter      
+   )
+  )
+
 (defn email-check []
   (send-signal {:to 8 :prefix "streamscapes.streamscapes" :aspect "matrice" :signal "control-channel"
                 :params {:name :email :command :check} }
-               check-email-callback))
+               refresh-stream-callback))
 
 (defn make-irc-channel []
   (make-dialog {:host "irc.freenode.net", :port 6667, :user "Eric", :nick "zippy31415"}

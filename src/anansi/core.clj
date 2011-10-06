@@ -6,6 +6,8 @@
   (:require anansi.streamscapes.channels.email-bridge-in)
   (:require anansi.streamscapes.channels.email-bridge-out)
   (:require anansi.streamscapes.channels.email-controller)
+  (:require anansi.streamscapes.channels.twitter-bridge-in)
+  (:require anansi.streamscapes.channels.twitter-controller)
   (:use
    [anansi.ceptr]
    [anansi.receptor.host]
