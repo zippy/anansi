@@ -4,7 +4,8 @@
   anansi.ceptr
   (:use [anansi.map-utilities]
         [anansi.util]
-        ))
+        )
+  (:use [clojure.set :only [difference]]))
 
 (declare *receptors*)
 
@@ -304,11 +305,15 @@ assumes that the scape has receptor addresses in the value of the map"
                        tstate (assoc qstate :receptor-total (scape-size s))
                        pre-sorted (drop offset (sort-by-scape s (keys (:receptors tstate)) (:descending scape-order)))
                        sorted (if (nil? limit) pre-sorted (take limit pre-sorted))
+                       ;; this is cheat because I shouldn't be able to
+                       ;; look directly into the scape receptor here,
+                       ;; now should I!
+                       non-scape-receptors (difference (set (keys (:receptors qstate))) (set (vals @(contents s :map))))
                        ]
                    (if (and (nil? limit) (= 0 offset)) ;small optimization
                      (assoc tstate :receptor-order sorted)
                      (let [lset (set sorted)]
-                       (assoc tstate :receptor-order sorted :receptors (into {} (filter (fn [[k v]] (lset k)) (:receptors qstate))))))))]
+                       (assoc tstate :receptor-order sorted :receptors (into {} (filter (fn [[k v]] (and (not= k :last-address) (or (lset k) (non-scape-receptors k)))) (:receptors qstate))))))))]
     ostate))
 
 (defn receptor-state

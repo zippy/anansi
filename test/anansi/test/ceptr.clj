@@ -28,6 +28,9 @@
               (attributes :x)
               (animate [_r] (dosync (_set-content _r :animated true)
                                     _r))))
+
+(def rsub-def (receptor-def "test-sub-receptor"))
+
 (facts "about receptor definition"
   @*definitions* => (contains {:anansi.test.ceptr.test-receptor r-def})
   (keys r-def) => (just [:fingerprint :attributes :scapes :manifest :animate :state :restore])
@@ -117,6 +120,7 @@
 
 (facts "about querys on public access to receptor contents"
   (let [p (make-receptor r-def nil {:attributes {:x "parent"}})
+        x (address-of (make-receptor rsub-def p {}))
         z (address-of (make-receptor r-def p {:attributes {:x "zippy"}}))
         s (address-of (make-receptor r-def p {:attributes {:x "sam"}}))
         j (address-of (make-receptor r-def p {:attributes {:x "jane"}}))
@@ -133,14 +137,14 @@
     (let [state (receptor-state p {:receptor 0 :scape-order {:scape :s1 :limit 2}})]
       (:receptor-total state) => 3
       (:receptor-order state) => [j s]
-      (set (keys (:receptors state))) => #{j s}
+      (set (keys (:receptors state))) => #{j s x}
       )
     (let [state (receptor-state p {:scape-order {:scape :s1 :offset 1}})]
       (:receptor-order state) => [s z]
-      (set (keys (:receptors state))) => #{s z}
+      (set (keys (:receptors state))) => #{s z x}
       )
     (let [state (receptor-state p {:scape-order {:scape :s1 :limit 1 :offset 1}})]
       (:receptor-order state) => [s]
-      (set (keys (:receptors state))) => #{s}
+      (set (keys (:receptors state))) => #{s x}
       )
 ))
