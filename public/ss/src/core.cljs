@@ -18,6 +18,7 @@
             [cljs.reader :as reader]
             [ss.utils :as u]
             [ss.makezip :as z]
+            [ss.addressbook :as ab]
             ))
 
 (def ceptr-url (goog.Uri. "http://localhost:8080/api"))
@@ -88,7 +89,7 @@
   )
 
 (defn loading-start []
-  (tdom/insert-at (dom/get-element :everything) (tdom/build [:div#loading [:p "LOADING..."]]) 0)
+  (tdom/insert-at (dom/get-element :everything) (tdom/build [:div#loading.overlay-mask [:p "LOADING..."]]) 0)
   )
 (defn loading-end []
   (tdom/remove-node :loading))

@@ -6,4 +6,5 @@ goog.addDependency("../utils.js", ['ss.utils'], ['cljs.core']);
 goog.addDependency("../dom-helpers.js", ['ss.dom_helpers'], ['cljs.core', 'clojure.string', 'goog.dom']);
 goog.addDependency("../makezip.js", ['ss.makezip'], ['cljs.core', 'ss.dom_helpers', 'goog.ui.Zippy']);
 goog.addDependency("../debug.js", ['ss.debug'], ['cljs.core', 'ss.dom_helpers']);
-goog.addDependency("../core.js", ['ss.core'], ['ss.utils', 'cljs.core', 'goog.ui.Prompt', 'goog.net.Cookies', 'clojure.browser.dom', 'goog.ui.LabelInput', 'goog.net.cookies', 'ss.debug', 'clojure.string', 'goog.ui.Button', 'cljs.reader', 'ss.makezip', 'ss.dom_helpers', 'goog.net.XhrIo', 'goog.ui.Dialog', 'goog.style', 'goog.events', 'goog.debug.DebugWindow', 'goog.editor.Field', 'goog.Uri']);
+goog.addDependency("../addressbook.js", ['ss.addressbook'], ['cljs.core', 'clojure.browser.dom', 'clojure.string', 'ss.dom_helpers', 'goog.events', 'goog.style', 'ss.debug', 'ss.utils', 'ss.makezip']);
+goog.addDependency("../core.js", ['ss.core'], ['cljs.core', 'ss.addressbook', 'ss.dom_helpers', 'goog.ui.Dialog', 'ss.utils', 'goog.events', 'cljs.reader', 'clojure.browser.dom', 'clojure.string', 'ss.makezip', 'goog.editor.Field', 'goog.style', 'goog.ui.Prompt', 'goog.net.cookies', 'goog.ui.Button', 'goog.Uri', 'goog.ui.LabelInput', 'goog.net.XhrIo', 'ss.debug', 'goog.net.Cookies', 'goog.debug.DebugWindow']);

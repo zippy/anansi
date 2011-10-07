@@ -32,7 +32,10 @@
 <div id="everything">
 <div id="header">
   Header stuff goes here
-<button style="float: right;" onclick="ss.core.do_logged_out()">Logout</button>
+  <div class="top-right-controls">
+    <button onclick="ss.core.do_logged_out()">Logout</button>
+    <button onclick="ss.addressbook.open(ss.core.the_state)">Addressbook</button>
+  </div>
 </div>
 <div id="authpane" style="display:none"><h3>Please Authenticate or Create a New User</h3>
   <button onclick="ss.core.do_auth()">Authenticate</button>
@@ -58,6 +61,9 @@
 <div id="footer">
   Footer stuff goes here
   <div id="controls">
+
+    <button onclick="ss.addressbook.close()">Close Addressbook</button>
+
     <button onclick="ss.core.do_auth()">Authenticate</button>
     <button onclick="ss.core.do_new_user()">New User</button>
     <button onclick="alert(ss.core.get_session())"> Session? </button>

@@ -42,32 +42,76 @@ div#flow-panel {
    float:left;
    width:100%;
 }
+.top-right-controls {
+   float:right;
+}
 
-div#loading{
-    display:block;
+#modalmask {   
+   z-index: 10;
+   text-align: left;
+}
 
+#addressbook {
+   width: 75%;
+   height: 75%;
+   border: 2px solid #000;
+   background: #fff;
+   margin-left: auto;
+   margin-right: auto;
+   padding: 10px;
+   overflow-x: hidden;
+   overflow-y: scroll;
+}
+
+div#loading {
+   z-index:9999;
+}
+.overlay-mask {
+   display:block;
+   
     /*position it at the very top-left corner*/
-    position:absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    text-align:center;
+   position:absolute;
+   top:0;
+   left:0;
+   width:100%;
+   height:100%;
+   text-align:center;
+
+   /* fallback */
+   background: rgb(0, 0, 0);
 
     /*in supporting browsers, make it
       a little transparent*/
-    background:#fff;
-    _background:none; /*this line removes the background in IE*/
-    opacity:.75;
-    border-top:1px solid #ddd;
-    border-bottom:1px solid #ddd;
+    background: rgba(255,255,255,.6);
+    /* For IE 5.5 - 7*/
+   filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000);
+   /* For IE 8*/
+   -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000)";
+   
+   border-top:1px solid #ddd;
+   border-bottom:1px solid #ddd;
 
     /*set the padding, so that the content
       of the div is centered vertically*/
-    padding-top:25%;
-   z-index:9999;
-
+    padding-top:5%;
   }
+
+
+/* addressbook css */
+.identity {
+   padding: 0px;
+   clear: both;
+}
+.channel {
+   margin: 0px;
+   padding: 0px;
+   margin-right: 4px;
+   margin-left: 4px;
+}
+.channel-addresses .channel {
+   float:left;
+}
+
 
 /* column container */
 .colmask {
