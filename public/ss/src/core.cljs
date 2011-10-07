@@ -65,6 +65,7 @@
 
 (defn do-logged-in [session]
   (do (set-session session)
+      (def ss-addr 8)
       (hide :authpane)
       (show :container)
       (refresh-stream)))
@@ -78,10 +79,18 @@
     (show :authpane))
   )
 
+(defn loading-start []
+  (tdom/insert-at (dom/get-element :everything) (tdom/build [:div#loading [:p "LOADING..."]]) 0)
+  )
+(defn loading-end []
+  (tdom/remove-node :loading))
+
 (defn auth-callback [e]
   (let [{status :status result :result} (process-xhr-result e)]
+    (loading-end)
     (if (= status "ok")
-      (do-logged-in result)
+      (do
+        (do-logged-in result))
       (do (js/alert result)
           (do-logged-out)))))
 
@@ -89,7 +98,9 @@
 (def auth (goog.ui.Prompt. "Authenticate" "User"
                            (fn [r]
                              (if (not ( nil? r))
-                               (ceptr->command {:cmd "authenticate" :params {:user r}}  auth-callback)))))
+                               (do
+                                 (loading-start)
+                                 (ceptr->command {:cmd "authenticate" :params {:user r}}  auth-callback))))))
 
 (defn new-user-callback [e]
   (let [{status :status result :result} (process-xhr-result e)]
@@ -120,14 +131,14 @@
       (fun values)
       (tdom/remove-children :work))))
 (defn make-irc [params]
-  (send-signal {:to 8 :prefix "streamscapes.streamscapes" :aspect "setup" :signal "new-channel"
+  (send-signal {:to ss-addr :prefix "streamscapes.streamscapes" :aspect "setup" :signal "new-channel"
                 :params (merge {:type :irc, :name :freenode} params)})
   )
 (defn make-email [p]
   (let [params {:type :email :name (:channel-name p)
                 :in {:host (:in-host p) :account (:in-account p) :password (:in-password p) :protocol (:in-protocol p)}
                 :out {:host (:out-host p) :account (:out-account p) :password (:out-password p) :protocol (:out-protocol p) :port (:out-port p)}}]
-    (send-signal {:to 8 :prefix "streamscapes.streamscapes" :aspect "setup" :signal "new-channel"
+    (send-signal {:to ss-addr :prefix "streamscapes.streamscapes" :aspect "setup" :signal "new-channel"
                   :params params}))
   )
 
@@ -167,7 +178,7 @@
     )
   )
 (defn twitter-check [c]
-  (send-signal {:to 8 :prefix "streamscapes.streamscapes" :aspect "matrice" :signal "control-channel"
+  (send-signal {:to ss-addr :prefix "streamscapes.streamscapes" :aspect "matrice" :signal "control-channel"
                 :params {:name c :command :check} }
                refresh-stream-callback)
   )
@@ -175,7 +186,7 @@
 (defn make-twitter [p]
   (let [screen-name (:twitter-name p)
         params {:type :twitter :name (str "twitter-" screen-name) :screen-name screen-name}]
-    (send-signal {:to 8 :prefix "streamscapes.streamscapes" :aspect "setup" :signal "new-channel"
+    (send-signal {:to ss-addr :prefix "streamscapes.streamscapes" :aspect "setup" :signal "new-channel"
                   :params params}))
   )
 
@@ -187,7 +198,7 @@
   )
 
 (defn email-check []
-  (send-signal {:to 8 :prefix "streamscapes.streamscapes" :aspect "matrice" :signal "control-channel"
+  (send-signal {:to ss-addr :prefix "streamscapes.streamscapes" :aspect "matrice" :signal "control-channel"
                 :params {:name :email :command :check} }
                refresh-stream-callback))
 
@@ -203,13 +214,13 @@
 (defn irc-join []
   (make-dialog {:channel "#ceptr"}
                (fn [params]
-                 (send-signal {:to 8 :prefix "streamscapes.streamscapes" :aspect "matrice" :signal "control-channel"
+                 (send-signal {:to ss-addr :prefix "streamscapes.streamscapes" :aspect "matrice" :signal "control-channel"
                                :params {:name :freenode :command :join :params params} }))))
 (defn irc-open []
-  (send-signal {:to 8 :prefix "streamscapes.streamscapes" :aspect "matrice" :signal "control-channel"
+  (send-signal {:to ss-addr :prefix "streamscapes.streamscapes" :aspect "matrice" :signal "control-channel"
                 :params {:name :freenode :command :open}}))
 (defn irc-close []
-  (send-signal {:to 8 :prefix "streamscapes.streamscapes" :aspect "matrice" :signal "control-channel"
+  (send-signal {:to ss-addr :prefix "streamscapes.streamscapes" :aspect "matrice" :signal "control-channel"
                   :params {:name :freenode :command :close}}))
 
 (defn vis [elem val]
@@ -249,6 +260,7 @@
     (debug/log (str "State:" (u/clj->json result)))
     (tdom/remove-children :the-receptor)
     (render-receptor the-state (tdom/get-element :the-receptor) "")
+    (loading-end)
     (rs)))
 
 (defn parent-address [address]
@@ -310,9 +322,12 @@
   )
 
 (defn refresh-stream []
-  (get-state 8))
+  (get-state ss-addr))
 
-(defn get-state [r] (ceptr->command {:cmd "get-state" :params {:receptor r :query {:scape-order {:scape :delivery :limit 40 :descending true}}}} gs-callback))
+(defn get-state [r]
+  (do
+    (loading-start)
+    (ceptr->command {:cmd "get-state" :params {:receptor r :query {:scape-order {:scape :delivery :limit 40 :descending true}}}} gs-callback)))
 
 (defn hidfn [address]
   (fn [e] (let [r (if (= address "") the-state
@@ -424,4 +439,4 @@
 
 (defn check-auth []
   (let [s (get-session)]
-    (if (or (= s js/undefined) (nil? s)) (do-auth) (refresh-stream))))
+    (if (or (= s js/undefined) (nil? s)) (do-auth) (do-logged-in s))))

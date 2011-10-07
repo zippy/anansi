@@ -29,6 +29,7 @@
   <script type="text/javascript">
     goog.require('ss.core');
   </script>
+<div id="everything">
 <div id="header">
   Header stuff goes here
 <button style="float: right;" onclick="ss.core.do_logged_out()">Logout</button>
@@ -69,7 +70,11 @@
     <button onclick="ss.core.make_email_channel()"> Make Email </button>
     <button onclick="ss.core.email_check()"> Check Email </button>
     <button onclick="ss.core.make_twitter_channel()">Make Twitter</button>
-    <button onclick="ss.core.twitter_check('twitter-zippy314')">Check Twitter</button>
+    <button onclick="ss.core.twitter_check('twitter-zippy314')">Check
+    Twitter</button>
+
+<button style="" onclick="ss.core.loading_start()">Lstart</button>
+<button style="" onclick="ss.core.loading_end()">Lend</button>
     <div id="work"></div>
     
     <div id="session"></div>
@@ -78,5 +83,6 @@
   </div>
   <div id="the-receptor"></div>
 </div>
+</div> <!-- everything -->
   </body>
 </html>

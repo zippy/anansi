@@ -70,6 +70,12 @@
   (let [parent (dom/getElement (name id))]
     (do (dom/removeChildren parent))))
 
+(defn remove-node
+  "Remove the element with the passed id."
+  [id]
+  (let [elem (dom/getElement (name id))]
+    (do (dom/removeNode elem))))
+
 (defn html
   "Create a dom element from an html string."
   [s]
