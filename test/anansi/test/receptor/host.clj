@@ -35,6 +35,8 @@
       (let [addr (s-> self->host-streamscape h {:name "erics-streamscape" :password "pass" :matrice-address 1 :data {}})
             r (get-receptor h addr)]
         (is (= addr (s-> key->resolve (get-scape h :stream) "erics-streamscape")))
+        (fact (s-> address->resolve (get-scape h :creator) (address-of h)) => [addr] )
+        (is (= addr ))
         (is (= (contents r :_password) "pass") )
         (is (= (contents r :data) {}) )
         (is (= (s-> key->all (get-scape r :matrice)) [1]) )))
@@ -50,7 +52,7 @@
       (let [_ (s-> key->set (get-scape h :session) "1234" {:user (resolve-name h "zippy")})
             result (s-> command->send-signal h {:prefix "receptor.host" :aspect "ceptr" :signal "ping" :session "1234" :to 0 :params nil})
             ]
-        (is (= result "Hi 7! This is the host."))
+        (is (= result "Hi 8! This is the host."))
         (is (thrown-with-msg? RuntimeException #"Unknown signal: receptor.host.ceptr->pong"
               (s-> command->send-signal h {:signal "pong" :aspect "ceptr" :prefix "receptor.host" :session "1234" :to 0 :params nil}))
             )
@@ -98,5 +100,5 @@
     (set (keys (:receptors (--> command->get-state i h {:receptor 0 :query {:scape-query {:scape :user :query [">" "s"]}}})))) => #{s z}
     (let [state (--> command->get-state i h {:receptor 0 :query {:scape-order {:scape :user :limit 1 :offset 1}}})]
       (:receptor-order state) => [s]
-      (set (keys (:receptors state))) => #{s}
+      (set (keys (:receptors state))) => #{(address-of i) s}
       )))

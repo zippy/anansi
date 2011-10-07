@@ -13,6 +13,7 @@
                                     {:name :room :relationship {:key :name :address :address}}
                                     {:name :user :relationship {:key :name :address :address}}
                                     {:name :stream :relationship {:key :name :address :address}}
+                                    {:name :creator :relationship {:key :address :address :creator-address}}
                                     {:name :session :relationship {:key :sha :address :user-addr-time-interface-map}})))
 
 (defn resolve-name [_r user]
@@ -25,25 +26,31 @@
 ;; (defn do-make-receptor [n p & a] (receptor :'(symbol (str (name n))) p a))
 (signal self host-room [_r _f {receptor-name :name password :password matrice-address :matrice-address data :data}]
         (rsync _r
-         (let [names (get-scape _r :room)
-               r (receptor :commons-room _r matrice-address password data) ;;(make-receptor type _r args)
-               addr (address-of r)]
-           (--> key->set _r names receptor-name addr)
-           addr)))
+               (let [names (get-scape _r :room)
+                     creators (get-scape _r :creator)
+                     r (receptor :commons-room _r matrice-address password data) ;;(make-receptor type _r args)
+                     addr (address-of r)]
+                 (--> key->set _r names receptor-name addr)
+                 (--> key->set _r creators addr _f)
+                 addr)))
 (signal self host-streamscape [_r _f {receptor-name :name password :password matrice-address :matrice-address data :data}]
         (rsync _r
-         (let [names (get-scape _r :stream)
-               r (make-receptor streamscapes-def _r {:matrice-addr matrice-address :attributes {:_password  password :data data}}) ;;(make-receptor type _r args)
-               addr (address-of r)]
-           (--> key->set _r names receptor-name addr)
-           addr)))
+               (let [names (get-scape _r :stream)
+                     creators (get-scape _r :creator)
+                     r (make-receptor streamscapes-def _r {:matrice-addr matrice-address :attributes {:_password  password :data data}}) ;;(make-receptor type _r args)
+                     addr (address-of r)]
+                 (--> key->set _r names receptor-name addr)
+                 (--> key->set _r creators addr _f)
+                 addr)))
 (signal self host-user [_r _f receptor-name]
         (rsync _r
-         (let [names (get-scape _r :user)
-               existing-addr (--> key->resolve _r names receptor-name)
-               addr (if existing-addr existing-addr (address-of (make-receptor user-def _r receptor-name))) ;; (make-receptor type _r args)                
-               ]
-           (--> key->set _r names receptor-name addr)
+               (let [names (get-scape _r :user)
+                     creators (get-scape _r :creator)
+                     existing-addr (--> key->resolve _r names receptor-name)
+                     addr (if existing-addr existing-addr (address-of (make-receptor user-def _r receptor-name))) ;; (make-receptor type _r args)
+                     ]
+                 (--> key->set _r names receptor-name addr)
+                 (--> key->set _r creators addr _f)
            addr)))
 
 (signal command send-signal [_r _f p]
