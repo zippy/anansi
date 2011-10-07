@@ -63,12 +63,13 @@
 (defn clear-session []
   (.remove goog.net.cookies "ss-session"))
 
-(defn do-logged-in [session]
-  (do (set-session session)
-      (def ss-addr 8)
-      (hide :authpane)
-      (show :container)
-      (refresh-stream)))
+(defn do-logged-in [auth-result]
+  (let [{session :session} auth-result]
+    (set-session session)
+    (def ss-addr 9)
+    (hide :authpane)
+    (show :container)
+    (refresh-stream)))
 
 (defn do-logged-out []
   (do
@@ -439,4 +440,4 @@
 
 (defn check-auth []
   (let [s (get-session)]
-    (if (or (= s js/undefined) (nil? s)) (do-auth) (do-logged-in s))))
+    (if (or (= s js/undefined) (nil? s)) (do-auth) (do-logged-in {:session s}))))

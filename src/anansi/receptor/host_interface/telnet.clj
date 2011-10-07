@@ -49,7 +49,7 @@
                       (println (str "OK " result))
                       (flush)
                       (set! *user* user-name)
-                      (set! *session* result))
+                      (set! *session* (:session result)))
                     (do (print (str "ERROR " result "\nEnter your user name: "))
                         (flush)
                         (recur (read-line))))))

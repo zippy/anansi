@@ -23,7 +23,7 @@
       (testing "new-user"
         (is (= n-addr (resolve-name h "eric"))))
       (testing "send"
-        (let [session (authenticate h i {:user "eric"})]
+        (let [{session :session} (authenticate h i {:user "eric"})]
           (is (re-find #"^[0-9a-f]+$" session))
           (is (= (send-signal h i {:signal "host-user" :aspect "self" :prefix "receptor.host" :session session :to 0 :params "boink"})
                  (resolve-name h "boink")))

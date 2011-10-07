@@ -74,7 +74,7 @@
                      ]
                  (if (nil? user-address) (throw (RuntimeException. (str "authentication failed for user: " user))))
                  (--> key->set _r sessions s {:user user-address :time (str time) :interface iface})
-                 s)))
+                 {:session s})))
 
 (signal command new-user [_r _f {user :user}]
         (if (resolve-name _r user)

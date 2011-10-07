@@ -52,7 +52,7 @@
 
 (defn auth-callback [e]
   (let [{status :status result :result} (process-xhr-result e)]
-    (def session result)
+    (def session (:session result))
     (tdom/set-text :session session)
     )
   )

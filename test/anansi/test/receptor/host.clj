@@ -49,10 +49,11 @@
         (is (= (contents u :name) "zippy"))))
 
     (testing "command->send-signal"
-      (let [_ (s-> key->set (get-scape h :session) "1234" {:user (resolve-name h "zippy")})
+      (let [user-addr (resolve-name h "zippy")
+            _ (s-> key->set (get-scape h :session) "1234" {:user user-addr})
             result (s-> command->send-signal h {:prefix "receptor.host" :aspect "ceptr" :signal "ping" :session "1234" :to 0 :params nil})
             ]
-        (is (= result "Hi 8! This is the host."))
+        (is (= result (str "Hi " user-addr "! This is the host.")))
         (is (thrown-with-msg? RuntimeException #"Unknown signal: receptor.host.ceptr->pong"
               (s-> command->send-signal h {:signal "pong" :aspect "ceptr" :prefix "receptor.host" :session "1234" :to 0 :params nil}))
             )
@@ -62,7 +63,7 @@
  
     (testing "command->authenticate"
       (let [i (make-receptor some-interface-def h {})
-            s (--> command->authenticate i h {:user "zippy"})
+            {s :session} (--> command->authenticate i h {:user "zippy"})
             sessions (get-scape h :session)
             {user-addr :user time :time interface :interface} (s-> key->resolve sessions s)
             ]

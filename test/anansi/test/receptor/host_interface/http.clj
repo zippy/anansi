@@ -44,11 +44,11 @@
     (testing "authenticate"
       (is (= (:body (api-req "authenticate" {:user "eric"})) {:status "error", :result "authentication failed for user: eric"}))
       (let [b (:body (api-req "authenticate" {:user "zippy"}))
-            session (:result b)]
+            {session :session} (:result b)]
         (is (= "ok" (:status b)))
         (is (re-find #"^[0-9a-f]+$" session))
         (testing "send signal"
-          (is (= {:status "ok" :result "Hi 7! This is the host."} (:body (api-req "send-signal" {:to 0 :prefix "receptor.host" :aspect "ceptr" :signal "ping" :session session}))))))
+          (is (= {:status "ok" :result "Hi 8! This is the host."} (:body (api-req "send-signal" {:to 0 :prefix "receptor.host" :aspect "ceptr" :signal "ping" :session session}))))))
       )
     (testing "stopping the interface"
       (--> interface->stop h r)

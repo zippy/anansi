@@ -70,7 +70,7 @@ Returns a two item vector of a writable stream that is a client, and the output 
         (is (.endsWith (.toString server-stream) "ERROR authentication failed for user: eric\nEnter your user name: "))
         (.write client-stream "zippy\n")
         (wait server-stream)
-        (is (re-find #"OK [0-9a-f]+\n\n> $"(.toString server-stream) ))
+        (is (re-find #"OK \{:session \"[0-9a-f]+\"\}\n\n> $"(.toString server-stream) ))
         )
       (testing "unknown command"
         (.write client-stream "badcommand eric\n")
