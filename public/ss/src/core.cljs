@@ -71,6 +71,8 @@
 
 (defn do-logged-out []
   (do
+    (tdom/remove-children :the-receptor)
+    (tdom/remove-children :debug)
     (clear-session)
     (hide :container)
     (show :authpane))

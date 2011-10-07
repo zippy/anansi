@@ -31,7 +31,7 @@
   </script>
 <div id="header">
   Header stuff goes here
-
+<button style="float: right;" onclick="ss.core.do_logged_out()">Logout</button>
 </div>
 <div id="authpane" style="display:none"><h3>Please Authenticate or Create a New User</h3>
   <button onclick="ss.core.do_auth()">Authenticate</button>
@@ -70,7 +70,6 @@
     <button onclick="ss.core.email_check()"> Check Email </button>
     <button onclick="ss.core.make_twitter_channel()">Make Twitter</button>
     <button onclick="ss.core.twitter_check('twitter-zippy314')">Check Twitter</button>
-    <button onclick="ss.core.do_logged_out()">Logout</button>
     <div id="work"></div>
     
     <div id="session"></div>
