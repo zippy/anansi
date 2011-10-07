@@ -386,7 +386,7 @@
         ]
     (tdom/remove-children :stream-panel)
     (dom/append elem (tdom/html "<div class=\"stream-control\"><button onclick=\"ss.core.refresh_stream()\"> Refresh </button></div>"))
-    (dom/append elem (tdom/build [:h3 (str "stream: " (count (:receptors s)) " of " (:receptor-total s))]))
+    (dom/append elem (tdom/build [:h3 (str "stream: " (count droplet-channel-scape) " of " (:receptor-total s))]))
     (z/make-zips (map (fn [da]
                         (let [d-addr (keyword da)
                               d ((:receptors s) d-addr)
