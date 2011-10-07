@@ -20,6 +20,12 @@ div#flow-panel {
 .stream-control {
    float: right;
 }
+
+.droplet-type-icon {
+   width: 32px;
+   height: 32px;
+}
+
 #header {
    clear:both;
    float:left;

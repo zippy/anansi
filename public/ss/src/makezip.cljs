@@ -12,7 +12,7 @@
 
   (let [header-element  (dom/build
                          [:div {:style "background-color:#EEE"}
-                          (:title self)])
+                          (dom/html (:title self))])
         content-element (dom/build
                          [:div (:content self)])
         new-zip (dom/build

@@ -360,9 +360,23 @@
         html (tdom/build [:div (tdom/html (get-html-from-body body content-type))])
         ]
     (z/make-zips [{:title "Raw" :content (u/clj->json body)}] html)
-    {:title (str "Via:" (name channel) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-ident s (:from d)) " Subject: " (:subject (:content d)))
+    {:title (str (channel-icon-html channel :email) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-ident s (:from d)) " Subject: " (:subject (:content d)))
      :content (tdom/build [:div [:div#html html]])}
     )
+  )
+
+;; TODO: this a terrible cheat in that we determine droplet type just by scanning
+;; the channel name!  This should be fixed to get the type from the
+;; channel receptor.
+(defn get-channel-type [channel]
+  (cond (re-find #"email" channel) :email
+        (re-find #"twitter" channel) :twitter
+        (re-find #"irc|freenode" channel) :irc
+        true :generic
+        ))
+
+(defn channel-icon-html [channel-name channel-type]
+  (str "<img class=\"droplet-type-icon\" src=\"images/" (name channel-type) ".png\" title=\"" (name channel-name) "\">")
   )
 
 (defn render-stream [s]
@@ -377,26 +391,18 @@
                         (let [d-addr (keyword da)
                               d ((:receptors s) d-addr)
                               channel (droplet-channel-scape d-addr)
+                              channel-type (get-channel-type channel)
                               ]
-                          ;; TODO: this a terrible cheat in that we
-                          ;; determine droplet type just by scanning
-                          ;; the channel name!  This should be fixed.
-                          (cond (re-find #"email" channel)
-                                (zip-for-email-droplet s d-addr channel)
-                                ;; twitter
-                                (re-find #"twitter" channel)
-                                {:title (str "Via:" (name channel) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-ident s (:from d)) " : " (:text (:content d)))
-                                 :content (tdom/build [:div [:div#default-droplet (u/clj->json (:content d)) ]]) }
-                                ;; IRC
-                                (re-find #"irc|freenode" channel)
-                                {:title (str "Via:" (name channel) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-ident s (:from d)) " : " (:message (:content d)))
-                                 :content (tdom/build [:div [:div#default-droplet (u/clj->json (:content d)) ]]) }
-                                ;;default zip
-                                true
-                                {:title (str "Via:" (name channel) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-ident s (:from d)))
-                                 :content (tdom/build [:div [:div#default-droplet (u/clj->json (:content d)) ]]) }
-                              )
-                          )) (:receptor-order s))
+
+                          (condp = channel-type
+                              :email (zip-for-email-droplet s d-addr channel)
+                              :twitter {:title (str (channel-icon-html channel channel-type) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-ident s (:from d)) " : " (:text (:content d)))
+                                        :content (tdom/build [:div [:div#default-droplet (u/clj->json (:content d)) ]]) }
+                              :irc {:title (str (channel-icon-html channel channel-type) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-ident s (:from d)) " : " (:message (:content d)))
+                                    :content (tdom/build [:div [:div#default-droplet (u/clj->json (:content d)) ]]) }
+                              {:title (str "Via:" (name channel) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-ident s (:from d)))
+                               :content (tdom/build [:div [:div#default-droplet (u/clj->json (:content d)) ]]) }
+                              ))) (:receptor-order s))
                  elem)))
 
 (defn short-fingerprint [r]
@@ -409,7 +415,7 @@
     (dom/append elem (tdom/build [:h3 "streamscapes"]))
     (dom/append elem (tdom/build (apply conj
                                         [:div#channels [:h4 "channels"]]
-                                        (map (fn [[cname caddr]] [:p (name cname)]) (:values (:channel-scape scapes))))))
+                                        (map (fn [[cname caddr]] [:p (tdom/html (str (channel-icon-html cname (get-channel-type cname)) (name cname)))]) (:values (:channel-scape scapes))))))
     (dom/append elem ())
     )
   )
