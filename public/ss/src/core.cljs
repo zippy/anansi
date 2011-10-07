@@ -55,18 +55,25 @@
 (defn set-session [s]
   (tdom/set-text :session s)
   (.set goog.net.cookies "ss-session" s -1)
-)
+  )
+(defn set-ss-addr [sa]
+  (.set goog.net.cookies "ss-address" sa -1))
 
 (defn get-session []
   (.get goog.net.cookies "ss-session"))
 
+(defn get-ss-addr []
+  (js/parseInt (.get goog.net.cookies "ss-address")))
+
 (defn clear-session []
-  (.remove goog.net.cookies "ss-session"))
+  (.remove goog.net.cookies "ss-session")
+  (.remove goog.net.cookies "ss-address"))
 
 (defn do-logged-in [auth-result]
-  (let [{session :session} auth-result]
+  (let [{session :session [sa] :creator} auth-result]
+    (set-ss-addr sa)
     (set-session session)
-    (def ss-addr 9)
+    (def ss-addr sa)
     (hide :authpane)
     (show :container)
     (refresh-stream)))
@@ -85,6 +92,19 @@
   )
 (defn loading-end []
   (tdom/remove-node :loading))
+
+(defn first-make-ss-callback [e]
+  (let [{status :status result :result} (process-xhr-result e)]
+    (if (= status "ok")
+      (do-logged-in {:session (get-session) :creator [result]}))))
+
+(defn first-auth-callback [e]
+  (let [{status :status result :result} (process-xhr-result e)]
+    (if (= status "ok")
+      (do
+        (set-session (:session result))
+        (send-signal {:to 0 :prefix "receptor.host" :aspect "self" :signal "host-streamscape" :params {:matrice-address 999 :name *new-user*}} first-make-ss-callback)
+        (def *new-user* nil)))))
 
 (defn auth-callback [e]
   (let [{status :status result :result} (process-xhr-result e)]
@@ -106,15 +126,19 @@
 (defn new-user-callback [e]
   (let [{status :status result :result} (process-xhr-result e)]
     (if (= status "ok")
-      (do (js/alert "Thanks! Now you need to authenticate.")
-          (do-auth))
-      (js/alert result))))
+      (do
+        (ceptr->command {:cmd "authenticate" :params {:user *new-user*}} first-auth-callback))
+      (do
+        (def *new-user* nil)
+        (js/alert result)))))
 
 (defn do-new-user [] (.setVisible new-user true))
 (def new-user (goog.ui.Prompt. "New User" "User"
                                (fn [r]
                              (if (not ( nil? r))
-                               (ceptr->command {:cmd "new-user" :params {:user r}}  new-user-callback)))))
+                               (do
+                                 (def *new-user* r)
+                                 (ceptr->command {:cmd "new-user" :params {:user r}}  new-user-callback))))))
 
 (defn send-signal
   ([params] (send-signal params test-callback))
@@ -259,10 +283,14 @@
   (let [{status :status result :result} (process-xhr-result e)]
     (def the-state result)
     (debug/log (str "State:" (u/clj->json result)))
-    (tdom/remove-children :the-receptor)
-    (render-receptor the-state (tdom/get-element :the-receptor) "")
-    (loading-end)
-    (rs)))
+    (try
+      (tdom/remove-children :the-receptor)
+      (render-receptor the-state (tdom/get-element :the-receptor) "")
+      (rs)
+      (catch js/Object e (ll e))
+      (finally (loading-end))
+      )
+    ))
 
 (defn parent-address [address]
   (string/join "." (reverse (rest (reverse (string/split address #"\."))))))
@@ -440,4 +468,4 @@
 
 (defn check-auth []
   (let [s (get-session)]
-    (if (or (= s js/undefined) (nil? s)) (do-auth) (do-logged-in {:session s}))))
+    (if (or (= s js/undefined) (nil? s)) (do-auth) (do-logged-in {:session s :creator [(get-ss-addr)]}))))

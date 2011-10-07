@@ -4,6 +4,7 @@
   (:use [anansi.ceptr])
   (:use [anansi.receptor.host]
         [anansi.receptor.scape])
+  (:use [midje.sweet])
   (:use [clojure.test]
         [clojure.contrib.io :only [writer]]))
 
@@ -23,13 +24,15 @@
       (testing "new-user"
         (is (= n-addr (resolve-name h "eric"))))
       (testing "send"
-        (let [{session :session} (authenticate h i {:user "eric"})]
+        (let [{session :session creator :creator} (authenticate h i {:user "eric"})]
+          (fact creator => [])
           (is (re-find #"^[0-9a-f]+$" session))
-          (is (= (send-signal h i {:signal "host-user" :aspect "self" :prefix "receptor.host" :session session :to 0 :params "boink"})
-                 (resolve-name h "boink")))
-          (testing "get-state"
-            (is (= {:name "eric", :fingerprint :anansi.receptor.user.user, :address n-addr, :changes 0} (get-state h i {:receptor n-addr})))
-            )
+          (let [new-user-addr (send-signal h i {:signal "host-user" :aspect "self" :prefix "receptor.host" :session session :to 0 :params "boink"})]
+            (fact new-user-addr => (resolve-name h "boink"))
+            (testing "get-state"
+              (is (= {:name "eric", :fingerprint :anansi.receptor.user.user, :address n-addr, :changes 0} (get-state h i {:receptor n-addr})))
+              )
+            (fact (authenticate h i {:user "eric"}) => (contains {:creator [new-user-addr]})))
         ))
     ))
 )
