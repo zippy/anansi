@@ -421,4 +421,5 @@
   )
 
 (defn check-auth []
-  (if (nil? (get-session)) (do-auth) (refresh-stream)))
+  (let [s (get-session)]
+    (if (or (= s js/undefined) (nil? s)) (do-auth) (refresh-stream))))
