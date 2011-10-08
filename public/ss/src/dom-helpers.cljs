@@ -8,7 +8,9 @@
 
 (ns ss.dom-helpers
   (:require [clojure.string :as string]
-            [goog.dom :as dom]))
+            [goog.dom :as dom]
+            [goog.style :as style]
+            ))
 
 (defn get-element
   "Return the element with the passed id."
@@ -102,3 +104,16 @@
   "Insert a child element at a specific location."
   [parent child index]
   (dom/insertChildAt parent child index))
+
+(defn vis
+  "set the visibility of an element by id"
+  [elem val]
+  (style/showElement (get-element elem) val))
+
+(defn show
+  "show an element by id"
+  [elem] (vis elem true))
+
+(defn hide
+  "hide an element by id"
+  [elem] (vis elem false))

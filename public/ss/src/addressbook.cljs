@@ -2,12 +2,11 @@
 (ns ss.addressbook
   (:require [clojure.browser.dom :as dom]
             [clojure.string :as string]
-            [ss.dom-helpers :as tdom]
+            [ss.dom-helpers :as d]
             [goog.events :as events]
             [goog.style :as style]
             [ss.debug :as debug]
             [ss.utils :as u]
-            [ss.makezip :as z]
             ))
 
 (defn render-channel-addresses [state channel-identity-scape ident-addr]
@@ -24,10 +23,10 @@
         identity-names (:values (:ident-name-scape scapes))
         channel-identity-scapes (filter (fn [scape] (re-find #"-ident-scape$" (name scape))) (keys scapes))
         ]
-    (tdom/insert-at (dom/get-element :everything)
-                    (tdom/build [:div#modalmask.overlay-mask
+    (d/insert-at (dom/get-element :everything)
+                    (d/build [:div#modalmask.overlay-mask
                                  [:div#addressbook
-                                  [:div.top-right-controls (tdom/html "<button onclick=\"ss.addressbook.close()\">Close</button>""")]
+                                  [:div.top-right-controls (d/html "<button onclick=\"ss.addressbook.close()\">Close</button>""")]
                                   [:h3 "ADDRESSBOOK"]
                                   (into [:div#names] (map (fn [[ident-addr id-name]] [:div.identity [:h4 id-name]
                                                                          (into [:div.channel-addresses-container]
@@ -36,5 +35,5 @@
                                   ]]) 0))
   )
 (defn close []
-  (tdom/remove-node :modalmask))
+  (d/remove-node :modalmask))
 
