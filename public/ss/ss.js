@@ -3,12 +3,13 @@ goog.addDependency("../clojure/string.js", ['clojure.string'], ['cljs.core', 'go
 goog.addDependency("../cljs/reader.js", ['cljs.reader'], ['cljs.core', 'goog.string']);
 goog.addDependency("../clojure/browser/dom.js", ['clojure.browser.dom'], ['cljs.core', 'goog.dom']);
 goog.addDependency("../utils.js", ['ss.utils'], ['cljs.core']);
+goog.addDependency("../ui.js", ['ss.ui'], ['ss.utils', 'cljs.core', 'clojure.browser.dom', 'goog.ui.LabelInput', 'goog.ui.Zippy', 'goog.ui.Button', 'ss.dom_helpers', 'goog.events', 'goog.editor.Field']);
 goog.addDependency("../dom-helpers.js", ['ss.dom_helpers'], ['cljs.core', 'clojure.string', 'goog.dom', 'goog.style']);
-goog.addDependency("../ui.js", ['ss.ui'], ['cljs.core', 'clojure.browser.dom', 'goog.ui.LabelInput', 'goog.editor.Field', 'goog.ui.Button', 'goog.ui.Zippy', 'goog.events', 'ss.dom_helpers']);
 goog.addDependency("../debug.js", ['ss.debug'], ['cljs.core', 'ss.dom_helpers']);
 goog.addDependency("../session.js", ['ss.session'], ['cljs.core', 'goog.net.cookies', 'goog.net.Cookies', 'clojure.string', 'ss.debug', 'ss.utils']);
-goog.addDependency("../addressbook.js", ['ss.addressbook'], ['ss.utils', 'cljs.core', 'clojure.browser.dom', 'ss.debug', 'clojure.string', 'ss.dom_helpers', 'goog.style', 'goog.events']);
+goog.addDependency("../addressbook.js", ['ss.addressbook'], ['cljs.core', 'clojure.browser.dom', 'clojure.string', 'ss.dom_helpers', 'goog.events', 'goog.style', 'ss.debug', 'ss.utils', 'ss.ui']);
 goog.addDependency("../ceptr.js", ['ss.ceptr'], ['cljs.core', 'clojure.string', 'goog.events', 'goog.Uri', 'goog.net.XhrIo', 'ss.debug', 'ss.utils']);
-goog.addDependency("../streamscapes.js", ['ss.streamscapes'], ['ss.utils', 'cljs.core', 'clojure.browser.dom', 'ss.debug', 'ss.ui', 'ss.session', 'clojure.string', 'ss.ceptr', 'ss.dom_helpers']);
+goog.addDependency("../email.js", ['ss.email'], ['cljs.core', 'clojure.string', 'ss.debug', 'ss.utils', 'ss.dom_helpers', 'ss.ceptr', 'ss.ui']);
+goog.addDependency("../streamscapes.js", ['ss.streamscapes'], ['cljs.core', 'ss.ceptr', 'ss.utils', 'ss.session', 'ss.ui', 'clojure.browser.dom', 'clojure.string', 'ss.dom_helpers', 'ss.email', 'ss.debug']);
 goog.addDependency("../auth.js", ['ss.auth'], ['cljs.core', 'ss.ceptr', 'goog.ui.Dialog', 'ss.utils', 'ss.session', 'ss.ui', 'clojure.string', 'ss.streamscapes', 'goog.ui.Prompt', 'ss.dom_helpers', 'ss.debug']);
 goog.addDependency("../core.js", ['ss.core'], ['cljs.core', 'ss.addressbook', 'ss.ceptr', 'ss.utils', 'ss.session', 'cljs.reader', 'ss.ui', 'ss.auth', 'clojure.browser.dom', 'ss.streamscapes', 'ss.dom_helpers', 'ss.debug']);

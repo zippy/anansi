@@ -7,6 +7,7 @@
             [goog.style :as style]
             [ss.debug :as debug]
             [ss.utils :as u]
+            [ss.ui :as ui]
             ))
 
 (defn render-channel-addresses [state channel-identity-scape ident-addr]
@@ -23,17 +24,14 @@
         identity-names (:values (:ident-name-scape scapes))
         channel-identity-scapes (filter (fn [scape] (re-find #"-ident-scape$" (name scape))) (keys scapes))
         ]
-    (d/insert-at (dom/get-element :everything)
-                    (d/build [:div#modalmask.overlay-mask
-                                 [:div#addressbook
-                                  [:div.top-right-controls (d/html "<button onclick=\"ss.addressbook.close()\">Close</button>""")]
-                                  [:h3 "ADDRESSBOOK"]
-                                  (into [:div#names] (map (fn [[ident-addr id-name]] [:div.identity [:h4 id-name]
-                                                                         (into [:div.channel-addresses-container]
-                                                                               (filter (fn [x] (not (nil? x))) (map (fn [cs] (render-channel-addresses state cs ident-addr)) channel-identity-scapes)))
-                                                                         ]) identity-names))
-                                  ]]) 0))
+    (ui/modal-dialog
+     "addressbook"
+     [ [:h3 "ADDRESSBOOK"]
+       (into [:div#names] (map (fn [[ident-addr id-name]] [:div.identity [:h4 id-name]
+                                                          (into [:div.channel-addresses-container]
+                                                                (filter (fn [x] (not (nil? x))) (map (fn [cs] (render-channel-addresses state cs ident-addr)) channel-identity-scapes)))
+                                                          ]) identity-names))])
+    )
   )
-(defn close []
-  (d/remove-node :modalmask))
+
 

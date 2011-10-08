@@ -7,6 +7,7 @@
    [goog.ui.Zippy :as zippy]
    [goog.events :as events]
    [ss.dom-helpers :as d]
+   [ss.utils :as u]
     ))
 
 (defn loading-start
@@ -52,6 +53,19 @@
       (goog.events.listen cancel goog.events.EventType.CLICK (fn [e] (d/remove-children :work)))
       )
     ))
+
+(defn modal-dialog [id buildelems]
+  (let [x (apply conj
+                 [(keyword (str "div#" id ".standard-modal"))]
+                 (apply conj [[:div.top-right-controls (d/html (str "<button onclick=\"ss.ui.cancel_modal()\">Close</button>"))]] buildelems)                 
+                 )
+        ]
+
+    (d/insert-at (d/get-element :everything)
+                 (d/build [:div#modalmask.overlay-mask
+                           x]) 0)))
+(defn cancel-modal []
+  (d/remove-node :modalmask))
 
 ;; Functions for creating zippys
 (defn init

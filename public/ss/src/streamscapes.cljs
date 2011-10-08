@@ -7,6 +7,7 @@
             [ss.dom-helpers :as d]
             [ss.ceptr :as ceptr]
             [ss.ui :as ui]
+            [ss.email :as email]
             ))
 
 (defn send-signal
@@ -49,18 +50,15 @@
         [time _] (string/split ltime #"\.")
         [hour min sec] (string/split time #":")
         ]
-    (str month "/" day "/" year " " hour ":" min )
-      )
-  )
+    (str month "/" day "/" year " " hour ":" min )))
+
 ;;TODO: iniffecient, this scans the receipt scape every time, we should have an inverse lookup...
 (defn droplet-date [s d scape]
   (let [r (:values (scape (:scapes s)))
         a (:address d)
         [[t _]] (remove (fn [[_ address]] (not (= address a))) r)
         ]
-    (humanize-ss-datetime t)
-    )
-  )
+    (humanize-ss-datetime t)))
 
 (defn resolve-ident [s ident]
   ((keyword ident) (:values (:ident-name-scape (:scapes s)))))
@@ -80,9 +78,7 @@
         ]
     (ui/make-zips [{:title "Raw" :content (u/clj->json body)}] html)
     {:title (str (channel-icon-html channel :email) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-ident s (:from d)) " Subject: " (:subject (:content d)))
-     :content (d/build [:div [:div#html html]])}
-    )
-  )
+     :content (d/build [:div [:div#html html]])}))
 
 ;; TODO: this a terrible cheat in that we determine droplet type just by scanning
 ;; the channel name!  This should be fixed to get the type from the
@@ -124,19 +120,25 @@
                               ))) (:receptor-order s))
                  elem)))
 
-;; These are the functions for the debug rendering of the receptor
-
 (defn render-scapes [s]
   (let [elem (d/get-element :ss-panel)
         scapes (:scapes s)]
     (d/remove-children :ss-panel)
     (dom/append elem (d/build [:h3 "streamscapes"]))
     (dom/append elem (d/build (apply conj
-                                        [:div#channels [:h4 "channels"]]
-                                        (map (fn [[cname caddr]] [:p (d/html (str (channel-icon-html cname (get-channel-type cname)) (name cname)))]) (:values (:channel-scape scapes))))))
-    (dom/append elem ())
-    )
-  )
+                                     [:div#channels [:h4 "channels"]]
+                                     (map (fn [[cname caddr]]
+                                            [:p (d/html (let [type (get-channel-type cname)]
+                                                          (str (channel-icon-html cname type)
+                                                               (name cname)
+                                                               (if (= type :email)
+                                                                 "<button onclick=\"ss.email.compose()\">Compose</button>"
+                                                                 ""))))])
+                                          (:values (:channel-scape scapes))))))
+    (dom/append elem ())))
+
+;; These are the functions for the debug rendering of the receptor
+
 (defn build-scape-contents [s address]
   (cond (keyword? s) (name s)
         (or (nil? s) (empty? s) (= "" s)) ""
