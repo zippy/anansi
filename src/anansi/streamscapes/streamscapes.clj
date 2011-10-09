@@ -37,18 +37,25 @@
 
 (defn do-incorporate
   "add a droplet receptor into the streamscape"
-  [_r _f {id :id from :from to :to channel :channel envelope :envelope content :content}]
+  [_r _f {id :id from :from to :to channel :channel envelope :envelope content :content deliver :deliver}]
   (rsync _r
-         (let [d (make-receptor droplet-def _r id from to channel envelope content)
+         (let [c-out (if channel
+                       (let [c-out-addr (--> key->resolve _r (get-scape _r :channel) channel)]
+                         (if (nil? c-out-addr)
+                           (throw (RuntimeException. (str "Unknown channel: " channel)))
+                           (get-receptor _r c-out-addr))))
+               d (make-receptor droplet-def _r id from to channel envelope content)
                addr (address-of d)
-               channels (get-scape _r :droplet-channel)
+               droplet-channels (get-scape _r :droplet-channel)
                ids (get-scape _r :id)
                ]
-           (--> key->set _r channels addr channel)
-           (--> key->set _r ids addr (contents d :id)) 
-                                        ; don't use the id from the
-                                        ; params because it may have been nil in which
-                                        ; case the instantiation code will have created the id on the fly
+           (if channel
+             (--> key->set _r droplet-channels addr channel))
+           ;; don't use the id from the params because it may have been nil in which
+           ;; case the instantiation code will have created the id on the fly
+           (--> key->set _r ids addr (contents d :id))
+           (if deliver
+             (s-> (get-signal-function "anansi.streamscapes.channel" "stream" "send") c-out {:droplet-address addr}))
            addr)))
 
 (defn scape-identifier-key [identifier]

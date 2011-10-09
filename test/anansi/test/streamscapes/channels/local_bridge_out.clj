@@ -48,15 +48,29 @@
           (let [[time] (s-> address->resolve deliveries droplet-address)]
             (is (= result nil))
             (is (= (subs (str (now)) 0 19) (subs time 0 19))) ; hack off the milliseconds
-            )
-          (let [droplet-id (first (s-> address->all zippy-droplet-ids))
-                zd-addr (first (s-> key->all zippy-droplet-ids))
-                zd (get-receptor ru zd-addr)
-                ss-addr-idents (get-scape ru :ss-address-ident)
-                ]
-            (is (= (count (s-> key->all zippy-droplet-ids)) 1))
-            (is (= droplet-id (contents d :id)))
-            (is (= (contents d :content) (contents zd :content)))
-            (is (= (contents d :envelope) (contents zd :envelope)))
-            (is (= (s-> key->resolve ss-addr-idents eric-ss-addr)  (contents zd :from) ))
-            ))))))
+            
+            (let [droplet-id (first (s-> address->all zippy-droplet-ids))
+                  zd-addr (first (s-> key->all zippy-droplet-ids))
+                  zd (get-receptor ru zd-addr)
+                  ss-addr-idents (get-scape ru :ss-address-ident)
+                  ]
+              (is (= (count (s-> key->all zippy-droplet-ids)) 1))
+              (is (= droplet-id (contents d :id)))
+              (is (= (contents d :content) (contents zd :content)))
+              (is (= (contents d :envelope) (contents zd :envelope)))
+              (is (= (s-> key->resolve ss-addr-idents eric-ss-addr)  (contents zd :from) ))
+              )
+            (facts "about using deliver flag when incororating a droplet"
+              (let [droplet-address2 (s-> matrice->incorporate r {:deliver :immediate :channel :local-stream :to i-to :from i-from :envelope {:subject "text/plain" :body "text/html"} :content {:subject "Another Droplet" :body "<b>Hello again world!</b>"}})]
+                (count (s-> key->all zippy-droplet-ids)) => 2
+                (= droplet-address droplet-address2) => false
+                (let [[time2] (s-> address->resolve deliveries droplet-address2)]
+                  (is (= (subs (str (now)) 0 19) (subs time2 0 19))) ; hack off the milliseconds
+                  (= time time2) => false))
+              (s-> matrice->incorporate r {:deliver :immediate :channel :fish}) => (throws RuntimeException "Unknown channel: :fish")
+              ))
+          )
+        
+    ))
+
+    ))
