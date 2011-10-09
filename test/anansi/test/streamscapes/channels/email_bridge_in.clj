@@ -28,7 +28,8 @@
   (let [m (make-receptor user-def nil "eric")
         r (make-receptor streamscapes-def nil {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
         eric (make-receptor ident-def r {:attributes {:name "Eric"}})
-        cc (make-receptor channel-def r {:attributes {:name :email-stream}})
+        cc-addr (s-> matrice->make-channel r {:name :email-stream})
+        cc (get-receptor r cc-addr)
         b (make-receptor email-bridge-in-def cc {:attributes {:host "mail.example.com" :account "someuser" :password "pass" :protocol "pop3"}})
         email-idents (get-scape r :email-ident true)]
     (--> key->set b email-idents "eric@example.com" (address-of eric))

@@ -22,12 +22,16 @@
               :check (let [parent-channel (parent-of _r)
                           [in-bridge-address receive-signal] (get-receiver-bridge parent-channel)
                            ib (get-receptor parent-channel in-bridge-address)
-                           result 
-                           (sync-http-request {:method :get,
-                                               :url (str "https://api.twitter.com/1/statuses/user_timeline.json?screen_name=" (contents _r :screen-name))
-                                               :auto-transform true
-                                               }
-                                              10000)]
+                           result
+                           (try
+                             (sync-http-request {:method :get,
+                                                 :url (str "https://api.twitter.com/1/statuses/user_timeline.json?screen_name=" (contents _r :screen-name))
+                                                 :auto-transform true
+                                                 }
+                                                5000)
+                             (catch Exception e
+                               (throw (RuntimeException. (str "Error encountered while downloading tweets: " e)))
+                               ))]
                        ;;THIS IS WAY CHEATING!!  The controller needs
                        ;;to send this as a signal, not call it as a
                        ;;clojure function.

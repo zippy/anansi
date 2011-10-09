@@ -8,6 +8,8 @@
         [anansi.streamscapes.channel :only [get-deliverer-bridge get-receiver-bridge get-controller]]
         [anansi.streamscapes.channels.email-bridge-out :only [channel->deliver email-bridge-out-def]]
         [anansi.streamscapes.channels.email-bridge-in :only [email-bridge-in-def]]
+        [anansi.streamscapes.channels.local-bridge-out :only [local-bridge-out-def]]
+        [anansi.streamscapes.channels.local-bridge-in :only [local-bridge-in-def]]
         [anansi.streamscapes.channels.email-controller :only [email-controller-def]]
         [anansi.streamscapes.channels.irc-controller :only [channel->control]]
         [anansi.streamscapes.channels.irc-bridge-in :only [irc-bridge-in-def]]
@@ -68,7 +70,8 @@
         )
       )
     (testing "droplets"
-      (let [droplet-address (s-> matrice->incorporate r {:id "some-unique-id" :from "from-addr" :to "to-addr" :channel :some-channel :envelope {:part1 "address of part1 grammar"} :content {:part1 "part1 content"}})
+      (let [sc (s-> matrice->make-channel r {:name :some-channel})
+            droplet-address (s-> matrice->incorporate r {:id "some-unique-id" :from "from-addr" :to "to-addr" :channel :some-channel :envelope {:part1 "address of part1 grammar"} :content {:part1 "part1 content"}})
             d (get-receptor r droplet-address)]
         (are [x y] (= x y)
              (contents d :id) "some-unique-id"
@@ -116,7 +119,7 @@
         (is (= (contents db :host) "irc.freenode.net"))
         (is (= (contents db :port) 6667))
         (is (= (rdef (get-receptor cc in-bridge-address) :fingerprint) :anansi.streamscapes.channels.irc-bridge-in.irc-bridge-in))
-        (is (= #{ :an-irc-channel, :email-stream, :freenode, :irc-stream, :email, :twitterx} (set (keys (:map (receptor-state (get-scape r :channel) true)))))))
+        (is (= #{:an-irc-channel, :email-stream, :freenode, :irc-stream, :email, :twitterx, :streamscapes, :some-channel} (set (keys (:map (receptor-state (get-scape r :channel) true)))))))
       
       ))
 
@@ -156,6 +159,17 @@
       (receptor-state (get-receptor cc in-bridge-address) false) => (contains {:password "pass", :host "mail.example.com", :account "someuser", :protocol "pop3", :fingerprint :anansi.streamscapes.channels.email-bridge-in.email-bridge-in})
       (receptor-state (get-receptor cc out-bridge-address) false) => (contains {:protocol "smtps", :account "eric@harris-braun.com", :host "mail.harris-braun.com", :fingerprint :anansi.streamscapes.channels.email-bridge-out.email-bridge-out, :port 25, :password "some-password"})
       (find-channel-by-name r :email) => cc))
+
+
+  (facts "about new streamscapes channel"
+    (let [channel-address (s-> setup->new-channel r {:type :streamscapes, :name :streamscapes})
+          cc (get-receptor r channel-address)
+          [out-bridge-address delivery-signal] (get-deliverer-bridge cc)
+          [in-bridge-address receive-signal] (get-receiver-bridge cc)]
+      
+      (receptor-state (get-receptor cc in-bridge-address) false) => (contains {:fingerprint :anansi.streamscapes.channels.local-bridge-in.local-bridge-in})
+      (receptor-state (get-receptor cc out-bridge-address) false) => (contains {:fingerprint :anansi.streamscapes.channels.local-bridge-out.local-bridge-out,})
+      (find-channel-by-name r :streamscapes) => cc))
   
   (facts "about control-channel"
     (s-> matrice->control-channel r {:name :fish :command :fish}) => (throws RuntimeException "channel not found: :fish")

@@ -11,8 +11,9 @@
             [ss.ss-utils :as ssu]
             [ss.auth :as auth]
             [ss.ui :as ui]
-            [ss.email :as email]
+            [ss.compose :as compose]
             ))
+
 
 (defn make-irc [params]
   (ssu/send-signal {:to auth/ss-addr :prefix "streamscapes.streamscapes" :aspect "setup" :signal "new-channel"

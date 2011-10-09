@@ -23,7 +23,7 @@
         json (. xhr (getResponseJson))
         r (js->clj json :keywordize-keys true)
         {status :status result :result} r]
-    (debug/log (str "CMD RESULT--Status: " status " Result: " result))
+    (debug/log (str "CMD RESULT--Status: " status " Result: " (if (map? result) (u/clj->json result)  result)))
     r))
 
 (defn null-signal-callback [e]

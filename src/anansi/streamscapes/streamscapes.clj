@@ -55,7 +55,11 @@
            ;; case the instantiation code will have created the id on the fly
            (--> key->set _r ids addr (contents d :id))
            (if deliver
-             (s-> (get-signal-function "anansi.streamscapes.channel" "stream" "send") c-out {:droplet-address addr}))
+             (let [errs (s-> (get-signal-function "anansi.streamscapes.channel" "stream" "send") c-out {:droplet-address addr})]
+               ;; TODO: should we throw here?  Probably we need to
+               ;; change return result to have this extra info, not
+               ;; just the address.
+               ))
            addr)))
 
 (defn scape-identifier-key [identifier]
@@ -152,6 +156,12 @@
           (s-> matrice->make-channel _r {:name (channel-name n)
                                          :receptors
                                          (condp = type
+                                             :streamscapes {(get-receptor-definition :anansi.streamscapes.channels.local-bridge-in.local-bridge-in)
+                                                            {:role :receiver :params {}
+                                                             :signal (get-signal-function "anansi.streamscapes.channels.local-bridge-in" "cheat" "receive")}
+                                                            (get-receptor-definition :anansi.streamscapes.channels.local-bridge-out.local-bridge-out)
+                                                            {:role :deliverer :params {}
+                                                             :signal (get-signal-function "anansi.streamscapes.channels.local-bridge-out" "channel" "deliver")}}
                                              :twitter (let [{screen-name :screen-name} params]
                                                         {(get-receptor-definition :anansi.streamscapes.channels.twitter-bridge-in.twitter-bridge-in)
                                                          {:role :receiver :params {}}

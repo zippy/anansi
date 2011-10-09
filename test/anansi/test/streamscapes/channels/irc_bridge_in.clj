@@ -15,7 +15,8 @@
         eric (make-receptor ident-def r {:attributes {:name "Eric"}})
         art (make-receptor ident-def r {:attributes {:name "Art"}})
         ceptr-channel (make-receptor ident-def r {:attributes {:name "ceptr-channel"}})
-        cc (make-receptor channel-def r {:attributes {:name :irc-stream}})
+        cc-addr (s-> matrice->make-channel r {:name :irc-stream})
+        cc (get-receptor r cc-addr)
         b (make-receptor irc-bridge-in-def cc {})
         irc-idents (get-scape r :irc-ident true)]
     (--> key->set b irc-idents "zippy" (address-of eric))

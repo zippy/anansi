@@ -15,7 +15,8 @@
   (let [m (make-receptor user-def nil "eric")
         r (make-receptor streamscapes-def nil {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
         eric (make-receptor ident-def r {:attributes {:name "Eric"}})
-        cc (make-receptor channel-def r {:attributes {:name :email-stream}})
+        cc-addr (s-> matrice->make-channel r {:name :email-stream})
+        cc (get-receptor r cc-addr)
         b (make-receptor email-bridge-out-def cc {:attributes {:host "mail.harris-braun.com" :account "eric@harris-braun.com" :password "some-password" :protocol "smtps" :port 25}})
         ]
     (fact

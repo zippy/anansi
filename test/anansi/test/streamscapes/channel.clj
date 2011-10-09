@@ -19,7 +19,8 @@
 (deftest channel
   (let [m (make-receptor user-def nil "eric")
         r (make-receptor streamscapes-def nil {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
-        cc (make-receptor channel-def r { :attributes {:name :email-stream}})]
+        cc-addr (s-> matrice->make-channel r {:name :email-stream})
+        cc (get-receptor r cc-addr)]
     (fact (receptor-state cc false) => (contains {:name :email-stream
                                                   :fingerprint :anansi.streamscapes.channel.channel
                                                   :scapes {:controller-scape {:values {}, :relationship {:key nil, :address nil}}, :deliverer-scape {:values {}, :relationship {:key nil, :address nil}}, :receiver-scape {:values {}, :relationship {:key nil, :address nil}}}

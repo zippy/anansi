@@ -18,7 +18,8 @@
         ru (make-receptor streamscapes-def nil {:matrice-addr (address-of u) :attributes {:_password "password" :data {:datax "x"}}})
         zippy-ss-addr (address-of ru)
         zippy-addr (s-> matrice->identify r {:identifiers {:ss-address (address-of ru)} :attributes {:name "Zippy"}})
-        cc (make-receptor channel-def r {:attributes {:name :local-stream}})
+        cc-addr (s-> matrice->make-channel r {:name :local-stream})
+        cc (get-receptor r cc-addr)
         b (make-receptor local-bridge-in-def cc {})
         ss-addr-idents (get-scape r :ss-address-ident)]
 

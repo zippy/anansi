@@ -13,7 +13,8 @@
   (let [m (make-receptor user-def nil "eric")
         r (make-receptor streamscapes-def nil {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
         eric (make-receptor ident-def r {:attributes {:name "Eric"}})
-        cc (make-receptor channel-def r :irc-stream)
+        cc-addr (s-> matrice->make-channel r {:name :irc-stream})
+        cc (get-receptor r cc-addr)
         b (make-receptor irc-bridge-out-def cc {})
         irc-idents (get-scape r :irc-ident true)]
     (--> key->set b irc-idents "zippy" (address-of eric))

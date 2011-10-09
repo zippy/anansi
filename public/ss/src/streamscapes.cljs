@@ -21,7 +21,6 @@
 (defn gs-callback [e]
   (let [{status :status result :result} (ceptr/handle-xhr e)]
     (ssu/set-current-state result)
-    (debug/log (str "State:" (u/clj->json result)))
     (try
       (d/remove-children :the-receptor)
       (render-receptor ssu/*current-state* (d/get-element :the-receptor) "")
@@ -82,6 +81,7 @@
   (cond (re-find #"email" channel) :email
         (re-find #"twitter" channel) :twitter
         (re-find #"irc|freenode" channel) :irc
+        (re-find #"streamscapes" channel) :streamscapes
         true :generic
         ))
 
@@ -95,7 +95,7 @@
         droplet-channel-scape (:values (:droplet-channel-scape scapes))
         ]
     (d/remove-children :stream-panel)
-    (dom/append elem (d/html "<div class=\"stream-control\"><button onclick=\"ss.streamscapes.refresh_stream()\"> Refresh </button></div>"))
+    (dom/append elem (d/html "<div class=\"stream-control\"><button onclick=\"ss.compose.compose()\"> Compose </button><button onclick=\"ss.streamscapes.refresh_stream()\"> Refresh </button></div>"))
     (dom/append elem (d/build [:h3 (str "stream: " (count droplet-channel-scape) " of " (:receptor-total s))]))
     (ui/make-zips (map (fn [da]
                         (let [d-addr (keyword da)
@@ -105,6 +105,8 @@
                               ]
 
                           (condp = channel-type
+                              :streamscapes {:title (str (channel-icon-html channel channel-type) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-ident s (:from d)) " Subject: " (:subject (:content d)))
+                                             :content (:body (:content d))}
                               :email (zip-for-email-droplet s d-addr channel)
                               :twitter {:title (str (channel-icon-html channel channel-type) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-ident s (:from d)) " : " (:text (:content d)))
                                         :content (d/build [:div [:div#default-droplet (u/clj->json (:content d)) ]]) }

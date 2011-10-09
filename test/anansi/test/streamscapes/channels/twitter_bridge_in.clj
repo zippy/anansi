@@ -14,7 +14,8 @@
         r (make-receptor streamscapes-def nil {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
         eric (make-receptor ident-def r {:attributes {:name "Eric"}})
         twp (make-receptor ident-def r {:attributes {:name "Twitter Public"}})
-        cc (make-receptor channel-def r {:attributes {:name :twitter-stream}})
+        cc-addr (s-> matrice->make-channel r {:name :twitter-stream})
+        cc (get-receptor r cc-addr)
         b (make-receptor twitter-bridge-in-def cc {})
         twitter-idents (get-scape r :twitter-ident true)]
     (--> key->set b twitter-idents "@zippy314" (address-of eric))
