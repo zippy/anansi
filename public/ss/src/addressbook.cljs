@@ -8,10 +8,11 @@
             [ss.debug :as debug]
             [ss.utils :as u]
             [ss.ui :as ui]
+            [ss.ss-utils :as ssu]
             ))
 
-(defn render-channel-addresses [state channel-identity-scape ident-addr]
-  (let [scape (:values (channel-identity-scape (:scapes state)))
+(defn render-channel-addresses [channel-identity-scape ident-addr]
+  (let [scape (:values (channel-identity-scape (:scapes ssu/*current-state*)))
         addresses (filter (fn [[_ ia]] (= (keyword ia) ident-addr)) scape)]
     (if (empty? addresses)
       nil
@@ -19,8 +20,8 @@
        (into [:p.addresses] (map (fn [[addr _]] [:span.address (name addr)]) addresses))])))
 
 
-(defn open [state]
-  (let [scapes (:scapes state)
+(defn open []
+  (let [scapes (:scapes ssu/*current-state*)
         identity-names (:values (:ident-name-scape scapes))
         channel-identity-scapes (filter (fn [scape] (re-find #"-ident-scape$" (name scape))) (keys scapes))
         ]
@@ -29,7 +30,7 @@
      [ [:h3 "ADDRESSBOOK"]
        (into [:div#names] (map (fn [[ident-addr id-name]] [:div.identity [:h4 id-name]
                                                           (into [:div.channel-addresses-container]
-                                                                (filter (fn [x] (not (nil? x))) (map (fn [cs] (render-channel-addresses state cs ident-addr)) channel-identity-scapes)))
+                                                                (filter (fn [x] (not (nil? x))) (map (fn [cs] (render-channel-addresses cs ident-addr)) channel-identity-scapes)))
                                                           ]) identity-names))])
     )
   )

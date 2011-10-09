@@ -20,21 +20,21 @@
       width: 430px;
       }
     </style>
-
+    <script type="text/javascript" src="out/goog/base.js"></script>
+    <script type="text/javascript" src="ss.js"></script>
+    <script type="text/javascript">
+      goog.require('ss.core');
+    </script>
+  
   </head>
   <body onLoad="ss.auth.check_auth()">
 
-  <script type="text/javascript" src="out/goog/base.js"></script>
-  <script type="text/javascript" src="ss.js"></script>
-  <script type="text/javascript">
-    goog.require('ss.core');
-  </script>
-<div id="everything">
+<div id="everything" >
 <div id="header">
   Header stuff goes here
   <div class="top-right-controls">
     <button onclick="ss.auth.do_logged_out()">Logout</button>
-    <button onclick="ss.addressbook.open(ss.streamscapes.the_state)">Addressbook</button>
+    <button onclick="ss.addressbook.open()">Addressbook</button>
   </div>
 </div>
 <div id="authpane" style="display:none"><h3>Please Authenticate or Create a New User</h3>

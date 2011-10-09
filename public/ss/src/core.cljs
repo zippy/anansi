@@ -8,19 +8,21 @@
             [ss.session :as s]
             [ss.dom-helpers :as d]
             [ss.streamscapes :as sss]
+            [ss.ss-utils :as ssu]
             [ss.auth :as auth]
             [ss.ui :as ui]
+            [ss.email :as email]
             ))
 
 (defn make-irc [params]
-  (sss/send-signal {:to auth/ss-addr :prefix "streamscapes.streamscapes" :aspect "setup" :signal "new-channel"
+  (ssu/send-signal {:to auth/ss-addr :prefix "streamscapes.streamscapes" :aspect "setup" :signal "new-channel"
                 :params (merge {:type :irc, :name :freenode} params)})
   )
 (defn make-email [p]
   (let [params {:type :email :name (:channel-name p)
                 :in {:host (:in-host p) :account (:in-account p) :password (:in-password p) :protocol (:in-protocol p)}
                 :out {:host (:out-host p) :account (:out-account p) :password (:out-password p) :protocol (:out-protocol p) :port (:out-port p)}}]
-    (sss/send-signal {:to auth/ss-addr :prefix "streamscapes.streamscapes" :aspect "setup" :signal "new-channel"
+    (ssu/send-signal {:to auth/ss-addr :prefix "streamscapes.streamscapes" :aspect "setup" :signal "new-channel"
                   :params params}))
   )
 
@@ -37,7 +39,7 @@
     )
   )
 (defn twitter-check [c]
-  (sss/send-signal {:to auth/ss-addr :prefix "streamscapes.streamscapes" :aspect "matrice" :signal "control-channel"
+  (ssu/send-signal {:to auth/ss-addr :prefix "streamscapes.streamscapes" :aspect "matrice" :signal "control-channel"
                 :params {:name c :command :check} }
                refresh-stream-callback)
   )
@@ -45,7 +47,7 @@
 (defn make-twitter [p]
   (let [screen-name (:twitter-name p)
         params {:type :twitter :name (str "twitter-" screen-name) :screen-name screen-name}]
-    (sss/send-signal {:to auth/ss-addr :prefix "streamscapes.streamscapes" :aspect "setup" :signal "new-channel"
+    (ssu/send-signal {:to auth/ss-addr :prefix "streamscapes.streamscapes" :aspect "setup" :signal "new-channel"
                   :params params}))
   )
 
@@ -57,7 +59,7 @@
   )
 
 (defn email-check []
-  (sss/send-signal {:to auth/ss-addr :prefix "streamscapes.streamscapes" :aspect "matrice" :signal "control-channel"
+  (ssu/send-signal {:to auth/ss-addr :prefix "streamscapes.streamscapes" :aspect "matrice" :signal "control-channel"
                 :params {:name :email :command :check} }
                refresh-stream-callback))
 
@@ -68,18 +70,18 @@
 (defn make-ss []
   (ui/make-dialog {:name ""}
                (fn [params]
-                 (sss/send-signal {:to 0 :prefix "receptor.host" :aspect "self" :signal "host-streamscape" :params (merge {:matrice-address 7} params)})
+                 (ssu/send-signal {:to 0 :prefix "receptor.host" :aspect "self" :signal "host-streamscape" :params (merge {:matrice-address 7} params)})
                  )))
 (defn irc-join []
   (ui/make-dialog {:channel "#ceptr"}
                (fn [params]
-                 (sss/send-signal {:to auth/ss-addr :prefix "streamscapes.streamscapes" :aspect "matrice" :signal "control-channel"
+                 (ssu/send-signal {:to auth/ss-addr :prefix "streamscapes.streamscapes" :aspect "matrice" :signal "control-channel"
                                :params {:name :freenode :command :join :params params} }))))
 (defn irc-open []
-  (sss/send-signal {:to auth/ss-addr :prefix "streamscapes.streamscapes" :aspect "matrice" :signal "control-channel"
+  (ssu/send-signal {:to auth/ss-addr :prefix "streamscapes.streamscapes" :aspect "matrice" :signal "control-channel"
                 :params {:name :freenode :command :open}}))
 (defn irc-close []
-  (sss/send-signal {:to auth/ss-addr :prefix "streamscapes.streamscapes" :aspect "matrice" :signal "control-channel"
+  (ssu/send-signal {:to auth/ss-addr :prefix "streamscapes.streamscapes" :aspect "matrice" :signal "control-channel"
                   :params {:name :freenode :command :close}}))
 
 

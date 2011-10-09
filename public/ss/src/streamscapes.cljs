@@ -7,29 +7,24 @@
             [ss.dom-helpers :as d]
             [ss.ceptr :as ceptr]
             [ss.ui :as ui]
-            [ss.email :as email]
+            [ss.ss-utils :as ssu]
             ))
-
-(defn send-signal
-  ([params] (ceptr/signal (assoc params :session (s/get-session))))
-  ([params callback] (ceptr/signal (assoc params :session (s/get-session)) callback)))
 
 (defn refresh-stream []
   (get-state (s/get-ss-addr)))
 
 (defn render-ss []
-  (let [s the-state]
-    (render-stream s)
-    (render-scapes s))
+  (render-stream ssu/*current-state*)
+  (render-scapes ssu/*current-state*)
   )
 
 (defn gs-callback [e]
   (let [{status :status result :result} (ceptr/handle-xhr e)]
-    (def the-state result)
+    (ssu/set-current-state result)
     (debug/log (str "State:" (u/clj->json result)))
     (try
       (d/remove-children :the-receptor)
-      (render-receptor the-state (d/get-element :the-receptor) "")
+      (render-receptor ssu/*current-state* (d/get-element :the-receptor) "")
       (render-ss)
       (catch js/Object e (debug/jslog e))
       (finally (ui/loading-end)))))
@@ -132,7 +127,7 @@
                                                           (str (channel-icon-html cname type)
                                                                (name cname)
                                                                (if (= type :email)
-                                                                 "<button onclick=\"ss.email.compose()\">Compose</button>"
+                                                                 (str "<button onclick=\"ss.email.compose('" (name cname) "')\">Compose</button>")
                                                                  ""))))])
                                           (:values (:channel-scape scapes))))))
     (dom/append elem ())))
@@ -221,13 +216,11 @@
         ]
     (if (= 1 (count addr-list))
       r
-      (get-receptor-by-address r (rest addr-list)))
-    )
-  )
+      (get-receptor-by-address r (rest addr-list)))))
 
 (defn hidfn [address]
-  (fn [e] (let [r (if (= address "") the-state
-                     (get-receptor-by-address the-state (rest (string/split address #"\."))))]
+  (fn [e] (let [r (if (= address "") ssu/*current-state*
+                     (get-receptor-by-address ssu/*current-state* (rest (string/split address #"\."))))]
            (d/remove-children :the-receptor)
            (render-receptor r (d/get-element :the-receptor) address))))
 

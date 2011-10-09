@@ -8,6 +8,7 @@
    [ss.session :as s]
    [ss.dom-helpers :as d]
    [ss.streamscapes :as sss]
+   [ss.ss-utils :as ssu]
    [ss.ceptr :as ceptr]
    [ss.ui :as ui]
    ))
@@ -40,7 +41,7 @@
     (if (= status "ok")
       (do
         (s/set-session (:session result))
-        (sss/send-signal {:to 0 :prefix "receptor.host" :aspect "self" :signal "host-streamscape" :params {:matrice-address 999 :name *new-user*}} first-make-ss-callback)
+        (ssu/send-signal {:to 0 :prefix "receptor.host" :aspect "self" :signal "host-streamscape" :params {:matrice-address 999 :name *new-user*}} first-make-ss-callback)
         (def *new-user* nil)))))
 
 (defn auth-callback [e]
