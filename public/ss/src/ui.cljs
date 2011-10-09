@@ -54,13 +54,20 @@
       )
     ))
 
-(defn modal-dialog [id buildelems]
-  (let [x (apply conj
-                 [(keyword (str "div#" id ".standard-modal"))]
-                 (apply conj [[:div.top-right-controls (d/html (str "<button onclick=\"ss.ui.cancel_modal()\">Close</button>"))]] buildelems)                 
-                 )
+(defn make-button [text click-fun]
+  (let [button (goog.ui.Button. text)
+        button-elem (d/element :span)
         ]
+    (.render button button-elem)
+    (goog.events.listen button-elem goog.events.EventType.CLICK click-fun)
+    button-elem))
 
+(defn modal-dialog [id buildelems]
+  (let [cbe (make-button "Close" cancel-modal)
+        x (apply conj
+                 [(keyword (str "div#" id ".standard-modal"))]
+                 (apply conj [[:div.top-right-controls cbe]] buildelems))
+        ]
     (d/insert-at (d/get-element :everything)
                  (d/build [:div#modalmask.overlay-mask
                            x]) 0)))

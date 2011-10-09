@@ -8,6 +8,7 @@
             [ss.ceptr :as ceptr]
             [ss.ui :as ui]
             [ss.ss-utils :as ssu]
+            [ss.compose :as compose]
             ))
 
 (defn refresh-stream []
@@ -95,7 +96,10 @@
         droplet-channel-scape (:values (:droplet-channel-scape scapes))
         ]
     (d/remove-children :stream-panel)
-    (dom/append elem (d/html "<div class=\"stream-control\"><button onclick=\"ss.compose.compose()\"> Compose </button><button onclick=\"ss.streamscapes.refresh_stream()\"> Refresh </button></div>"))
+    (dom/append elem (d/build [:div.stream-control
+                               (ui/make-button "Compose" compose/compose)
+                               (ui/make-button "Refresh" refresh-stream)
+                               ]))
     (dom/append elem (d/build [:h3 (str "stream: " (count droplet-channel-scape) " of " (:receptor-total s))]))
     (ui/make-zips (map (fn [da]
                         (let [d-addr (keyword da)

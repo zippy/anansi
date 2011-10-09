@@ -11,6 +11,7 @@
    [ss.ss-utils :as ssu]
    [ss.ceptr :as ceptr]
    [ss.ui :as ui]
+   [ss.addressbook :as addressbook]
    ))
 
 (defn do-logged-in [auth-result]
@@ -23,6 +24,8 @@
     (s/set-ss-addr sa)
     (s/set-session session)
     (def ss-addr sa)
+    (let [elem (d/get-element :header-top-right)]
+      (d/append elem (ui/make-button "Logout" do-logged-out) (ui/make-button "Addressbook" addressbook/open)))
     (d/hide :authpane)
     (d/show :container)
     ))
@@ -31,6 +34,7 @@
   (do
     (d/remove-children :the-receptor)
     (d/remove-children :debug)
+    (d/remove-children :header-top-right)
     (s/clear-session)
     (d/hide :container)
     (d/show :authpane))
