@@ -22,36 +22,38 @@
 
 (defn make-ok-fn
   "utility function to make an ok button function which clears the dialog"
-  [fun inputs]
+  [parent-id fun inputs]
   (fn [e]
     (let [values (into {} (map (fn [[id li]] [id (. li (getValue))] ) inputs))]
       (fun values)
-      (d/remove-children :work))))
+      (d/remove-children parent-id))))
 
 (defn make-dialog
-  "creates a dialog based on the hash map given, and a function to call back if OK is pressed"
-  [spec okfn]
-  (let [e (d/get-element :work)
-        inputs (into {} (map (fn [[id label]] [id (goog.ui.LabelInput. (name id))]) spec))
+  "creates a dialog based on the vector of field specs, and a function to call back if OK is pressed"
+  [parent-id fields okfn]
+  (let [e (d/get-element parent-id)
+        inputs (into [] (map (fn [{id :field l :label}]
+                               (let [label (if (nil? l) (name id) l)]
+                                 [id (goog.ui.LabelInput. label) label])) fields))
+        defaults (into {} (map (fn [{id :field default :default}] [id default]) fields))
         b (goog.ui.Button. "Submit")
-        bc (goog.ui.Button. "Cancel")
-        build-vec (into [:form] (map (fn [[id li]] (goog.dom.createDom "label" {"for" (name id)}) ) inputs))] ;(keyword (str "input#" (name id)))
-    (d/remove-children :work)
-                                        ;(dom/append e (d/build build-vec))
-;    (dom/append e (d/element "cow" {:style "color:red"} "dog"))
-    (doseq [[id li] inputs]
-      (dom/append e (d/element "label" {:for (name id)} (name id)) (d/element "input" {:id (name id)}))
+        bc (goog.ui.Button. "Cancel")] 
+    (d/remove-children parent-id)
+    
+    (doseq [[id li label] inputs]
+      (d/append e (d/build [:div.field (d/element "label" {:for (name id)} label) (d/element "input" {:id (name id)})]))
       (.decorate li (d/get-element id))
-      (.setValue li (id spec))
+      (.setValue li (id defaults))
       )
     (let [domb (d/element :span#submit-button)
           cancel (d/element :span#cancel-button)
           ]
-      (dom/append e domb) (.render b domb)
-      (dom/append e cancel) (.render bc cancel)
-      (goog.events.listen domb goog.events.EventType.CLICK (make-ok-fn okfn inputs))
-      (goog.events.listen cancel goog.events.EventType.CLICK (fn [e] (d/remove-children :work)))
+      (d/append e (d/build [:div domb cancel]))
+      (.render b domb) (.render bc cancel)
+      (goog.events.listen domb goog.events.EventType.CLICK (make-ok-fn parent-id okfn inputs))
+      (goog.events.listen cancel goog.events.EventType.CLICK (fn [e] (d/remove-children parent-id)))
       )
+    (d/show parent-id)
     ))
 
 (defn make-input [label id size]

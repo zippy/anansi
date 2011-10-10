@@ -3,7 +3,6 @@
             [clojure.string :as string]
             [ss.dom-helpers :as d]
             [goog.events :as events]
-            [goog.style :as style]
             [ss.debug :as debug]
             [ss.utils :as u]
             [ss.ui :as ui]

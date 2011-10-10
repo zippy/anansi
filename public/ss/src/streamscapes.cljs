@@ -1,6 +1,7 @@
 (ns ss.streamscapes
   (:require [clojure.browser.dom :as dom]
             [clojure.string :as string]
+            [goog.ui.Prompt :as prompt]
             [ss.debug :as debug]
             [ss.utils :as u]
             [ss.state :as s]
@@ -8,6 +9,7 @@
             [ss.ceptr :as ceptr]
             [ss.ui :as ui]
             [ss.droplet :as droplet]
+            [ss.ss-utils :as ssu]
             ))
 
 (defn refresh-stream-callback
@@ -125,6 +127,40 @@
                               ))) (:receptor-order s))
                  elem)))
 
+
+(defn channel-check [c]
+  (ssu/send-ss-signal {:aspect "matrice" :signal "control-channel"
+                       :params {:name c :command :check} }
+                      refresh-stream-callback))
+
+
+
+
+(defn irc-join [c]
+  (let [p (goog.ui.Prompt. "Join IRC Channel" "Channel"
+                           (fn [irc-chan]
+                             (if (not (nil? irc-chan))
+                               (do
+                                 (ssu/send-ss-signal {:aspect "matrice" :signal "control-channel"
+                                                      :params {:name c :command :join :params {:channel irc-chan}} })))))]
+    (.setVisible p true)
+    ))
+
+(defn irc-open [c]
+  (ssu/send-ss-signal {:aspect "matrice" :signal "control-channel"
+                :params {:name c :command :open}}))
+(defn irc-close [c]
+  (ssu/send-ss-signal {:aspect "matrice" :signal "control-channel"
+                       :params {:name c :command :close}}))
+
+(defn get-channel-buttons [type cname]
+  (cond
+   (or (= type :email) (= type :twitter)) [(ui/make-button "Check" #(channel-check cname))]
+   (= type :irc) [(ui/make-button "Open" #(irc-open cname))
+                  (ui/make-button "Close" #(irc-close cname))
+                  (ui/make-button "Join" #(irc-join cname))]
+   true []))
+
 (defn render-scapes [s]
   (let [elem (d/get-element :ss-panel)
         scapes (:scapes s)]
@@ -132,12 +168,9 @@
     (dom/append elem (d/build (apply conj
                                      [:div#channels [:h4 "channels"]]
                                      (map (fn [[cname caddr]]
-                                            [:p (d/html (let [type (get-channel-type cname)]
-                                                          (str (channel-icon-html cname type)
-                                                               (name cname)
-                                                               (if (= type :email)
-                                                                 (str "<button onclick=\"ss.droplet.create('" (name cname) "')\">New</button>")
-                                                                 ""))))])
+                                            (apply conj [:p] (let [type (get-channel-type cname)]
+                                                               (apply conj [(d/html (str (channel-icon-html cname type) (name cname)))]
+                                                                      (get-channel-buttons type cname)))))
                                           (:values (:channel-scape scapes))))))
     (dom/append elem ())))
 

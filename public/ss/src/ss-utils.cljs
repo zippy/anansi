@@ -15,4 +15,3 @@
   ([params] (ceptr/signal (assoc params :session (s/get-session) :to (s/get-ss-addr) :prefix "streamscapes.streamscapes")))
   ([params callback] (ceptr/signal (assoc params :session (s/get-session) :to (s/get-ss-addr) :prefix "streamscapes.streamscapes") callback)))
 
-

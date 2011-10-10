@@ -12,6 +12,7 @@
    [ss.ceptr :as ceptr]
    [ss.ui :as ui]
    [ss.ident :as ident]
+   [ss.compose :as compose]
    ))
 
 (defn do-logged-in [auth-result user-name]
@@ -25,7 +26,12 @@
     (s/set-session session)
     (s/set-user-name user-name)
     (let [elem (d/get-element :header-top-right)]
-      (d/append elem (d/build [:div#logged-in-as (str "Logged in as: " user-name)] ) (ui/make-button "Logout" do-logged-out) (ui/make-button "Contacts" ident/open)))
+      (d/append elem
+                (d/build [:div#logged-in-as (str "Logged in as: " user-name)] )
+                (ui/make-button "Logout" do-logged-out)
+                (ui/make-button "Contacts" ident/open)
+                (ui/make-button "Compose" compose/open)
+                ))
     (d/hide :authpane)
     (d/show :container)
     ))
