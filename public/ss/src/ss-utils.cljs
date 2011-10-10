@@ -1,17 +1,18 @@
 (ns ss.ss-utils
-  (:require [ss.session :as s]
+  (:require [ss.state :as s]
             [ss.debug :as debug]
             [ss.ceptr :as ceptr]
             ))
 
 (defn send-signal
-  "send a streamscapes signal, inserting the current session into the params"
+  "send signal to the host, inserting the current session into the params"
   ([params] (ceptr/signal (assoc params :session (s/get-session))))
   ([params callback] (ceptr/signal (assoc params :session (s/get-session)) callback)))
 
 
-(defn set-current-state
-  "set the current streamscapes state for others to refer to it"
-  [s]
-  (def *current-state* s)
-  )
+(defn send-ss-signal
+  "send signal to the current session streamscapes instance"
+  ([params] (ceptr/signal (assoc params :session (s/get-session) :to (s/get-ss-addr) :prefix "streamscapes.streamscapes")))
+  ([params callback] (ceptr/signal (assoc params :session (s/get-session) :to (s/get-ss-addr) :prefix "streamscapes.streamscapes") callback)))
+
+

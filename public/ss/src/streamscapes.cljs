@@ -3,28 +3,33 @@
             [clojure.string :as string]
             [ss.debug :as debug]
             [ss.utils :as u]
-            [ss.session :as s]
+            [ss.state :as s]
             [ss.dom-helpers :as d]
             [ss.ceptr :as ceptr]
             [ss.ui :as ui]
-            [ss.ss-utils :as ssu]
-            [ss.compose :as compose]
+            [ss.droplet :as droplet]
             ))
+
+(defn refresh-stream-callback
+  "a signal a callback for simply reloading the state from the severver"
+  [e]
+  (let [{status :status result :result} (ceptr/handle-xhr e)]
+    (refresh-stream)))
 
 (defn refresh-stream []
   (get-state (s/get-ss-addr)))
 
 (defn render-ss []
-  (render-stream ssu/*current-state*)
-  (render-scapes ssu/*current-state*)
+  (render-stream s/*current-state*)
+  (render-scapes s/*current-state*)
   )
 
 (defn gs-callback [e]
   (let [{status :status result :result} (ceptr/handle-xhr e)]
-    (ssu/set-current-state result)
+    (s/set-current-state result)
     (try
       (d/remove-children :the-receptor)
-      (render-receptor ssu/*current-state* (d/get-element :the-receptor) "")
+      (render-receptor s/*current-state* (d/get-element :the-receptor) "")
       (render-ss)
       (catch js/Object e (debug/jslog e))
       (finally (ui/loading-end)))))
@@ -38,7 +43,6 @@
 
 
 ;; These are the functions that render the streamscapes ui
-
 (defn humanize-ss-datetime [dt]
   (let [[date ltime] (string/split (name dt) #"T")
         [year month day] (string/split date #"-")
@@ -97,7 +101,7 @@
         ]
     (d/remove-children :stream-panel)
     (dom/append elem (d/build [:div.stream-control
-                               (ui/make-button "Compose" compose/compose)
+                               (ui/make-button "Create Droplet" droplet/create)
                                (ui/make-button "Refresh" refresh-stream)
                                ]))
     (dom/append elem (d/build [:h3 (str "stream: " (count droplet-channel-scape) " of " (:receptor-total s))]))
@@ -125,7 +129,6 @@
   (let [elem (d/get-element :ss-panel)
         scapes (:scapes s)]
     (d/remove-children :ss-panel)
-    (dom/append elem (d/build [:h3 "streamscapes"]))
     (dom/append elem (d/build (apply conj
                                      [:div#channels [:h4 "channels"]]
                                      (map (fn [[cname caddr]]
@@ -133,7 +136,7 @@
                                                           (str (channel-icon-html cname type)
                                                                (name cname)
                                                                (if (= type :email)
-                                                                 (str "<button onclick=\"ss.email.compose('" (name cname) "')\">Compose</button>")
+                                                                 (str "<button onclick=\"ss.droplet.create('" (name cname) "')\">New</button>")
                                                                  ""))))])
                                           (:values (:channel-scape scapes))))))
     (dom/append elem ())))
@@ -225,8 +228,8 @@
       (get-receptor-by-address r (rest addr-list)))))
 
 (defn hidfn [address]
-  (fn [e] (let [r (if (= address "") ssu/*current-state*
-                     (get-receptor-by-address ssu/*current-state* (rest (string/split address #"\."))))]
+  (fn [e] (let [r (if (= address "") s/*current-state*
+                     (get-receptor-by-address s/*current-state* (rest (string/split address #"\."))))]
            (d/remove-children :the-receptor)
            (render-receptor r (d/get-element :the-receptor) address))))
 

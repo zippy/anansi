@@ -31,9 +31,8 @@
 
 <div id="everything" >
 <div id="header">
-  Header stuff goes here
-  <div id="header-top-right" class="top-right-controls">
-  </div>
+  <div id="header-top-right" class="top-right-controls">  </div>
+  <h3>Streamscapes</h3>
 </div>
 <div id="authpane" style="display:none"><h3>Please Authenticate or Create a New User</h3>
   <button onclick="ss.auth.do_auth()">Authenticate</button>
@@ -53,7 +52,7 @@
 		</div>
 		<div class="col2">
 			<!-- Column 2 start -->
-<div id="ss-panel"><h3>streamscapes</h3></div>
+<div id="ss-panel"></div>
 			<!-- Column 2 end -->
 		</div>
 	</div>
@@ -62,12 +61,10 @@
   Footer stuff goes here
   <div id="controls">
 
-    <button onclick="ss.addressbook.close()">Close Addressbook</button>
-
     <button onclick="ss.auth.do_auth()">Authenticate</button>
     <button onclick="ss.auth.do_new_user()">New User</button>
-    <button onclick="alert(ss.session.get_session())"> Session? </button>
-    <button onclick="alert(ss.session.get_ss_addr())"> ss-address </button>
+    <button onclick="alert(ss.s.get_session())"> Session? </button>
+    <button onclick="alert(ss.s.get_ss_addr())"> ss-address </button>
     <button onclick="ss.ceptr.ping()"> Ping </button>
     <button onclick="ss.core.make_ss()"> Make SS </button>
     <button onclick="ss.core.make_irc_channel()"> Make IRC </button>

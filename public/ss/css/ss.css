@@ -16,7 +16,7 @@ html, body {
 }
 
 body {
-   background-color: #ffe;
+   background-color: #fff;
 }
 
 div#everything {
@@ -61,7 +61,7 @@ div#flow-panel {
    padding: 10px;
 }
 
-#addressbook {
+#contacts {
    overflow-x: hidden;
    overflow-y: scroll;
 }
