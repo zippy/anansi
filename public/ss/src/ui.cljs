@@ -54,6 +54,12 @@
       )
     ))
 
+(defn make-input [label id size]
+  [:p 
+   [:label {:for id} (str label ":")]
+   [(keyword (str "input#" id)) {:name id :size size}]]
+  )
+
 (defn make-button [text click-fun]
   (let [button (goog.ui.Button. text)
         button-elem (d/element :span)

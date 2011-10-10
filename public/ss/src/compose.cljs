@@ -30,7 +30,7 @@
                        [:input#subject {:name "subject" :size 100}]]
                       [:p
                        [:textarea#body {:name "body" :rows 20 :cols 100}]]
-                      [:p (d/html (str "<button onclick=\"ss.compose.send('" (str "streamscapes") "')\">Send</button>"))]
+                      [:p (ui/make-button "Send" (fn [] (send "streamscapes")))]
                       ]
                      )))
 

@@ -85,7 +85,7 @@ div#loading {
 
     /*in supporting browsers, make it
       a little transparent*/
-    background: rgba(255,255,255,.6);
+    background: rgba(200,200,200,.6);
     /* For IE 5.5 - 7*/
    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000);
    /* For IE 8*/
