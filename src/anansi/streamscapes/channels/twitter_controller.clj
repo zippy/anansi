@@ -14,7 +14,7 @@
 )
 
 (def twitter-controller-def (receptor-def "twitter-controller"
-                                          (attributes :screen-name)))
+                                          (attributes :search-query)))
 
 (signal channel control [_r _f control-params]
         (let [{command :command params :params} control-params]
@@ -25,16 +25,19 @@
                            result
                            (try
                              (sync-http-request {:method :get,
-                                                 :url (str "https://api.twitter.com/1/statuses/user_timeline.json?screen_name=" (contents _r :screen-name))
+                                          ;;       :url (str "https://api.twitter.com/1/statuses/user_timeline.json?screen_name=" (contents _r :screen-name))
+                                                 :url (str "https://search.twitter.com/search.json?q=" (url-encode (contents _r :search-query)))
                                                  :auto-transform true
                                                  }
                                                 5000)
                              (catch Exception e
-                               (throw (RuntimeException. (str "Error encountered while downloading tweets: " e)))
+                               (do
+                                 (.printStackTrace e *err*)
+                                 (throw (RuntimeException. (str "Error encountered while downloading tweets: " e))))
                                ))]
                        ;;THIS IS WAY CHEATING!!  The controller needs
                        ;;to send this as a signal, not call it as a
                        ;;clojure function.
-                       (doseq [tweet (:body result)]
+                       (doseq [tweet (:results (:body result))]
                          (handle-message ib tweet)))
               (throw (RuntimeException. (str "Unknown control command: " command))))))

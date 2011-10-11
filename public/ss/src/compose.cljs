@@ -22,14 +22,14 @@
                    ))
 
 (defn make-twitter [p]
-  (let [screen-name (:twitter-name p)
-        params {:type :twitter :name (str "twitter-" screen-name) :screen-name screen-name}]
+  (let [q (:search-query p)
+        params {:type :twitter :name (str "twitter-" q) :search-query q}]
     (ssu/send-ss-signal {:aspect "setup" :signal "new-channel"
                   :params params} sss/refresh-stream-callback)))
 
 (defn make-twitter-channel [parent-id]
   (ui/make-dialog parent-id
-   [{:field :twitter-name :default "zippy314" :label "Twitter screen name"}]
+   [{:field :search-query :default "#metacurrency" :label "Twitter search query"}]
    make-twitter))
 
 (defn make-irc [params]

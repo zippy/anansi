@@ -13,7 +13,7 @@
 
 (defn handle-message [_r msg]
   "process a twitter message"
-  (let [{id :id_str text :text {from-address :screen_name} :user} msg
+  (let [{id :id_str text :text from-address :from_user} msg
         ss (parent-of (parent-of _r))
         ids (get-scape ss :id)
         da (s-> address->resolve ids id)]
@@ -21,6 +21,7 @@
       (let [twitter-to "_twp_"
             from-id (do-identify ss {:identifiers {:twitter (str "@" from-address)}} false)
             to-id (do-identify ss {:identifiers {:twitter twitter-to}} false)]
+
         (--> stream->receive _r (parent-of _r)
              {:id id
               :to to-id
