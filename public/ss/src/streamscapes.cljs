@@ -43,6 +43,18 @@
     (ui/loading-start)
     (ceptr/command {:cmd "get-state" :params {:receptor r :query {:scape-order {:scape :delivery :limit 40 :descending true}}}} gs-callback)))
 
+(defn get-grooves
+  "get the current groove definitions from the server" []
+  (ceptr/command {:cmd "get-state" :params {:receptor 0 :query {:partial {:receptor-order true :scapes {:groove-scape {:values true}} :receptors true}
+                                                                :scape-order {:scape :groove :scape-receptors-only true}}}}
+                 (fn [e] (let [{status :status result :result} (ceptr/handle-xhr e)]
+                          (if (= status "ok")
+                            (let [receptors (:receptors result)
+                                  grooves (into {} (map (fn [[groove-name addr]] [groove-name (:grammars ((keyword addr) receptors))]) (-> result :scapes :groove-scape :values)))]
+                              (s/set-grooves grooves))
+                            )
+                          )) )
+  )
 
 ;; These are the functions that render the streamscapes ui
 (defn humanize-ss-datetime [dt]

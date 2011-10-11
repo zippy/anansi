@@ -34,6 +34,7 @@
                 ))
     (d/hide :authpane)
     (d/show :container)
+    (sss/get-grooves)
     ))
 
 (defn do-logged-out []

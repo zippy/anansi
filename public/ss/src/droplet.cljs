@@ -15,7 +15,7 @@
   (js/alert ""))
 ;;TODO: this should be converted to using goog components...,
 ;;including a nice EditField for html...
-;;TODO: needs to create fields based on grammars that the channel understands
+;;TODO: needs to create fields based on grooves that the channel understands
 (defn create [channel]
   (let [scapes (:scapes s/*current-state*)
         identity-names (:values (:ident-name-scape scapes))
@@ -25,16 +25,16 @@
         channel-select (map (fn [[cn ca]] [:option {:value (name cn)} (name cn)]) channel-scape)
         addr-select (map (fn [[ea ia]] [:option {:value (str ia)} (str ((keyword ia) identity-names) "<"(name ea) ">")]) channel-address-identity-scape)
         [channel-select channel-select-element] (ui/make-select "channel" "Choose a channel:" scape-names xxx)
-        [grammar-select grammar-select-element] (ui/make-select "grammar" nil ["subject-body-message" "im-message" "status-update"] xxx)
+        [groove-select groove-select-element] (ui/make-select "groove" nil (map #(name %) (keys s/*grooves*)) xxx)
         ]
-    (.setValue grammar-select "subject-body-message")
+    (.setValue groove-select "subject-body-message")
     (ui/modal-dialog "droplet-create"
                      [[:h3 "Create Droplet"]
                       [:p [:label {:for "channel"} "Channel: "]
                        channel-select-element
                        ] ;(apply conj [:select#channel {:name "channel"}] channel-select)
-                      [:p [:label {:for "grammar"} "Grammar: "]
-                       grammar-select-element]
+                      [:p [:label {:for "groove"} "Groove: "]
+                       groove-select-element]
                       [:p [:label {:for "from"} "From: "]
                        (apply conj [:select#from {:name "from"}] addr-select)]
                       [:p [:label {:for "to"} "To: "]
