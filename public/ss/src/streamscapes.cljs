@@ -64,6 +64,9 @@
 (defn resolve-ident [s ident]
   ((keyword ident) (:values (:ident-name-scape (:scapes s)))))
 
+(defn resolve-twitter-avatar [s ident]
+  (str "<img class=\"twitter-avatar\" src=\"" ((keyword ident) (:values (:ident-twitter-avatar-scape (:scapes s)))) "\">")   )
+
 (defn get-html-from-body [body content-type]
   (if (re-find #"^multipart" content-type)
     (:content (first (filter (fn [part] (re-find #"^text/html" (:content-type part))) body)))
@@ -118,7 +121,7 @@
                               :streamscapes {:title (str (channel-icon-html channel channel-type) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-ident s (:from d)) " Subject: " (:subject (:content d)))
                                              :content (:body (:content d))}
                               :email (zip-for-email-droplet s d-addr channel)
-                              :twitter {:title (str (channel-icon-html channel channel-type) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-ident s (:from d)) " : " (:text (:content d)))
+                              :twitter {:title (str (channel-icon-html channel channel-type) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-twitter-avatar s (:from d)) (resolve-ident s (:from d)) " : " (:text (:content d)))
                                         :content (d/build [:div [:div#default-droplet (u/clj->json (:content d)) ]]) }
                               :irc {:title (str (channel-icon-html channel channel-type) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-ident s (:from d)) " : " (:message (:content d)))
                                     :content (d/build [:div [:div#default-droplet (u/clj->json (:content d)) ]]) }

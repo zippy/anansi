@@ -33,8 +33,13 @@ div#flow-panel {
 }
 
 .droplet-type-icon {
-   width: 32px;
-   height: 32px;
+   width: 20px;
+   height: 20px;
+}
+
+img.twitter-avatar {
+   width: 20px;
+   height: 20px;
 }
 
 #header {
