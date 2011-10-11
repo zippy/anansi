@@ -14,3 +14,5 @@ htdocs
 public/test/out
 public/ss/out
 checkouts
+anansi.ipr
+anansi.iws
