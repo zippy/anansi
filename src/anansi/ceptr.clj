@@ -314,7 +314,7 @@ assumes that the scape has receptor addresses in the value of the map"
                      (assoc tstate :receptor-order sorted)
                      (let [lset (set sorted)]
                        (assoc tstate :receptor-order sorted :receptors (into {} (filter (fn [[k v]] (and (not= k :last-address) (or (lset k) (non-scape-receptors k)))) (:receptors qstate))))))))]
-    ostate))
+    (if (:partial query) (filter-map ostate (:partial query)) ostate)))
 
 (defn receptor-state
   "gets the receptor state: for serialization if full? is true or, for public consumption if full? is false or a query spec"

@@ -8,3 +8,6 @@
       n (keyword (last (re-find #"@(.*)$" (str r))))]
   (fact (snapshot {:a 2, :b r}) => {:a 2, :b {n {4 5}}}))
 
+(facts "about filter-map"
+  (filter-map {:a 2, :b 3, :c {:d 4 :e 5}} {:a true}) => {:a 2}
+  (filter-map {:a 2, :b 3, :c {:d 4 :e 5}} {:b true :c {:d true}})) => {:b 3 :c {:d 4}}

@@ -120,4 +120,11 @@
       (:receptor-order state) => [s]
       (set (keys (:receptors state))) => (contains #{s})
       (set (keys (:receptors state))) =not=> (contains #{j z})
-      )))
+      )
+    (keys (--> command->get-state i h {:receptor 0 :query {:partial {:scapes true}}})) => (just :scapes)
+    (let [q (--> command->get-state i h {:receptor 0 :query {:partial {:scapes {:groove-scape true} :address true}}})]
+      (keys q) => (just :scapes :address)
+      (keys (:scapes q)) => (just :groove-scape)
+      )
+    )
+  )

@@ -33,3 +33,16 @@
 
 (defn javaDate2datetime [jd]
   (date-time (+ 1900 (.getYear jd)) (+ 1 (.getMonth jd)) (.getDate jd) (.getHours jd) (.getMinutes jd) (.getSeconds jd)))
+
+(defn filter-map
+  "returns the portion of the map that's described in the pattern
+The pattern is a map of keys that match the desired keys in map, and values
+which are true if the entire value from the source map is to be returned, or
+another map of the same pattern format if the value in the map is also a map
+that should be recursively filtered."
+  [m pattern]
+  (into {} (keep identity (map (fn [[k v]] (let [pv (k pattern)]
+                                            (cond
+                                             (map? pv) [k (filter-map v pv)]
+                                             (= pv true) [k v]
+                                             true nil))) m))))
