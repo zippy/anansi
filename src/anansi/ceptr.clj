@@ -299,7 +299,7 @@ assumes that the scape has receptor addresses in the value of the map"
                    (assoc state :receptors (filter (fn [[key _]] (receptors key)) (:receptors state)))))
         ostate (if (nil? scape-order)
                  qstate
-                 (let [{scape-name :scape limit :limit o :offset} scape-order
+                 (let [{scape-name :scape limit :limit o :offset scape-receptors-only :scape-receptors-only} scape-order
                        s (_get-scape _r scape-name)
                        offset (if (nil? o) 0 o)
                        tstate (assoc qstate :receptor-total (scape-size s))
@@ -308,9 +308,9 @@ assumes that the scape has receptor addresses in the value of the map"
                        ;; this is cheat because I shouldn't be able to
                        ;; look directly into the scape receptor here,
                        ;; now should I!
-                       non-scape-receptors (difference (set (keys (:receptors qstate))) (set (vals @(contents s :map))))
+                       non-scape-receptors (if scape-receptors-only #{} (difference (set (keys (:receptors qstate))) (set (vals @(contents s :map)))))
                        ]
-                   (if (and (nil? limit) (= 0 offset)) ;small optimization
+                   (if (and (nil? limit) (= 0 offset) (not scape-receptors-only)) ;small optimization
                      (assoc tstate :receptor-order sorted)
                      (let [lset (set sorted)]
                        (assoc tstate :receptor-order sorted :receptors (into {} (filter (fn [[k v]] (and (not= k :last-address) (or (lset k) (non-scape-receptors k)))) (:receptors qstate))))))))]

@@ -147,4 +147,8 @@
       (:receptor-order state) => [s]
       (set (keys (:receptors state))) => #{s x}
       )
+    (let [state (receptor-state p {:scape-order {:scape :s1 :limit 1 :offset 1 :scape-receptors-only true}})]
+      (:receptor-order state) => [s]
+      (set (keys (:receptors state))) => #{s}
+      )
 ))
