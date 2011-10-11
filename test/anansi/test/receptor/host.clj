@@ -18,7 +18,17 @@
     (scape-relationship (get-scape h :stream) :key) => :name
     (scape-relationship (get-scape h :stream) :address) => :address
     (scape-relationship (get-scape h :session) :key) => :sha
-    (scape-relationship (get-scape h :session) :address) => :user-addr-time-interface-map)
+    (scape-relationship (get-scape h :session) :address) => :user-addr-time-interface-map
+    (scape-relationship (get-scape h :groove) :key) => :name
+    (scape-relationship (get-scape h :groove) :address) => :address
+    )
+  (facts "about default grooves added into the host at startup"
+    (let [grooves (get-scape h :groove)
+          g (get-receptor h (s-> key->resolve grooves :subject-body-message))]
+      (-> (receptor-state h false) :scapes :groove-scape :values :subject-body-message ) => #(= java.lang.Integer (class %))
+      (rdef g :fingerprint) => :anansi.streamscapes.groove.groove
+      (contents g :grammars) => {:streamscapes {:subject "text/plain", :body "text/html"}}
+      ))
   (deftest host
     (testing "ping"
       (is (re-find #"Hi [0-9]+! This is the host." (s-> ceptr->ping h nil)))
@@ -39,7 +49,16 @@
         (is (= addr ))
         (is (= (contents r :_password) "pass") )
         (is (= (contents r :data) {}) )
-        (is (= (s-> key->all (get-scape r :matrice)) [1]) )))
+        (is (= (s-> key->all (get-scape r :matrice)) [1]))))
+    
+    (facts "about hosting grooves"
+      (let [addr (s-> self->host-groove h {:name "a-groove" :grammars {:streamscapes "some-grammar-spec" }})
+            r (get-receptor h addr)
+            qn (keyword (str (address-of h) ".a-groove"))]
+        (s-> key->resolve (get-scape h :groove) qn) => addr
+        (contents r :grammars) => {:streamscapes "some-grammar-spec"}
+        (s-> self->host-groove h {:name "a-groove"}) => (throws RuntimeException (str "A groove already exists with the name: " qn))
+        ))
     
     (testing "self->host-user"
       (let [addr (s-> self->host-user h "zippy")
@@ -88,9 +107,7 @@
     (comment facts "about restoring serialized receptor"
       (let [state (receptor-state h true)]
         state => (receptor-state (receptor-restore state nil) true)
-        ))
-    )
-)
+        ))))
 (facts "about querys"
   (let [h (make-receptor host-def nil {})
         i (make-receptor some-interface-def h {})
@@ -101,5 +118,6 @@
     (set (keys (:receptors (--> command->get-state i h {:receptor 0 :query {:scape-query {:scape :user :query [">" "s"]}}})))) => #{s z}
     (let [state (--> command->get-state i h {:receptor 0 :query {:scape-order {:scape :user :limit 1 :offset 1}}})]
       (:receptor-order state) => [s]
-      (set (keys (:receptors state))) => #{(address-of i) s}
+      (set (keys (:receptors state))) => (contains #{s})
+      (set (keys (:receptors state))) =not=> (contains #{j z})
       )))

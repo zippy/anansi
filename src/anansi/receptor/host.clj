@@ -6,15 +6,26 @@
         [anansi.receptor.user]
         [anansi.receptor.scape]
         [anansi.streamscapes.streamscapes]
+        [anansi.streamscapes.groove :only [groove-def]]
         [anansi.libs.sha :only [sha]])
   (:use [clj-time.core :only [now]]))
 
-(def host-def (receptor-def "host" (scapes
-                                    {:name :room :relationship {:key :name :address :address}}
-                                    {:name :user :relationship {:key :name :address :address}}
-                                    {:name :stream :relationship {:key :name :address :address}}
-                                    {:name :creator :relationship {:key :address :address :creator-address}}
-                                    {:name :session :relationship {:key :sha :address :user-addr-time-interface-map}})))
+(def host-def (receptor-def
+               "host"
+               (scapes
+                {:name :room :relationship {:key :name :address :address}}
+                {:name :user :relationship {:key :name :address :address}}
+                {:name :groove :relationship {:key :name :address :address}}
+                {:name :stream :relationship {:key :name :address :address}}
+                {:name :creator :relationship {:key :address :address :creator-address}}
+                {:name :session :relationship {:key :sha :address :user-addr-time-interface-map}})
+               (animate [_r]
+                        (let [grooves (get-scape _r :groove)]
+                          (if (= 0 (scape-size grooves))
+                            (let [groove (make-receptor groove-def _r {:attributes {:grammars {:streamscapes {:subject "text/plain" :body "text/html"}}}})]
+                              (--> key->set _r grooves :subject-body-message (address-of groove)))
+                            )))
+               ))
 
 (defn resolve-name [_r user]
   "resolve a username to it's receptor address"
@@ -52,6 +63,18 @@
                  (--> key->set _r names receptor-name addr)
                  (--> key->set _r creators addr _f)
            addr)))
+(signal self host-groove [_r _f {receptor-name :name grammars :grammars}]
+        (rsync _r
+               (let [names (get-scape _r :groove)
+                     qualified-name (keyword (str _f "." receptor-name))
+                     existing-addr (--> key->resolve _r names qualified-name)
+                     x (if existing-addr (throw (RuntimeException. (str "A groove already exists with the name: " qualified-name))))
+                     creators (get-scape _r :creator)
+                     r (make-receptor groove-def _r {:attributes {:grammars grammars}})
+                     addr (address-of r)]
+                 (--> key->set _r names qualified-name addr)
+                 (--> key->set _r creators addr _f)
+                 addr)))
 
 (signal command send-signal [_r _f p]
         (rsync _r 
