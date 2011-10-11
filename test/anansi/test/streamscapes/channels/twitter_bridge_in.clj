@@ -30,14 +30,17 @@
         ))
     
     (testing "internal functions: handle-message (message to channel)"
-      (let [message {:id_str "121470088258916352" :text "Some short tweet" :user {:screen_name "zippy314"} :created_at "Wed Oct 04 09:21:40 +0000 2011"}
+      (let [message {:id_str "121470088258916352" :text "Some short tweet" :from_user "zippy314" :profile_image_url "http://someurl" :created_at "Wed Oct 04 09:21:40 +0000 2011"}
             droplet-address (handle-message b message)
             d (get-receptor r droplet-address)
             deliveries (get-scape r :delivery)
+            avatars (get-scape r :ident-twitter-avatar)
             ]
         (facts "about twitter droplet"
           (contents d :id) => "121470088258916352"
           (contents d :from) => (s-> key->resolve twitter-idents "@zippy314")
+          (s-> key->resolve twitter-idents "@zippy314")
+          (s-> key->resolve avatars (contents d :from)) => "http://someurl"
           (contents d :to) => (s-> key->resolve twitter-idents "_twp_")
           (contents d :envelope) => {:from "twitter/screen_name" :text "text/plain"}
           (contents d :content) => {:from "zippy314" :text "Some short tweet"}

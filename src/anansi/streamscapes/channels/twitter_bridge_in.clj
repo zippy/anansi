@@ -19,7 +19,7 @@
         da (s-> address->resolve ids id)]
     (if (empty? da)
       (let [twitter-to "_twp_"
-            from-id (do-identify ss {:identifiers {:twitter (str "@" from-address)}} false)
+            from-id (do-identify ss {:identifiers {:twitter (str "@" from-address)} :attributes {:twitter-avatar (:profile_image_url msg)}}  false)
             to-id (do-identify ss {:identifiers {:twitter twitter-to}} false)]
 
         (--> stream->receive _r (parent-of _r)
