@@ -3,7 +3,10 @@
    [clojure.browser.dom :as dom]
    [goog.ui.LabelInput :as LabelInput]
    [goog.editor.Field :as field]
-   [goog.ui.Button :as button]
+   [goog.ui.Button :as uibutton]
+   [goog.ui.Select :as uiselect]
+   [goog.ui.Option :as uioption]
+   [goog.ui.Component.EventType :as event-type]
    [goog.ui.Zippy :as zippy]
    [goog.events :as events]
    [ss.dom-helpers :as d]
@@ -69,6 +72,17 @@
     (.render button button-elem)
     (goog.events.listen button-elem goog.events.EventType.CLICK click-fun)
     button-elem))
+
+(defn make-select [elem-id caption options select-fun]
+  (let [select (goog.ui.Select. caption)
+        select-elem (d/element (keyword (str "span#" elem-id)))]
+    (doseq [option options]
+      (.addItem select (goog.ui.Option. option)))
+    (.render select select-elem)
+    (goog.events.listen select goog.ui.Component.EventType.ACTION select-fun)
+    [select select-elem]
+    )
+  )
 
 (defn modal-dialog [id buildelems]
   (let [cbe (make-button "Close" cancel-modal)

@@ -4,7 +4,7 @@ goog.addDependency("../cljs/reader.js", ['cljs.reader'], ['cljs.core', 'goog.str
 goog.addDependency("../clojure/browser/dom.js", ['clojure.browser.dom'], ['cljs.core', 'goog.dom']);
 goog.addDependency("../utils.js", ['ss.utils'], ['cljs.core']);
 goog.addDependency("../dom-helpers.js", ['ss.dom_helpers'], ['cljs.core', 'goog.dom', 'clojure.string', 'goog.style']);
-goog.addDependency("../ui.js", ['ss.ui'], ['ss.utils', 'cljs.core', 'clojure.browser.dom', 'goog.ui.LabelInput', 'goog.ui.Zippy', 'goog.ui.Button', 'ss.dom_helpers', 'goog.events', 'goog.editor.Field']);
+goog.addDependency("../ui.js", ['ss.ui'], ['ss.utils', 'cljs.core', 'clojure.browser.dom', 'goog.ui.Component.EventType', 'goog.ui.LabelInput', 'goog.ui.Zippy', 'goog.ui.Select', 'goog.ui.Button', 'ss.dom_helpers', 'goog.ui.Option', 'goog.events', 'goog.editor.Field']);
 goog.addDependency("../debug.js", ['ss.debug'], ['cljs.core', 'ss.dom_helpers']);
 goog.addDependency("../state.js", ['ss.state'], ['ss.utils', 'cljs.core', 'goog.net.Cookies', 'goog.net.cookies', 'ss.debug', 'clojure.string']);
 goog.addDependency("../ceptr.js", ['ss.ceptr'], ['ss.utils', 'cljs.core', 'ss.debug', 'clojure.string', 'goog.net.XhrIo', 'goog.events', 'goog.Uri']);
