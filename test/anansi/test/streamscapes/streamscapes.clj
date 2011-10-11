@@ -139,13 +139,13 @@
                                              :host "irc.freenode.net"
                                               :port 6667})))
   (facts "about new twitter channel"
-    (let [channel-address (s-> setup->new-channel r {:type :twitter, :name :twitterx, :screen-name "zippy314"})
+    (let [channel-address (s-> setup->new-channel r {:type :twitter, :name :twitterx, :search-query "@zippy314"})
           cc (get-receptor r channel-address)
           [in-bridge-address receive-signal] (get-receiver-bridge cc)
           [controller-address controller-signal] (get-controller cc)]
       (receptor-state (get-receptor cc in-bridge-address) false) => (contains {:fingerprint :anansi.streamscapes.channels.twitter-bridge-in.twitter-bridge-in })
       (find-channel-by-name r :twitterx) => cc
-      (receptor-state (get-receptor cc controller-address) false) => (contains {:fingerprint :anansi.streamscapes.channels.twitter-controller.twitter-controller :screen-name "zippy314"})
+      (receptor-state (get-receptor cc controller-address) false) => (contains {:fingerprint :anansi.streamscapes.channels.twitter-controller.twitter-controller :search-query "@zippy314"})
       ))
   (facts "about new email channel"
     (let [channel-address (s-> setup->new-channel r {:type :email, :name :email,
