@@ -1,5 +1,6 @@
 (ns ss.debug
   (:require [ss.dom-helpers :as d]
+            [ss.utils :as u]
 ;            [goog.debug.DebugWindow :as debugw]                       
             ))
 
@@ -10,6 +11,10 @@
 (defn jslog [txt]
   (js* "console.log(~{txt})")
   )
+
+(defn alert [clj-obj]
+  (jslog (u/clj->json clj-obj))
+)
 
 ;(def debug (goog.debug.DebugWindow.))
 (comment doto debug (.addLogRecord (goog.debug.LogRecord. goog.debug.Logger.Level.INFO "messge" "source"))

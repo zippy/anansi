@@ -72,6 +72,13 @@
   (let [parent (dom/getElement (name id))]
     (do (dom/removeChildren parent))))
 
+(defn replace-children
+  "replace the children of an element with an element"
+  [id & new-children]
+  (remove-children id)
+  (apply append (get-element id) new-children)
+)
+
 (defn remove-node
   "Remove the element with the passed id."
   [id]
