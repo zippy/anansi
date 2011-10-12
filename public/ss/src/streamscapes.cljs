@@ -79,6 +79,19 @@
 (defn resolve-twitter-avatar [s ident]
   (str "<img class=\"twitter-avatar\" src=\"" ((keyword ident) (:values (:ident-twitter-avatar-scape (:scapes s)))) "\">")   )
 
+;;TODO: this relies currently on channel type, which is not really an
+;;ontological entitiy in the server, except in-so-far as grooves are
+;;currently defined on the channel type key.  That all needs to be fixed
+(defn get-channel-ident-scape
+  "Given a channel name, returs the identity scape for that channel type"
+  [channel-name]
+  (let [chan-type (get-channel-type channel-name)]
+    (:values ((condp = chan-type
+                  :streamscapes :ss-address-ident-scape
+                  :irc :irc-ident-scape
+                  :email :email-ident-scape
+                  ) (:scapes s/*current-state*)))))
+
 (defn get-html-from-body [body content-type]
   (if (re-find #"^multipart" content-type)
     (:content (first (filter (fn [part] (re-find #"^text/html" (:content-type part))) body)))
@@ -95,6 +108,19 @@
     (ui/make-zips [{:title "Raw" :content (u/clj->json body)}] html)
     {:title (str (channel-icon-html channel :email) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-ident s (:from d)) " Subject: " (:subject (:content d)))
      :content (d/build [:div [:div#html html]])}))
+
+(defn zip-for-streamscapes-droplet [s d-addr channel]
+  (let [d ((:receptors s) d-addr)
+        body (:body (:content d))
+        subject (:subject (:content d))
+        message (:message (:content d))
+        channel-type :streamscapes
+        ]
+    {:title (str (channel-icon-html channel channel-type) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-ident s (:from d))
+                 (if (nil? subject) (str " : " message) (str " Subject: " subject)))
+     :content (if (nil? body) "No Body" body)}
+))
+
 
 ;; TODO: this a terrible cheat in that we determine droplet type just by scanning
 ;; the channel name!  This should be fixed to get the type from the
@@ -130,8 +156,7 @@
                               ]
 
                           (condp = channel-type
-                              :streamscapes {:title (str (channel-icon-html channel channel-type) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-ident s (:from d)) " Subject: " (:subject (:content d)))
-                                             :content (:body (:content d))}
+                              :streamscapes (zip-for-streamscapes-droplet s d-addr channel)
                               :email (zip-for-email-droplet s d-addr channel)
                               :twitter {:title (str (channel-icon-html channel channel-type) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-twitter-avatar s (:from d)) (resolve-ident s (:from d)) " : " (:text (:content d)))
                                         :content (d/build [:div [:div#default-droplet (u/clj->json (:content d)) ]]) }

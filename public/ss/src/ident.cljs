@@ -22,6 +22,8 @@
       [:div.channel-addresses [:p.channel (first (string/split (name channel-identity-scape) #"-"))]
        (into [:p.addresses] (map (fn [[addr _]] [:span.address (name addr)]) addresses))])))
 
+;;TODO: this now assumes you can only create ss addresses.  Need to
+;;generalized to all the channel types
 (defn do-new-address []
   (do (ssu/send-ss-signal {:aspect "matrice" :signal "identify"
                            :params {:identifiers {:ss-address (js/parseInt (. (d/get-element :ssa) value))}

@@ -65,19 +65,22 @@
    [(keyword (str "input#" id)) {:name id :size size}]]
   )
 
-(defn make-button [text click-fun]
-  (let [button (goog.ui.Button. text)
-        button-elem (d/element :span)
-        ]
-    (.render button button-elem)
-    (goog.events.listen button-elem goog.events.EventType.CLICK click-fun)
-    button-elem))
+(defn make-button
+  ([text click-fun]
+     (make-button text click-fun false))
+  ([text click-fun return-both]
+      (let [button (goog.ui.Button. text)
+            button-elem (d/element :span)
+            ]
+        (.render button button-elem)
+        (goog.events.listen button-elem goog.events.EventType.CLICK click-fun)
+        (if return-both [button button-elem] button-elem))))
 
 (defn make-select [elem-id caption options select-fun]
   (let [select (goog.ui.Select. caption)
         select-elem (d/element (keyword (str "span#" elem-id)))]
     (doseq [option options]
-      (.addItem select (goog.ui.Option. option)))
+      (.addItem select (if (vector? option) (let [[caption value] option] (goog.ui.Option. caption value)) (goog.ui.Option. option)) ))
     (.render select select-elem)
     (goog.events.listen select goog.ui.Component.EventType.ACTION select-fun)
     [select select-elem]
