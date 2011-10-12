@@ -27,7 +27,7 @@
           g (get-receptor h (s-> key->resolve grooves :subject-body-message))]
       (-> (receptor-state h false) :scapes :groove-scape :values :subject-body-message ) => #(= java.lang.Integer (class %))
       (rdef g :fingerprint) => :anansi.streamscapes.groove.groove
-      (contents g :grammars) => {:streamscapes {:subject "text/plain", :body "text/html"}}
+      (contents g :grammars) => {:streamscapes {:subject "text/plain", :body "text/html"} :email {:subject "text/plain", :body "text/html"}}
       ))
   (deftest host
     (testing "ping"

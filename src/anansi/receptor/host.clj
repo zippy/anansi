@@ -22,8 +22,15 @@
                (animate [_r]
                         (let [grooves (get-scape _r :groove)]
                           (if (= 0 (scape-size grooves))
-                            (let [groove (make-receptor groove-def _r {:attributes {:grammars {:streamscapes {:subject "text/plain" :body "text/html"}}}})]
-                              (--> key->set _r grooves :subject-body-message (address-of groove)))
+                            (do 
+                              (let [groove (make-receptor groove-def _r {:attributes {:grammars {:streamscapes {:subject "text/plain" :body "text/html"}
+                                                                                                 :email {:subject "text/plain" :body "text/html"}}}})]
+                                (--> key->set _r grooves :subject-body-message (address-of groove)))
+                              (let [groove (make-receptor groove-def _r {:attributes {:grammars {:streamscapes {:message "text/plain"}
+                                                                                                 :irc {:message "text/plain"}
+                                                                                                 :email {:subject "text/plain"}}}})]
+                                (--> key->set _r grooves :simple-message (address-of groove))))
+                            
                             )))
                ))
 
