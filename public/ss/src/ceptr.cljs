@@ -35,3 +35,23 @@
 )
 
 (defn ping [] (signal {:to 0 :prefix "receptor.host" :aspect "ceptr" :signal "ping"}))
+
+(defn start-chain
+  [chain]
+  (let [first-callback (nextc chain)]
+    (first-callback nil)
+    )
+  )
+(defn nextc [{cleanup-fun :cleanup err-fun :error chain :chain}]
+  (let [ok-fun (first chain)]
+    (fn [e]
+      (let [{status :status result :result} (if e (handle-xhr e) {:status "ok"})]
+        (debug/alert (str "got result:" result))
+        (if (= status "ok")
+          (if (nil? ok-fun)
+            (cleanup-fun)
+            (ok-fun result {:cleanup cleanup-fun :error err-fun :chain (rest chain)}))
+          (do (cleanup-fun)
+              (err-fun result)))))
+    ))
+

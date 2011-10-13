@@ -47,27 +47,6 @@
     (d/show :authpane))
   )
 
-(defn first-make-ss-callback [e]
-  (let [{status :status sa :result} (ceptr/handle-xhr e)]
-    (if (= status "ok")
-      (do (_do-logged-in {:session (s/get-session) :creator [sa]} *new-user*)
-          ;; create the default streamscapes channel for this user
-          (ssu/send-ss-signal {:aspect "setup" :signal "new-channel"
-                               :params {:type :streamscapes :name "streamscapes"}})
-          ;; as well as a default from identity
-          (ssu/send-ss-signal {:aspect "matrice" :signal "identify"
-                            :params {:identifiers {:ss-address sa} :attributes {:name *new-user*}}} sss/refresh-stream-callback))
-      )
-    (def *new-user* nil)))
-
-(defn first-auth-callback [e]
-  (let [{status :status result :result} (ceptr/handle-xhr e)]
-    (if (= status "ok")
-      (do
-        (s/set-session (:session result))
-        (ssu/send-signal {:to 0 :prefix "receptor.host" :aspect "self" :signal "host-streamscape" :params {:matrice-address 999 :name *new-user*}} first-make-ss-callback))
-      (def *new-user* nil))))
-
 (defn auth-callback [e]
   (let [{status :status result :result} (ceptr/handle-xhr e)]
     (ui/loading-end)
@@ -88,23 +67,39 @@
                                  (def *auth-user* r)
                                  (ceptr/command {:cmd "authenticate" :params {:user r}}  auth-callback))))))
 
-(defn new-user-callback [e]
-  (let [{status :status result :result} (ceptr/handle-xhr e)]
-    (if (= status "ok")
-      (do
-        (ceptr/command {:cmd "authenticate" :params {:user *new-user*}} first-auth-callback))
-      (do
-        (def *new-user* nil)
-        (js/alert result)))))
 
 (defn do-new-user [] (.setVisible new-user true))
+
+(defn make-new-user
+  "call chain to anansi to create a new user"
+  [r]
+  (ceptr/start-chain
+   {:cleanup  (fn [] (do (sss/refresh-stream)
+                        (def *new-user* nil)))
+    :error (fn [result] (js/alert (str "Server reported error:" result)))
+    :chain [ (fn [result chain] (ceptr/command {:cmd "new-user" :params {:user r}} (ceptr/nextc chain)))
+             (fn [result chain] (ceptr/command {:cmd "authenticate" :params {:user *new-user*}} (ceptr/nextc chain)))
+             (fn [result chain]
+               (s/set-session (:session result))
+               (ssu/send-signal {:to 0 :prefix "receptor.host" :aspect "self" :signal "host-streamscape" :params {:matrice-address 999 :name *new-user*}} (ceptr/nextc chain)))
+             (fn [sa chain]
+               (_do-logged-in {:session (s/get-session) :creator [sa]} *new-user*)
+               ;; create the default streamscapes channel for this user
+               (ssu/send-ss-signal {:aspect "setup" :signal "new-channel"
+                                    :params {:type :streamscapes :name "streamscapes"}})
+               ;; as well as a default from identity
+               (ssu/send-ss-signal {:aspect "matrice" :signal "identify"
+                                    :params {:identifiers {:ss-address sa} :attributes {:name *new-user*}}} (ceptr/nextc chain)))
+             ]}))
+
 (def new-user (goog.ui.Prompt. "New User" "User"
                                (fn [r]
                              (if (not ( nil? r))
                                (do
                                  (do-logged-out)
                                  (def *new-user* r)
-                                 (ceptr/command {:cmd "new-user" :params {:user r}}  new-user-callback))))))
+                                 (make-new-user r)
+                                 )))))
 
 (defn check-auth []
   (let [s (s/get-session)]
