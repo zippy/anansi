@@ -54,9 +54,9 @@
       (s-> channel->control b {:command :join :params {:channel "#ceptr"}})
       (Thread/sleep 13000)
       (let [droplet-ids (get-scape r :id)
-            droplet-address (s-> matrice->incorporate r {:to (address-of ceptr-channel) :envelope {:message "text/plain"} :content {:message "This is a test message."}})
+            droplet-address (s-> matrice->incorporate r {:deliver :immediate :to (address-of ceptr-channel) :envelope {:message "text/plain"} :content {:message "This is a test message."}})
             sent-d (get-receptor r droplet-address)
-            result (s-> stream->send cc {:droplet-address droplet-address })]
+            ]
         (is (= (count (s-> key->all droplet-ids)) 1))
         
       

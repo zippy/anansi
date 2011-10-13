@@ -126,7 +126,7 @@
         from (. *from-select* (getValue))
         groove (get-selected-groove)]
     (ssu/send-ss-signal {:aspect "matrice" :signal "incorporate"
-                         :params {:deliver :immediate :to (js/parseInt to) :from (js/parseInt from) :channel channel-name :envelope groove
+                         :params {:deliver :immediate :to (js/parseInt to) :from (js/parseInt from) :channel channel-name :envelope groove-spec
                                   :content (get-groove-content groove-spec)}}
                         incorporate-callback)
     (ui/cancel-modal)))

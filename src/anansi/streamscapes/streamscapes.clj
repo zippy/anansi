@@ -171,6 +171,10 @@
                                              :irc (let [{host :host port :port user :user nick :nick} params]
                                                     {(get-receptor-definition :anansi.streamscapes.channels.irc-bridge-in.irc-bridge-in)
                                                      {:role :receiver :params {} }
+                                                     (get-receptor-definition :anansi.streamscapes.channels.irc-bridge-out.irc-bridge-out)
+                                                     {:role :deliverer
+                                                      :params {}
+                                                      :signal (get-signal-function "anansi.streamscapes.channels.irc-bridge-out" "channel" "deliver") }
                                                      (get-receptor-definition :anansi.streamscapes.channels.irc-controller.irc-controller)
                                                      {:role :controller
                                                       :signal (get-signal-function "anansi.streamscapes.channels.irc-controller" "channel" "control")

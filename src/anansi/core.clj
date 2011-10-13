@@ -3,6 +3,7 @@
        :doc "A reference implementation of the ceptr platform"}
   anansi.core
   (:require anansi.streamscapes.channels.irc-controller)
+  (:require anansi.streamscapes.channels.irc-bridge-out)
   (:require anansi.streamscapes.channels.local-bridge-in)
   (:require anansi.streamscapes.channels.local-bridge-out)
   (:require anansi.streamscapes.channels.email-bridge-in)
