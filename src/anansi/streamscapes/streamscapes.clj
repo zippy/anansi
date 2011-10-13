@@ -68,17 +68,28 @@
 (defn scape-identifier-attribute-key [identifier]
   (keyword (str "ident-"(name identifier))))
 
-(defn find-identity-by-identifier
-  "given an identifier name and identifier value return the identity address if it exists"
+(defn find-contact-by-identifier
+  "given an identifier name and identifier value return the contact address if it exists"
   [_r identifier value]
   (let [scape (_get-scape _r (scape-identifier-key identifier))]
     (if (nil? scape) nil (--> key->resolve _r scape value)))
   )
 
-(defn find-identities
-  "given a set of identifiers return a lazy seq of all the identities that match those identifiers"
+(defn find-contacts
+  "given a set of identifiers return a lazy seq of all the contacts that match those identifiers"
   [_r identifiers]
-  (distinct (keep identity (for [[i v] identifiers] (find-identity-by-identifier _r i v))))
+  (distinct (keep identity (for [[i v] identifiers] (find-contact-by-identifier _r i v))))
+  )
+
+(defn do-scape-contact
+  "scape a contact address according to a given a set of identifiers and attributes"
+  [_r contact-address identifiers attributes]
+  (do (if identifiers (doseq [[i v] identifiers
+                              :let [iscape (get-scape _r (scape-identifier-key i) {:key (keyword (str (name i) "-identifier")) :address :ident-address})]]
+                        (--> key->set _r iscape v contact-address)))
+      (if attributes  (doseq [[a v] attributes
+                              :let [iscape (get-scape _r (scape-identifier-attribute-key a) {:key :ident-address :address (keyword (str (name a) "-attribute"))})]]
+                        (--> key->set _r iscape contact-address v))))
   )
 
 (defn do-identify
@@ -89,7 +100,7 @@
            attributes (if (nil? (:name attrs1))
                         (assoc attrs1 :name (str "name for " (vals identifiers)) )
                         attrs1)
-           iaddrs (find-identities _r identifiers)
+           iaddrs (find-contacts _r identifiers)
            iaddr (first iaddrs)
            exists (not (nil? iaddr))]
        
@@ -97,14 +108,34 @@
        (if (not (nil? (first (rest iaddrs))))
          (into [] iaddrs)
          (rsync _r
-                (let [ident-address (if exists iaddr (address-of (make-receptor ident-def _r {:attributes {:name (:name attributes)}})))]
-                  (doall (for [[i v] identifiers
-                                :let [iscape (get-scape _r (scape-identifier-key i) {:key (keyword (str (name i) "-identifier")) :address :ident-address})]]
-                           (--> key->set _r iscape v ident-address)))
-                  (doall (for [[a v] attributes
-                               :let [iscape (get-scape _r (scape-identifier-attribute-key a) {:key :ident-address :address (keyword (str (name a) "-attribute"))})]]
-                           (--> key->set _r iscape ident-address v)))
-                  ident-address))))))
+                (let [contact-address (if exists iaddr (address-of (make-receptor ident-def _r {:attributes {:name (:name attributes)}})))]
+                  (do-scape-contact _r contact-address identifiers attributes)
+                  contact-address))))))
+
+(signal matrice create-contact [_r _f {identifiers :identifiers attrs :attributes override-uniquness-check :override-uniquness-check}]
+        ;; TODO add in authentication to make sure that _f is a matrice
+        (do
+          (if (not override-uniquness-check)
+            (let [iaddrs (find-contacts _r identifiers)]
+              (if (not (nil? (first iaddrs)))
+                (throw (RuntimeException. (str "There are contacts already identified by one or more of: "  (join ", " (vals identifiers)))))
+                )))
+          (let [attrs1 (if (nil? attrs) {} attrs)
+                attributes (if (nil? (:name attrs1))
+                             (assoc attrs1 :name (str "name for " (vals identifiers)) )
+                             attrs1)
+                contact-address (address-of (make-receptor ident-def _r {:attributes {:name (:name attributes)}}))
+                ]
+            (do-scape-contact _r contact-address identifiers attributes)
+            contact-address
+            )))
+
+( signal matrice scape-contact [_r _f {contact-address :address identifiers :identifiers attributes :attributes}]
+         ;; TODO add in authentication to make sure that _f is one of this
+         ;; streamscape instance's channels
+         (let [contact (get-receptor _r contact-address)]
+           (if (or (nil? contact) (not= (rdef contact :fingerprint) :anansi.streamscapes.ident.ident)) (throw (RuntimeException. (str "No such contact: "  contact-address))))
+           (do-scape-contact _r contact-address identifiers attributes)))
 
 (signal channel incorporate [_r _f params]
         ; TODO add in authentication to make sure that _f is one of this

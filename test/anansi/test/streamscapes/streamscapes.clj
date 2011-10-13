@@ -13,6 +13,7 @@
         [anansi.streamscapes.channels.email-controller :only [email-controller-def]]
         [anansi.streamscapes.channels.irc-controller :only [channel->control]]
         [anansi.streamscapes.channels.irc-bridge-in :only [irc-bridge-in-def]]
+        [anansi.streamscapes.channels.irc-bridge-out :only [irc-bridge-out-def]]
         [anansi.streamscapes.channels.irc-controller :only [irc-controller-def]]
         [anansi.streamscapes.channels.twitter-bridge-in :only [twitter-bridge-in-def]]
         [anansi.streamscapes.channels.twitter-controller :only [twitter-controller-def]])
@@ -44,8 +45,8 @@
       (is (= {:datax "x"} (contents r :data)))
       )
     (testing "identity"
-      (let [identity-address1 (s-> matrice->identify r {:identifiers {:email "eric@example.com" :ssn 987564321} :attributes {:name "Eric" :eye-color "blue"}})
-            identity-address2 (s-> matrice->identify r {:identifiers {:email "eric@otherexample.com" :ssn 123456789} :attributes {:name "Eric" :eye-color "green"}})
+      (let [contact-address1 (s-> matrice->create-contact r {:identifiers {:email "eric@example.com" :ssn 987564321} :attributes {:name "Eric" :eye-color "blue"}})
+            contact-address2 (s-> matrice->create-contact r {:identifiers {:email "eric@otherexample.com" :ssn 123456789} :attributes {:name "Eric" :eye-color "green"}})
             ident-names (get-scape r :ident-name)
             email-idents (get-scape r :email-ident)
             ssn-idents (get-scape r :ssn-ident)
@@ -56,17 +57,39 @@
         (is (= (scape-relationship ssn-idents :key) :ssn-identifier))
         (is (= (scape-relationship ssn-idents :address) :ident-address))
 
-        (is (= identity-address1) (find-identities r {:email "eric@example.com"}))
-        (is (= identity-address1 (s-> key->resolve email-idents "eric@example.com")))
-        (is (= identity-address1 (s-> key->resolve ssn-idents 987564321)))
-        (is (= [identity-address2] (s-> address->resolve ident-eye-colors "green")))
-        (is (= [identity-address1 identity-address2] (s-> address->resolve ident-names "Eric")))
-        (is (= identity-address2 (s-> key->resolve email-idents "eric@otherexample.com")))
+        (is (= contact-address1) (find-contacts r {:email "eric@example.com"}))
+        (is (= contact-address1 (s-> key->resolve email-idents "eric@example.com")))
+        (is (= contact-address1 (s-> key->resolve ssn-idents 987564321)))
+        (is (= [contact-address2] (s-> address->resolve ident-eye-colors "green")))
+        (is (= [contact-address1 contact-address2] (s-> address->resolve ident-names "Eric")))
+        (is (= contact-address2 (s-> key->resolve email-idents "eric@otherexample.com")))
         (is (thrown-with-msg? RuntimeException #"identity already exists for identifiers: eric@example.com" (s-> matrice->identify r {:identifiers {:email "eric@example.com"}})))
-        (is (= [identity-address1 identity-address2] (do-identify r {:identifiers {:email "eric@example.com" :ssn 123456789}} false)))
-        (is (= identity-address1 (do-identify r {:identifiers { :email "eric@example.com"}} false)))
-        (is (= identity-address1 (do-identify r {:identifiers { :email "eric@example.com" :irc "zippy314"}} false)))
-        (is (= identity-address1 (do-identify r {:identifiers { :irc "zippy314"}} false)))
+        (is (= [contact-address1 contact-address2] (do-identify r {:identifiers {:email "eric@example.com" :ssn 123456789}} false)))
+        (is (= contact-address1 (do-identify r {:identifiers { :email "eric@example.com"}} false)))
+        (is (= contact-address1 (do-identify r {:identifiers { :email "eric@example.com" :irc "zippy314"}} false)))
+        (is (= contact-address1 (do-identify r {:identifiers { :irc "zippy314"}} false)))
+
+        (facts "about creating contacts"
+          (s-> matrice->create-contact r {:identifiers {:email "eric@example.com"}}) => (throws RuntimeException "There are contacts already identified by one or more of: eric@example.com")
+          (s-> address->resolve email-idents contact-address1) => (just "eric@example.com")
+          (let [c (s-> matrice->create-contact r {:identifiers {:email "eric@example.com"} :override-uniquness-check true})]
+            (class c) => java.lang.Integer
+            (class contact-address1) => java.lang.Integer
+            (= c contact-address1) => false
+            ))
+        
+        ;; identifiers only identify one contact, so the above create contact switched
+        ;; "eric@example.com" to point to the newly created c contact
+        (fact (s-> address->resolve email-idents contact-address1) => empty?)
+        
+        (facts "about scaping contacts"
+          (s-> matrice->scape-contact r {:address 999}) => (throws RuntimeException "No such contact: 999")
+          (s-> matrice->scape-contact r {:address (address-of ident-names)}) => (throws RuntimeException (str "No such contact: " (address-of ident-names)))
+          (s-> matrice->scape-contact r {:address contact-address1 :identifiers {:email "eric@other-address.com"}})
+          (s-> address->resolve email-idents contact-address1) => (just "eric@other-address.com")
+          (s-> matrice->scape-contact r {:address contact-address1 :attributes {:name "Bugsy"}})
+          (s-> key->resolve ident-names contact-address1) => "Bugsy"
+          )
         )
       )
     (testing "droplets"
