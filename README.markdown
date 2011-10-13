@@ -21,6 +21,12 @@ Clone this repo and let lein install the dependencies:
     $ cd anansi
     $ lein deps
 
+### Javascript/UI install
+
+Install clojurescript as describe here: https://github.com/clojure/clojurescript/wiki/Quick-Start
+Compile clojurscript to js with
+    $ cd $ANANSI_HOME/public/ss; rm -rf out; cljsc src > ss.js
+
 ## Usage
 
 Anansi provides both direct telnet access to issue commands, and also an HTTP API.
@@ -28,11 +34,9 @@ Anansi provides both direct telnet access to issue commands, and also an HTTP AP
 To run the server:
 
     $ lein run
-    2011-05-22 12:52:03.102:INFO::Logging to STDERR via org.mortbay.log.StdErrLog
-    2011-05-22 12:52:03.104:INFO::jetty-6.1.26
-    2011-05-22 12:52:03.137:INFO::Started SocketConnector@0.0.0.0:8080
-    Launching Anansi server on port 3333
-    
+    Starting web interface on port 8080
+
+To access streamscapes UI point browser to http://localhost:8080/ss/index.html
 
 ### Telnet access
 
@@ -156,9 +160,11 @@ For prototyping purposes, the anansi server also comes with a set of receptors t
 
 ## Testing
 
-Run all the unit tests with 
+Using midje, install lein-midje as directed at: https://github.com/marick/Midje/wiki/Lein-midje
 
-    $ lein test
+Run all the unit tests with
+
+    $ lein midje
 
 (Cucumber features are planned...)
 

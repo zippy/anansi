@@ -1,7 +1,7 @@
 goog.addDependency("../cljs/core.js", ['cljs.core'], ['goog.string', 'goog.array', 'goog.object', 'goog.string.StringBuffer']);
+goog.addDependency("../clojure/browser/dom.js", ['clojure.browser.dom'], ['cljs.core', 'goog.dom']);
 goog.addDependency("../clojure/string.js", ['clojure.string'], ['cljs.core', 'goog.string', 'goog.string.StringBuffer']);
 goog.addDependency("../cljs/reader.js", ['cljs.reader'], ['cljs.core', 'goog.string']);
-goog.addDependency("../clojure/browser/dom.js", ['clojure.browser.dom'], ['cljs.core', 'goog.dom']);
 goog.addDependency("../utils.js", ['ss.utils'], ['cljs.core']);
 goog.addDependency("../dom-helpers.js", ['ss.dom_helpers'], ['cljs.core', 'goog.dom', 'clojure.string', 'goog.style']);
 goog.addDependency("../ui.js", ['ss.ui'], ['ss.utils', 'cljs.core', 'clojure.browser.dom', 'goog.ui.Component.EventType', 'goog.ui.LabelInput', 'goog.ui.Zippy', 'goog.ui.Select', 'goog.ui.Button', 'ss.dom_helpers', 'goog.ui.Option', 'goog.events', 'goog.editor.Field']);
