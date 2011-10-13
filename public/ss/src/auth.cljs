@@ -11,7 +11,7 @@
    [ss.ss-utils :as ssu]
    [ss.ceptr :as ceptr]
    [ss.ui :as ui]
-   [ss.ident :as ident]
+   [ss.contact :as contact]
    [ss.compose :as compose]
    ))
 
@@ -29,7 +29,7 @@
       (d/append elem
                 (d/build [:div#logged-in-as (str "Logged in as: " user-name)] )
                 (ui/make-button "Logout" do-logged-out)
-                (ui/make-button "Contacts" ident/open)
+                (ui/make-button "Contacts" contact/open)
                 (ui/make-button "Compose" compose/open)
                 ))
     (d/hide :authpane)

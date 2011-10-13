@@ -306,3 +306,14 @@
            (d/remove-children :the-receptor)
            (render-receptor r (d/get-element :the-receptor) address))))
 
+(defn get-channel-names
+  "return a list of names of the current channels"
+  []
+  (map (fn [[cn _]] (name cn)) (:values (:channel-scape (:scapes s/*current-state*))))
+  )
+
+(defn get-channel-types
+  "return a list of the current channel types"
+  []
+  (distinct (map (fn [cn] (get-channel-type cn)) (get-channel-names)))
+  )

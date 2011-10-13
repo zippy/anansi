@@ -7,7 +7,7 @@
             [ss.ui :as ui]
             [ss.ss-utils :as ssu]
             [ss.streamscapes :as sss]
-            [ss.ident :as ident]
+            [ss.contact :as contact]
             [ss.state :as s]
             ))
 
@@ -78,10 +78,8 @@
   (let [scapes (:scapes s/*current-state*)
         identity-names (:values (:ident-name-scape scapes))
         channel-address-identity-scape (:values (:ss-address-ident-scape scapes))
-        channel-scape (:values (:channel-scape scapes))
-        scape-names (map (fn [[cn _]] (name cn)) channel-scape)
-;;        addr-select (map (fn [[ea ia]] [:option {:value (str ia)} (str ((keyword ia) identity-names) "<"(name ea) ">")]) channel-address-identity-scape)
-        [channel-select channel-select-element] (ui/make-select "channel" "Choose a channel:" scape-names setup-groove)
+        channel-names (sss/get-channel-names)
+        [channel-select channel-select-element] (ui/make-select "channel" "Choose a channel:" channel-names setup-groove)
         [groove-select groove-select-element] (ui/make-select "groove" nil (map #(name %) (keys s/*grooves*))
                                                               setup-groove)
         [incorp-button incorp-button-element] (ui/make-button "Add to Stream" send :both)
