@@ -16,7 +16,6 @@
   (let [m (make-receptor user-def nil "eric")
         r (make-receptor streamscapes-def nil {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
         eric (make-receptor ident-def r {:attributes {:name "Eric"}})
-        ceptr-channel (make-receptor ident-def r {:attributes {:name "ceptr channel"}})
         channel-address (s-> matrice->make-channel r {:name :irc-stream
                                                       :receptors {irc-bridge-in-def {:role :receiver :params {} }
                                                                   irc-bridge-out-def {:role :deliverer :signal channel->deliver :params {}}
@@ -26,10 +25,9 @@
         [controller-address control-signal] (get-controller cc)
         b (get-receptor cc controller-address)
         irc-idents (get-scape r :irc-ident true)]
-    (--> key->set b irc-idents "zippy31415" (address-of eric))
-    (--> key->set b irc-idents "#ceptr" (address-of ceptr-channel))
     
     (fact
+      (--> key->resolve b irc-idents "zippy31415") =not=> nil
       (receptor-state b false) => (contains {:fingerprint :anansi.streamscapes.channels.irc-controller.irc-controller
                                              :user "Eric"
                                              :nick "zippy31415"
@@ -52,23 +50,26 @@
       (s-> channel->control b {:command :open})
       (is (= (s-> channel->control b {:command :status}) :open))
       (s-> channel->control b {:command :join :params {:channel "#ceptr"}})
-      (Thread/sleep 13000)
-      (let [droplet-ids (get-scape r :id)
-            droplet-address (s-> matrice->incorporate r {:deliver :immediate :to (address-of ceptr-channel) :envelope {:message "text/plain"} :content {:message "This is a test message."}})
-            sent-d (get-receptor r droplet-address)
-            ]
-        (is (= (count (s-> key->all droplet-ids)) 1))
+      (let [ceptr-irc-contact-addr (--> key->resolve b irc-idents "#ceptr")]
+        (fact ceptr-irc-contact-addr  =not=> nil)
+        (s-> channel->control b {:command :join :params {:channel "#ceptr"}})
+        (Thread/sleep 13000)
+        (let [droplet-ids (get-scape r :id)
+              droplet-address (s-> matrice->incorporate r {:deliver :immediate :channel :irc-stream :to ceptr-irc-contact-addr :envelope {:message "text/plain"} :content {:message "This is a test message."}})
+              sent-d (get-receptor r droplet-address)
+              ]
+          (is (= (count (s-> key->all droplet-ids)) 1))
         
       
-        (Thread/sleep 13000)
+          (Thread/sleep 13000)
 
-        (let [x 1]
-          (is (= (count (s-> key->all droplet-ids)) 1))
+          (let [x 1]
+            (is (= (count (s-> key->all droplet-ids)) 1))
                                         ;            (is (= droplet-id (contents d :id)))
                                         ;            (is (= (contents d :content) (contents zd :content)))
                                         ;            (is (= (contents d :envelope) (contents zd :envelope)))
                                         ;            (is (= (s-> key->resolve ss-addr-idents eric-ss-addr)  (contents zd :from) ))
-          ))
+            )))
       
       (s-> channel->control b {:command :close})
       (is (= (s-> channel->control b {:command :status}) :closed))

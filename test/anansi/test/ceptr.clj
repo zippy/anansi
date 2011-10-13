@@ -26,7 +26,7 @@
 (def r-def (receptor-def "test-receptor"
               (scapes {:name :s1 :relationship {:key :x :address :y}} :s2)
               (attributes :x)
-              (animate [_r] (dosync (_set-content _r :animated true)
+              (animate [_r reanimate] (dosync (_set-content _r :animated true)
                                     _r))))
 
 (def rsub-def (receptor-def "test-sub-receptor"))

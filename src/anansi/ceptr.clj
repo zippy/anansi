@@ -102,7 +102,7 @@
               (alter receptors assoc ns-str addr)
               (alter receptors assoc addr r)
               (alter r assoc :contents (ref (apply (:manifest definition) r args)))
-              ((:animate definition) r)
+              ((:animate definition) r false)
               r
               )))
 (defn extract-receptor-attributes-from-map
@@ -127,7 +127,7 @@
                             :default `()}
                'scapes {:default `()}
                'manifest {:default base-manifest}
-               'animate {:default `(fn [~'r] ~'r)}
+               'animate {:default `(fn [~'r ~'_] ~'r)}
                'state {:default `(fn [~'r ~'full?]
                                    (merge (state-convert ~'r ~'full?)
                                           (extract-attribute-values-from-receptor ~'r ~'full?))
@@ -348,7 +348,7 @@ assumes that the scape has receptor addresses in the value of the map"
               (if ss-addr (let [ss (get-receptor r ss-addr)]
                             (doseq [[k v]  @(contents ss :map)] (restore-content r k (get-receptor r v))) 
                             (restore-content r :scapes-scape ss)))))
-    ((:animate r-def) r)
+    ((:animate r-def) r :reanimate)
     r)
   )
 

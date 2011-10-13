@@ -53,8 +53,17 @@
   (write conn (str "NICK " nick))
   (write conn (str "USER " nick " 0 * :" user)))
 
-(def irc-controller-def (receptor-def "irc-controller"
-                                      (attributes :host :port :user :nick)))
+(def irc-controller-def
+     (receptor-def "irc-controller"
+                   (attributes :host :port :user :nick)
+                   (animate [_r reanimate]
+                            (if (not reanimate)
+                              (let [ss (parent-of (parent-of _r))
+                                    irc-idents (get-scape ss :irc-ident true)
+                                    nick (contents _r :nick)]
+                                (if (nil? (--> key->resolve _r irc-idents nick))
+                                  (--> matrice->identify _r ss {:identifiers {:irc nick} :attributes {:name (contents _r :name)}}))
+                                )))))
 
 (defn get-status [_r]
      (let [conn (:irc-connection @_r)]
@@ -73,7 +82,12 @@
                       (login conn (contents _r :user) (contents _r :nick))
                       nil
                       )
-              :join (do (write (:irc-connection @_r) (str "JOIN " (:channel params)))
+              :join (let [ss (parent-of (parent-of _r))
+                          irc-channel (:channel params)
+                          irc-idents (get-scape ss :irc-ident true)]
+                      (if (nil? (--> key->resolve _r irc-idents irc-channel))
+                        (--> matrice->identify _r ss {:identifiers {:irc irc-channel} :attributes {:name (str "IRC channel: " irc-channel)}}))
+                      (write (:irc-connection @_r) (str "JOIN " irc-channel))
                         nil)
               :close (do
                        (if (= :closed (get-status _r)) (throw (RuntimeException. "Channel not open")))

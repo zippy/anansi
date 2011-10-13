@@ -25,7 +25,7 @@
                             (attributes :auto-start)
                             (manifest [_r attrs]
                                       (merge {:server nil} (extract-receptor-attributes-from-map _r attrs)))
-                            (animate [_r]
+                            (animate [_r reanimate]
                                      (let [auto-start (contents _r :auto-start)]
                                        (if auto-start (s-> interface->start _r auto-start)))
                                      )))

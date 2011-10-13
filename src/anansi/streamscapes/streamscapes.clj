@@ -43,7 +43,8 @@
                        (let [c-out-addr (--> key->resolve _r (get-scape _r :channel) channel)]
                          (if (nil? c-out-addr)
                            (throw (RuntimeException. (str "Unknown channel: " channel)))
-                           (get-receptor _r c-out-addr))))
+                           (get-receptor _r c-out-addr)))
+                       (if deliver (throw (RuntimeException. "Immediate delivery requested but no channel param was given."))))
                d (make-receptor droplet-def _r id from to channel envelope content)
                addr (address-of d)
                droplet-channels (get-scape _r :droplet-channel)

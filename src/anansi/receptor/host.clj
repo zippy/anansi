@@ -19,19 +19,20 @@
                 {:name :stream :relationship {:key :name :address :address}}
                 {:name :creator :relationship {:key :address :address :creator-address}}
                 {:name :session :relationship {:key :sha :address :user-addr-time-interface-map}})
-               (animate [_r]
-                        (let [grooves (get-scape _r :groove)]
-                          (if (= 0 (scape-size grooves))
-                            (do 
-                              (let [groove (make-receptor groove-def _r {:attributes {:grammars {:streamscapes {:subject "text/plain" :body "text/html"}
-                                                                                                 :email {:subject "text/plain" :body "text/html"}}}})]
-                                (--> key->set _r grooves :subject-body-message (address-of groove)))
-                              (let [groove (make-receptor groove-def _r {:attributes {:grammars {:streamscapes {:message "text/plain"}
-                                                                                                 :irc {:message "text/plain"}
-                                                                                                 :email {:subject "text/plain"}}}})]
-                                (--> key->set _r grooves :simple-message (address-of groove))))
+               (animate [_r reanimate]
+                        (if (not reanimate)
+                          (let [grooves (get-scape _r :groove)]
+                            (if (= 0 (scape-size grooves))
+                              (do 
+                                (let [groove (make-receptor groove-def _r {:attributes {:grammars {:streamscapes {:subject "text/plain" :body "text/html"}
+                                                                                                   :email {:subject "text/plain" :body "text/html"}}}})]
+                                  (--> key->set _r grooves :subject-body-message (address-of groove)))
+                                (let [groove (make-receptor groove-def _r {:attributes {:grammars {:streamscapes {:message "text/plain"}
+                                                                                                   :irc {:message "text/plain"}
+                                                                                                   :email {:subject "text/plain"}}}})]
+                                  (--> key->set _r grooves :simple-message (address-of groove))))
                             
-                            )))
+                              ))))
                ))
 
 (defn resolve-name [_r user]
