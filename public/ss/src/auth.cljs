@@ -38,13 +38,7 @@
     ))
 
 (defn do-logged-out []
-  (do
-    (d/remove-children :the-receptor)
-    (d/remove-children :debug)
-    (d/remove-children :header-top-right)
-    (s/clear-session)
-    (d/hide :container)
-    (d/show :authpane))
+  (ui/reset)
   )
 
 (defn auth-callback [e]
@@ -111,4 +105,4 @@
 
 (defn check-auth []
   (let [s (s/get-session)]
-    (if (or (= s js/undefined) (nil? s)) (do-auth) (do-logged-in {:session s :creator [(s/get-ss-addr)]} (s/get-user-name)))))
+    (if (or (= s js/undefined) (nil? s)) (do-logged-out) (do-logged-in {:session s :creator [(s/get-ss-addr)]} (s/get-user-name)))))

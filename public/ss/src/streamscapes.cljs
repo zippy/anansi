@@ -30,11 +30,18 @@
   (let [{status :status result :result} (ceptr/handle-xhr e)]
     (s/set-current-state result)
     (try
-      (d/remove-children :the-receptor)
-      (render-receptor s/*current-state* (d/get-element :the-receptor) "")
-      (render-ss)
+      (if (= status "ok")
+        (do 
+          (d/remove-children :the-receptor)
+          (render-receptor s/*current-state* (d/get-element :the-receptor) "")
+          (render-ss))
+        (do 
+          (if (re-find #"unknown receptor:" result)
+            (ui/reset)
+            (js/alert (str "Server responded with " result)))))
       (catch js/Object e (debug/jslog e))
-      (finally (ui/loading-end)))))
+      (finally (ui/loading-end)))
+    ))
 
 (defn get-state
   "get the state of a streamscapes receptor and render it"

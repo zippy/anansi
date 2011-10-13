@@ -11,6 +11,7 @@
    [goog.events :as events]
    [ss.dom-helpers :as d]
    [ss.utils :as u]
+   [ss.state :as s]
     ))
 
 (defn loading-start
@@ -133,3 +134,12 @@
           (init (:title cont) (:content cont) node-container)]
       (make-zippy-dom self))))
 
+(defn reset
+  "resets the UI and the state to the basic non-logged in state"
+  []
+  (d/remove-children :the-receptor)
+  (d/remove-children :debug)
+  (d/remove-children :header-top-right)
+  (s/clear-session)
+  (d/hide :container)
+  (d/show :authpane))
