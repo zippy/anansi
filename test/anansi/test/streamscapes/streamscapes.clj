@@ -92,6 +92,13 @@
           )
         )
       )
+    (facts "about scaping"
+      (s-> setup->new-scape r {:name :fish :relationship {:key :fish-name, :address :address}})
+      (scape-relationship (get-scape r :fish) :key) => :fish-name
+      (scape-relationship (get-scape r :fish) :address) => :address
+      (s-> scape->set r {:name :fish :key "trout" :address 2})
+      (s-> key->resolve (get-scape r :fish) "trout") => 2
+      )
     (testing "droplets"
       (let [sc (s-> matrice->make-channel r {:name :some-channel})
             droplet-address (s-> matrice->incorporate r {:id "some-unique-id" :from "from-addr" :to "to-addr" :channel :some-channel :envelope {:part1 "address of part1 grammar"} :content {:part1 "part1 content"}})

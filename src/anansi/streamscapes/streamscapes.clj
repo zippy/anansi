@@ -65,8 +65,8 @@
 
 (defn scape-identifier-key [identifier]
   (keyword (str (name identifier) "-ident")))
-(defn scape-identifier-attribute-key [identifier]
-  (keyword (str "ident-"(name identifier))))
+(defn scape-identifier-attribute-key [attribute]
+  (keyword (str "ident-"(name attribute))))
 
 (defn find-contact-by-identifier
   "given an identifier name and identifier value return the contact address if it exists"
@@ -239,4 +239,14 @@
           (if (nil? cc)
             (throw (RuntimeException. (str "channel not found: " n))))
           (--> (get-signal-function "anansi.streamscapes.channel" "stream" "control") _r cc  {:command (keyword cmd) :params params})
+          ))
+
+(signal setup new-scape [_r _f params]
+        ;; TODO should be doing a check on the from here ...
+        (add-scape _r params))
+
+(signal scape set [_r _f {name :name key :key address :address}]
+        ;; TODO should be doing a check on the from here ...
+        (let [scape (get-scape _r name)]
+          (--> key->set _r scape key address)
           ))
