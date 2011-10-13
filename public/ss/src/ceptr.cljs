@@ -46,7 +46,6 @@
   (let [ok-fun (first chain)]
     (fn [e]
       (let [{status :status result :result} (if e (handle-xhr e) {:status "ok"})]
-        (debug/alert (str "got result:" result))
         (if (= status "ok")
           (if (nil? ok-fun)
             (cleanup-fun)

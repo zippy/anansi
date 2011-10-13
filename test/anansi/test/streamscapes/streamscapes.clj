@@ -93,10 +93,10 @@
         )
       )
     (facts "about scaping"
-      (s-> setup->new-scape r {:name :fish :relationship {:key :fish-name, :address :address}})
+      (class (s-> setup->new-scape r {:name :fish :relationship {:key :fish-name, :address :address}})) => java.lang.Integer
       (scape-relationship (get-scape r :fish) :key) => :fish-name
       (scape-relationship (get-scape r :fish) :address) => :address
-      (s-> scape->set r {:name :fish :key "trout" :address 2})
+      (s-> scape->set r {:name :fish :key "trout" :address 2}) => nil
       (s-> key->resolve (get-scape r :fish) "trout") => 2
       )
     (testing "droplets"
