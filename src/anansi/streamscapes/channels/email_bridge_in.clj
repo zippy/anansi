@@ -6,7 +6,7 @@
         [anansi.receptor.scape]
         [anansi.streamscapes.streamscapes]
         [anansi.streamscapes.channel]
-        [anansi.util :only [javaDate2datetime]])
+        [anansi.util :only [date-time-from-java-date standard-date-string]])
   (:use [clj-time.core :only [date-time]]))
 
 
@@ -51,13 +51,13 @@
             to-id (do-identify ss {:identifiers {:email to} :attributes {:name to-name}} false)
             from-id (do-identify ss {:identifiers {:email from} :attributes {:name from-name}} false)
             jd (.getSentDate message)
-            sent (if (nil? jd) nil (javaDate2datetime jd))
+            sent (if (nil? jd) nil (date-time-from-java-date jd))
             ]
         (--> stream->receive _r (parent-of _r)
              {:id id
               :to to-id
               :from from-id
-              :sent (str sent)
+              :sent (standard-date-string sent)
               :envelope {:from "rfc-822-email" :subject "text/plain" :body (.getContentType message)}
               :content {:from from
                         :subject (.getSubject message)

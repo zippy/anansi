@@ -45,7 +45,7 @@
           (contents d :envelope) => {:from "twitter/screen_name" :text "text/plain"}
           (contents d :content) => {:from "zippy314" :text "Some short tweet"}
           (let [[time] (s-> address->resolve deliveries droplet-address)]
-            (fact "2011-10-04T05:21:40.000Z" => time)
+            (fact "2011-10-04T03:21:40.000Z" => time)
             )
           )
         (is (= :twitter-stream  (contents d :channel) ))

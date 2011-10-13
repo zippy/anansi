@@ -37,7 +37,7 @@
         (is (= "Not Found" (bytes->string (:body resp))))
         )
       (let [resp (sync-http-request {:method :get, :url "http://localhost:12345/"})]
-        (is (= "<html><title>Anansi</title><body><h2>Welcome to the Anansi sever!</h2><img src=\"web.jpg\" /></body></html>" (bytes->string (:body resp))))
+        (is (= "<html><title>Anansi</title><body><h2>Welcome to the Anansi server!</h2><img src=\"web.jpg\" /></body></html>" (bytes->string (:body resp))))
         )
       )
         
@@ -47,9 +47,11 @@
             {session :session} (:result b)]
         (is (= "ok" (:status b)))
         (is (re-find #"^[0-9a-f]+$" session))
-        (testing "send signal"
-          (is (= {:status "ok" :result "Hi 8! This is the host."} (:body (api-req "send-signal" {:to 0 :prefix "receptor.host" :aspect "ceptr" :signal "ping" :session session}))))))
-      )
+        (facts  "about send signals"
+          (let [r (api-req "send-signal" {:to 0 :prefix "receptor.host" :aspect "ceptr" :signal "ping" :session session})]
+            (-> r :body :result) => #"Hi \d+! This is the host."
+          ))))
+
     (testing "stopping the interface"
       (--> interface->stop h r)
       (is (= nil (contents r :server)))

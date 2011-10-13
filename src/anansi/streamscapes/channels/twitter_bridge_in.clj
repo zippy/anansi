@@ -6,7 +6,7 @@
         [anansi.receptor.scape]
         [anansi.streamscapes.streamscapes]
         [anansi.streamscapes.channel]
-        [anansi.util :only [javaDate2datetime]])
+        [anansi.util :only [standard-date-string]])
   (:use [clj-time.core :only [now]]))
 
 (def twitter-bridge-in-def (receptor-def "twitter-bridge-in"))
@@ -25,7 +25,7 @@
         (--> stream->receive _r (parent-of _r)
              {:id id
               :to to-id
-              :sent (str (javaDate2datetime (java.util.Date. (:created_at msg)))) 
+              :sent (standard-date-string (:created_at msg))
               :from from-id
               :envelope {:from "twitter/screen_name" :text "text/plain"}
               :content {:from from-address

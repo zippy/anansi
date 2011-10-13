@@ -52,7 +52,7 @@ Returns a two item vector of a writable stream that is a client, and the output 
       (is (= #{:server-socket :connections} (set (keys (contents r :server)))))
       (let [rch (tcp-client {:host "localhost", :port 12345, :frame (string :utf-8 :delimiters ["\n"])})]
         (is (= (wait-for-message @rch) ""))
-        (is (= (wait-for-message @rch) "Welcome to the Anansi sever."))
+        (is (= (wait-for-message @rch) "Welcome to the Anansi server."))
         )
       (is (thrown-with-msg? RuntimeException #"Server already started."
             (--> interface->start h r {:port 12345})))
@@ -63,14 +63,14 @@ Returns a two item vector of a writable stream that is a client, and the output 
           ]
       (testing "welcome"
         (wait server-stream)
-        (is  (.endsWith (.toString server-stream) "\nWelcome to the Anansi sever.\n\nEnter your user name: ")))
+        (is  (.endsWith (.toString server-stream) "\nWelcome to the Anansi server.\n\nEnter your user name: ")))
       (testing "authenticate"
         (.write client-stream "eric\n")
         (wait server-stream)
         (is (.endsWith (.toString server-stream) "ERROR authentication failed for user: eric\nEnter your user name: "))
         (.write client-stream "zippy\n")
         (wait server-stream)
-        (is (re-find #"OK \{:session \"[0-9a-f]+\"\}\n\n> $"(.toString server-stream) ))
+        (is (re-find #"OK \{:session \"[0-9a-f]+\", :creator \[\]\}\n\n> $"(.toString server-stream) ))
         )
       (testing "unknown command"
         (.write client-stream "badcommand eric\n")
@@ -82,7 +82,7 @@ Returns a two item vector of a writable stream that is a client, and the output 
         (is (re-find #"ERROR username 'zippy' in use\n\n> " (.toString server-stream) ))
         (.write client-stream "new-user zippo\n")
         (wait server-stream)
-        (is (re-find #"OK [0-9]\n\n> " (.toString server-stream) )))
+        (is (re-find #"OK [0-9]+\n\n> " (.toString server-stream) )))
       (testing "send-signal"
         (.write client-stream "send 0 receptor.host.ceptr->ping\n")
         (wait server-stream)

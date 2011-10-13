@@ -40,7 +40,7 @@ Once the server is running you can connect to the server by telneting to port 33
 
 Once connected, you will be asked to enter a user-name:
     
-    Welcome to the Anansi sever.
+    Welcome to the Anansi server.
 
     Enter your user name: zippy
     {"status":"ok", "result":{"user-address":34, "host-address":0}}

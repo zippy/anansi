@@ -17,7 +17,7 @@
     (let [[client-stream server-stream] (make-client-server)]
       (testing "welcome"
         (Thread/sleep 100)
-        (is  (.endsWith (.toString server-stream) "\nWelcome to the Anansi sever.\n\nEnter your user name: ")))
+        (is  (.endsWith (.toString server-stream) "\nWelcome to the Anansi server.\n\nEnter your user name: ")))
       (testing "login"
         (.write client-stream "bob\n")
         (Thread/sleep 2000)

@@ -1,5 +1,6 @@
 (ns anansi.util
-  (:use [clj-time.core :only [date-time]]))
+  (:use [clj-time.core :only [date-time]]
+        [clj-time.format :only [formatters unparse]]))
 
 ;; Generic Utilities - FIXME move to utility file
 
@@ -31,8 +32,15 @@
   "removes all refs from a map"
   (do-snapshot m #{}))
 
-(defn javaDate2datetime [jd]
+(defn date-time-from-java-date [jd]
   (date-time (+ 1900 (.getYear jd)) (+ 1 (.getMonth jd)) (.getDate jd) (.getHours jd) (.getMinutes jd) (.getSeconds jd)))
+
+(defn standard-date-string [date-input]
+  (unparse (formatters :date-time)
+    (cond
+      (= (class date-input) org.joda.time.DateTime) date-input
+      (string? date-input) (date-time-from-java-date (java.util.Date. date-input))
+      (= (class date-input) java.util.Date) (date-time-from-java-date date-input))))
 
 (defn filter-map
   "returns the portion of the map that's described in the pattern
@@ -46,3 +54,4 @@ that should be recursively filtered."
                                              (map? pv) [k (filter-map v pv)]
                                              (= pv true) [k v]
                                              true nil))) m))))
+

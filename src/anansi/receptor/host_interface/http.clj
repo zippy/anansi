@@ -33,7 +33,7 @@
 (defn welcome [request]
   {:status 200
    :headers {"content-type" "text/plain"}
-   :body "Welcome to the Anansi sever."})
+   :body "Welcome to the Anansi server."})
 
 (def file-not-found 
   {:status 404

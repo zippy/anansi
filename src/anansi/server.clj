@@ -36,7 +36,7 @@
     ;; We have to nest this in another binding call instead of using
     ;; the one above so *in* and *out* will be bound to the socket
     
-    (print "\nWelcome to the Anansi sever.\n\nEnter your user name: ") (flush)
+    (print "\nWelcome to the Anansi server.\n\nEnter your user name: ") (flush)
     (binding [*user-name* nil
               *done* false]
       (dosync
