@@ -30,7 +30,7 @@
 
 (defn render-groove
   "given a groove definition and an element id, renders the groove fields into it"
-  [elem-id groove]
+  [elem-id groove-spec]
   (let [identity-names (:values (:ident-name-scape (:scapes s/*current-state*)))
         senders (set (map #(js/parseInt (name %)) (keys (:values (:sender-scape (:scapes s/*current-state*))))))
         channel-name (. *channel-select* (getValue))
@@ -47,7 +47,7 @@
     (apply d/replace-children elem-id
            (d/build [:p [:label {:for "from"} "From: " from-select-element]])
            (d/build [:p [:label {:for "to"} "To: " to-select-element]])
-           (map (fn [[field-name field-type]] (make-groove-field field-name field-type)) groove)))
+           (map (fn [[field-name field-type]] (make-groove-field field-name field-type)) groove-spec)))
   )
 
 
