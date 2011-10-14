@@ -263,12 +263,12 @@ qfun must be a function of two arguments: key, address and must return a vector 
 
 (defn sort-by-scape
   "takes a list of receptor addresses and returns them in order sorted by the scape key
-assumes that the scape has receptor addresses in the value of the map"
-  ([_r addresses] (sort-by-scape _r addresses false))
-  ([_r addresses descending?]
+assumes that the scape has receptor addresses in the value of the map, unless flip is true, in which case the reverse is assumed"
+  ([_r addresses flip] (sort-by-scape _r addresses flip false))
+  ([_r addresses flip descending?]
      (let [a (set addresses)
-           m (filter (fn [[k v]] (a v)) @(contents _r :map)) ;scape pairs in receptor list 
-           sorted (map (fn [[k v]] v) (sort-by (fn [[k v]] k) m))
+           m (filter (fn [[k v]] (a (if flip k v))) @(contents _r :map)) ;scape pairs in receptor list 
+           sorted (map (fn [[k v]] (if flip k v)) (sort-by (fn [[k v]] (if flip v k)) m))
            ]
        (into [] (if descending? (reverse sorted) sorted)))))
 
@@ -303,7 +303,7 @@ assumes that the scape has receptor addresses in the value of the map"
                        s (_get-scape _r scape-name)
                        offset (if (nil? o) 0 o)
                        tstate (assoc qstate :receptor-total (scape-size s))
-                       pre-sorted (drop offset (sort-by-scape s (keys (:receptors tstate)) (:descending scape-order)))
+                       pre-sorted (drop offset (sort-by-scape s (keys (:receptors tstate)) (:flip scape-order) (:descending scape-order)))
                        sorted (if (nil? limit) pre-sorted (take limit pre-sorted))
                        ;; this is cheat because I shouldn't be able to
                        ;; look directly into the scape receptor here,
