@@ -16,18 +16,29 @@
   (map (fn [[addr _]] (name addr))  (filter (fn [[_ ia]] (= (keyword ia) contact-address)) channel-ident-scape))
   )
 
+;;TODO: ARG here it is again! see https://github.com/zippy/anansi/issues/7
+(defn get-channel-type-from-channel-identity-scape-name [channel-identity-scape-name]
+  (condp = 
+      (str (first (string/split (name channel-identity-scape-name) #"-")))
+      "ss" :streamscapes
+      "email" :email
+      "twitter" :twitter
+      "irc" :irc
+      )
+  )
+
 (defn render-channel-addresses [channel-identity-scape-name ident-addr]
   (let [scape (:values (channel-identity-scape-name (:scapes s/*current-state*)))
         addresses (get-addresses-by-channel-identity-scape scape ident-addr)]
     (if (empty? addresses)
       nil
-      [:div.channel-addresses [:p.channel (first (string/split (name channel-identity-scape-name) #"-"))]
+      [:div.channel-addresses [:p.channel (str (name (get-channel-type-from-channel-identity-scape-name channel-identity-scape-name)) ": ") ]
        (into [:p.addresses] (map (fn [addr] [:span.address addr]) addresses))])))
 
 ;;TODO: The channel type problem rears it's ugly head yet again!!!!
-(defn do-new-address []
-  (let [address-type-ids (map (fn [ct] (keyword (str (name ct) "-addr"))) (sss/get-channel-types))
-        identifiers (into {} (keep identity (for [tid address-type-ids]
+(defn get-addresses-from-form []
+  (let [address-type-ids (map (fn [ct] (keyword (str (name ct) "-addr"))) (sss/get-channel-types))]
+    (into {} (keep identity (for [tid address-type-ids]
                                               (let [val (. (d/get-element tid) value)]
                                                 (if (and val (not= val ""))
                                                   (condp = tid
@@ -35,14 +46,30 @@
                                                       :email-addr [:email val]
                                                       :twitter-addr [:twitter val]
                                                       :irc-addr [:irc val])
-                                                  nil)))))]
+                                                  nil)))))))
+(defn do-new-address []
+  (let [address-type-ids (map (fn [ct] (keyword (str (name ct) "-addr"))) (sss/get-channel-types))
+        identifiers (get-addresses-from-form)]
     (ssu/send-ss-signal {:aspect "matrice" :signal "identify"
                          :params {:identifiers identifiers
-                                  :attributes {:name (. (d/get-element :name) value)}}})
+                                  :attributes {:name (. (d/get-element :name) value)}}} sss/refresh-stream-callback)
     (close-contact-form))
   )
 
-(defn do-save-contact [contact-id]
+(defn get-contact-name [contact-addr]
+  ((keyword contact-addr) (:values (:ident-name-scape (:scapes s/*current-state*))))
+  )
+
+(defn do-save-contact [contact-addr]
+  (let [old-contact-name (get-contact-name contact-addr)
+        new-contact-name (. (d/get-element :name) value)]
+    (if (not= old-contact-name new-contact-name)
+      (ssu/send-ss-signal {:aspect "scape" :signal "set"
+                           :params {:name :ident-name :key (js/parseInt (name contact-addr)) :address new-contact-name}} )
+      )
+    (ssu/send-ss-signal {:aspect "matrice" :signal "scape-contact"
+                           :params {:address (js/parseInt (name contact-addr)) :identifiers (get-addresses-from-form)}} )
+    )
   )
 
 (defn new-contact []
@@ -54,11 +81,11 @@
           (sss/get-channel-ident-scape-from-type channel-type)
           contact-address)))
 
-(defn contact-form [ok-fun contact-id contact-name]
+(defn contact-form [ok-fun contact-addr contact-name]
   (d/append (d/get-element :contact-form)
             (d/build [:div
                       (ui/make-input "Name" "name" 80 contact-name)
-                      (d/build (into [:div.channels] (map (fn [ct] (let [tn (name ct)] (ui/make-input (str tn " Address") (str tn "-addr") 40 (get-contact-address contact-id ct)))) (sss/get-channel-types))))
+                      (d/build (into [:div.channels] (map (fn [ct] (let [tn (name ct)] (ui/make-input (str tn " Address") (str tn "-addr") 40 (get-contact-address contact-addr ct)))) (sss/get-channel-types))))
                       (ui/make-button "Cancel" close-contact-form)
                       (ui/make-button "OK" ok-fun)]))
   (d/show :contact-form)
