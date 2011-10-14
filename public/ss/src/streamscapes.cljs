@@ -157,11 +157,13 @@
         droplet-channel-scape (:values (:droplet-channel-scape scapes))
         ]
     (d/remove-children :stream-panel)
-    (dom/append elem (d/build [:div.stream-control
-                               (ui/make-button "Create Droplet" droplet/create)
-                               (ui/make-button "Refresh" refresh-stream)
-                               ]))
-    (dom/append elem (d/build [:h3 (str "stream: " (count droplet-channel-scape) " of " (:receptor-total s))]))
+        (d/append elem
+              (d/build [:div.stream-control
+                        (ui/make-button "Create Droplet" droplet/create)
+                        (ui/make-button "Refresh" refresh-stream)
+                        ])
+              (d/build [:h3 (str "stream: " (count droplet-channel-scape) " of " (:receptor-total s))]))
+
     (ui/make-zips (map (fn [da]
                         (let [d-addr (keyword da)
                               d ((:receptors s) d-addr)
@@ -215,17 +217,49 @@
                   (ui/make-button "Join" #(irc-join cname))]
    true []))
 
+(defn humanize-scape-name-for-list [sn]
+  ;; way ugly but drops the ending "-scape"
+  (str "by " (string/join " " (reverse (rest (reverse (string/split (name sn) #"-"))))))
+  
+  )
+
+(defn get-order-scapes []
+  (map (fn [sn] [:p (humanize-scape-name-for-list sn)]) (ssu/get-matching-scapes-by-relationship-address #"droplet-address"))
+  )
+
+
+(defn get-category-scapes []
+  ;; for now the categor-name-scapes are hard-coded, but later they will be
+  ;; pulled dynamically from the scape definition (or from another scape!)
+  (let [category-name-scapes [:channel-scape]
+        scapes (:scapes s/*current-state*)
+        ]
+    (map (fn [scape] (apply conj [:div.category [:h5 (humanize-scape-name-for-list scape)]] (map (fn [[k _]] [:p (name k)]) (:values (scape scapes)))) ) category-name-scapes)
+    ))
+ (comment let [key-scapes (ssu/get-matching-scapes-by-relationship-key #"droplet-address")
+        scapes (:scapes s)]
+    (map (fn [sn] (apply conj [:div.key-scape [:h5 (humanize-scape-name-for-list sn)]] (map (fn [[_ v]] [:p (name v)]) (:values (sn scapes))))) key-scapes))
+
+
+(defn make-scape-section [section-name contents]
+  (apply conj [:div.section] [:h4 section-name]  contents)
+  )
+
 (defn render-scapes [s]
   (let [elem (d/get-element :ss-panel)
-        scapes (:scapes s)]
+        scapes (:scapes s)
+        ]
     (d/remove-children :ss-panel)
-    (dom/append elem (d/build (apply conj
-                                     [:div#channels [:h4 "channels"]]
-                                     (map (fn [[cname caddr]]
-                                            (apply conj [:p] (let [type (get-channel-type cname)]
-                                                               (apply conj [(d/html (str (channel-icon-html cname type) (name cname)))]
-                                                                      (get-channel-buttons type cname)))))
-                                          (:values (:channel-scape scapes))))))
+    (dom/append elem (d/build [:div
+                               (make-scape-section "channels"
+                                                   (map (fn [[cname caddr]]
+                                                          (apply conj [:p] (let [type (get-channel-type cname)]
+                                                                             (apply conj [(d/html (str (channel-icon-html cname type) (name cname)))]
+                                                                                    (get-channel-buttons type cname)))))
+                                                        (:values (:channel-scape scapes))))
+                               (make-scape-section "ordering scapes" (get-order-scapes))
+                               (make-scape-section "categorizing scapes" (get-category-scapes))
+                               ]))
     (dom/append elem ())))
 
 ;; These are the functions for the debug rendering of the receptor

@@ -99,7 +99,7 @@
 (defn open []
   (let [scapes (:scapes s/*current-state*)
         contact-names (:values (:ident-name-scape scapes))
-        channel-identity-scapes (filter (fn [scape] (re-find #"-ident-scape$" (name scape))) (keys scapes))
+        channel-identity-scapes (ssu/get-matching-scapes #"-ident-scape$")
         ]
     (ui/modal-dialog
      "contacts"

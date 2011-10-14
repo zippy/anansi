@@ -51,6 +51,15 @@ img.twitter-avatar {
    float:right;
 }
 
+
+/* --------------- scape styles ---------------*/
+
+
+div.category, div.category p, div.section p {
+   margin-left: 10px;
+}
+/*--------------- dialog styles ---------------*/
+
 #modalmask {   
    z-index: 10;
    text-align: left;
