@@ -88,16 +88,23 @@
 
 ;;TODO: this relies currently on channel type, which is not really an
 ;;ontological entitiy in the server, except in-so-far as grooves are
-;;currently defined on the channel type key.  That all needs to be fixed
-(defn get-channel-ident-scape
-  "Given a channel name, returs the identity scape for that channel type"
-  [channel-name]
-  (let [chan-type (get-channel-type channel-name)]
-    (:values ((condp = chan-type
+;;currently defined on the channel type key.  That all needs to be
+;;fixed
+
+(defn get-channel-ident-scape-from-type
+  "Given a channel type, returns the identity scape for that channel type"
+  [chan-type]
+  (:values ((condp = chan-type
                   :streamscapes :ss-address-ident-scape
                   :irc :irc-ident-scape
                   :email :email-ident-scape
-                  ) (:scapes s/*current-state*)))))
+                  :twitter :twitter-ident-scape
+                  ) (:scapes s/*current-state*))))
+
+(defn get-channel-ident-scape
+  "Given a channel name, returns the identity scape for that channel"
+  [channel-name]
+  (get-channel-ident-scape-from-type (get-channel-type channel-name)))
 
 (defn get-html-from-body [body content-type]
   (if (re-find #"^multipart" content-type)

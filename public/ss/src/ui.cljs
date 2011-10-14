@@ -60,10 +60,13 @@
     (d/show parent-id)
     ))
 
-(defn make-input [label id size]
-  [:p 
-   [:label {:for id} (str label ":")]
-   [(keyword (str "input#" id)) {:name id :size size}]]
+(defn make-input
+  ([label id size]
+     (make-input label id size nil))
+  ([label id size default]
+     [:p 
+      [:label {:for id} (str label ":")]
+      [(keyword (str "input#" id)) {:name id :size size :value default}]])
   )
 
 (defn make-button

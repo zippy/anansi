@@ -11,13 +11,18 @@
             [ss.state :as s]
             ))
 
-(defn render-channel-addresses [channel-identity-scape ident-addr]
-  (let [scape (:values (channel-identity-scape (:scapes s/*current-state*)))
-        addresses (filter (fn [[_ ia]] (= (keyword ia) ident-addr)) scape)]
+(defn get-addresses-by-channel-identity-scape
+  [channel-ident-scape contact-address]
+  (map (fn [[addr _]] (name addr))  (filter (fn [[_ ia]] (= (keyword ia) contact-address)) channel-ident-scape))
+  )
+
+(defn render-channel-addresses [channel-identity-scape-name ident-addr]
+  (let [scape (:values (channel-identity-scape-name (:scapes s/*current-state*)))
+        addresses (get-addresses-by-channel-identity-scape scape ident-addr)]
     (if (empty? addresses)
       nil
-      [:div.channel-addresses [:p.channel (first (string/split (name channel-identity-scape) #"-"))]
-       (into [:p.addresses] (map (fn [[addr _]] [:span.address (name addr)]) addresses))])))
+      [:div.channel-addresses [:p.channel (first (string/split (name channel-identity-scape-name) #"-"))]
+       (into [:p.addresses] (map (fn [addr] [:span.address addr]) addresses))])))
 
 ;;TODO: The channel type problem rears it's ugly head yet again!!!!
 (defn do-new-address []
@@ -34,31 +39,49 @@
     (ssu/send-ss-signal {:aspect "matrice" :signal "identify"
                          :params {:identifiers identifiers
                                   :attributes {:name (. (d/get-element :name) value)}}})
-    (d/remove-children :addr-work))
+    (close-contact-form))
   )
 
-(defn new-address []
-  (d/append (d/get-element :addr-work)
+(defn do-save-contact [contact-id]
+  )
+
+(defn new-contact []
+  (contact-form do-new-address nil nil))
+
+(defn get-contact-address
+  [contact-address channel-type]
+  (first (get-addresses-by-channel-identity-scape
+          (sss/get-channel-ident-scape-from-type channel-type)
+          contact-address)))
+
+(defn contact-form [ok-fun contact-id contact-name]
+  (d/append (d/get-element :contact-form)
             (d/build [:div
-                      (ui/make-input "Name" "name" 80)
-                      (d/build (into [:div.channels] (map (fn [ct] (let [tn (name ct)] (ui/make-input (str tn " Address") (str tn "-addr") 40))) (sss/get-channel-types))))
-                      (ui/make-button "Cancel" #(d/remove-children :addr-work))
-                      (ui/make-button "OK" do-new-address)]))
-  (d/show :addr-work)
+                      (ui/make-input "Name" "name" 80 contact-name)
+                      (d/build (into [:div.channels] (map (fn [ct] (let [tn (name ct)] (ui/make-input (str tn " Address") (str tn "-addr") 40 (get-contact-address contact-id ct)))) (sss/get-channel-types))))
+                      (ui/make-button "Cancel" close-contact-form)
+                      (ui/make-button "OK" ok-fun)]))
+  (d/show :contact-form)
+  )
+
+(defn close-contact-form []
+  (d/hide :contact-form)
+  (d/remove-children :contact-form)
   )
 
 (defn open []
   (let [scapes (:scapes s/*current-state*)
-        identity-names (:values (:ident-name-scape scapes))
+        contact-names (:values (:ident-name-scape scapes))
         channel-identity-scapes (filter (fn [scape] (re-find #"-ident-scape$" (name scape))) (keys scapes))
         ]
     (ui/modal-dialog
      "contacts"
-     [[:div.top-right-controls (ui/make-button "New" new-address)] [:div#addr-work {:style "display:none"} ""]
+     [[:div.top-right-controls (ui/make-button "New" new-contact)] [:div#contact-form {:style "display:none"} ""]
       [:h3 "CONTACTS"]
-       (into [:div#names] (map (fn [[ident-addr id-name]] [:div.identity [:h4 id-name]
-                                                          (into [:div.channel-addresses-container]
-                                                                (filter (fn [x] (not (nil? x))) (map (fn [cs] (render-channel-addresses cs ident-addr)) channel-identity-scapes)))
-                                                          ]) identity-names))])
+      (into [:div#names] (map (fn [[caddr cname]] [:div.contact
+                                                  [:div.contact-name cname (ui/make-button "Edit" #(contact-form (fn [] (do-save-contact caddr)) caddr cname))]
+                                                  (into [:div.channel-addresses-container]
+                                                        (filter (fn [x] (not (nil? x))) (map (fn [cs] (render-channel-addresses cs caddr)) channel-identity-scapes)))
+                                                  ]) contact-names))])
     )
   )
