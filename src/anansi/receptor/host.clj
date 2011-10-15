@@ -13,12 +13,12 @@
 (def host-def (receptor-def
                "host"
                (scapes
-                {:name :room :relationship {:key :name :address :address}}
-                {:name :user :relationship {:key :name :address :address}}
-                {:name :groove :relationship {:key :name :address :address}}
-                {:name :stream :relationship {:key :name :address :address}}
-                {:name :creator :relationship {:key :address :address :creator-address}}
-                {:name :session :relationship {:key :sha :address :user-addr-time-interface-map}})
+                {:name :room :relationship {:key "room-name" :address "room-address"}}
+                {:name :user :relationship {:key "user-name" :address "user-address"}}
+                {:name :groove :relationship {:key "groove-name" :address "groove-address"}}
+                {:name :stream :relationship {:key "streamscapes-name" :address "streamscapes-address"}}
+                {:name :creator :relationship {:key "address" :address "creator-user-address"}}
+                {:name :session :relationship {:key "sha" :address "user_address_time_interface_map"}})
                (animate [_r reanimate]
                         (if (not reanimate)
                           (let [grooves (get-scape _r :groove)]

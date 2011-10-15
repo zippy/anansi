@@ -6,20 +6,62 @@
             [ss.ui :as ui]
             [ss.ss-utils :as ssu]
             [ss.streamscapes :as sss]
+            [ss.ceptr :as ceptr]
+            [ss.state :as s]
             ))
 
 (defn open
   "displays the compose dialog"
   []
-  (ui/modal-dialog "compose"
-                   [ [:h3 "COMPOSE"]
-                     [:div [:h4 "Create Channels"]
-                      (ui/make-button "New E-mail Channel" #(make-email-channel :compose-work))
-                      (ui/make-button "New Twitter Channel" #(make-twitter-channel :compose-work))
-                      (ui/make-button "New IRC Channel" #(make-irc-channel :compose-work))
-                      ]
-                     [:div#compose-work {:style "display:none"} ""]]
-                   ))
+  (let [scapes (:scapes s/*current-state*)]
+    (ui/modal-dialog "compose"
+                     [ [:h3 "COMPOSE"]
+                       [:div [:h4 "Channels"]
+                        (ui/make-button "New E-mail Channel" #(make-email-channel :compose-work))
+                        (ui/make-button "New Twitter Channel" #(make-twitter-channel :compose-work))
+                        (ui/make-button "New IRC Channel" #(make-irc-channel :compose-work))
+                        ]
+                       [:div#compose-work {:style "display:none"} ""]
+                       [:div [:h4 "Scapes"]
+                        (ui/make-button "New Scape" #(make-scape :scape-work))
+                        (into [:div.my-scapes] 
+                              (map (fn [sn] (let [{key-rel :key value-rel :address} (:relationship ((keyword (str (name sn) "-scape")) scapes))]
+                                             (debug/alert (sn scapes))
+                                             [:p (str (name sn) ": " key-rel "->" value-rel " ")
+                                              (ui/make-button "Add Scape Entry" #(set-scape sn key-rel value-rel :scape-work))
+                                              ])) (keys (:values (:my-scapes-scape scapes)))))]
+                       [:div#scape-work {:style "display:none"} ""]]
+                     )))
+
+(defn do-make-scape [{scape-name :scape-name key-rel :key-rel val-rel :value-rel}]
+  (ceptr/start-chain
+   {:cleanup  sss/refresh-stream
+    :error (fn [result] (js/alert (str "Server reported error:" result)))
+    :chain [ 
+            (fn [result chain]
+              (ssu/send-ss-signal {:aspect "setup" :signal "new-scape"
+                                   :params {:name scape-name :relationship {:key key-rel :address val-rel}}} (ceptr/nextc chain)))
+             (fn [result chain]
+               (ssu/send-ss-signal {:aspect "scape" :signal "set"
+                                    :params {:name "my-scapes" :key scape-name :address true}} (ceptr/nextc chain)))]}))
+
+(defn make-scape [parent-id]
+  (ui/make-dialog parent-id
+                  [{:field :scape-name :label "Scape Name" :hint "name should be singular"}
+                   {:field :key-rel :label "Key Relationship" :hint "dash-separated-type"}
+                   {:field :value-rel :label "Value Relationship" :hint "dash-separated-type"}]
+   do-make-scape)
+  )
+
+(defn do-set-scape [scape-name {key :key-val val :value-val}]
+  (ssu/send-ss-signal {:aspect "scape" :signal "set"
+                       :params {:name scape-name :key key :address val}} sss/refresh-stream-callback))
+
+(defn set-scape [scape-name key-rel val-rel parent-id]
+  (ui/make-dialog parent-id
+                  [{:field :key-val :label "Key" :hint key-rel}
+                   {:field :value-val :label "Value" :hint val-rel}]
+   (fn [p] (do-set-scape scape-name p))))
 
 (defn make-twitter [p]
   (let [q (:search-query p)

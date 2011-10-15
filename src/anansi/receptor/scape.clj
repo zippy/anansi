@@ -5,6 +5,14 @@
   (:use [anansi.ceptr])
   (:use [anansi.map-utilities]))
 
+;; Scapes declare dimensions of variability and hold actual related
+;; items along those dimensions.  Thus, when creating a scape receptor
+;; you define the relationships that it scape.  Currently the typology
+;; of the relationships are done by convention in the relationship
+;; name: where types are separated by dashes "-" and go from most to
+;; least specific.  So:  channel-name specifies that the related item
+;; is generally a name (so could go anywhere where names can go) but
+;; specifically is a channel name.
 (def scape-def
      (receptor-def "scape"
                    (manifest [_r & [key addr]]

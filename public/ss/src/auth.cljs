@@ -87,11 +87,13 @@
              (fn [my-contact-addr chain]
                (s/set-me my-contact-addr)
                (ssu/send-ss-signal {:aspect "setup" :signal "new-scape"
-                                    :params {:name :sender :relationship {:key :contact-address :address :boolean}}} (ceptr/nextc chain)))
+                                    :params {:name :sender :relationship {:key "contact-address" :address "boolean"}}} (ceptr/nextc chain)))
              (fn [result chain]
                (ssu/send-ss-signal {:aspect "scape" :signal "set"
-                                    :params {:name :sender :key s/*me* :address true}} (ceptr/nextc chain))
-               )
+                                    :params {:name :sender :key s/*me* :address true}} (ceptr/nextc chain)))
+             (fn [result chain]
+               (ssu/send-ss-signal {:aspect "setup" :signal "new-scape"
+                                    :params {:name "my-scapes" :relationship {:key "scape-name" :address "boolean"}}} (ceptr/nextc chain)))
              ]}))
 
 (def new-user (goog.ui.Prompt. "New User" "User"

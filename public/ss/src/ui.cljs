@@ -36,9 +36,9 @@
   "creates a dialog based on the vector of field specs, and a function to call back if OK is pressed"
   [parent-id fields okfn]
   (let [e (d/get-element parent-id)
-        inputs (into [] (map (fn [{id :field l :label}]
+        inputs (into [] (map (fn [{id :field l :label h :hint}]
                                (let [label (if (nil? l) (name id) l)]
-                                 [id (goog.ui.LabelInput. label) label])) fields))
+                                 [id (goog.ui.LabelInput. h) label])) fields))
         defaults (into {} (map (fn [{id :field default :default}] [id default]) fields))
         b (goog.ui.Button. "Submit")
         bc (goog.ui.Button. "Cancel")] 
@@ -112,9 +112,10 @@
 (defn make-zippy-dom
   [self]
 
-  (let [header-element  (d/build
+  (let [title (:title self)
+        header-element  (d/build
                          [:div {:style "background-color:#EEE"}
-                          (d/html (:title self))])
+                          (if (string? title) (d/html title) title)])
         content-element (d/build
                          [:div (:content self)])
         new-zip (d/build

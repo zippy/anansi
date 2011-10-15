@@ -30,14 +30,14 @@
       ids (get-scape r :id)
       ] 
   (facts "scaping relationships"
-    (scape-relationship (get-scape r :channel) :key) => :name
-    (scape-relationship (get-scape r :channel) :address) => :address
-    (scape-relationship (get-scape r :delivery) :key) => :timestamp
-    (scape-relationship (get-scape r :delivery) :address) => :droplet-address
-    (scape-relationship (get-scape r :id) :key) => :droplet-address
-    (scape-relationship (get-scape r :id) :address) => :streamscapes-channel-address
-    (scape-relationship droplet-channels :key) => :droplet-address
-    (scape-relationship droplet-channels :address) => :streamscapes-channel)
+    (scape-relationship (get-scape r :channel) :key) => "channel-name"
+    (scape-relationship (get-scape r :channel) :address) => "channel-address"
+    (scape-relationship (get-scape r :delivery) :key) => "timestamp"
+    (scape-relationship (get-scape r :delivery) :address) => "droplet-address"
+    (scape-relationship (get-scape r :id) :key) => "droplet-address"
+    (scape-relationship (get-scape r :id) :address) => "streamscapes_channel_address"
+    (scape-relationship droplet-channels :key) => "droplet-address"
+    (scape-relationship droplet-channels :address) => "streamscapes-channel")
 
   (deftest streamscapes
     (testing "initialization"

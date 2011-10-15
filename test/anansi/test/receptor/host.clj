@@ -11,16 +11,16 @@
 (let [h (make-receptor host-def nil {})
       ha (address-of h)]
   (facts "scaping relationships"
-    (scape-relationship (get-scape h :room) :key) => :name
-    (scape-relationship (get-scape h :room) :address) => :address
-    (scape-relationship (get-scape h :user) :key) => :name
-    (scape-relationship (get-scape h :user) :address) => :address
-    (scape-relationship (get-scape h :stream) :key) => :name
-    (scape-relationship (get-scape h :stream) :address) => :address
-    (scape-relationship (get-scape h :session) :key) => :sha
-    (scape-relationship (get-scape h :session) :address) => :user-addr-time-interface-map
-    (scape-relationship (get-scape h :groove) :key) => :name
-    (scape-relationship (get-scape h :groove) :address) => :address
+    (scape-relationship (get-scape h :room) :key) => "room-name"
+    (scape-relationship (get-scape h :room) :address) => "room-address"
+    (scape-relationship (get-scape h :user) :key) => "user-name"
+    (scape-relationship (get-scape h :user) :address) => "user-address"
+    (scape-relationship (get-scape h :stream) :key) => "streamscapes-name"
+    (scape-relationship (get-scape h :stream) :address) => "streamscapes-address"
+    (scape-relationship (get-scape h :session) :key) => "sha"
+    (scape-relationship (get-scape h :session) :address) => "user_address_time_interface_map"
+    (scape-relationship (get-scape h :groove) :key) => "groove-name"
+    (scape-relationship (get-scape h :groove) :address) => "groove-address"
     )
   (facts "about default grooves added into the host at startup"
     (let [grooves (get-scape h :groove)

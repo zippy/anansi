@@ -169,13 +169,15 @@
                               d ((:receptors s) d-addr)
                               channel (droplet-channel-scape d-addr)
                               channel-type (get-channel-type channel)
+                              ccc (first (ssu/get-matching-scapes-by-relationship #"droplet-address" #"boolean"))
                               ]
 
                           (condp = channel-type
                               :streamscapes (zip-for-streamscapes-droplet s d-addr channel)
                               :email (zip-for-email-droplet s d-addr channel)
-                              :twitter {:title (str (channel-icon-html channel channel-type) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-twitter-avatar s (:from d)) (resolve-ident s (:from d)) " : " (:text (:content d)))
-                                        :content (d/build [:div [:div#default-droplet (u/clj->json (:content d)) ]]) }
+                              :twitter {:title (d/html (str (channel-icon-html channel channel-type) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-twitter-avatar s (:from d)) (resolve-ident s (:from d)) " : " (:text (:content d))))
+                                        :content (d/build [:div [:div#default-droplet (u/clj->json (:content d)) ]
+                                                           (ui/make-button (str ccc) #(categorize da ccc))]) }
                               :irc {:title (str (channel-icon-html channel channel-type) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-ident s (:from d)) " : " (:message (:content d)))
                                     :content (d/build [:div [:div#default-droplet (u/clj->json (:content d)) ]]) }
                               {:title (str "Via:" (name channel) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-ident s (:from d)))
@@ -183,14 +185,18 @@
                               ))) (:receptor-order s))
                  elem)))
 
+(defn descapify [sn]
+  (string/join "-" (reverse (rest (reverse (string/split (name sn) #"-")))))
+  )
+
+(defn categorize [droplet-address scape-name]
+  (ssu/send-ss-signal {:aspect "scape" :signal "set"
+                       :params {:name (descapify scape-name) :key droplet-address :address true}} refresh-stream-callback))
 
 (defn channel-check [c]
   (ssu/send-ss-signal {:aspect "matrice" :signal "control-channel"
                        :params {:name c :command :check} }
                       refresh-stream-callback))
-
-
-
 
 (defn irc-join [c]
   (let [p (goog.ui.Prompt. "Join IRC Channel" "Channel"
@@ -220,7 +226,6 @@
 (defn humanize-scape-name-for-list [sn]
   ;; way ugly but drops the ending "-scape"
   (str "by " (string/join " " (reverse (rest (reverse (string/split (name sn) #"-"))))))
-  
   )
 
 (defn get-order-scapes []
@@ -268,8 +273,8 @@
   (cond (keyword? s) (name s)
         (or (nil? s) (empty? s) (= "" s)) ""
         (map? s) (let [{kr :key ar :address} (:relationship s)
-                       napair (and (= kr "name") (= ar "address"))
-                       anpair (and (= kr "address") (= ar "name"))
+                       napair (and (re-find #"-name$" kr) (re-find #"-address$" ar))
+                       anpair (and (re-find #"-address$" kr) (re-find #"-name$" ar))
                        x (into [:div.scape-items]
                            (map (fn [[k v]]
                                   (if (map? v)

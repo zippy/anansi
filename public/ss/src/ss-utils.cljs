@@ -22,16 +22,15 @@
 
 (defn get-matching-scapes-by-relationship
   "returns the scape names who's relationship values match a pattern"
-  [pattern]
+  [key-pattern address-pattern]
   (map (fn [[scape-name _]] scape-name) (filter (fn [[_ {{k :key a :address} :relationship}]]
-                                                 (or (re-find pattern k) (re-find pattern a))) (:scapes s/*current-state*))))
+                                                 (and (re-find key-pattern k) (re-find address-pattern a))) (:scapes s/*current-state*))))
 (defn get-matching-scapes-by-relationship-key
   "returns the scape names who's relationship key values match a pattern"
   [pattern]
-  (map (fn [[scape-name _]] scape-name) (filter (fn [[_ {{k :key a :address} :relationship}]]
-                                                 (re-find pattern k) ) (:scapes s/*current-state*))))
+  (get-matching-scapes-by-relationship pattern #".*"))
+
 (defn get-matching-scapes-by-relationship-address
   "returns the scape names who's relationship address values match a pattern"
   [pattern]
-  (map (fn [[scape-name _]] scape-name) (filter (fn [[_ {{k :key a :address} :relationship}]]
-                                                 (re-find pattern a)) (:scapes s/*current-state*))))
+    (get-matching-scapes-by-relationship #".*" pattern))
