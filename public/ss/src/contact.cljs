@@ -37,7 +37,7 @@
 
 ;;TODO: The channel type problem rears it's ugly head yet again!!!!
 (defn get-addresses-from-form []
-  (let [address-type-ids (map (fn [ct] (keyword (str (name ct) "-addr"))) (sss/get-channel-types))]
+  (let [address-type-ids (map (fn [ct] (keyword (str (name ct) "-addr"))) (ssu/get-channel-types))]
     (into {} (keep identity (for [tid address-type-ids]
                                               (let [val (. (d/get-element tid) value)]
                                                 (if (and val (not= val ""))
@@ -48,7 +48,7 @@
                                                       :irc-addr [:irc val])
                                                   nil)))))))
 (defn do-new-address []
-  (let [address-type-ids (map (fn [ct] (keyword (str (name ct) "-addr"))) (sss/get-channel-types))
+  (let [address-type-ids (map (fn [ct] (keyword (str (name ct) "-addr"))) (ssu/get-channel-types))
         identifiers (get-addresses-from-form)]
     (ssu/send-ss-signal {:aspect "matrice" :signal "identify"
                          :params {:identifiers identifiers
@@ -85,7 +85,7 @@
   (d/append (d/get-element :contact-form)
             (d/build [:div
                       (ui/make-input "Name" "name" 80 contact-name)
-                      (d/build (into [:div.channels] (map (fn [ct] (let [tn (name ct)] (ui/make-input (str tn " Address") (str tn "-addr") 40 (get-contact-address contact-addr ct)))) (sss/get-channel-types))))
+                      (d/build (into [:div.channels] (map (fn [ct] (let [tn (name ct)] (ui/make-input (str tn " Address") (str tn "-addr") 40 (get-contact-address contact-addr ct)))) (ssu/get-channel-types))))
                       (ui/make-button "Cancel" close-contact-form)
                       (ui/make-button "OK" ok-fun)]))
   (d/show :contact-form)

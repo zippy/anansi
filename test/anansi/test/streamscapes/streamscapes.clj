@@ -37,7 +37,7 @@
     (scape-relationship (get-scape r :id) :key) => "droplet-address"
     (scape-relationship (get-scape r :id) :address) => "streamscapes_channel_address"
     (scape-relationship droplet-channels :key) => "droplet-address"
-    (scape-relationship droplet-channels :address) => "streamscapes-channel")
+    (scape-relationship droplet-channels :address) => "channel-address")
 
   (deftest streamscapes
     (testing "initialization"
@@ -111,9 +111,9 @@
              (contents d :envelope) {:part1 "address of part1 grammar"}
              (contents d :content) {:part1 "part1 content"}
              (address-of d) droplet-address
-             :some-channel (s-> key->resolve droplet-channels droplet-address)
+             (s-> key->resolve droplet-channels droplet-address) sc
              "some-unique-id" (s-> key->resolve ids droplet-address)
-             [droplet-address] (s-> address->resolve droplet-channels :some-channel)
+             [droplet-address] (s-> address->resolve droplet-channels sc)
              [droplet-address] (s-> address->resolve ids "some-unique-id")
              )))
     
@@ -162,6 +162,7 @@
           [in-bridge-address receive-signal] (get-receiver-bridge cc)
           db (get-receptor cc controller-address)]
       (rdef (get-receptor cc in-bridge-address) :fingerprint) => :anansi.streamscapes.channels.irc-bridge-in.irc-bridge-in
+      (s-> key->resolve (get-scape r :channel-type) channel-address) => :irc
       (find-channel-by-name r :freenode) => cc
       (receptor-state db false) => (contains {:fingerprint :anansi.streamscapes.channels.irc-controller.irc-controller
                                              :user "Eric"

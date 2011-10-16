@@ -104,7 +104,7 @@
 (defn get-channel-ident-scape
   "Given a channel name, returns the identity scape for that channel"
   [channel-name]
-  (get-channel-ident-scape-from-type (get-channel-type channel-name)))
+  (get-channel-ident-scape-from-type (ssu/get-channel-type-from-name channel-name)))
 
 (defn get-html-from-body [body content-type]
   (if (re-find #"^multipart" content-type)
@@ -135,18 +135,6 @@
      :content (if (nil? body) "No Body" body)}
 ))
 
-
-;; TODO: this a terrible cheat in that we determine droplet type just by scanning
-;; the channel name!  This should be fixed to get the type from the
-;; channel receptor.
-(defn get-channel-type [channel]
-  (cond (re-find #"email" channel) :email
-        (re-find #"twitter" channel) :twitter
-        (re-find #"irc|freenode" channel) :irc
-        (re-find #"streamscapes" channel) :streamscapes
-        true :generic
-        ))
-
 (defn channel-icon-html [channel-name channel-type]
   (str "<img class=\"droplet-type-icon\" src=\"images/" (name channel-type) ".png\" title=\"" (name channel-name) "\">")
   )
@@ -167,8 +155,12 @@
     (ui/make-zips (map (fn [da]
                         (let [d-addr (keyword da)
                               d ((:receptors s) d-addr)
-                              channel (droplet-channel-scape d-addr)
-                              channel-type (get-channel-type channel)
+                              channel-address (droplet-channel-scape d-addr)
+                              channel (ssu/get-channel-name-from-address channel-address)
+                                          x (debug/alert channel)
+                                               
+                              channel-type (ssu/get-channel-type channel-address)
+                                                                        x (debug/alert channel-type)
                               ccc (first (ssu/get-matching-scapes-by-relationship #"droplet-address" #"boolean"))
                               ]
 
@@ -258,7 +250,7 @@
     (dom/append elem (d/build [:div
                                (make-scape-section "channels"
                                                    (map (fn [[cname caddr]]
-                                                          (apply conj [:p] (let [type (get-channel-type cname)]
+                                                          (apply conj [:p] (let [type (ssu/get-channel-type caddr)]
                                                                              (apply conj [(d/html (str (channel-icon-html cname type) (name cname)))]
                                                                                     (get-channel-buttons type cname)))))
                                                         (:values (:channel-scape scapes))))
@@ -365,8 +357,4 @@
   (map (fn [[cn _]] (name cn)) (:values (:channel-scape (:scapes s/*current-state*))))
   )
 
-(defn get-channel-types
-  "return a list of the current channel types"
-  []
-  (distinct (map (fn [cn] (get-channel-type cn)) (get-channel-names)))
-  )
+

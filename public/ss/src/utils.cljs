@@ -21,3 +21,8 @@
   "Returns ClojureScript data for the given JSON string."
   [line]
   (js->clj (JSON/parse line)))
+
+(defn get-keys
+  "Utility function to return a list of all the keys in a map that have a given value"
+  [the-map value]
+  (into [] (keep (fn [[key val]] (if (= val value) key nil)) the-map)))

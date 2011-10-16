@@ -2,6 +2,7 @@
   (:require [ss.state :as s]
             [ss.debug :as debug]
             [ss.ceptr :as ceptr]
+            [ss.utils :as u]
             ))
 
 (defn send-signal
@@ -34,3 +35,27 @@
   "returns the scape names who's relationship address values match a pattern"
   [pattern]
     (get-matching-scapes-by-relationship #".*" pattern))
+
+(defn get-channel-type [channel-address]
+  (let [type ((keyword (str channel-address)) (:values (:channel-type-scape (:scapes s/*current-state*))))]
+    (keyword type)))
+
+(defn get-channel-address-from-name [channel-name]
+  ((keyword channel-name) (:values (:channel-scape (:scapes s/*current-state*))))
+  )
+
+;;TODO: note that this assumes a one-to-one relationship in the
+;;channel-scape, which, though appropriate, is not declared and is
+;;part of the work that needs to be done in deepening scape semantics
+(defn get-channel-name-from-address [channel-address]
+  (first (u/get-keys (:values (:channel-scape (:scapes s/*current-state*))) channel-address))
+  )
+
+(defn get-channel-type-from-name [channel-name]
+  (get-channel-type (get-channel-address-from-name channel-name)))
+
+(defn get-channel-types
+  "return a list of the current channel types"
+  []
+  (map (fn [t] (keyword t)) (vals (:values (:channel-type-scape (:scapes s/*current-state*)))))
+  )

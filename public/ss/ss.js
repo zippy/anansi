@@ -8,7 +8,7 @@ goog.addDependency("../debug.js", ['ss.debug'], ['ss.utils', 'cljs.core', 'ss.do
 goog.addDependency("../state.js", ['ss.state'], ['ss.utils', 'cljs.core', 'goog.net.Cookies', 'goog.net.cookies', 'ss.debug', 'clojure.string']);
 goog.addDependency("../ui.js", ['ss.ui'], ['ss.utils', 'cljs.core', 'clojure.browser.dom', 'goog.ui.Component.EventType', 'goog.ui.LabelInput', 'goog.ui.Zippy', 'goog.ui.Select', 'goog.ui.Button', 'ss.dom_helpers', 'goog.ui.Option', 'ss.state', 'goog.events', 'goog.editor.Field']);
 goog.addDependency("../ceptr.js", ['ss.ceptr'], ['ss.utils', 'cljs.core', 'ss.debug', 'clojure.string', 'goog.net.XhrIo', 'goog.events', 'goog.Uri']);
-goog.addDependency("../ss-utils.js", ['ss.ss_utils'], ['cljs.core', 'ss.debug', 'ss.ceptr', 'ss.state']);
+goog.addDependency("../ss-utils.js", ['ss.ss_utils'], ['ss.utils', 'cljs.core', 'ss.debug', 'ss.ceptr', 'ss.state']);
 goog.addDependency("../contact.js", ['ss.contact'], ['ss.utils', 'cljs.core', 'clojure.browser.dom', 'ss.debug', 'ss.ui', 'clojure.string', 'ss.dom_helpers', 'ss.state', 'ss.streamscapes', 'goog.events', 'ss.ss_utils']);
 goog.addDependency("../droplet.js", ['ss.droplet'], ['ss.utils', 'cljs.core', 'ss.debug', 'ss.contact', 'ss.ui', 'clojure.string', 'ss.ceptr', 'ss.dom_helpers', 'ss.state', 'ss.streamscapes', 'ss.ss_utils']);
 goog.addDependency("../streamscapes.js", ['ss.streamscapes'], ['ss.utils', 'cljs.core', 'goog.ui.Prompt', 'clojure.browser.dom', 'ss.debug', 'ss.ui', 'clojure.string', 'ss.droplet', 'ss.ceptr', 'ss.dom_helpers', 'ss.state', 'ss.ss_utils']);

@@ -10,8 +10,9 @@
   (:use [clojure.string :only [join]])
   )
 (def streamscapes-def (receptor-def "streamscapes"
-                                    (scapes {:name :droplet-channel :relationship {:key "droplet-address" :address "streamscapes-channel"}}
+                                    (scapes {:name :droplet-channel :relationship {:key "droplet-address" :address "channel-address"}}
                                             {:name :channel :relationship {:key "channel-name" :address "channel-address"}}
+                                            {:name :channel-type :relationship {:key "channel-address" :address "channel-type"}}
                                             {:name :id :relationship {:key "droplet-address" :address "streamscapes_channel_address"}}
                                             {:name :delivery :relationship {:key "timestamp" :address "droplet-address"}}
                                             {:name :receipt :relationship {:key "timestamp" :address "droplet-address"}})
@@ -51,7 +52,7 @@
                ids (get-scape _r :id)
                ]
            (if channel
-             (--> key->set _r droplet-channels addr channel))
+             (--> key->set _r droplet-channels addr (address-of c-out)))
            ;; don't use the id from the params because it may have been nil in which
            ;; case the instantiation code will have created the id on the fly
            (--> key->set _r ids addr (contents d :id))
@@ -184,54 +185,56 @@
   )
 (signal setup new-channel [_r _f params]
         (let [{raw-type :type n :name} params
-              type (keyword (name raw-type))]
-          (s-> matrice->make-channel _r {:name (channel-name n)
-                                         :receptors
-                                         (condp = type
-                                             :streamscapes {(get-receptor-definition :anansi.streamscapes.channels.local-bridge-in.local-bridge-in)
-                                                            {:role :receiver :params {}
-                                                             :signal (get-signal-function "anansi.streamscapes.channels.local-bridge-in" "cheat" "receive")}
-                                                            (get-receptor-definition :anansi.streamscapes.channels.local-bridge-out.local-bridge-out)
-                                                            {:role :deliverer :params {}
-                                                             :signal (get-signal-function "anansi.streamscapes.channels.local-bridge-out" "channel" "deliver")}}
-                                             :twitter (let [{search-query :search-query} params]
-                                                        {(get-receptor-definition :anansi.streamscapes.channels.twitter-bridge-in.twitter-bridge-in)
-                                                         {:role :receiver :params {}}
-                                                         (get-receptor-definition :anansi.streamscapes.channels.twitter-controller.twitter-controller)
-                                                         {:role :controller :params {:attributes {:search-query search-query}}
-                                                          :signal (get-signal-function "anansi.streamscapes.channels.twitter-controller" "channel" "control")}})
-                                             :irc (let [{host :host port :port user :user nick :nick} params]
-                                                    {(get-receptor-definition :anansi.streamscapes.channels.irc-bridge-in.irc-bridge-in)
-                                                     {:role :receiver :params {} }
-                                                     (get-receptor-definition :anansi.streamscapes.channels.irc-bridge-out.irc-bridge-out)
-                                                     {:role :deliverer
-                                                      :params {}
-                                                      :signal (get-signal-function "anansi.streamscapes.channels.irc-bridge-out" "channel" "deliver") }
-                                                     (get-receptor-definition :anansi.streamscapes.channels.irc-controller.irc-controller)
-                                                     {:role :controller
-                                                      :signal (get-signal-function "anansi.streamscapes.channels.irc-controller" "channel" "control")
-                                                      :params {:attributes {:host host :port port :user user :nick nick}}}})
-                                             :email (let [{in :in out :out} params
-                                                          r1 (if (not (nil? in))
-                                                               {(get-receptor-definition :anansi.streamscapes.channels.email-bridge-in.email-bridge-in)
-                                                                {:role :receiver :params {:attributes in} }
-                                                                (get-receptor-definition :anansi.streamscapes.channels.email-controller.email-controller)
-                                                                {:role :controller
-                                                                 :signal (get-signal-function "anansi.streamscapes.channels.email-controller" "channel" "control")}
-                                                                }
-                                                               {}
-                                                               )
-                                                          r2 (if (not (nil? out))
-                                                               (merge
-                                                                r1
-                                                                {(get-receptor-definition :anansi.streamscapes.channels.email-bridge-out.email-bridge-out)
-                                                                 {:role :deliverer
-                                                                  :signal (get-signal-function "anansi.streamscapes.channels.email-bridge-out" "channel" "deliver")
-                                                                  :params {:attributes out}}})
-                                                               r1
-                                                               )]
-                                                      r2)
-                                             (throw (RuntimeException. (str "channel type '" (name type) "' not implemented" ))))})))
+              type (keyword (name raw-type))
+              channel-address (s-> matrice->make-channel _r {:name (channel-name n)
+                                             :receptors
+                                             (condp = type
+                                                 :streamscapes {(get-receptor-definition :anansi.streamscapes.channels.local-bridge-in.local-bridge-in)
+                                                                {:role :receiver :params {}
+                                                                 :signal (get-signal-function "anansi.streamscapes.channels.local-bridge-in" "cheat" "receive")}
+                                                                (get-receptor-definition :anansi.streamscapes.channels.local-bridge-out.local-bridge-out)
+                                                                {:role :deliverer :params {}
+                                                                 :signal (get-signal-function "anansi.streamscapes.channels.local-bridge-out" "channel" "deliver")}}
+                                                 :twitter (let [{search-query :search-query} params]
+                                                            {(get-receptor-definition :anansi.streamscapes.channels.twitter-bridge-in.twitter-bridge-in)
+                                                             {:role :receiver :params {}}
+                                                             (get-receptor-definition :anansi.streamscapes.channels.twitter-controller.twitter-controller)
+                                                             {:role :controller :params {:attributes {:search-query search-query}}
+                                                              :signal (get-signal-function "anansi.streamscapes.channels.twitter-controller" "channel" "control")}})
+                                                 :irc (let [{host :host port :port user :user nick :nick} params]
+                                                        {(get-receptor-definition :anansi.streamscapes.channels.irc-bridge-in.irc-bridge-in)
+                                                         {:role :receiver :params {} }
+                                                         (get-receptor-definition :anansi.streamscapes.channels.irc-bridge-out.irc-bridge-out)
+                                                         {:role :deliverer
+                                                          :params {}
+                                                          :signal (get-signal-function "anansi.streamscapes.channels.irc-bridge-out" "channel" "deliver") }
+                                                         (get-receptor-definition :anansi.streamscapes.channels.irc-controller.irc-controller)
+                                                         {:role :controller
+                                                          :signal (get-signal-function "anansi.streamscapes.channels.irc-controller" "channel" "control")
+                                                          :params {:attributes {:host host :port port :user user :nick nick}}}})
+                                                 :email (let [{in :in out :out} params
+                                                              r1 (if (not (nil? in))
+                                                                   {(get-receptor-definition :anansi.streamscapes.channels.email-bridge-in.email-bridge-in)
+                                                                    {:role :receiver :params {:attributes in} }
+                                                                    (get-receptor-definition :anansi.streamscapes.channels.email-controller.email-controller)
+                                                                    {:role :controller
+                                                                     :signal (get-signal-function "anansi.streamscapes.channels.email-controller" "channel" "control")}
+                                                                    }
+                                                                   {}
+                                                                   )
+                                                              r2 (if (not (nil? out))
+                                                                   (merge
+                                                                    r1
+                                                                    {(get-receptor-definition :anansi.streamscapes.channels.email-bridge-out.email-bridge-out)
+                                                                     {:role :deliverer
+                                                                      :signal (get-signal-function "anansi.streamscapes.channels.email-bridge-out" "channel" "deliver")
+                                                                      :params {:attributes out}}})
+                                                                   r1
+                                                                   )]
+                                                          r2)
+                                                 (throw (RuntimeException. (str "channel type '" (name type) "' not implemented" ))))})]
+          (--> key->set _r (get-scape _r :channel-type) channel-address type)
+          channel-address))
 
 (signal matrice control-channel [_r _f {n :name cmd :command params :params}]
         ;; TODO should be doing a check on the from here ...

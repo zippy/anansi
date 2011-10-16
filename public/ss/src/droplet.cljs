@@ -58,11 +58,11 @@
         groove-id (keyword groove-name)
         groove (groove-id s/*grooves*)
         selected-channel (. *channel-select* (getSelectedItem))
-        groove-spec ((sss/get-channel-type (. selected-channel (getValue))) groove)]
+        groove-spec ((ssu/get-channel-type-from-name (. selected-channel (getValue))) groove)]
     (doseq [idx (range (. *channel-select* (getItemCount)))]
       (let [item (. *channel-select* (getItemAt idx))
             chan (. item (getValue))
-            valid (contains? groove (sss/get-channel-type chan))]
+            valid (contains? groove (ssu/get-channel-type-from-name chan))]
         (. item (setEnabled valid))))
     (let [valid-channel (and selected-channel (. selected-channel (isEnabled)))]
       (if valid-channel
@@ -122,7 +122,7 @@
         groove (groove-id s/*grooves*)
         selected-channel (. *channel-select* (getSelectedItem))
         channel-name (. selected-channel (getValue))
-        groove-spec ((sss/get-channel-type channel-name) groove)
+        groove-spec ((ssu/get-channel-type-from-name channel-name) groove)
         to (. *to-select* (getValue))
         from (. *from-select* (getValue))
         groove (get-selected-groove)]
