@@ -69,6 +69,7 @@
       )
     (ssu/send-ss-signal {:aspect "matrice" :signal "scape-contact"
                            :params {:address (js/parseInt (name contact-addr)) :identifiers (get-addresses-from-form)}} )
+    (close-contact-form)
     )
   )
 
