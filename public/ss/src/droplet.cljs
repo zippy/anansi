@@ -34,7 +34,7 @@
   (let [identity-names (:values (:ident-name-scape (:scapes s/*current-state*)))
         senders (set (map #(js/parseInt (name %)) (keys (:values (:sender-scape (:scapes s/*current-state*))))))
         channel-name (. *channel-select* (getValue))
-        channel-address-identity-scape (sss/get-channel-ident-scape channel-name)
+        channel-address-identity-scape (ssu/get-channel-ident-scape channel-name)
 ;;        addr-select (map (fn [[ea ia]] [:option {:value (str ia)} (str ((keyword ia) identity-names) "<"(name ea) ">")]) channel-address-identity-scape)
         to-addresses (map (fn [[a-name contact-id]] [(str ((keyword contact-id) identity-names) "<"(name a-name) ">") contact-id]) channel-address-identity-scape)
         from-addresses (map (fn [[a-name contact-id]] [(str ((keyword contact-id) identity-names) "<"(name a-name) ">") contact-id])

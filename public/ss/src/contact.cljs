@@ -79,7 +79,7 @@
 (defn get-contact-address
   [contact-address channel-type]
   (first (get-addresses-by-channel-identity-scape
-          (sss/get-channel-ident-scape-from-type channel-type)
+          (ssu/get-channel-ident-scape-from-type channel-type)
           contact-address)))
 
 (defn contact-form [ok-fun contact-addr contact-name]
