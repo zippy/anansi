@@ -52,6 +52,8 @@
 
 
         (fact (s-> key->resolve (get-scape r :subject-body-message-groove) droplet-address) => true)
+        (fact (s-> key->resolve (get-scape r :droplet-grooves) droplet-address) => [:subject-body-message])
+
         (fact (s-> key->resolve (get-scape r :subject-body-message-groove) droplet2-address) => false)
         (fact (s-> key->resolve (get-scape r :simple-message-groove) droplet-address) => false)
         (fact (s-> key->resolve (get-scape r :simple-message-groove) droplet2-address) => false)

@@ -27,18 +27,24 @@
     (every? (fn [[k v]] (= (k envelope) v)) grammar)))
 
 (defn match-grooves
-  "run through the defined groves and create scape entries for all grooves that match this droplet"
+  "run through the defined grooves and create scape entries for all grooves that match this droplet"
   [_r ss droplet-address envelope content]
   (let [host (parent-of ss)
-        grooves (get-scape host :groove)
+        grooves (get-scape host :groove )
         all (s-> query->all grooves)
-        channel-type (--> key->resolve _r (get-scape ss :channel-type) (address-of _r))
+        channel-type (--> key->resolve _r (get-scape ss :channel-type ) (address-of _r))
+        matched-grooves (into [] (keep identity (map (fn [[groove-name groove-address]]
+                                                     (let [grammar (channel-type (contents (get-receptor host groove-address) :grammars ))
+                                                           scape-name (keyword (str (name groove-name) "-groove"))
+                                                           groove-scape (get-scape ss scape-name true)
+                                                           grammar-match (grammar-match? grammar envelope content)
+                                                           ]
+                                                       (s-> key->set groove-scape droplet-address grammar-match)
+                                                       (if grammar-match groove-name nil)))
+                                                all)))
         ]
-    (doseq [[groove-name groove-address] all]
-      (let [grammar (channel-type (contents (get-receptor host groove-address) :grammars))
-            scape-name (keyword (str (name groove-name) "-groove"))
-            groove-scape (get-scape ss scape-name true)]
-        (s-> key->set groove-scape droplet-address (grammar-match? grammar envelope content))))))
+    (let [dg-scape (get-scape ss :droplet-grooves)]
+      (s-> key->set dg-scape  droplet-address matched-grooves))))
 
 (defn get-receiver-bridge [_r]
   (get-channel-receptor _r :receiver))
