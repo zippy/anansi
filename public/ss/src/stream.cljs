@@ -91,7 +91,7 @@
         x [ [:h3 (str channel-type " droplet")]]
         body (if (= groove sbmg)
                (get-sbmg-body d)
-               (d/build [:div (if (nil? (:text (:content d))) (:message (:content d)) (:text (:content d)))]))]
+               (d/build [:div "message body"]))] ; (if (nil? (:text (:content d))) (:message (:content d)) (:text (:content d)))
     (ui/modal-dialog "full-droplet"
                      [ [:h3 (str (name channel-type) " droplet")]
                        body
