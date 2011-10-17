@@ -3,6 +3,7 @@
   (:use [anansi.ceptr]
         [anansi.receptor.scape]
         [anansi.receptor.user :only [user-def]]
+        [anansi.receptor.host :only [host-def]]
         [anansi.streamscapes.streamscapes]
         [anansi.streamscapes.channel :only [channel-def stream->send]]
         [anansi.streamscapes.channels.local-bridge-in]
@@ -13,7 +14,8 @@
 
 (deftest local-bridge-out
   (let [m (make-receptor user-def nil "eric")
-        r (make-receptor streamscapes-def nil {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
+        h (make-receptor host-def nil {})
+        r (make-receptor streamscapes-def h {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
         c-out-addr (s-> matrice->make-channel r {:name :local-stream
                                                  :receptors {local-bridge-out-def {:role :deliverer :signal channel->deliver :params {}}}
                                                  })

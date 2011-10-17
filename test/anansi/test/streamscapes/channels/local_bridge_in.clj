@@ -3,6 +3,7 @@
   (:use [anansi.ceptr]
         [anansi.receptor.scape]
         [anansi.receptor.user :only [user-def]]
+        [anansi.receptor.host :only [host-def]]
         [anansi.streamscapes.streamscapes]
         [anansi.streamscapes.channel :only [channel-def]])
   (:use [midje.sweet])
@@ -11,7 +12,8 @@
 
 (deftest local-bridge-in
   (let [m (make-receptor user-def nil "eric")
-        r (make-receptor streamscapes-def nil {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
+        h (make-receptor host-def nil {})
+        r (make-receptor streamscapes-def h {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
         eric-addr (s-> matrice->identify r {:identifiers {:ss-address (address-of r)} :attributes {:name "Eric"}})
         eric-ss-addr (address-of r)
         u (make-receptor user-def nil "zippy")

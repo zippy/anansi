@@ -3,6 +3,7 @@
   (:use [anansi.ceptr]
         [anansi.receptor.scape]   
         [anansi.receptor.user]
+        [anansi.receptor.host :only [host-def]]
         [anansi.streamscapes.ident :only [ident-def]] ; this
         [anansi.streamscapes.droplet :only [droplet-def]]        
         [anansi.streamscapes.channel :only [get-deliverer-bridge get-receiver-bridge get-controller]]
@@ -22,9 +23,10 @@
 )
 
   (set! *print-level* 6)
-(let [m (make-receptor user-def nil "eric")
-      u (make-receptor user-def nil "zippy")
-      r (make-receptor streamscapes-def nil {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
+(let [h (make-receptor host-def nil {})
+      m (make-receptor user-def h "eric")
+      u (make-receptor user-def h "zippy")
+      r (make-receptor streamscapes-def h {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
       droplet-channels (get-scape r :droplet-channel)
       channels (get-scape r :channel)
       ids (get-scape r :id)

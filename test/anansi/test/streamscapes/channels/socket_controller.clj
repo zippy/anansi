@@ -3,6 +3,7 @@
   (:use [anansi.ceptr]
         [anansi.receptor.scape]
         [anansi.receptor.user :only [user-def]]
+        [anansi.receptor.host :only [host-def]]
         [anansi.streamscapes.channel]
         [anansi.streamscapes.streamscapes]
         [anansi.streamscapes.ident :only [ident-def]]
@@ -15,7 +16,8 @@
 (defn test-input-function [input ip] (println (str "from: " ip " processed: " input)))
 (deftest socket-controller
   (let [m (make-receptor user-def nil "eric")
-        r (make-receptor streamscapes-def nil {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
+        h (make-receptor host-def nil {})
+        r (make-receptor streamscapes-def h {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
         eric (make-receptor ident-def r {:attributes {:name "Eric"}})
         house (make-receptor ident-def r {:attributes {:name "my-house"}})
         channel-address (s-> matrice->make-channel r
