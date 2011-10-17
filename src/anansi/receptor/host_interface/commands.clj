@@ -24,11 +24,11 @@
             :result (str "Unknown command: '" command "'")
             :comment  "Try 'help' for a list of commands."}
            (let [r (command-function host iface params)]
-;;             (prn "RESULT OF COMMAND WAS:" r)
+;             (prn "RESULT OF COMMAND WAS:" r)
              {:status :ok
               :result r})))
        (catch Exception e
-;;         (.printStackTrace e *err*)
+         (.printStackTrace e *err*)
          {:status :error
           :result (.getMessage e)})))
 
