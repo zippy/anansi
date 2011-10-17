@@ -28,6 +28,20 @@ div#everything {
 div#flow-panel {
   border-bottom: 1px solid #369;
 }
+
+#header {
+   clear:both;
+   float:left;
+   width:100%;
+}
+.top-right-controls {
+   float:right;
+}
+
+
+
+/* --------------- stream styles ---------------*/
+
 .stream-control {
    float: right;
 }
@@ -42,15 +56,27 @@ img.twitter-avatar {
    height: 20px;
 }
 
-#header {
-   clear:both;
-   float:left;
-   width:100%;
+.droplet-preivews {
 }
-.top-right-controls {
-   float:right;
+.droplet-preview {
+   border-bottom: 1px solid #ddd;
+   padding-bottom: 2px;
+   margin-top: 2px;
 }
-
+.preview-sent {
+  position: relative;
+  display: inline-block;
+   width: 100px;
+}
+.preview-from {
+  position: relative;
+  display: inline-block;
+   width: 200px;
+}
+.preview-groove-specific {
+  position: relative;
+  display: inline-block;
+}
 
 /* --------------- scape styles ---------------*/
 

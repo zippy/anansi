@@ -70,14 +70,51 @@
         droplet-channel-scape (:values (:droplet-channel-scape scapes))
         ]
     (d/remove-children :stream-panel)
-        (d/append elem
+    (d/append elem
               (d/build [:div.stream-control
                         (ui/make-button "Create Droplet" droplet/create)
                         (ui/make-button "Refresh" refresh-fun)
                         ])
-              (d/build [:h3 (str "stream: " (count droplet-channel-scape) " of " (:receptor-total s))]))
+              (d/build [:h3 (str "stream: " (count droplet-channel-scape) " of " (:receptor-total s))])
+              (d/build (apply conj [:div.droplet-previews] (map (fn [da] (render-preview (keyword da) droplet-channel-scape s)) (:receptor-order s)))))
 
-    (ui/make-zips (map (fn [da]
+        ))
+
+(defn render-preview [droplet-address droplet-channel-scape s]
+  (let [d ((:receptors s) droplet-address)
+        channel-address (droplet-channel-scape droplet-address)
+        channel-name (ssu/get-channel-name-from-address channel-address)
+        channel-type (ssu/get-channel-type channel-address)
+        channel-icon (ssu/channel-icon-html channel-name channel-type)
+        sent (droplet-date s d :delivery-scape)
+        from (resolve-ident s (:from d))
+        ]
+    [:div.droplet-preview
+     (d/html channel-icon)
+     [:div.preview-sent sent]
+     [:div.preview-from from]
+     [:div.preview-groove-specific (groove-preview d channel-type s)]
+     ]))
+
+;;TODO: groove droplets should be auto-detected by some appropriate
+;;programmatic method, not by channel-type!
+(defn groove-preview [d channel-type s]
+
+  (let [sbmg (:subject-body-message s/*grooves*)
+        smg (:simple-message s/*grooves*)
+        groove (condp = channel-type
+            :streamscapes sbmg
+            :email sbmg
+            :twitter smg
+            :irc smg)]
+    (if (= groove sbmg)
+      (str " Subject:" (:subject (:content d)))
+      (str " : " (if (nil? (:text (:content d))) (:message (:content d)) (:text (:content d))))
+      )
+    )
+  )
+
+(comment ui/make-zips (map (fn [da]
                         (let [d-addr (keyword da)
                               d ((:receptors s) d-addr)
                               channel-address (droplet-channel-scape d-addr)
@@ -97,9 +134,7 @@
                               {:title (str "Via:" (name channel) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-ident s (:from d)))
                                :content (d/build [:div [:div#default-droplet (u/clj->json (:content d)) ]]) }
                               ))) (:receptor-order s))
-                 elem)))
-
-
+                 elem)
 ;; Actions
 
 (defn categorize [droplet-address scape-name]
