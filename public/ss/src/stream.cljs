@@ -86,16 +86,15 @@
         ]
     (d/build [:div (d/html (get-html-from-body body content-type))])))
 
-(defn render-full [d channel-type s]
-  (let [[groove sbmg smg] (get-droplet-groove d channel-type)
-        x [ [:h3 (str channel-type " droplet")]]
-        body (if (= groove sbmg)
-               (get-sbmg-body d)
-               (d/build [:div "message body"]))] ; (if (nil? (:text (:content d))) (:message (:content d)) (:text (:content d)))
+(defn render-full
+  "renders the full droplet by pulling out the parts of the droplet that are specified by the groove grammar"
+  [d channel-type s]
+  (let [grammar (get-droplet-grammar d channel-type s)
+        parts (map (fn [[part _]] [:div.part [:h4 (name part)]
+                                  (d/html (get-html-from-body (part (:content d)) (part (:envelope d))))]) grammar)]
     (ui/modal-dialog "full-droplet"
-                     [ [:h3 (str (name channel-type) " droplet")]
-                       body
-                       ]
+                     (apply conj [[:h3 (str (name channel-type) " droplet")]]
+                            parts)
                      )))
 
 (defn render-preview [droplet-address droplet-channel-scape s]
@@ -115,21 +114,21 @@
        (ui/make-click-link "Open" (fn [] (render-full d channel-type s)))
        ]))
 
-(defn get-droplet-groove [d channel-type]
-  (let [sbmg (:subject-body-message s/*grooves*)
-        smg (:simple-message s/*grooves*)
-        groove (condp = channel-type
-            :streamscapes sbmg
-            :email sbmg
-            :twitter smg
-            :irc smg)]
-    [groove sbmg smg]))
+(defn get-droplet-grammar [d channel-type s]
+  (let [groove-name ;((:address d) (:values (:droplet-groove (:scapes
+                                        ;s))))
+        (condp = channel-type
+            :streamscapes :subject-body-message
+            :email :subject-body-message
+            :twitter :simple-message
+            :irc :simple-message)]
+    (channel-type (groove-name s/*grooves*))))
 
 ;;TODO: groove droplets should be auto-detected by some appropriate
 ;;programmatic method, not by channel-type!
 (defn groove-preview [d channel-type s]
-  (let [[groove sbmg smg] (get-droplet-groove d channel-type)]
-    (if (= groove sbmg)
+  (let [grammar (get-droplet-grammar d channel-type s)]
+    (if (contains? grammar :subject)
       (str " Subject:" (:subject (:content d)))
       (str " : " (if (nil? (:text (:content d))) (:message (:content d)) (:text (:content d)))))))
 
