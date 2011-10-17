@@ -80,26 +80,42 @@
 
         ))
 
-(defn render-preview [droplet-address droplet-channel-scape s]
-  (let [d ((:receptors s) droplet-address)
-        channel-address (droplet-channel-scape droplet-address)
-        channel-name (ssu/get-channel-name-from-address channel-address)
-        channel-type (ssu/get-channel-type channel-address)
-        channel-icon (ssu/channel-icon-html channel-name channel-type)
-        sent (droplet-date s d :delivery-scape)
-        from (resolve-ident s (:from d))
+(defn get-sbmg-body [d]
+  (let [body (:body (:content d))
+        content-type (:body (:envelope d))
         ]
-    [:div.droplet-preview
-     (d/html channel-icon)
-     [:div.preview-sent sent]
-     [:div.preview-from from]
-     [:div.preview-groove-specific (groove-preview d channel-type s)]
-     ]))
+    (d/build [:div (d/html (get-html-from-body body content-type))])))
 
-;;TODO: groove droplets should be auto-detected by some appropriate
-;;programmatic method, not by channel-type!
-(defn groove-preview [d channel-type s]
+(defn render-full [d channel-type s]
+  (let [[groove sbmg smg] (get-droplet-groove d channel-type)
+        x [ [:h3 (str channel-type " droplet")]]
+        body (if (= groove sbmg)
+               (get-sbmg-body d)
+               (d/build [:div (if (nil? (:text (:content d))) (:message (:content d)) (:text (:content d)))]))]
+    (ui/modal-dialog "full-droplet"
+                     [ [:h3 (str (name channel-type) " droplet")]
+                       body
+                       ]
+                     )))
 
+(defn render-preview [droplet-address droplet-channel-scape s]
+    (let [d ((:receptors s) droplet-address)
+          channel-address (droplet-channel-scape droplet-address)
+          channel-name (ssu/get-channel-name-from-address channel-address)
+          channel-type (ssu/get-channel-type channel-address)
+          channel-icon (ssu/channel-icon-html channel-name channel-type)
+          sent (droplet-date s d :delivery-scape)
+          from (resolve-ident s (:from d))
+          ]
+      [:div.droplet-preview
+       (d/html channel-icon)
+       [:div.preview-sent sent]
+       [:div.preview-from from]
+       [:div.preview-groove-specific (groove-preview d channel-type s)]
+       (ui/make-click-link "Open" (fn [] (render-full d channel-type s)))
+       ]))
+
+(defn get-droplet-groove [d channel-type]
   (let [sbmg (:subject-body-message s/*grooves*)
         smg (:simple-message s/*grooves*)
         groove (condp = channel-type
@@ -107,12 +123,15 @@
             :email sbmg
             :twitter smg
             :irc smg)]
+    [groove sbmg smg]))
+
+;;TODO: groove droplets should be auto-detected by some appropriate
+;;programmatic method, not by channel-type!
+(defn groove-preview [d channel-type s]
+  (let [[groove sbmg smg] (get-droplet-groove d channel-type)]
     (if (= groove sbmg)
       (str " Subject:" (:subject (:content d)))
-      (str " : " (if (nil? (:text (:content d))) (:message (:content d)) (:text (:content d))))
-      )
-    )
-  )
+      (str " : " (if (nil? (:text (:content d))) (:message (:content d)) (:text (:content d)))))))
 
 (comment ui/make-zips (map (fn [da]
                         (let [d-addr (keyword da)

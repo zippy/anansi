@@ -80,6 +80,14 @@
         (goog.events.listen button-elem goog.events.EventType.CLICK click-fun)
         (if return-both [button button-elem] button-elem))))
 
+(defn make-click-link
+  [text click-fun]
+  (let [link-elem (d/build [:a {:href "#"} text])]
+    (goog.events.listen link-elem goog.events.EventType.CLICK click-fun)
+    link-elem
+    )
+  )
+
 (defn make-select [elem-id caption options select-fun]
   (let [select (goog.ui.Select. caption)
         select-elem (d/element (keyword (str "span#" elem-id)))]
