@@ -21,6 +21,19 @@
 (defn get-deliverer-bridge [_r]
   (get-channel-receptor _r :deliverer))
 
+(defn match-grooves
+  "run through the defined groves and create scape entries for all grooves that match this droplet"
+  [_r ss droplet-address envelope content]
+  (let [grooves (get-scape (parent-of ss) :groove)
+        all (s-> query->all grooves)
+        ]
+    (doseq [[groove-name groove-address] all]
+      (s-> key->set (get-scape ss :subject-body-message-groove true) droplet-address true)
+;;      (--> match->droplet _r (get-receptor ss groove-address) droplet-address)
+      )
+    )
+  )
+
 (defn get-receiver-bridge [_r]
   (get-channel-receptor _r :receiver))
 
@@ -44,6 +57,7 @@
                      ]
                  (--> key->set _r receipts (str (now)) droplet-address)
                  (--> key->set _r deliveries (if (nil? sent) (str (now)) sent) droplet-address)
+                 (match-grooves _r ss droplet-address envelope content)
                  droplet-address)))
 
 ; the send signal calls the deliverer bridge to deliver a droplet

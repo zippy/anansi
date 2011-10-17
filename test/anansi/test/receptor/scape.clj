@@ -59,7 +59,9 @@
       (let [m (make-scapes r {:x :y} :a :b)]
         (is (= #{:x :a-scape :b-scape :scapes-scape} (into #{} (keys m))))
         (is ()))
-      )))
+      )
+  
+    ))
 
 (facts "about creating scapes during manifestion"
   (let [r (make-receptor t-def nil {})
@@ -92,3 +94,10 @@
     (sort-by-scape r [0 1 2 7 8 9] false :descending) => [9 0 1 2 7 8]
     )
   )
+
+(facts "about query aspect"
+  (let [r (make-receptor scape-def nil :address :value)]
+    (s-> key->set r :a 1)
+    (s-> key->set r :b 2)
+    (s-> query->all r) => [[:a 1] [:b 2]]
+    ))

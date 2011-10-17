@@ -31,6 +31,9 @@
                               r))
                    ))
 
+(signal query all [_r _f]
+        (into [] (map (fn [[k v]] [k v]) @(contents _r :map))))
+
 ;; Signals on the key aspect
 (signal key set [_r _f key value]
         (rsync _r (alter (contents _r :map) assoc key value)))

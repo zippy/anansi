@@ -4,7 +4,8 @@
   (:use [anansi.ceptr]
         [anansi.streamscapes.streamscapes]
         [anansi.receptor.scape]
-        [anansi.receptor.user :only [user-def]])
+        [anansi.receptor.user :only [user-def]]
+        [anansi.receptor.host :only [host-def]])
   (:use [midje.sweet])
   (:use [clojure.test])
   (:use [clj-time.core :only [now]]))
@@ -18,7 +19,8 @@
 
 (deftest channel
   (let [m (make-receptor user-def nil "eric")
-        r (make-receptor streamscapes-def nil {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
+        h (make-receptor host-def nil {})
+        r (make-receptor streamscapes-def h {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
         cc-addr (s-> matrice->make-channel r {:name :email-stream})
         cc (get-receptor r cc-addr)]
     (fact (receptor-state cc false) => (contains {:name :email-stream
@@ -39,6 +41,8 @@
           )
         (let [[time] (s-> address->resolve deliveries droplet-address)]
           (facts time => sent-date))
+
+        (fact (s-> key->resolve (get-scape r :subject-body-message-groove) droplet-address) => true)
 
         (is (= "from-addr"  (contents d :from) ))
         (is (= "some-id"  (contents d :id) ))
