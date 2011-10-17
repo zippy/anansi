@@ -8,7 +8,7 @@
             [ss.utils :as u]
             ))
 
-(def ceptr-url (goog.Uri. "http://localhost:8080/api"))
+(def ceptr-url (goog.Uri. "/api"))
 
 (defn command
   "Send command to a ceptr host via it's http interface"
