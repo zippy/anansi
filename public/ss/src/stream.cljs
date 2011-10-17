@@ -114,15 +114,18 @@
        (ui/make-click-link "Open" (fn [] (render-full d channel-type s)))
        ]))
 
-(defn get-droplet-grammar [d channel-type s]
-  (let [groove-name ;((:address d) (:values (:droplet-groove (:scapes
-                                        ;s))))
-        (condp = channel-type
+
+
+(comment condp = channel-type
             :streamscapes :subject-body-message
             :email :subject-body-message
             :twitter :simple-message
-            :irc :simple-message)]
-    (channel-type (groove-name s/*grooves*))))
+            :irc :simple-message)
+(defn get-droplet-grammar [d channel-type s]
+  (let [dg (:values (:droplet-grooves-scape (:scapes s)))
+        groove-name (first ((keyword (str (:address d))) dg ))
+        ]
+    (channel-type ((keyword groove-name) s/*grooves*))))
 
 ;;TODO: groove droplets should be auto-detected by some appropriate
 ;;programmatic method, not by channel-type!

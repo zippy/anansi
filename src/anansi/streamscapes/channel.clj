@@ -24,7 +24,7 @@
 (defn grammar-match? [grammar envelope content]
   (if (nil? grammar)
     false
-    (every? (fn [[k v]] (= (k envelope) v)) grammar)))
+    (clojure.set/subset? (set (keys grammar)) (set (keys envelope)))))
 
 (defn match-grooves
   "run through the defined grooves and create scape entries for all grooves that match this droplet"

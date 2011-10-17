@@ -5,7 +5,8 @@
         [anansi.streamscapes.streamscapes]
         [anansi.streamscapes.channel :only [channel-def]]
         [anansi.streamscapes.ident :only [ident-def]]
-        [anansi.receptor.user :only [user-def]])
+        [anansi.receptor.user :only [user-def]]
+        [anansi.receptor.host :only [host-def]])
   (:use [midje.sweet])
   (:use [clojure.test])
   (:use [clj-time.core :only [date-time]]))
@@ -26,12 +27,14 @@
 
 (deftest email-bridge-in
   (let [m (make-receptor user-def nil "eric")
-        r (make-receptor streamscapes-def nil {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
+        h (make-receptor host-def nil {})
+        r (make-receptor streamscapes-def h {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
         eric (make-receptor ident-def r {:attributes {:name "Eric"}})
         cc-addr (s-> matrice->make-channel r {:name :email-stream})
         cc (get-receptor r cc-addr)
         b (make-receptor email-bridge-in-def cc {:attributes {:host "mail.example.com" :account "someuser" :password "pass" :protocol "pop3"}})
         email-idents (get-scape r :email-ident true)]
+    (--> key->set r (get-scape r :channel-type) cc-addr :email)
     (--> key->set b email-idents "eric@example.com" (address-of eric))
 
     (fact
@@ -63,11 +66,12 @@
         (is (= {:from "rfc-822-email" :subject "text/plain" :body "text/plain"} (contents d :envelope)))
         (is (= {:from "test@example.com" :subject "Hi there!" :body "<b>Hello world!</b>"} (contents d :content)))
         (is (= droplet-address (handle-message b message)))
+        (fact (s-> key->resolve (get-scape r :droplet-grooves) droplet-address) => [:subject-body-message])
         (let [[time] (s-> address->resolve deliveries droplet-address)]
           (fact (str sent-date) => time)
           )
         )
       )
-    (fact (:scapes (receptor-state r false)) => (contains {:email-ident-scape {:values {"eric@example.com" 8, "test@example.com" 12}, :relationship {:key nil, :address nil}}, :ident-name-scape {:values {8 "name for (\"eric@example.com\")", 12 "Joe Blow"}, :relationship {:key :ident-address, :address :name-attribute}}}))
+    (fact (:scapes (receptor-state r false)) => (contains {:email-ident-scape {:values {"eric@example.com" 10, "test@example.com" 14}, :relationship {:key nil, :address nil}}, :ident-name-scape {:values {10 "name for (\"eric@example.com\")", 14 "Joe Blow"}, :relationship {:key :ident-address, :address :name-attribute}}}))
     )
 )
