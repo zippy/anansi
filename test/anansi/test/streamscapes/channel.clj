@@ -17,6 +17,11 @@
 (signal channel deliver [_r _f {droplet-address :droplet-address error :error}]  ;; use the error param to simulate errors or not
         error)
 
+(facts "about grammar-match?"
+  (grammar-match? {:subject "text/plain" :body "text/html"} {:subject "text/plain" :body "text/html"} {}) => true
+  (grammar-match? {:subject "text/plain" :body "text/html"} {:message "text/plain"} {}) => false
+  )
+
 (deftest channel
   (let [m (make-receptor user-def nil "eric")
         h (make-receptor host-def nil {})
@@ -29,11 +34,14 @@
                                                   }))
 
     (testing "receive"
+      (--> key->set r (get-scape r :channel-type) cc-addr :email)
       (let [sent-date (str (now))
             droplet-address (s-> stream->receive cc {:id "some-id" :to "to-addr" :from "from-addr" :sent sent-date :envelope {:from "rfc-822-email" :subject "text/plain" :body "text/html"} :content {:from "test@example.com" :subject "Hi there!" :body "<b>Hello world!</b>"}})
+            droplet2-address (s-> stream->receive cc {:id "some-id" :to "to-addr" :from "from-addr" :sent (str (now)) :envelope { :message "text/plain"} :content {:from "test@example.com" :message "Hello world!"}})
             d (get-receptor r droplet-address)
             receipts (get-scape r :receipt)
             deliveries (get-scape r :delivery)]
+
         (fact (receptor-state d true) => (contains {:id "some-id", :envelope {:from "rfc-822-email", :subject "text/plain", :body "text/html"}, :channel :email-stream, :content {:from "test@example.com", :subject "Hi there!", :body "<b>Hello world!</b>"}, :to "to-addr", :from "from-addr", :fingerprint :anansi.streamscapes.droplet.droplet}))
         (let [[time] (s-> address->resolve receipts droplet-address)]
           (fact (= time sent-date) => false)
@@ -42,7 +50,11 @@
         (let [[time] (s-> address->resolve deliveries droplet-address)]
           (facts time => sent-date))
 
+
         (fact (s-> key->resolve (get-scape r :subject-body-message-groove) droplet-address) => true)
+        (fact (s-> key->resolve (get-scape r :subject-body-message-groove) droplet2-address) => false)
+        (fact (s-> key->resolve (get-scape r :simple-message-groove) droplet-address) => false)
+        (fact (s-> key->resolve (get-scape r :simple-message-groove) droplet2-address) => false)
 
         (is (= "from-addr"  (contents d :from) ))
         (is (= "some-id"  (contents d :id) ))
@@ -53,7 +65,7 @@
 
     (testing "send"
       (let [b (make-receptor (receptor-def "test-send-bridge-email") cc {})
-            
+
             _ (s-> key->set (get-scape cc :deliverer) :deliverer [(address-of b) channel->deliver])
             i-to (s-> matrice->identify r {:identifiers {:email "eric@example.com"} :attributes {:name "Eric"}})
             i-from (s-> matrice->identify r {:identifiers {:email "me@example.com"} :attributes {:name "Me"}})
@@ -67,7 +79,7 @@
         (let [[time] (s-> address->resolve deliveries droplet-address)]
           (is (= (subs (str (now)) 0 19) (subs time 0 19))) ; hack off the milliseconds
           )))
-    
+
     (facts "about restoring serialized channel receptor"
       (let [channel-state (receptor-state cc true)]
         channel-state => (receptor-state (receptor-restore channel-state nil) true)

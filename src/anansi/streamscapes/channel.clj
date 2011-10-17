@@ -21,18 +21,24 @@
 (defn get-deliverer-bridge [_r]
   (get-channel-receptor _r :deliverer))
 
+(defn grammar-match? [grammar envelope content]
+  (if (nil? grammar)
+    false
+    (every? (fn [[k v]] (= (k envelope) v)) grammar)))
+
 (defn match-grooves
   "run through the defined groves and create scape entries for all grooves that match this droplet"
   [_r ss droplet-address envelope content]
-  (let [grooves (get-scape (parent-of ss) :groove)
+  (let [host (parent-of ss)
+        grooves (get-scape host :groove)
         all (s-> query->all grooves)
+        channel-type (--> key->resolve _r (get-scape ss :channel-type) (address-of _r))
         ]
     (doseq [[groove-name groove-address] all]
-      (s-> key->set (get-scape ss :subject-body-message-groove true) droplet-address true)
-;;      (--> match->droplet _r (get-receptor ss groove-address) droplet-address)
-      )
-    )
-  )
+      (let [grammar (channel-type (contents (get-receptor host groove-address) :grammars))
+            scape-name (keyword (str (name groove-name) "-groove"))
+            groove-scape (get-scape ss scape-name true)]
+        (s-> key->set groove-scape droplet-address (grammar-match? grammar envelope content))))))
 
 (defn get-receiver-bridge [_r]
   (get-channel-receptor _r :receiver))

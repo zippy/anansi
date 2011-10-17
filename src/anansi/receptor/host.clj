@@ -28,10 +28,8 @@
                                                                                                    :email {:subject "text/plain" :body "text/html"}}}})]
                                   (--> key->set _r grooves :subject-body-message (address-of groove)))
                                 (let [groove (make-receptor groove-def _r {:attributes {:grammars {:streamscapes {:message "text/plain"}
-                                                                                                   :irc {:message "text/plain"}
-                                                                                                   :email {:subject "text/plain"}}}})]
+                                                                                                   :irc {:message "text/plain"}}}})]
                                   (--> key->set _r grooves :simple-message (address-of groove))))
-                            
                               ))))
                ))
 
