@@ -36,7 +36,7 @@
         matched-grooves (into [] (keep identity (map (fn [[groove-name groove-address]]
                                                      (let [grammar (channel-type (contents (get-receptor host groove-address) :grammars ))
                                                            scape-name (keyword (str (name groove-name) "-groove"))
-                                                           groove-scape (get-scape ss scape-name true)
+                                                           groove-scape (get-scape ss scape-name {:key "droplet-address" :address "boolean"})
                                                            grammar-match (grammar-match? grammar envelope content)
                                                            ]
                                                        (s-> key->set groove-scape droplet-address grammar-match)

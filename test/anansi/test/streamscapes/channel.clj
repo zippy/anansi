@@ -51,12 +51,16 @@
           (facts time => sent-date))
 
 
-        (fact (s-> key->resolve (get-scape r :subject-body-message-groove) droplet-address) => true)
-        (fact (s-> key->resolve (get-scape r :droplet-grooves) droplet-address) => [:subject-body-message])
+        (facts "about groove matching on receive"
+          (s-> key->resolve (get-scape r :subject-body-message-groove) droplet-address) => true
+          (s-> key->resolve (get-scape r :droplet-grooves) droplet-address) => [:subject-body-message]
 
-        (fact (s-> key->resolve (get-scape r :subject-body-message-groove) droplet2-address) => false)
-        (fact (s-> key->resolve (get-scape r :simple-message-groove) droplet-address) => false)
-        (fact (s-> key->resolve (get-scape r :simple-message-groove) droplet2-address) => false)
+          (s-> key->resolve (get-scape r :subject-body-message-groove) droplet2-address) => false
+          (s-> key->resolve (get-scape r :simple-message-groove) droplet-address) => false
+          (s-> key->resolve (get-scape r :simple-message-groove) droplet2-address) => false
+          (scape-relationship (get-scape r :subject-body-message-groove) :key) => "droplet-address"
+          (scape-relationship (get-scape r :subject-body-message-groove) :address) => "boolean")
+
 
         (is (= "from-addr"  (contents d :from) ))
         (is (= "some-id"  (contents d :id) ))
