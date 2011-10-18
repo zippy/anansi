@@ -34,7 +34,7 @@
            {:status :ok
             :result (apply command-function args )}))
        (catch Exception e
-         (.printStackTrace e *err*)
+;         (.printStackTrace e *err*)
          {:status :error
           :result (str "exception raised: " e)})))
 

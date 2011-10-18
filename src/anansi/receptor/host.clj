@@ -63,15 +63,16 @@
 ;; TODO make this an generalized receptor host
 ;; (defmacro make-receptor [n p & a] `(receptor :~(symbol (str (name n))) ~p ~@a))
 ;; (defn do-make-receptor [n p & a] (receptor :'(symbol (str (name n))) p a))
-(signal self host-room [_r _f {receptor-name :name password :password matrice-address :matrice-address data :data}]
-        (rsync _r
-               (let [names (get-scape _r :room)
-                     creators (get-scape _r :creator)
-                     r (receptor :commons-room _r matrice-address password data) ;;(make-receptor type _r args)
-                     addr (address-of r)]
-                 (--> key->set _r names receptor-name addr)
-                 (--> key->set _r creators addr _f)
-                 addr)))
+;(signal self host-room [_r _f {receptor-name :name password :password matrice-address :matrice-address data :data}]
+;        (rsync _r
+;               (let [names (get-scape _r :room)
+;                     creators (get-scape _r :creator)
+;                     r (receptor :commons-room _r matrice-address password data) ;;(make-receptor type _r args)
+;                     addr (address-of r)]
+;                 (--> key->set _r names receptor-name addr)
+;                 (--> key->set _r creators addr _f)
+;                 addr)))
+
 (signal self host-streamscape [_r _f {receptor-name :name password :password matrice-address :matrice-address data :data}]
         (rsync _r
                (let [names (get-scape _r :stream)

@@ -53,7 +53,12 @@ div#everything {
 }
 
 #header #logged-in-as {
+  padding-top: 0px;
+  vertical-align: bottom;
+  padding-bottom: 6px;
+  padding-right: 8px;
   display: inline-block;
+  color: #222;
   font-size: 15px;
 }
 
@@ -152,7 +157,7 @@ div#everything {
 /* ------------- stream flow styles ------------ */
 
 div#flow-panel, div#stream-control {
-  padding: 14px 16px 2px 8px;
+  padding: 14px 16px 4px 16px;
   position: relative;
 }
 
@@ -175,7 +180,6 @@ div#stream-control {
 }
 
 div#droplet-panel {
-  border-top: 1px solid #ddd;
   clear: both;
 }
 
@@ -205,6 +209,8 @@ div#droplet-panel {
 .droplet-type-icon {
   width: 20px;
   height: 20px;
+  margin-bottom: -2px;
+  padding-top: 1px;
 }
 
 
@@ -217,28 +223,35 @@ img.twitter-avatar {
 }
 
 .droplet-preview {
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 2px;
-  margin-top: 2px;
+  margin: 0 16px 0 16px;
+  border-top: 1px solid #DDD;
+  padding-top: 2px;
+}
+
+.droplet-preview > div, .droplet-preview > a {
+  vertical-align: top;
+  padding-top: 4px;
+  padding-bottom: 3px;
+  position: relative;
+  display: inline-block;
 }
 
 .preview-sent {
-  position: relative;
-  display: inline-block;
-  width: 100px;
+  width: 120px;
 }
 
 .preview-from {
-  position: relative;
-  display: inline-block;
-  width: 200px;
+  width: 160px;
+  padding-left: 4px;
+
 }
 
 .preview-groove-specific {
-  position: relative;
-  display: inline-block;
 }
 
+.droplet-preview a {
+  float:right;
+}
 /*--------------- dialog styles ---------------*/
 
 #modalmask {

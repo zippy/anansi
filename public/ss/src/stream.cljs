@@ -41,27 +41,6 @@
       body
       (str "<pre>" body "</pre>"))))
 
-(defn zip-for-email-droplet [s d-addr channel]
-  (let [d ((:receptors s) d-addr)
-        body (:body (:content d))
-        content-type (:body (:envelope d))
-        html (d/build [:div (d/html (get-html-from-body body content-type))])
-        ]
-    (ui/make-zips [{:title "Raw" :content (u/clj->json body)}] html)
-    {:title (str (ssu/channel-icon-html channel :email) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-ident s (:from d)) " Subject: " (:subject (:content d)))
-     :content (d/build [:div [:div#html html]])}))
-
-(defn zip-for-streamscapes-droplet [s d-addr channel]
-  (let [d ((:receptors s) d-addr)
-        body (:body (:content d))
-        subject (:subject (:content d))
-        message (:message (:content d))
-        channel-type :streamscapes
-        ]
-    {:title (str (ssu/channel-icon-html channel channel-type) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-ident s (:from d))
-                 (if (nil? subject) (str " : " message) (str " Subject: " subject)))
-     :content (if (nil? body) "No Body" body)}
-))
 
 (defn render [refresh-fun]
   (let [s s/*current-state*
@@ -113,13 +92,11 @@
           ]
       [:div.droplet-preview
        (d/html channel-icon)
-       [:div.preview-sent sent]
        [:div.preview-from from]
+       [:div.preview-sent sent]
        [:div.preview-groove-specific (groove-preview d channel-type s)]
        (ui/make-click-link "Open" (fn [] (render-full d channel-type s)))
        ]))
-
-
 
 (comment condp = channel-type
             :streamscapes :subject-body-message
@@ -136,31 +113,14 @@
 ;;programmatic method, not by channel-type!
 (defn groove-preview [d channel-type s]
   (let [grammar (get-droplet-grammar d channel-type s)]
-    (if (contains? grammar :subject)
-      (str " Subject:" (:subject (:content d)))
-      (str " : " (if (nil? (:text (:content d))) (:message (:content d)) (:text (:content d)))))))
+    (if (contains? grammar :subject )
+      (d/build
+        [:div.subject
+          (str (:subject (:content d)))])
+      [:div.content (str (if (nil? (:text (:content d)))
+                           (:message (:content d))
+                           (:text (:content d))))])))
 
-(comment ui/make-zips (map (fn [da]
-                        (let [d-addr (keyword da)
-                              d ((:receptors s) d-addr)
-                              channel-address (droplet-channel-scape d-addr)
-                              channel (ssu/get-channel-name-from-address channel-address)
-                              channel-type (ssu/get-channel-type channel-address)
-                              ccc (first (ssu/get-matching-scapes-by-relationship #"droplet-address" #"boolean"))
-                              ]
-
-                          (condp = channel-type
-                              :streamscapes (zip-for-streamscapes-droplet s d-addr channel)
-                              :email (zip-for-email-droplet s d-addr channel)
-                              :twitter {:title (d/html (str (ssu/channel-icon-html channel channel-type) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-twitter-avatar s (:from d)) (resolve-ident s (:from d)) " : " (:text (:content d))))
-                                        :content (d/build [:div [:div#default-droplet (u/clj->json (:content d)) ]
-                                                           (ui/make-button (str ccc) #(categorize da ccc))]) }
-                              :irc {:title (str (ssu/channel-icon-html channel channel-type) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-ident s (:from d)) " : " (:message (:content d)))
-                                    :content (d/build [:div [:div#default-droplet (u/clj->json (:content d)) ]]) }
-                              {:title (str "Via:" (name channel) " Sent: " (droplet-date s d :delivery-scape) " From: " (resolve-ident s (:from d)))
-                               :content (d/build [:div [:div#default-droplet (u/clj->json (:content d)) ]]) }
-                              ))) (:receptor-order s))
-                 elem)
 ;; Actions
 
 (defn categorize [droplet-address scape-name]

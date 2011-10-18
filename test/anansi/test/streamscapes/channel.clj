@@ -37,7 +37,7 @@
       (--> key->set r (get-scape r :channel-type) cc-addr :email)
       (let [sent-date (str (now))
             droplet-address (s-> stream->receive cc {:id "some-id" :to "to-addr" :from "from-addr" :sent sent-date :envelope {:from "rfc-822-email" :subject "text/plain" :body "text/html"} :content {:from "test@example.com" :subject "Hi there!" :body "<b>Hello world!</b>"}})
-            droplet2-address (s-> stream->receive cc {:id "some-id" :to "to-addr" :from "from-addr" :sent (str (now)) :envelope { :message "text/plain"} :content {:from "test@example.com" :message "Hello world!"}})
+            droplet2-address (s-> stream->receive cc {:id "some-other-id" :to "to-addr" :from "from-addr" :sent (str (now)) :envelope { :message "text/plain"} :content {:from "test@example.com" :message "Hello world!"}})
             d (get-receptor r droplet-address)
             receipts (get-scape r :receipt)
             deliveries (get-scape r :delivery)]

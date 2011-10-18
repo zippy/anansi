@@ -104,11 +104,12 @@
   (testing "animate"
     (is (= true (contents r :animated)))
     )
-  (testing "search receptors"
-    (let [a (receptor :a r)
-          b (receptor :b r)
-          b1 (receptor :b r)]
-      (is (= a (first (find-receptors r (fn [_r] (= :a (:type @_r))))))))))
+;  (testing "search receptors"
+;    (let [a (receptor :a r)
+;          b (receptor :b r)
+;          b1 (receptor :b r)]
+;      (is (= a (first (find-receptors r (fn [_r] (= :a (:type @_r)))))))))
+  )
 
 (def r2 (receptor-def "r2" (attributes :data :_password)))
 (facts "about receptors with private attributes"

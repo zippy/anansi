@@ -352,7 +352,7 @@ assumes that the scape has receptor addresses in the value of the map, unless fl
     r)
   )
 
-(defmethod restore :default [state parent] (do-restore state parent nil) )
+(defmethod restore :default [state parent] (do-restore state parent nil))
 (defn receptor-restore [state parent]
   (let [r-def (get-receptor-definition (:fingerprint state))]
     ((:restore r-def) state parent r-def)))
