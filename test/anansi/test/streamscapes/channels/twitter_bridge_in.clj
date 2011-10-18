@@ -3,6 +3,7 @@
   (:use [anansi.ceptr]
         [anansi.receptor.scape]
         [anansi.receptor.user :only [user-def]]
+        [anansi.receptor.host :only [host-def]]
         [anansi.streamscapes.streamscapes]
         [anansi.streamscapes.channel :only [channel-def]]
         [anansi.streamscapes.ident :only [ident-def]])
@@ -10,14 +11,16 @@
   (:use [clojure.test]))
 
 (deftest twitter-bridge-in
-  (let [m (make-receptor user-def nil "eric")
-        r (make-receptor streamscapes-def nil {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
+  (let [h (make-receptor host-def nil {})
+        m (make-receptor user-def h "eric")
+        r (make-receptor streamscapes-def h {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
         eric (make-receptor ident-def r {:attributes {:name "Eric"}})
         twp (make-receptor ident-def r {:attributes {:name "Twitter Public"}})
         cc-addr (s-> matrice->make-channel r {:name :twitter-stream})
         cc (get-receptor r cc-addr)
         b (make-receptor twitter-bridge-in-def cc {})
         twitter-idents (get-scape r :twitter-ident true)]
+    (--> key->set r (get-scape r :channel-type) cc-addr :twitter)
     (--> key->set b twitter-idents "@zippy314" (address-of eric))
     (--> key->set b twitter-idents "_twp_" (address-of twp))
 
@@ -44,6 +47,7 @@
           (contents d :to) => (s-> key->resolve twitter-idents "_twp_")
           (contents d :envelope) => {:from "twitter/screen_name" :text "text/plain"}
           (contents d :content) => {:from "zippy314" :text "Some short tweet"}
+          (s-> key->resolve (get-scape r :droplet-grooves) droplet-address) => [:simple-message]
           (let [[time] (s-> address->resolve deliveries droplet-address)]
             (fact "2011-10-04T03:21:40.000Z" => time)
             )
