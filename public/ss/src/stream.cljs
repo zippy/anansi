@@ -71,13 +71,18 @@
         ]
     (d/remove-children :stream-panel)
     (d/append elem
-              (d/build [:div.stream-control
+              (d/build [:div#stream-control
+                        [:div#buttons
                         (ui/make-button "Create Droplet" droplet/create)
                         (ui/make-button "Refresh" refresh-fun)
-                        ])
-              (d/build [:h3 (str "stream: " (count droplet-channel-scape) " of " (:receptor-total s))])
-              (d/build (apply conj [:div.droplet-previews] (map (fn [da] (render-preview (keyword da) droplet-channel-scape s)) (:receptor-order s)))))
-
+                        ]])
+              (d/build [:div#flow-panel
+                        [:div.count (str "stream: " (count droplet-channel-scape)
+                              " of " (:receptor-total s))]])
+              (d/build [:div#droplet-panel
+                  (apply conj [:div.droplet-previews]
+                    (map (fn [da] (render-preview (keyword da) droplet-channel-scape s))
+                      (:receptor-order s)))]))
         ))
 
 (defn get-sbmg-body [d]

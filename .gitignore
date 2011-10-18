@@ -13,6 +13,7 @@ anansi.iml
 htdocs
 public/test/out
 public/ss/out
+public/ss/ss.js
 checkouts
 anansi.ipr
 anansi.iws

@@ -3,7 +3,12 @@
    [clojure.browser.dom :as dom]
    [goog.ui.LabelInput :as LabelInput]
    [goog.editor.Field :as field]
-   [goog.ui.Button :as uibutton]
+   [goog.ui.Button :as uiButton]
+   [goog.ui.CustomButton :as uiCustomButton]
+   [goog.ui.ButtonRenderer :as uiButtonRenderer]
+   [goog.ui.FlatButtonRenderer :as uiFlatButtonRenderer]
+   [goog.ui.LinkButtonRenderer :as uiLinkButtonRenderer]
+   [goog.ui.CustomButtonRenderer :as uiCustomButtonRenderer]
    [goog.ui.Select :as uiselect]
    [goog.ui.Option :as uioption]
    [goog.ui.Component.EventType :as event-type]
@@ -70,10 +75,10 @@
   )
 
 (defn make-button
-  ([text click-fun]
+  ([text click-fun ]
      (make-button text click-fun false))
   ([text click-fun return-both]
-      (let [button (goog.ui.Button. text)
+      (let [button (goog.ui.Button. text (goog.ui.CustomButtonRenderer.getInstance))
             button-elem (d/element :span)
             ]
         (.render button button-elem)

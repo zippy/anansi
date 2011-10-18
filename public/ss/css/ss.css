@@ -7,222 +7,341 @@ See the COPYING file for details.
 /* */
 
 
+/*       light     dark  */
+/* blue #445F61  #134A4F */
+/* brown #886A47 #7C540E */
+/* green #7B9563 #688847 */
+
+
+/* --------------- Pagewide settings --------------- */
+
+
 @import url(common.css);
 
-
 html, body {
-   height: 100%;
-   display: block;
+  height: 100%;
+  display: block;
 }
 
 body {
-   background-color: #fff;
+  background-color: #fff;
 }
 
 div#everything {
-   min-height: 100%;
-   height: 100%;
-   display: block;
+  min-height: 100%;
+  height: 100%;
+  display: block;
 }
 
-div#flow-panel {
-  border-bottom: 1px solid #369;
-}
+
+/* -------------- header ----------------- */
+
 
 #header {
-   clear:both;
-   float:left;
-   width:100%;
+  clear: both;
+  float: left;
+  width: 100%;
+  border-bottom: 1px solid #ddd;
 }
+
+#header h3 {
+  padding: 8px 16px;
+  font-size: 25px;
+  color: #222;
+  font-weight: normal;
+  background: -webkit-gradient(linear, left top, left bottom, from(white), to(#f7f7f7));
+}
+
+#header #logged-in-as {
+  display: inline-block;
+  font-size: 15px;
+}
+
 .top-right-controls {
-   float:right;
+  float: right;
 }
+
+#header #header-top-right {
+  padding: 3px 16px 3px 12px;
+  border-left: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  -webkit-border-bottom-left-radius: 3px;
+  background: -webkit-gradient(linear, left top, left bottom, from(#eee), to(#ccc));
+  border-bottom-left-radius: 3px 3px;
+}
+
+
+/* --------------- 2 Column (left menu) settings --------------- */
+
+.colmask {
+  position: relative; /* This fixes the IE7 overflow hidden bug */
+  clear: both;
+  float: left;
+  width: 100%; /* width of whole page */
+  overflow: hidden; /* This chops off any overhanging divs */
+}
+
+.leftmenu {
+  border-right:  1px solid #ddd;
+}
+
+.leftmenu .colright {
+  float: left;
+  width: 200%;
+  position: relative;
+  left: 200px;
+  background: #fff;
+}
+
+.leftmenu .col1wrap {
+  float: right;
+  width: 50%;
+  position: relative;
+  right: 200px;
+  padding-bottom: 1em;
+}
+
+.leftmenu .col1 {
+  margin: 0 0 0 200px;
+  position: relative;
+  right: 100%;
+  overflow: hidden;
+}
+
+.leftmenu .col2 {
+  float: left;
+  width: 200px;
+  position: relative;
+  right: 200px;
+  border-right: 1px solid #ddd
+}
+
+
+/* --------------- scape styles ---------------*/
+
+#scape-panel {
+  margin-top: 8px;
+  margin-bottom: 32px;
+}
+
+#scape-panel .section h4 {
+  padding: 6px 16px;
+}
+
+#scape-panel .section h5 {
+  padding: 6px 16px;
+}
+
+#scape-panel .category {
+  margin-left: 10px;
+}
+
+#scape-panel .section p {
+  padding: 4px 16px;
+}
+
+
+#scape-panel .section > p > span {
+  vertical-align: top;
+  line-height: 20px;
+  padding-left: 3px;
+}
+
+
+
+/* ------------- stream flow styles ------------ */
+
+div#flow-panel, div#stream-control {
+  padding: 14px 16px 2px 8px;
+  position: relative;
+}
+
+
+div#flow-panel {
+  margin-right: 200px;
+}
+
+div#flow-panel .count {
+  color: #999;
+  padding-top: 12px;
+  vertical-align: text-bottom;
+  margin-right: 4px;
+}
+
+div#stream-control {
+  /*border-left:  1px solid #ddd;*/
+  float: right;
+  position: relative;
+}
+
+div#droplet-panel {
+  border-top: 1px solid #ddd;
+  clear: both;
+}
+
+/* ------------ authpane ------------------ */
+
+#authpane {
+  text-align: center;
+  padding: 100px 40px;
+  position: relative;
+  display: block;
+  clear:both;
+
+}
+
+#authpane h3 {
+  padding: 10px;
+}
+
+
+/* ------------- stream action styles ------------ */
 
 
 
 /* --------------- stream styles ---------------*/
 
-.stream-control {
-   float: right;
-}
 
 .droplet-type-icon {
-   width: 20px;
-   height: 20px;
+  width: 20px;
+  height: 20px;
 }
 
+
 img.twitter-avatar {
-   width: 20px;
-   height: 20px;
+  width: 20px;
+  height: 20px;
 }
 
 .droplet-preivews {
 }
+
 .droplet-preview {
-   border-bottom: 1px solid #ddd;
-   padding-bottom: 2px;
-   margin-top: 2px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 2px;
+  margin-top: 2px;
 }
+
 .preview-sent {
   position: relative;
   display: inline-block;
-   width: 100px;
+  width: 100px;
 }
+
 .preview-from {
   position: relative;
   display: inline-block;
-   width: 200px;
+  width: 200px;
 }
+
 .preview-groove-specific {
   position: relative;
   display: inline-block;
 }
 
-/* --------------- scape styles ---------------*/
-
-
-div.category, div.category p, div.section p {
-   margin-left: 10px;
-}
 /*--------------- dialog styles ---------------*/
 
-#modalmask {   
-   z-index: 10;
-   text-align: left;
+#modalmask {
+  z-index: 10;
+  text-align: left;
 }
 
 .standard-modal {
-   width: 75%;
-   height: 75%;
-   border: 2px solid #000;
-   background: #fff;
-   margin-left: auto;
-   margin-right: auto;
-   padding: 10px;
+  width: 75%;
+  height: 75%;
+  border: 2px solid #000;
+  background: #fff;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 10px;
 }
 
 #contacts {
-   overflow-x: hidden;
-   overflow-y: scroll;
+  overflow-x: hidden;
+  overflow-y: scroll;
 }
 
 #contacts span.address {
-   margin-right: 5px;
+  margin-right: 5px;
 }
 
 #contact-form {
-   border: 2px solid #000;
-   width: 50%;
-   margin-left: auto;
-   margin-right: auto;
-   padding: 10px;
-   margin-top: 20px;
+  border: 2px solid #000;
+  width: 50%;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 10px;
+  margin-top: 20px;
 }
 
 div#loading {
-   z-index:9999;
+  z-index: 9999;
 }
+
 .overlay-mask {
-   display:block;
-   
-    /*position it at the very top-left corner*/
-   position:absolute;
-   top:0;
-   left:0;
-   width:100%;
-   height:100%;
-   text-align:center;
+  display: block;
 
-   /* fallback */
-   background: rgb(0, 0, 0);
+  /*position it at the very top-left corner*/
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  text-align: center;
 
-    /*in supporting browsers, make it
-      a little transparent*/
-    background: rgba(200,200,200,.6);
-    /* For IE 5.5 - 7*/
-   filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000);
-   /* For IE 8*/
-   -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000)";
-   
-   border-top:1px solid #ddd;
-   border-bottom:1px solid #ddd;
+  /* fallback */
+  background: rgb(0, 0, 0);
 
-    /*set the padding, so that the content
-      of the div is centered vertically*/
-    padding-top:5%;
-  }
+  /*in supporting browsers, make it
+a little transparent*/
+  background: rgba(200, 200, 200, .6);
+  /* For IE 5.5 - 7*/
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = #99000000, endColorstr = #99000000);
+  /* For IE 8*/
+  -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000)";
 
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+
+  /*set the padding, so that the content
+of the div is centered vertically*/
+  padding-top: 5%;
+}
 
 /* contacts css */
 .contact {
-   padding: 0px;
-   clear: both;
+  padding: 0px;
+  clear: both;
 }
+
 .contact-name {
-   font-weight: bold;
+  font-weight: bold;
 }
 
 .channel {
-   margin: 0px;
-   padding: 0px;
-   margin-right: 4px;
-   margin-left: 4px;
+  margin: 0px;
+  padding: 0px;
+  margin-right: 4px;
+  margin-left: 4px;
 }
+
 .channel-addresses .channel {
-   float:left;
+  float: left;
 }
 
-
-/* column container */
-.colmask {
-   position:relative;	/* This fixes the IE7 overflow hidden bug */
-   clear:both;
-   float:left;
-   width:100%;			/* width of whole page */
-   overflow:hidden;		/* This chops off any overhanging divs */
-}
-/* common column settings */
-.colright,
-.colmid,
-.colleft {
-   float:left;
-   width:100%;
-   position:relative;
-}
-.col1,
-.col2,
-.col3 {
-   float:left;
-   position:relative;
-   padding:0 0 1em 0;
-   overflow:hidden;
-}
-/* 2 Column (left menu) settings */
-.leftmenu {
-   background:#fff;		/* right column background colour */
-}
-.leftmenu .colleft {
-   right:75%;			/* right column width */
-   background:#f4f4f4;	/* left column background colour */
-}
-.leftmenu .col1 {
-   width:71%;			/* right column content width */
-   left:102%;			/* 100% plus left column left padding */
-}
-.leftmenu .col2 {
-   width:21%;			/* left column content width (column width minus left and right padding) */
-   left:6%;			/* (right column left and right padding) plus (left column left padding) */
-}
-/* Footer styles */
+/* --------------- Footer styles --------------- */
 #footer {
-	clear:both;
-	float:left;
-	width:100%;
-	border-top:1px solid #000;
+  clear: both;
+  float: left;
+  width: 100%;
+  border-top: 1px solid #ddd;
+  background:  #eee;
 }
+
 #footer p {
-	padding:10px;
-	margin:0;
+  padding: 10px;
+  margin: 0;
+
 }
 
 .rbutton {
@@ -233,13 +352,30 @@ div#loading {
   margin: 2px;
 }
 
-div#controls {
- margin: 10px;
-clear: both;
- width: 90%;
+#footer-panel {
+  clear: both;
+  padding: 6px 16px;
+  color: #999;
+  font-style: italic;
+  text-align: center;
+  background: -webkit-gradient(linear, left top, left bottom, from(#f8f8f8), to(#eee));
 }
 
-/* Misc. styles used for logging and debugging. */
+#footer-panel a {
+  text-decoration: none;
+  color: #88c;
+}
+
+div#controls {
+  margin: 16px;
+}
+
+div#the-receptor {
+  margin:  16px;
+}
+
+
+/* ---------------  Misc. styles used for logging and debugging. --------------- */
 fieldset {
   padding: 4px 8px;
   margin-bottom: 1em;
@@ -263,18 +399,20 @@ label, input {
   border: 1px solid #369;
 }
 
-.goog-debug-panel .logdiv{
-   position: relative;
-   width: 100%;
-   height: auto;
-   border-bottom: dotted 1px;
+.goog-debug-panel .logdiv {
+  position: relative;
+  width: 100%;
+  height: auto;
+  border-bottom: dotted 1px;
 }
+
 .goog-debug-panel {
-   height: 300px; 
-   overflow: scroll;
-   overflow-x: scroll;
-   overflow-y: scroll;
+  height: 300px;
+  overflow: scroll;
+  overflow-x: scroll;
+  overflow-y: scroll;
 }
+
 .goog-debug-panel .logdiv .logmsg {
   font: normal 10px "Lucida Sans Typewriter", "Courier New", Courier, fixed;
 }

@@ -138,15 +138,15 @@ onto the linking value."
   )
 
 (defn render-scapes [s]
-  (let [elem (d/get-element :ss-panel)
+  (let [elem (d/get-element :scape-panel )
         scapes (:scapes s)
         ]
-    (d/remove-children :ss-panel)
+    (d/remove-children :scape-panel)
     (dom/append elem (d/build [:div
                                (make-scape-section "channels"
                                                    (map (fn [[cname caddr]]
                                                           (apply conj [:p] (let [type (ssu/get-channel-type caddr)]
-                                                                             (apply conj [(d/html (str (ssu/channel-icon-html cname type) (name cname)))]
+                                                                             (apply conj [(d/html (str (ssu/channel-icon-html cname type) "<span>" (name cname) "</span>"))]
                                                                                     (get-channel-buttons type cname)))))
                                                         (:values (:channel-scape scapes))))
                                (make-scape-section "groove scapes" (get-groove-scapes))

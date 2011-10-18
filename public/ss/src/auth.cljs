@@ -27,10 +27,10 @@
     (s/set-user-name user-name)
     (let [elem (d/get-element :header-top-right)]
       (d/append elem
-                (d/build [:div#logged-in-as (str "Logged in as: " user-name)] )
+                (d/build [:div#logged-in-as (str user-name)] )
                 (ui/make-button "Logout" do-logged-out)
                 (ui/make-button "Contacts" contact/open)
-                (ui/make-button "Compose" compose/open)
+                (ui/make-button "Setup" compose/open)
                 ))
     (d/hide :authpane)
     (d/show :container)

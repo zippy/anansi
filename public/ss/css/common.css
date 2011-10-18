@@ -19,7 +19,7 @@ body {
 /* Tested on IE 6 & 7, FF 1.5 & 2.0, Safari 2 & 3, Webkit, and Opera 9. */
 /**/
 
-/* Gecko hack; Pre-FF3 Gecko uses -moz-inline-box instead of inline-block. */
+/* Geck hack; Pre-FF3 Gecko uses -moz-inline-box instead of inline-block. */
 html>body .goog-inline-block {
   display: -moz-inline-box; /* This is ignored by FF3 and later*/
   display: inline-block; /* This is ignored by pre-FF3 Gecko */
