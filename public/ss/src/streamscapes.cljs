@@ -19,11 +19,11 @@
     (refresh-stream)))
 
 (defn refresh-stream
-  ([] (refresh-stream nil))
-  ([scape] (get-state (s/get-ss-addr) scape)))
+  ([] (refresh-stream nil nil))
+  ([scape value] (get-state (s/get-ss-addr) scape value)))
 
 (defn render-ss []
-  (stream/render #(refresh-stream nil))
+  (stream/render #(refresh-stream nil nil))
   (render-scapes s/*current-state*)
   )
 
@@ -46,10 +46,10 @@
 
 (defn get-state
   "get the state of a streamscapes receptor and render it, possibly limmiting the receptors returned to those in a given scape"
-  ([r] (get-state r nil))
-  ([r scape] 
+  ([r] (get-state r nil nil))
+  ([r scape value] 
      (let [q {:scape-order {:scape :delivery :limit 40 :descending true}}
-           query (if (nil? scape) q (assoc q :scape-query {:scape scape  :query ["=" true] :flip true}))]
+           query (if (nil? scape) q (assoc q :scape-query {:scape scape  :query ["=" value] :flip true}))]
        (ui/loading-start)
        (ceptr/command {:cmd "get-state" :params {:receptor r :query query}} gs-callback))))
 
@@ -106,20 +106,27 @@
   )
 
 (defn get-groove-scapes []
-  (map (fn [sn] [:p (ui/make-click-link (humanize-scape-name-for-list sn) #(refresh-stream (descapify sn)))]) (ssu/get-matching-scapes #"-groove-scape$"))
+  (map (fn [sn] [:p (ui/make-click-link (humanize-scape-name-for-list sn) #(refresh-stream (descapify sn) true))]) (ssu/get-matching-scapes #"-groove-scape$"))
   )
 
 (defn get-order-scapes []
   (map (fn [sn] [:p (humanize-scape-name-for-list sn)]) (ssu/get-matching-scapes-by-relationship-address #"droplet-address"))
   )
 
-(defn get-category-scapes []
+(defn get-category-scapes
+  "produces UI for filtering by categories that are defined by two scapes,
+one that maps names onto some linking value, an the other that maps droplet-addresses
+onto the linking value."
+  []
   ;; for now the categor-name-scapes are hard-coded, but later they will be
   ;; pulled dynamically from the scape definition (or from another scape!)
-  (let [category-name-scapes [:channel-scape]
+  (let [category-scapes [[:channel-scape :droplet-channel-scape]]
         scapes (:scapes s/*current-state*)
         ]
-    (map (fn [scape] (apply conj [:div.category [:h5 (humanize-scape-name-for-list scape)]] (map (fn [[k _]] [:p (name k)]) (:values (scape scapes)))) ) category-name-scapes)
+    (map (fn [[name-scape address-scape]]
+           (apply conj [:div.category [:h5 (humanize-scape-name-for-list name-scape)]]
+                  (map (fn [[cat-name v]] [:p (ui/make-click-link (name cat-name) #(refresh-stream (descapify address-scape) v))
+                                          ]) (:values (name-scape scapes)))) ) category-scapes)
     ))
  (comment let [key-scapes (ssu/get-matching-scapes-by-relationship-key #"droplet-address")
         scapes (:scapes s)]
