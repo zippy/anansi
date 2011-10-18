@@ -27,7 +27,14 @@
                                       (merge {:server nil} (extract-receptor-attributes-from-map _r attrs)))
                             (animate [_r reanimate]
                                      (let [auto-start (contents _r :auto-start)]
-                                       (if auto-start (s-> interface->start _r auto-start)))
+                                       (println "reanimate" reanimate)
+                                       (println "stateofArrr" (receptor-state _r true))
+
+                                       (println "auto-start" auto-start)
+                                       (if auto-start
+                                         (do
+                                           (println (str "Starting web interface on port " (:port auto-start)))
+                                           (s-> interface->start _r auto-start))))
                                      )))
 
 (defn welcome [request]

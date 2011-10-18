@@ -134,7 +134,6 @@
                                    )}
                'restore {:default `(fn [~'state ~'parent ~'r-def]
                                      (let [~'r (do-restore ~'state ~'parent ~'r-def)]
-                                       (doall (map (fn [~'a] (restore-content ~'r ~'a (~'a ~'state))) (:attributes ~'r-def)))
                                        ~'r))}})
 
 (defn merge-forms [& forms]
@@ -332,6 +331,7 @@ assumes that the scape has receptor addresses in the value of the map, unless fl
 (defn do-restore [state parent r-def]
   (let [r (ref {})
         rc (:receptors state)
+;        foo (prn "state-to be unserialized" state)
         sr (modify-vals (fn [s] (receptor-restore s r)) (filter (fn [[k v]] (not= k :last-address)) rc))
         sr1 (if (:last-address rc) (assoc sr :last-address (:last-address rc)) sr)
         c {}
@@ -348,6 +348,7 @@ assumes that the scape has receptor addresses in the value of the map, unless fl
               (if ss-addr (let [ss (get-receptor r ss-addr)]
                             (doseq [[k v]  @(contents ss :map)] (restore-content r k (get-receptor r v))) 
                             (restore-content r :scapes-scape ss)))))
+    (doall (map (fn [a] (restore-content r a (a state))) (:attributes r-def)))
     ((:animate r-def) r :reanimate)
     r)
   )
@@ -377,10 +378,8 @@ assumes that the scape has receptor addresses in the value of the map, unless fl
   (if (some #{*server-state-file-name*} (.list (java.io.File. ".")))
     (let [f (slurp *server-state-file-name*)]
       (if f
-        (rsync nil (alter *receptors* merge @(unserialize-receptors (with-in-str f (read)))))
-        )
-      )
-    ))
+        (do (rsync nil (alter *receptors* merge @(unserialize-receptors (with-in-str f (read)))))
+          true)))))
 
 (defn find-receptors [receptor f]
   "utility function to search the list of receptors by an arbitrary function"

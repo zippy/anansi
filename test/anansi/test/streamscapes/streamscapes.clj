@@ -217,7 +217,12 @@
 ;    (s-> matrice->control-channel r {:name :freenode :command :join :params {:channel "#ceptr"}}) => nil
 ;     (Thread/sleep 13000)
     )
-  
+
+  (facts "about restoring serialized receptor"
+    (let [state (receptor-state r true)]
+      state => (receptor-state (receptor-restore state nil) true)
+      ))
+
   )
 
 (facts "about grammar-match?"
@@ -243,3 +248,5 @@
 
 ;;  (grammar-match? {:subject "text/plain" :body [#"yo!"]} {:subject "text/plain" :body "text/plain"} {:subject "Hi there" :body "yo!"}) => true
   )
+
+

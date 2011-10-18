@@ -18,6 +18,7 @@
                       }
                      1000))
 
+
 (deftest http-interface
   
   (let [h (make-receptor host-def nil {})
@@ -62,6 +63,14 @@
         (fact (receptor-state asr false) => (contains {:auto-start {:port 12345}, :fingerprint :anansi.receptor.host-interface.http.http}))
         (is (thrown-with-msg? RuntimeException #"Server already started."
               (--> interface->start h asr {:port 12345})))
-        (--> interface->stop h asr))
+        (--> interface->stop h asr)
+        (facts "about restoring serialized receptor"
+          (let [state (receptor-state asr true)]
+;            (prn "state" state)
+;            (prn "restored state" (receptor-state (receptor-restore state nil) true))
+            state => (receptor-state (receptor-restore state nil) true)
+            ))
+
+        )
       )))
  
