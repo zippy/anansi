@@ -266,22 +266,22 @@
     false
     (every? (fn [[k sub-grammar]] (if (string? sub-grammar)
                          
-                         ;; if the grammar doesn't care about the content of the signal,
-                         ;; then we have a match if just the keys in the carrier and the
-                         ;; grammar match
-                         (contains? carrier k)
+                                   ;; if the grammar doesn't care about the content of the signal,
+                                   ;; then we have a match if just the keys in the carrier and the
+                                   ;; grammar match
+                                   (contains? carrier k)
                            
-                         ;; othewise we have have make sure the 
-                         ;; content matches. 
-                         ;; TODO: for now this assumes only one
-                         ;; sub-grammar specification, "text" for
-                         ;; which the pattern matching is regex.  This
-                         ;; needs to be generalized
-                         (let [[re field-match-map] (sub-grammar "text")]
-                           (and (not (nil? re))
-                                (re-find #"^text" (k carrier)) 
-                                (re-find re (k content))))
-                         )) grammar)
+                                   ;; othewise we have have make sure the 
+                                   ;; content matches. 
+                                   ;; TODO: for now this assumes only one
+                                   ;; sub-grammar specification, "text" for
+                                   ;; which the pattern matching is regex.  This
+                                   ;; needs to be generalized
+                                   (let [[re field-match-map] (sub-grammar "text")]
+                                     (and (not (nil? re))
+                                          (let [content-type (k carrier)] (and (not (nil? content-type)) (re-find #"^text" content-type) )) 
+                                          (re-find (re-pattern re) (k content))))
+                                   )) grammar)
       
     ))
 
@@ -291,17 +291,19 @@
   (let [host (parent-of ss)
         grooves (get-scape host :groove )
         all (s-> query->all grooves)
-        matched-grooves (into [] (keep identity (map (fn [[groove-name groove-address]]
-                                                       (let [grammar (channel-type (contents (get-receptor host groove-address) :grammars ))
-                                                             scape-name (keyword (str (name groove-name) "-groove"))
-                                                             groove-scape (get-scape ss scape-name {:key "droplet-address" :address "boolean"})
-                                                             ]
-                                                         (if (grammar-match? grammar envelope content)
-                                                           (do
-                                                             (s-> key->set groove-scape droplet-address true)
-                                                             groove-name)
-                                                           nil)))
-                                                     all)))
+        raw-matches (map (fn [[groove-name groove-address]]
+                           (let [
+                                 grammar (channel-type (contents (get-receptor host groove-address) :grammars ))
+                                 scape-name (keyword (str (name groove-name) "-groove"))
+                                 groove-scape (get-scape ss scape-name {:key "droplet-address" :address "boolean"})
+                                 ]
+                             (if (grammar-match? grammar envelope content)
+                               (do
+                                 (s-> key->set groove-scape droplet-address true)
+                                 groove-name)
+                               nil)))
+                         all)
+        matched-grooves (into [] (keep identity raw-matches))
         ]
     (let [dg-scape (get-scape ss :droplet-grooves)]
       (s-> key->set dg-scape  droplet-address matched-grooves))))

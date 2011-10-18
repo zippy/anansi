@@ -35,12 +35,22 @@
                                       (make-receptor
                                        groove-def _r
                                        {:attributes {:grammars
-                                                     {:twitter {:text {"text"
-                                                                       [#"^(@[^\W]+) I promise to pay, on demand, ([^.]+)\. Expires in (.*)\. #punkmoney"
+                                                     {:streamscapes {:promised-good "text/plain"
+                                                                     :expiration "text/plain"}
+                                                      :email {:subject {"text" ["Punkmoney Promise"]}
+                                                              :body {"text"
+                                                                     ["I promise to pay (.*), on demand, ([^.]+)\\. Expires in (.*)\\."
+                                                                      {:payee 1
+                                                                       :promised-good 2
+                                                                       :expiration 3}
+                                                                      ]}}
+                                                      :twitter {:text {"text"
+                                                                       ["^(@[^\\W]+) I promise to pay, on demand, ([^.]+)\\. Expires in (.*)\\. #punkmoney"
                                                                         {:payee 1
-                                                                        :promised-good 2
-                                                                        :expiration 3}
-                                                                        ]}}}}})]
+                                                                         :promised-good 2
+                                                                         :expiration 3}
+                                                                        ]}}}}})
+                                      ]
                                   (--> key->set _r grooves :punkmoney (address-of groove))))
                               ))))
                ))

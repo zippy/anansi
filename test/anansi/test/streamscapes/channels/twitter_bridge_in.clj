@@ -54,8 +54,7 @@
           )
         (is (= :twitter-stream  (contents d :channel) ))
         (is (= droplet-address (handle-message b message)))))
-    (facts "about content groove scapeing (punkmoney)"
-      "@zippy314 I promise to pay, on demand, some squids. Expires in 1 year. #punkmoney"
+    (facts "about content groove scaping (punkmoney)"
       (let [message {:id_str "12147008825891" :text "@artbrock I promise to pay, on demand, some squids. Expires in 1 year. #punkmoney" :from_user "zippy314" :profile_image_url "http://someurl" :created_at "Wed Oct 04 09:31:40 +0000 2011"}
             droplet-address (handle-message b message)
             d (get-receptor r droplet-address)
