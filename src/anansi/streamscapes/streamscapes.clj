@@ -195,26 +195,26 @@
                                              (condp = type
                                                  :streamscapes {(get-receptor-definition :anansi.streamscapes.channels.local-bridge-in.local-bridge-in)
                                                                 {:role :receiver :params {}
-                                                                 :signal (get-signal-function "anansi.streamscapes.channels.local-bridge-in" "cheat" "receive")}
+                                                                 :signal ["anansi.streamscapes.channels.local-bridge-in" "cheat" "receive"]}
                                                                 (get-receptor-definition :anansi.streamscapes.channels.local-bridge-out.local-bridge-out)
                                                                 {:role :deliverer :params {}
-                                                                 :signal (get-signal-function "anansi.streamscapes.channels.local-bridge-out" "channel" "deliver")}}
+                                                                 :signal ["anansi.streamscapes.channels.local-bridge-out" "channel" "deliver"]}}
                                                  :twitter (let [{search-query :search-query} params]
                                                             {(get-receptor-definition :anansi.streamscapes.channels.twitter-bridge-in.twitter-bridge-in)
                                                              {:role :receiver :params {}}
                                                              (get-receptor-definition :anansi.streamscapes.channels.twitter-controller.twitter-controller)
                                                              {:role :controller :params {:attributes {:search-query search-query}}
-                                                              :signal (get-signal-function "anansi.streamscapes.channels.twitter-controller" "channel" "control")}})
+                                                              :signal ["anansi.streamscapes.channels.twitter-controller" "channel" "control"]}})
                                                  :irc (let [{host :host port :port user :user nick :nick} params]
                                                         {(get-receptor-definition :anansi.streamscapes.channels.irc-bridge-in.irc-bridge-in)
                                                          {:role :receiver :params {} }
                                                          (get-receptor-definition :anansi.streamscapes.channels.irc-bridge-out.irc-bridge-out)
                                                          {:role :deliverer
                                                           :params {}
-                                                          :signal (get-signal-function "anansi.streamscapes.channels.irc-bridge-out" "channel" "deliver") }
+                                                          :signal ["anansi.streamscapes.channels.irc-bridge-out" "channel" "deliver"] }
                                                          (get-receptor-definition :anansi.streamscapes.channels.irc-controller.irc-controller)
                                                          {:role :controller
-                                                          :signal (get-signal-function "anansi.streamscapes.channels.irc-controller" "channel" "control")
+                                                          :signal ["anansi.streamscapes.channels.irc-controller" "channel" "control"]
                                                           :params {:attributes {:host host :port port :user user :nick nick}}}})
                                                  :email (let [{in :in out :out} params
                                                               r1 (if (not (nil? in))
@@ -222,7 +222,7 @@
                                                                     {:role :receiver :params {:attributes in} }
                                                                     (get-receptor-definition :anansi.streamscapes.channels.email-controller.email-controller)
                                                                     {:role :controller
-                                                                     :signal (get-signal-function "anansi.streamscapes.channels.email-controller" "channel" "control")}
+                                                                     :signal ["anansi.streamscapes.channels.email-controller" "channel" "control"]}
                                                                     }
                                                                    {}
                                                                    )
@@ -231,7 +231,7 @@
                                                                     r1
                                                                     {(get-receptor-definition :anansi.streamscapes.channels.email-bridge-out.email-bridge-out)
                                                                      {:role :deliverer
-                                                                      :signal (get-signal-function "anansi.streamscapes.channels.email-bridge-out" "channel" "deliver")
+                                                                      :signal ["anansi.streamscapes.channels.email-bridge-out" "channel" "deliver"]
                                                                       :params {:attributes out}}})
                                                                    r1
                                                                    )]

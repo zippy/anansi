@@ -128,7 +128,7 @@
       (let [channel-address (s-> matrice->make-channel r {:name :email-stream
                                                           :receptors {
                                                                       email-bridge-in-def {:role :receiver :params {:attributes {:host "mail.example.com" :account "someuser" :password "pass" :protocol "pop3"}}}
-                                                                      email-bridge-out-def {:role :deliverer :signal channel->deliver :params {:attributes {:host "mail.harris-braun.com" :account "eric@harris-braun.com" :password "some-password" :protocol "smtps" :port 25}}}}
+                                                                      email-bridge-out-def {:role :deliverer :signal ["anansi.streamscapes.channels.email-bridge-out" "channel" "deliver"] :params {:attributes {:host "mail.harris-braun.com" :account "eric@harris-braun.com" :password "some-password" :protocol "smtps" :port 25}}}}
                                                           })
             cc (get-receptor r channel-address)
             [out-bridge-address delivery-signal] (get-deliverer-bridge cc)
@@ -141,7 +141,7 @@
     (testing "irc-channel"
       (let [channel-address (s-> matrice->make-channel r {:name :irc-stream
                                                           :receptors {irc-bridge-in-def {:role :receiver :params {} }
-                                                                      irc-controller-def {:role :controller :signal channel->control :params {:attributes {:host "irc.freenode.net" :port 6667 :user "Eric" :nick "zippy31415"}}}}
+                                                                      irc-controller-def {:role :controller :signal ["anansi.streamscapes.channels.irc-controller" "channel" "control"] :params {:attributes {:host "irc.freenode.net" :port 6667 :user "Eric" :nick "zippy31415"}}}}
                                                           })
             cc (get-receptor r channel-address)
             [controller-address control-signal] (get-controller cc)

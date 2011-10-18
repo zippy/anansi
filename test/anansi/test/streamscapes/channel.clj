@@ -74,7 +74,7 @@
     (testing "send"
       (let [b (make-receptor (receptor-def "test-send-bridge-email") cc {})
 
-            _ (s-> key->set (get-scape cc :deliverer) :deliverer [(address-of b) channel->deliver])
+            _ (s-> key->set (get-scape cc :deliverer) :deliverer [(address-of b) ["anansi.test.streamscapes.channel" "channel" "deliver"]])
             i-to (s-> matrice->identify r {:identifiers {:email "eric@example.com"} :attributes {:name "Eric"}})
             i-from (s-> matrice->identify r {:identifiers {:email "me@example.com"} :attributes {:name "Me"}})
             droplet-address (s-> matrice->incorporate r {:to i-to :from i-from :envelope {:subject "text/plain" :body "text/html"} :content {:subject "Hi there!" :body "<b>Hello world!</b>"}})

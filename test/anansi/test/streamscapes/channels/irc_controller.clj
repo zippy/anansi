@@ -6,7 +6,7 @@
         [anansi.streamscapes.streamscapes]
         [anansi.streamscapes.ident :only [ident-def]]
         [anansi.streamscapes.channel]
-        [anansi.streamscapes.channels.irc-bridge-out :only [irc-bridge-out-def channel->deliver]]
+        [anansi.streamscapes.channels.irc-bridge-out :only [irc-bridge-out-def]]
         [anansi.streamscapes.channels.irc-bridge-in :only [irc-bridge-in-def]]
         )
   (:use [midje.sweet])
@@ -18,8 +18,8 @@
         eric (make-receptor ident-def r {:attributes {:name "Eric"}})
         channel-address (s-> matrice->make-channel r {:name :irc-stream
                                                       :receptors {irc-bridge-in-def {:role :receiver :params {} }
-                                                                  irc-bridge-out-def {:role :deliverer :signal channel->deliver :params {}}
-                                                                  irc-controller-def {:role :controller :signal channel->control :params {:attributes {:host "irc.freenode.net" :port 6667 :user "Eric" :nick "zippy31415"}}}}
+                                                                  irc-bridge-out-def {:role :deliverer :signal ["anansi.streamscapes.channels.irc-bridge-out" "channel" "deliver"] :params {}}
+                                                                  irc-controller-def {:role :controller :signal ["anansi.streamscapes.channels.irc-controller" "channel" "control"] :params {:attributes {:host "irc.freenode.net" :port 6667 :user "Eric" :nick "zippy31415"}}}}
                                                           })
         cc (get-receptor r channel-address)
         [controller-address control-signal] (get-controller cc)

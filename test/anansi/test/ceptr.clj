@@ -101,7 +101,7 @@
           u (unserialize-receptors s)]
       (is (= s (serialize-receptors u))))
     )
-
+)
 (def r2 (receptor-def "r2" (attributes :data :_password)))
 (facts "about receptors with private attributes"
   (let [r (make-receptor r2 nil {:attributes {:data "fish" :_password "secret"}})]

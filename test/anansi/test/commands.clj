@@ -1,16 +1,16 @@
-;(ns anansi.test.commands
-;  (:use [anansi.ceptr]
-;        [anansi.receptor.scape]
-;        [anansi.receptor.host]
-;)
-;  (:use [anansi.server]
-;        [anansi.server-constants])
-;  (:use [anansi.user]
-;        [anansi.test.helpers])
-;  (:use [anansi.commands] :reload)
-;  (:use [clojure.test]
-;        [clojure.contrib.io :only [writer]]
-;        [clojure.contrib.json :only [json-str]]))
+(ns anansi.test.commands
+  (:use [anansi.ceptr]
+        [anansi.receptor.scape]
+        [anansi.receptor.host]
+)
+  (:use [anansi.server]
+        [anansi.server-constants])
+  (:use [anansi.user]
+        [anansi.test.helpers])
+  (:use [anansi.commands] :reload)
+  (:use [clojure.test]
+        [clojure.contrib.io :only [writer]]
+        [clojure.contrib.json :only [json-str]]))
 ;(comment
 ;  (deftest help-test
 ;    (testing "help overview"

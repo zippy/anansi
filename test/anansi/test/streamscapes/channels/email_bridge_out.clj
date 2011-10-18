@@ -30,7 +30,7 @@
     (testing "sending mail"
       (is (= (parent-of b) cc))
       (let [
-            _ (s-> key->set (get-scape cc :deliverer) :deliverer [(address-of b) channel->deliver])
+            _ (s-> key->set (get-scape cc :deliverer) :deliverer [(address-of b) ["anansi.streamscapes.channels.email-bridge-out" "channel" "deliver"]])
             i-to (s-> matrice->identify r {:identifiers {:email "lewis.hoffman@gmail.com"} :attributes {:name "Lewis"}})
             i-from (s-> matrice->identify r {:identifiers {:email "eric@harris-braun.com"} :attributes {:name "Eric"}})
             droplet-address (s-> matrice->incorporate r {:to i-to :from i-from :envelope {:subject "text/plain" :body "text/html"} :content {:subject "Hi there!" :body "<b>Hello world!</b>"}})

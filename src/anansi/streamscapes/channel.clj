@@ -46,6 +46,12 @@
                  (--> key->set _r deliveries (if (nil? sent) (str (now)) sent) droplet-address)
                  droplet-address)))
 
+(defn- getsig [n a s]
+  (let [f (get-signal-function n a s)]
+    (if (nil? f)
+      (throw (RuntimeException. (str "Couldn't find signal:" [n a s])))
+      f))
+  )
 ; the send signal calls the deliverer bridge to deliver a droplet
 (signal stream send [_r _f params]
         (let [ss (parent-of _r)]
@@ -54,23 +60,24 @@
                        d (get-receptor ss droplet-address)
                        deliveries (get-scape ss :delivery)
                        channel (contents _r :name)
-                       [bridge-address delivery-signal] (get-deliverer-bridge _r)
-                       errors (--> delivery-signal _r (get-receptor _r bridge-address) params)]
+                       [bridge-address [namespace aspect signal]] (get-deliverer-bridge _r)
+                       errors (--> (getsig namespace aspect signal) _r (get-receptor _r bridge-address) params)]
                    (if (nil? errors)
                      (--> key->set _r deliveries (str (now)) droplet-address)
                      (prn "Delivery Errors: " errors))
                    errors))))
+(get-signal-function "anansi.streamscapes.channels.twitter-controller" "channel" "control")
 
 ; hand a message to the bridge to be received
 (signal bridge receive [_r _f message]
-        (let [[bridge-address receive-signal] (get-receiver-bridge _r)
+        (let [[bridge-address [namespace aspect signal]] (get-receiver-bridge _r)
               b (get-receptor _r bridge-address)]
-          (--> receive-signal _r b message)))
+          (--> (getsig namespace aspect signal) _r b message)))
 
 (signal stream control [_r _f params]
-        (let [[controller-address control-signal] (get-controller _r)]
+        (let [[controller-address [namespace aspect signal]] (get-controller _r)]
              (if (nil? controller-address)
                (throw (RuntimeException. (str "channel has no controller")))
                )
-             (--> control-signal _r (get-receptor _r controller-address) params)))
+             (--> (getsig namespace aspect signal) _r (get-receptor _r controller-address) params)))
 

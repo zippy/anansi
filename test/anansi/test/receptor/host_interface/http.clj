@@ -66,8 +66,6 @@
         (--> interface->stop h asr)
         (facts "about restoring serialized receptor"
           (let [state (receptor-state asr true)]
-;            (prn "state" state)
-;            (prn "restored state" (receptor-state (receptor-restore state nil) true))
             state => (receptor-state (receptor-restore state nil) true)
             ))
 

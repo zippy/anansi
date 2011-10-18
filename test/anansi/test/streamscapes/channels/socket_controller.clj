@@ -7,7 +7,7 @@
         [anansi.streamscapes.channel]
         [anansi.streamscapes.streamscapes]
         [anansi.streamscapes.ident :only [ident-def]]
-        [anansi.streamscapes.channels.socket-in :only [socket-in-def controller->receive]]
+        [anansi.streamscapes.channels.socket-in :only [socket-in-def]]
         [anansi.test.helpers :only [write connect]])
   (:use [midje.sweet])
   (:use [clojure.test])
@@ -22,8 +22,8 @@
         house (make-receptor ident-def r {:attributes {:name "my-house"}})
         channel-address (s-> matrice->make-channel r
                              {:name :socket-stream
-                              :receptors {socket-in-def {:role :receiver :signal controller->receive :params {}}
-                                          socket-controller-def {:role :controller :signal channel->control :params {:attributes {:port 3141 :input-function test-input-function}}}}
+                              :receptors {socket-in-def {:role :receiver :signal ["anansi.streamscapes.channels.socket-in" "controller" "receive"] :params {}}
+                                          socket-controller-def {:role :controller :signal ["anansi.streamscapes.channels.socket-controller" "channel" "control"] :params {:attributes {:port 3141 :input-function test-input-function}}}}
                                                           })
         cc (get-receptor r channel-address)
         [controller-address control-signal] (get-controller cc)

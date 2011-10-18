@@ -17,14 +17,14 @@
         m (make-receptor user-def h "eric")
         r (make-receptor streamscapes-def h {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
         c-out-addr (s-> matrice->make-channel r {:name :local-stream
-                                                 :receptors {local-bridge-out-def {:role :deliverer :signal channel->deliver :params {}}}
+                                                 :receptors {local-bridge-out-def {:role :deliverer :signal ["anansi.streamscapes.channels.local-bridge-out" "channel" "deliver"] :params {}}}
                                                  })
         c-out (get-receptor r c-out-addr)
         eric-ss-addr (address-of r)
         u (make-receptor user-def h "zippy")
         ru (make-receptor streamscapes-def h {:matrice-addr (address-of u) :attributes {:_password "password" :data {:datax "x"}}})
         c-in-addr (s-> matrice->make-channel ru {:name :local-stream
-                                                 :receptors {local-bridge-in-def {:role :receiver :signal cheat->receive :params {}}}
+                                                 :receptors {local-bridge-in-def {:role :receiver :signal ["anansi.streamscapes.channels.local-bridge-in" "cheat" "receive"] :params {}}}
                                                  })
         zippy-ss-addr (address-of ru)
         [b-out-addr _] (s-> key->resolve (get-scape c-out :deliverer) :deliverer)
