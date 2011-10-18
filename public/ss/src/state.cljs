@@ -28,6 +28,7 @@
   (def *current-state* nil)
   (def *grooves* nil)
   (def *me* nil)
+  (clear-scape-query)
   (.remove goog.net.cookies "ss-session")
   (.remove goog.net.cookies "ss-address")
   (.remove goog.net.cookies "ss-user-name"))
@@ -47,3 +48,9 @@
   [c]
   (def *me* c)
   )
+
+(defn set-scape-query [scape value]
+  (def *scape-query* [scape value]))
+
+(defn clear-scape-query []
+  (def *scape-query* nil))

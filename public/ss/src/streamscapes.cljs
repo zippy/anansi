@@ -50,6 +50,10 @@
   ([r scape value] 
      (let [q {:scape-order {:scape :delivery :limit 40 :descending true}}
            query (if (nil? scape) q (assoc q :scape-query {:scape scape  :query ["=" value] :flip true}))]
+       (if (nil? scape)
+         (s/clear-scape-query)
+         (s/set-scape-query scape value)
+         )
        (ui/loading-start)
        (ceptr/command {:cmd "get-state" :params {:receptor r :query query}} gs-callback))))
 
@@ -145,11 +149,13 @@ onto the linking value."
     (dom/append elem (d/build [:div
                                (make-scape-section "channels"
                                                    (map (fn [[cname caddr]]
-                                                          (apply conj [:p] (let [type (ssu/get-channel-type caddr)]
-                                                                             (apply conj
-                                                                                    [(d/html (ssu/channel-icon-html cname type))]
-                                                                                    [(ui/make-click-link (name cname) #(refresh-stream :droplet-channel caddr))]
-                                                                                    (get-channel-buttons type cname)))))
+                                                          (let [[qscape qval] s/*scape-query*
+                                                                tag (if (and (= qscape :droplet-channel) (= qval caddr)) :p.active :p)]
+                                                            (apply conj [tag] (let [type (ssu/get-channel-type caddr)]
+                                                                               (apply conj
+                                                                                      [(d/html (ssu/channel-icon-html cname type))]
+                                                                                      [(ui/make-click-link (name cname) #(refresh-stream :droplet-channel caddr))]
+                                                                                      (get-channel-buttons type cname))))))
                                                         (:values (:channel-scape scapes))))
                                (make-scape-section "groove scapes" (get-groove-scapes))
 ;                               (make-scape-section "ordering scapes" (get-order-scapes))
