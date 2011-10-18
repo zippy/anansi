@@ -30,7 +30,18 @@
                                 (let [groove (make-receptor groove-def _r {:attributes {:grammars {:streamscapes {:message "text/plain"}
                                                                                                    :twitter {:text "text/plain"}
                                                                                                    :irc {:message "text/plain"}}}})]
-                                  (--> key->set _r grooves :simple-message (address-of groove))))
+                                  (--> key->set _r grooves :simple-message (address-of groove)))
+                                (let [groove
+                                      (make-receptor
+                                       groove-def _r
+                                       {:attributes {:grammars
+                                                     {:twitter {:text {"text"
+                                                                       [#"^(@[^\W]+) I promise to pay, on demand, ([^.]+)\. Expires in (.*)\. #punkmoney"
+                                                                        {:payee 1
+                                                                        :promised-good 2
+                                                                        :expiration 3}
+                                                                        ]}}}}})]
+                                  (--> key->set _r grooves :punkmoney (address-of groove))))
                               ))))
                ))
 

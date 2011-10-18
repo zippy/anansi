@@ -259,10 +259,31 @@
           nil
           ))
 
-(defn grammar-match? [grammar envelope content]
+(defn grammar-match?
+  "returns whether or not a grammar matches the carrier and content of a particular signal"
+  [grammar carrier content]
   (if (nil? grammar)
     false
-    (clojure.set/subset? (set (keys grammar)) (set (keys envelope)))))
+    (every? (fn [[k sub-grammar]] (if (string? sub-grammar)
+                         
+                         ;; if the grammar doesn't care about the content of the signal,
+                         ;; then we have a match if just the keys in the carrier and the
+                         ;; grammar match
+                         (contains? carrier k)
+                           
+                         ;; othewise we have have make sure the 
+                         ;; content matches. 
+                         ;; TODO: for now this assumes only one
+                         ;; sub-grammar specification, "text" for
+                         ;; which the pattern matching is regex.  This
+                         ;; needs to be generalized
+                         (let [[re field-match-map] (sub-grammar "text")]
+                           (and (not (nil? re))
+                                (re-find #"^text" (k carrier)) 
+                                (re-find re (k content))))
+                         )) grammar)
+      
+    ))
 
 (defn match-grooves
   "run through the defined grooves and create scape entries for all grooves that match this droplet"
