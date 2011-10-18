@@ -30,6 +30,7 @@
         b (get-receptor cc controller-address)
         ip-idents (get-scape r :ip-ident true)
         droplet-ids (get-scape r :id)]
+    (--> key->set r (get-scape r :channel-type) channel-address :socket)
     (--> key->set b ip-idents "127.0.0.1" (address-of eric))
     
     (fact

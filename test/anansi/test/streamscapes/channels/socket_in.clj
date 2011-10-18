@@ -19,6 +19,7 @@
         cc (get-receptor r cc-addr)
         b (make-receptor socket-in-def cc {})
         ip-idents (get-scape r :ip-ident true)]
+    (--> key->set r (get-scape r :channel-type) cc-addr :socket)
     (--> key->set b ip-idents "127.0.0.0" (address-of eric))
 
     (facts "about restoring serialized receptor"

@@ -24,7 +24,7 @@
         cc (get-receptor r cc-addr)
         b (make-receptor local-bridge-in-def cc {})
         ss-addr-idents (get-scape r :ss-address-ident)]
-
+    (--> key->set r (get-scape r :channel-type) cc-addr :streamscapes)
     (facts "about restoring serialized receptor"
       (let [state (receptor-state b true)]
         state => (receptor-state (receptor-restore state nil) true)
@@ -34,6 +34,7 @@
             droplet-address (handle-message b message)
             d (get-receptor r droplet-address)
             ]
+        (fact (s-> key->resolve (get-scape r :subject-body-message-groove) droplet-address) => true)
         (is (= "1.2" (contents d :id)))
         (is (= eric-addr (contents d :to)))
         (is (= zippy-addr (contents d :from) ))

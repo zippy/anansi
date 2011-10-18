@@ -13,16 +13,16 @@
   (:use [clj-time.core :only [now]]))
 
 (deftest local-bridge-out
-  (let [m (make-receptor user-def nil "eric")
-        h (make-receptor host-def nil {})
+  (let [h (make-receptor host-def nil {})
+        m (make-receptor user-def h "eric")
         r (make-receptor streamscapes-def h {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
         c-out-addr (s-> matrice->make-channel r {:name :local-stream
                                                  :receptors {local-bridge-out-def {:role :deliverer :signal channel->deliver :params {}}}
                                                  })
         c-out (get-receptor r c-out-addr)
         eric-ss-addr (address-of r)
-        u (make-receptor user-def nil "zippy")
-        ru (make-receptor streamscapes-def nil {:matrice-addr (address-of u) :attributes {:_password "password" :data {:datax "x"}}})
+        u (make-receptor user-def h "zippy")
+        ru (make-receptor streamscapes-def h {:matrice-addr (address-of u) :attributes {:_password "password" :data {:datax "x"}}})
         c-in-addr (s-> matrice->make-channel ru {:name :local-stream
                                                  :receptors {local-bridge-in-def {:role :receiver :signal cheat->receive :params {}}}
                                                  })
@@ -30,6 +30,8 @@
         [b-out-addr _] (s-> key->resolve (get-scape c-out :deliverer) :deliverer)
         b-out (get-receptor c-out b-out-addr)
         ]
+    (--> key->set r (get-scape r :channel-type) c-out-addr :streamscapes)
+    (--> key->set ru (get-scape ru :channel-type) c-in-addr :streamscapes)
     (facts "about restoring serialized receptor"
       (let [state (receptor-state b-out true)]
         state => (receptor-state (receptor-restore state nil) true)

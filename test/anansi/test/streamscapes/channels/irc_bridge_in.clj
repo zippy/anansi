@@ -21,6 +21,7 @@
         cc (get-receptor r cc-addr)
         b (make-receptor irc-bridge-in-def cc {})
         irc-idents (get-scape r :irc-ident true)]
+    (--> key->set r (get-scape r :channel-type) cc-addr :irc)
     (--> key->set b irc-idents "zippy" (address-of eric))
     (--> key->set b irc-idents "art" (address-of art))
     (--> key->set b irc-idents "#ceptr" (address-of ceptr-channel))
