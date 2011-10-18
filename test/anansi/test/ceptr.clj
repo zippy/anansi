@@ -133,8 +133,11 @@
     (--> key->set p (get-scape p :s2) j "jane")
     
     (set (keys (:receptors (receptor-state p {:scape-query {:scape :s1 :query [">" "s"]}})))) => #{s z}
+    (set (keys (:receptors (receptor-state p {:scape-query {:scape :s2 :query [">" "s"] :flip true}})))) => #{s z}
     (set (keys (:receptors (receptor-state p {:scape-query {:scape :s1 :query ["<" "s"]}})))) => #{j}
+    (set (keys (:receptors (receptor-state p {:scape-query {:scape :s2 :query ["<" "s"] :flip true}})))) => #{j}
     (set (keys (:receptors (receptor-state p {:scape-query {:scape :s1 :query ["=" "sam"]}})))) => #{s}
+    (set (keys (:receptors (receptor-state p {:scape-query {:scape :s2 :query ["=" "sam"] :flip true}})))) => #{s}
     (:receptor-order (receptor-state p {:scape-order {:scape :s1}})) => [j s z]
     (:receptor-order (receptor-state p {:scape-order {:scape :s1 :descending true}})) => [z s j]
     (:receptor-order (receptor-state p {:scape-order {:flip true :scape :s2 :descending true}})) => [z s j]

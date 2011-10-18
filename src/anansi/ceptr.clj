@@ -259,7 +259,7 @@
   "returns a lazy sequence of the results of the qfun filtered against the scape values
 qfun must be a function of two arguments: key, address and must return a vector pair of a boolean value of weather to include an entry for this pair, plus the value to be returned for this pair, which may anything."
   [_r qfun]
-  (map (fn [[_ result ]] result) (filter (fn [[b r]] b) (map (fn [[k a]] (qfun k a) ) @(contents _r :map)))))
+   (map (fn [[_ result ]] result) (filter (fn [[b r]] b) (map (fn [[k a]] (qfun k a) ) @(contents _r :map)))))
 
 (defn sort-by-scape
   "takes a list of receptor addresses and returns them in order sorted by the scape key
@@ -288,14 +288,14 @@ assumes that the scape has receptor addresses in the value of the map, unless fl
   (let [{scape-query :scape-query scape-order :scape-order} query
         qstate (if (nil? scape-query)
                  state
-                 (let [{scape-name :scape [qfn qv] :query} scape-query
-                       s (_get-scape _r scape-name)
+                 (let [{scape-name :scape [qfn qv] :query flip :flip} scape-query
+                       s (_get-scape _r (if (string? scape-name ) (keyword scape-name) scape-name))
                        qfun (condp = qfn
-                                "<" (fn ([k v] [(< (compare k qv) 0) v]))
-                                ">" (fn ([k v] [(> (compare k qv) 0) v]))
-                                "=" (fn ([k v] [(= k qv) v]))
+                                "<" (if flip (fn ([k v] [(< (compare v qv) 0) k])) (fn ([k v] [(< (compare k qv) 0) v])))
+                                ">" (if flip (fn ([k v] [(> (compare v qv) 0) k])) (fn ([k v] [(> (compare k qv) 0) v])))
+                                "=" (if flip (fn ([k v] [(= v qv) k])) (fn ([k v] [(= k qv) v])))
                                 )
-                       receptors (set (query-scape s qfun))]
+                       receptors (if (nil? s) #{} (set (query-scape s qfun)))]
                    (assoc state :receptors (filter (fn [[key _]] (receptors key)) (:receptors state)))))
         ostate (if (nil? scape-order)
                  qstate
