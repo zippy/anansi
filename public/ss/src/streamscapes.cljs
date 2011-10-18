@@ -18,11 +18,12 @@
   (let [{status :status result :result} (ceptr/handle-xhr e)]
     (refresh-stream)))
 
-(defn refresh-stream []
-  (get-state (s/get-ss-addr)))
+(defn refresh-stream
+  ([] (refresh-stream nil))
+  ([scape] (get-state (s/get-ss-addr) scape)))
 
 (defn render-ss []
-  (stream/render refresh-stream)
+  (stream/render #(refresh-stream nil))
   (render-scapes s/*current-state*)
   )
 
@@ -44,11 +45,13 @@
     ))
 
 (defn get-state
-  "get the state of a streamscapes receptor and render it"
-  [r]
-  (do
-    (ui/loading-start)
-    (ceptr/command {:cmd "get-state" :params {:receptor r :query {:scape-order {:scape :delivery :limit 40 :descending true}}}} gs-callback)))
+  "get the state of a streamscapes receptor and render it, possibly limmiting the receptors returned to those in a given scape"
+  ([r] (get-state r nil))
+  ([r scape] 
+     (let [q {:scape-order {:scape :delivery :limit 40 :descending true}}
+           query (if (nil? scape) q (assoc q :scape-query {:scape scape  :query ["=" true] :flip true}))]
+       (ui/loading-start)
+       (ceptr/command {:cmd "get-state" :params {:receptor r :query query}} gs-callback))))
 
 (defn get-grooves
   "get the current groove definitions from the server" []
@@ -102,10 +105,13 @@
   (str "by " (string/join " " (reverse (rest (reverse (string/split (name sn) #"-"))))))
   )
 
+(defn get-groove-scapes []
+  (map (fn [sn] [:p (ui/make-click-link (humanize-scape-name-for-list sn) #(refresh-stream (descapify sn)))]) (ssu/get-matching-scapes #"-groove-scape$"))
+  )
+
 (defn get-order-scapes []
   (map (fn [sn] [:p (humanize-scape-name-for-list sn)]) (ssu/get-matching-scapes-by-relationship-address #"droplet-address"))
   )
-
 
 (defn get-category-scapes []
   ;; for now the categor-name-scapes are hard-coded, but later they will be
@@ -136,6 +142,7 @@
                                                                              (apply conj [(d/html (str (ssu/channel-icon-html cname type) (name cname)))]
                                                                                     (get-channel-buttons type cname)))))
                                                         (:values (:channel-scape scapes))))
+                               (make-scape-section "groove scapes" (get-groove-scapes))
                                (make-scape-section "ordering scapes" (get-order-scapes))
                                (make-scape-section "categorizing scapes" (get-category-scapes))
                                ]))
