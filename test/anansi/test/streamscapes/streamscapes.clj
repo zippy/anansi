@@ -103,15 +103,17 @@
       )
     (testing "droplets"
       (let [sc (s-> matrice->make-channel r {:name :some-channel})
-            droplet-address (s-> matrice->incorporate r {:id "some-unique-id" :from "from-addr" :to "to-addr" :channel :some-channel :envelope {:part1 "address of part1 grammar"} :content {:part1 "part1 content"}})
+            x (--> key->set r (get-scape r :channel-type) sc :email)
+            droplet-address (s-> matrice->incorporate r {:id "some-unique-id" :from "from-addr" :to "to-addr" :channel :some-channel :envelope {:subject "text/plain" :body "text/html"} :content {:subject "subj content" :body "<b> hello! </b>"}})
             d (get-receptor r droplet-address)]
+        (fact (s-> key->resolve (get-scape r :droplet-grooves) droplet-address) => [:subject-body-message] )
         (are [x y] (= x y)
              (contents d :id) "some-unique-id"
              (contents d :from) "from-addr"
              (contents d :to) "to-addr"
              (contents d :channel) :some-channel
-             (contents d :envelope) {:part1 "address of part1 grammar"}
-             (contents d :content) {:part1 "part1 content"}
+             (contents d :envelope) {:subject "text/plain" :body "text/html"}
+             (contents d :content) {:subject "subj content" :body "<b> hello! </b>"}
              (address-of d) droplet-address
              (s-> key->resolve droplet-channels droplet-address) sc
              "some-unique-id" (s-> key->resolve ids droplet-address)

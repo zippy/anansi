@@ -21,33 +21,6 @@
 (defn get-deliverer-bridge [_r]
   (get-channel-receptor _r :deliverer))
 
-(defn grammar-match? [grammar envelope content]
-  (if (nil? grammar)
-    false
-    (clojure.set/subset? (set (keys grammar)) (set (keys envelope)))))
-
-(defn match-grooves
-  "run through the defined grooves and create scape entries for all grooves that match this droplet"
-  [_r ss droplet-address envelope content]
-  (let [host (parent-of ss)
-        grooves (get-scape host :groove )
-        all (s-> query->all grooves)
-        channel-type (--> key->resolve _r (get-scape ss :channel-type ) (address-of _r))
-        matched-grooves (into [] (keep identity (map (fn [[groove-name groove-address]]
-                                                       (let [grammar (channel-type (contents (get-receptor host groove-address) :grammars ))
-                                                             scape-name (keyword (str (name groove-name) "-groove"))
-                                                             groove-scape (get-scape ss scape-name {:key "droplet-address" :address "boolean"})
-                                                             ]
-                                                         (if (grammar-match? grammar envelope content)
-                                                           (do
-                                                             (s-> key->set groove-scape droplet-address true)
-                                                             groove-name)
-                                                           nil)))
-                                                     all)))
-        ]
-    (let [dg-scape (get-scape ss :droplet-grooves)]
-      (s-> key->set dg-scape  droplet-address matched-grooves))))
-
 (defn get-receiver-bridge [_r]
   (get-channel-receptor _r :receiver))
 
@@ -71,7 +44,6 @@
                      ]
                  (--> key->set _r receipts (str (now)) droplet-address)
                  (--> key->set _r deliveries (if (nil? sent) (str (now)) sent) droplet-address)
-                 (match-grooves _r ss droplet-address envelope content)
                  droplet-address)))
 
 ; the send signal calls the deliverer bridge to deliver a droplet

@@ -37,7 +37,7 @@
                                   (restore-content r :matrice-scape (get-receptor r (:matrice-scape state)))
                                   r)
                                 )))
-
+(declare match-grooves)
 (defn do-incorporate
   "add a droplet receptor into the streamscape"
   [_r _f {id :id from :from to :to channel :channel envelope :envelope content :content deliver :deliver}]
@@ -54,7 +54,9 @@
                ids (get-scape _r :id)
                ]
            (if channel
-             (--> key->set _r droplet-channels addr (address-of c-out)))
+             (do
+               (match-grooves (--> key->resolve _r (get-scape _r :channel-type) (address-of c-out)) _r addr envelope content)
+               (--> key->set _r droplet-channels addr (address-of c-out))))
            ;; don't use the id from the params because it may have been nil in which
            ;; case the instantiation code will have created the id on the fly
            (--> key->set _r ids addr (contents d :id))
@@ -256,3 +258,30 @@
           (--> key->set _r scape key address)
           nil
           ))
+
+(defn grammar-match? [grammar envelope content]
+  (if (nil? grammar)
+    false
+    (clojure.set/subset? (set (keys grammar)) (set (keys envelope)))))
+
+(defn match-grooves
+  "run through the defined grooves and create scape entries for all grooves that match this droplet"
+  [channel-type ss droplet-address envelope content]
+  (let [host (parent-of ss)
+        grooves (get-scape host :groove )
+        all (s-> query->all grooves)
+        matched-grooves (into [] (keep identity (map (fn [[groove-name groove-address]]
+                                                       (let [grammar (channel-type (contents (get-receptor host groove-address) :grammars ))
+                                                             scape-name (keyword (str (name groove-name) "-groove"))
+                                                             groove-scape (get-scape ss scape-name {:key "droplet-address" :address "boolean"})
+                                                             ]
+                                                         (if (grammar-match? grammar envelope content)
+                                                           (do
+                                                             (s-> key->set groove-scape droplet-address true)
+                                                             groove-name)
+                                                           nil)))
+                                                     all)))
+        ]
+    (let [dg-scape (get-scape ss :droplet-grooves)]
+      (s-> key->set dg-scape  droplet-address matched-grooves))))
+
