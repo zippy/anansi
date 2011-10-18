@@ -120,7 +120,7 @@ onto the linking value."
   []
   ;; for now the categor-name-scapes are hard-coded, but later they will be
   ;; pulled dynamically from the scape definition (or from another scape!)
-  (let [category-scapes [[:channel-scape :droplet-channel-scape]]
+  (let [category-scapes []  ;[:channel-scape :droplet-channel-scape]
         scapes (:scapes s/*current-state*)
         ]
     (map (fn [[name-scape address-scape]]
@@ -146,11 +146,13 @@ onto the linking value."
                                (make-scape-section "channels"
                                                    (map (fn [[cname caddr]]
                                                           (apply conj [:p] (let [type (ssu/get-channel-type caddr)]
-                                                                             (apply conj [(d/html (str (ssu/channel-icon-html cname type) "<span>" (name cname) "</span>"))]
+                                                                             (apply conj
+                                                                                    [(d/html (ssu/channel-icon-html cname type))]
+                                                                                    [(ui/make-click-link (name cname) #(refresh-stream :droplet-channel caddr))]
                                                                                     (get-channel-buttons type cname)))))
                                                         (:values (:channel-scape scapes))))
                                (make-scape-section "groove scapes" (get-groove-scapes))
-                               (make-scape-section "ordering scapes" (get-order-scapes))
+;                               (make-scape-section "ordering scapes" (get-order-scapes))
                                (make-scape-section "categorizing scapes" (get-category-scapes))
                                ]))
     (dom/append elem ())))
