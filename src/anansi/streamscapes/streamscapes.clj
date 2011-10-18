@@ -96,14 +96,16 @@
                               :let [iscape (get-scape _r (scape-identifier-attribute-key a) {:key :ident-address :address (keyword (str (name a) "-attribute"))})]]
                         (--> key->set _r iscape contact-address v))))
   )
-
+(defn- make-default-name [identifiers]
+  (str "\"" (first (vals identifiers)) "\"")
+  )
 (defn do-identify
   "add an identity receptor into the streamscape, scaping the identifiers and attributes appropriately"
   ([_r params] (do-identify _r params true))
   ([_r {identifiers :identifiers attrs :attributes} throw-if-exists]
      (let [attrs1 (if (nil? attrs) {} attrs)
            attributes (if (nil? (:name attrs1))
-                        (assoc attrs1 :name (str "name for " (vals identifiers)) )
+                        (assoc attrs1 :name (make-default-name identifiers) )
                         attrs1)
            iaddrs (find-contacts _r identifiers)
            iaddr (first iaddrs)
@@ -127,7 +129,7 @@
                 )))
           (let [attrs1 (if (nil? attrs) {} attrs)
                 attributes (if (nil? (:name attrs1))
-                             (assoc attrs1 :name (str "name for " (vals identifiers)) )
+                             (assoc attrs1 :name (make-default-name identifiers))
                              attrs1)
                 contact-address (address-of (make-receptor ident-def _r {:attributes {:name (:name attributes)}}))
                 ]

@@ -49,6 +49,7 @@
     (testing "identity"
       (let [contact-address1 (s-> matrice->create-contact r {:identifiers {:email "eric@example.com" :ssn 987564321} :attributes {:name "Eric" :eye-color "blue"}})
             contact-address2 (s-> matrice->create-contact r {:identifiers {:email "eric@otherexample.com" :ssn 123456789} :attributes {:name "Eric" :eye-color "green"}})
+            contact-address3 (s-> matrice->create-contact r {:identifiers {:email "eric@yetanotherotherexample.com"}})
             ident-names (get-scape r :ident-name)
             email-idents (get-scape r :email-ident)
             ssn-idents (get-scape r :ssn-ident)
@@ -70,6 +71,7 @@
         (is (= contact-address1 (do-identify r {:identifiers { :email "eric@example.com"}} false)))
         (is (= contact-address1 (do-identify r {:identifiers { :email "eric@example.com" :irc "zippy314"}} false)))
         (is (= contact-address1 (do-identify r {:identifiers { :irc "zippy314"}} false)))
+        (fact (s-> key->resolve ident-names contact-address3) => "\"eric@yetanotherotherexample.com\"")
 
         (facts "about creating contacts"
           (s-> matrice->create-contact r {:identifiers {:email "eric@example.com"}}) => (throws RuntimeException "There are contacts already identified by one or more of: eric@example.com")
