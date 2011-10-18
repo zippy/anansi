@@ -54,12 +54,14 @@
         (facts "about groove matching on receive"
           (s-> key->resolve (get-scape r :subject-body-message-groove) droplet-address) => true
           (s-> key->resolve (get-scape r :droplet-grooves) droplet-address) => [:subject-body-message]
-
-          (s-> key->resolve (get-scape r :subject-body-message-groove) droplet2-address) => false
-          (s-> key->resolve (get-scape r :simple-message-groove) droplet-address) => false
-          (s-> key->resolve (get-scape r :simple-message-groove) droplet2-address) => false
+          (s-> key->resolve (get-scape r :subject-body-message-groove) droplet2-address) => nil
+          (s-> key->resolve (get-scape r :simple-message-groove) droplet-address) => nil
+          (s-> key->resolve (get-scape r :simple-message-groove) droplet2-address) => nil
           (scape-relationship (get-scape r :subject-body-message-groove) :key) => "droplet-address"
-          (scape-relationship (get-scape r :subject-body-message-groove) :address) => "boolean")
+          (scape-relationship (get-scape r :subject-body-message-groove) :address) => "boolean"
+          (s-> query->all (get-scape r :subject-body-message-groove)) => [[droplet-address true]]
+          )
+
 
 
         (is (= "from-addr"  (contents d :from) ))

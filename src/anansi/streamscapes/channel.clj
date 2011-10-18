@@ -34,14 +34,16 @@
         all (s-> query->all grooves)
         channel-type (--> key->resolve _r (get-scape ss :channel-type ) (address-of _r))
         matched-grooves (into [] (keep identity (map (fn [[groove-name groove-address]]
-                                                     (let [grammar (channel-type (contents (get-receptor host groove-address) :grammars ))
-                                                           scape-name (keyword (str (name groove-name) "-groove"))
-                                                           groove-scape (get-scape ss scape-name {:key "droplet-address" :address "boolean"})
-                                                           grammar-match (grammar-match? grammar envelope content)
-                                                           ]
-                                                       (s-> key->set groove-scape droplet-address grammar-match)
-                                                       (if grammar-match groove-name nil)))
-                                                all)))
+                                                       (let [grammar (channel-type (contents (get-receptor host groove-address) :grammars ))
+                                                             scape-name (keyword (str (name groove-name) "-groove"))
+                                                             groove-scape (get-scape ss scape-name {:key "droplet-address" :address "boolean"})
+                                                             ]
+                                                         (if (grammar-match? grammar envelope content)
+                                                           (do
+                                                             (s-> key->set groove-scape droplet-address true)
+                                                             groove-name)
+                                                           nil)))
+                                                     all)))
         ]
     (let [dg-scape (get-scape ss :droplet-grooves)]
       (s-> key->set dg-scape  droplet-address matched-grooves))))
