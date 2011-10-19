@@ -121,15 +121,15 @@
          (callback))))
     elem))
 
-(defn modal-dialog [id buildelems]
-  (let [cbe (make-button "Close" cancel-modal)
-        x (apply conj
-                 [(keyword (str "div#" id ".standard-modal"))]
-                 (apply conj [[:div.top-right-controls cbe]] buildelems))
-        ]
+(defn modal-dialog [id header-spec buildelems]
+  (let [[header-text other-header-items] (if (string? header-spec) [header-spec []] [(first header-spec) (rest header-spec)])
+        header-items (keep identity (apply conj other-header-items [[:div.top-right-controls (make-button "Close" cancel-modal)] [:h3 header-text]]))]
     (d/insert-at (d/get-element :everything)
                  (d/build [:div#modalmask.overlay-mask
-                           x]) 0)))
+                           [(keyword (str "div#" id ".standard-modal"))
+                            (apply conj [:div.modal-header] header-items)
+                            (apply conj [:div.modal-content] buildelems)]
+                           ]) 0)))
 (defn cancel-modal []
   (d/remove-node :modalmask))
 

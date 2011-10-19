@@ -14,8 +14,8 @@
   "displays the compose dialog"
   []
   (let [scapes (:scapes s/*current-state*)]
-    (ui/modal-dialog "compose"
-                     [ [:h3 "COMPOSE"]
+    (ui/modal-dialog "compose" "SETUP"
+                     [
                        [:div [:h4 "Channels"]
                         (ui/make-button "New E-mail Channel" #(make-email-channel :compose-work))
                         (ui/make-button "New Twitter Channel" #(make-twitter-channel :compose-work))

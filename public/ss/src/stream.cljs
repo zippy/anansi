@@ -76,10 +76,7 @@
   (let [grammar (get-droplet-grammar d channel-type s)
         parts (map (fn [[part _]] [:div.part [:h4 (name part)]
                                   (d/html (get-html-from-body (part (:content d)) (part (:envelope d))))]) grammar)]
-    (ui/modal-dialog "full-droplet"
-                     (apply conj [[:h3 (str (name channel-type) " droplet")]]
-                            parts)
-                     )))
+    (ui/modal-dialog "full-droplet" (str (name channel-type) " droplet") parts)))
 
 (defn render-preview [droplet-address droplet-channel-scape s]
     (let [d ((:receptors s) droplet-address)

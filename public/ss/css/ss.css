@@ -232,6 +232,12 @@ img.twitter-avatar {
   border-top: 1px solid #DDD;
   padding-top: 2px;
 }
+.droplet-preview .preview-groove-specific  {
+  font-weight: bold;
+}
+.droplet-preview.touched-tag .preview-groove-specific {
+  font-weight: normal;
+}
 
 .droplet-preview > div, .droplet-preview > a {
   vertical-align: top;
@@ -274,7 +280,13 @@ img.twitter-avatar {
   padding: 10px;
 }
 
-#contacts {
+.modal-header {
+  border-bottom: 1px solid #000;
+  background: -webkit-gradient(linear, left top, left bottom, from(#f8f8f8), to(#eee));
+}
+
+.modal-content {
+   height: 100%;
   overflow-x: hidden;
   overflow-y: scroll;
 }

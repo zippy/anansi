@@ -104,9 +104,8 @@
         ]
     (ui/modal-dialog
      "contacts"
-     [[:div.top-right-controls (ui/make-button "New" new-contact)] [:div#contact-form {:style "display:none"} ""]
-      [:h3 "CONTACTS"]
-      (into [:div#names] (map (fn [[caddr cname]] [:div.contact
+     ["CONTACTS" [:div.top-right-controls (ui/make-button "New" new-contact)] [:div#contact-form {:style "display:none"} ""] ]
+     [(into [:div#names] (map (fn [[caddr cname]] [:div.contact
                                                   [:div.contact-name cname (ui/make-button "Edit" #(contact-form (fn [] (do-save-contact caddr)) caddr cname))]
                                                   (into [:div.channel-addresses-container]
                                                         (filter (fn [x] (not (nil? x))) (map (fn [cs] (render-channel-addresses cs caddr)) channel-identity-scapes)))
