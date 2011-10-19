@@ -281,39 +281,61 @@ assumes that the scape has receptor addresses in the value of the map, unless fl
 ;; espeically the sorting and limiting of the receptors.
 ;; They need to be made more efficient but that will have to
 ;; wait until we rebuild scaping into it's new form
+
+(defn process-scape-query
+  "returns state with receptors pruned to those that match the scape-query"
+  [_r state scape-query]
+  (if (nil? scape-query)
+    [state nil]
+    (let [{scape-name :scape [qfn qv] :query flip :flip} scape-query
+          s (_get-scape _r (if (string? scape-name ) (keyword scape-name) scape-name))
+          qfun (condp = qfn
+                   "<" (if flip (fn ([k v] [(< (compare v qv) 0) k])) (fn ([k v] [(< (compare k qv) 0) v])))
+                   ">" (if flip (fn ([k v] [(> (compare v qv) 0) k])) (fn ([k v] [(> (compare k qv) 0) v])))
+                   "=" (if flip (fn ([k v] [(= v qv) k])) (fn ([k v] [(= k qv) v])))
+                   )
+          receptors (if (nil? s) #{} (set (query-scape s qfun)))
+          final-state (assoc state :receptors (filter (fn [[key _]] (receptors key)) (:receptors state)))
+          ]
+      [final-state (count (:receptors final-state))]
+      )))
+
+(defn process-scape-order
+  "returns state with and added key :receptor-order that lists the addresses in order as specified by the order-scape"
+  [_r state scape-order]
+  (if (nil? scape-order)
+    [state nil]
+    (let [{scape-name :scape limit :limit o :offset scape-receptors-only :scape-receptors-only} scape-order
+          s (_get-scape _r scape-name)
+          offset (if (nil? o) 0 o)
+          total (scape-size s)
+          pre-sorted (drop offset (sort-by-scape s (keys (:receptors state)) (:flip scape-order) (:descending scape-order)))
+          sorted (if (nil? limit) pre-sorted (take limit pre-sorted))
+          ;; this is cheat because I shouldn't be able to
+          ;; look directly into the scape receptor here,
+          ;; now should I!
+          non-scape-receptors (if scape-receptors-only #{} (difference (set (keys (:receptors state))) (set (vals @(contents s :map)))))
+
+          final-state (if (and (nil? limit) (= 0 offset) (not scape-receptors-only)) ;small optimization
+                        (assoc state :receptor-order sorted)
+                        (let [lset (set sorted)]
+                          (assoc state :receptor-order sorted :receptors (into {} (filter (fn [[k v]] (and (not= k :last-address) (or (lset k) (non-scape-receptors k)))) (:receptors state))))))
+          ]
+      [final-state total]
+      ))
+  )
+
 (defn process-query
   "takes a receptor state and applies a query to it"
   [_r state query]
   (let [{scape-query :scape-query scape-order :scape-order} query
-        qstate (if (nil? scape-query)
-                 state
-                 (let [{scape-name :scape [qfn qv] :query flip :flip} scape-query
-                       s (_get-scape _r (if (string? scape-name ) (keyword scape-name) scape-name))
-                       qfun (condp = qfn
-                                "<" (if flip (fn ([k v] [(< (compare v qv) 0) k])) (fn ([k v] [(< (compare k qv) 0) v])))
-                                ">" (if flip (fn ([k v] [(> (compare v qv) 0) k])) (fn ([k v] [(> (compare k qv) 0) v])))
-                                "=" (if flip (fn ([k v] [(= v qv) k])) (fn ([k v] [(= k qv) v])))
-                                )
-                       receptors (if (nil? s) #{} (set (query-scape s qfun)))]
-                   (assoc state :receptors (filter (fn [[key _]] (receptors key)) (:receptors state)))))
-        ostate (if (nil? scape-order)
-                 qstate
-                 (let [{scape-name :scape limit :limit o :offset scape-receptors-only :scape-receptors-only} scape-order
-                       s (_get-scape _r scape-name)
-                       offset (if (nil? o) 0 o)
-                       tstate (assoc qstate :receptor-total (scape-size s))
-                       pre-sorted (drop offset (sort-by-scape s (keys (:receptors tstate)) (:flip scape-order) (:descending scape-order)))
-                       sorted (if (nil? limit) pre-sorted (take limit pre-sorted))
-                       ;; this is cheat because I shouldn't be able to
-                       ;; look directly into the scape receptor here,
-                       ;; now should I!
-                       non-scape-receptors (if scape-receptors-only #{} (difference (set (keys (:receptors qstate))) (set (vals @(contents s :map)))))
-                       ]
-                   (if (and (nil? limit) (= 0 offset) (not scape-receptors-only)) ;small optimization
-                     (assoc tstate :receptor-order sorted)
-                     (let [lset (set sorted)]
-                       (assoc tstate :receptor-order sorted :receptors (into {} (filter (fn [[k v]] (and (not= k :last-address) (or (lset k) (non-scape-receptors k)))) (:receptors qstate))))))))]
-    (if (:partial query) (filter-map ostate (:partial query)) ostate)))
+        [qstate qtotal] (process-scape-query _r state scape-query)
+        [ostate ototal] (process-scape-order _r qstate scape-order)
+        tstate (assoc ostate :receptor-total (if qtotal qtotal ototal)) 
+        final-state (if (:partial query) (filter-map tstate (:partial query)) tstate)
+        ]
+    final-state
+    ))
 
 (defn receptor-state
   "gets the receptor state: for serialization if full? is true or, for public consumption if full? is false or a query spec"

@@ -123,7 +123,7 @@
     (--> key->set p (get-scape p :s2) z "zippy")
     (--> key->set p (get-scape p :s2) s "sam")
     (--> key->set p (get-scape p :s2) j "jane")
-    
+
     (set (keys (:receptors (receptor-state p {:scape-query {:scape :s1 :query [">" "s"]}})))) => #{s z}
     (set (keys (:receptors (receptor-state p {:scape-query {:scape :s2 :query [">" "s"] :flip true}})))) => #{s z}
     (set (keys (:receptors (receptor-state p {:scape-query {:scape :s1 :query ["<" "s"]}})))) => #{j}
@@ -133,6 +133,10 @@
     (:receptor-order (receptor-state p {:scape-order {:scape :s1}})) => [j s z]
     (:receptor-order (receptor-state p {:scape-order {:scape :s1 :descending true}})) => [z s j]
     (:receptor-order (receptor-state p {:scape-order {:flip true :scape :s2 :descending true}})) => [z s j]
+    
+    (let [state (receptor-state p {:scape-query {:scape :s1 :query [">" "s"]} :scape-order {:scape :s1 :limit 2}}) ]
+       (:receptor-total state) => 2
+      )
     (let [state (receptor-state p {:receptor 0 :scape-order {:scape :s1 :limit 2}})]
       (:receptor-total state) => 3
       (:receptor-order state) => [j s]
