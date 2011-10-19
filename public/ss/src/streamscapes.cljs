@@ -110,8 +110,10 @@
   )
 
 (defn get-groove-scapes []
-  (map (fn [sn] [:p (ui/make-click-link (humanize-scape-name-for-list sn) #(refresh-stream (descapify sn) true))]) (ssu/get-matching-scapes #"-groove-scape$"))
-  )
+  (map (fn [sn]
+         (let [scape (descapify sn)]
+           [(scape-tag scape true)
+            (ui/make-click-link (humanize-scape-name-for-list sn) #(refresh-stream scape true))])) (ssu/get-matching-scapes #"-groove-scape$")))
 
 (defn get-order-scapes []
   (map (fn [sn] [:p (humanize-scape-name-for-list sn)]) (ssu/get-matching-scapes-by-relationship-address #"droplet-address"))
@@ -141,6 +143,10 @@ onto the linking value."
   (apply conj [:div.section] [:h4 section-name]  contents)
   )
 
+(defn scape-tag [scape value]
+  (let [[qscape qval] s/*scape-query*]
+       (if (and (= qscape scape) (= qval value)) :p.active :p)))
+
 (defn render-scapes [s]
   (let [elem (d/get-element :scape-panel )
         scapes (:scapes s)
@@ -149,8 +155,7 @@ onto the linking value."
     (dom/append elem (d/build [:div
                                (make-scape-section "channels"
                                                    (map (fn [[cname caddr]]
-                                                          (let [[qscape qval] s/*scape-query*
-                                                                tag (if (and (= qscape :droplet-channel) (= qval caddr)) :p.active :p)]
+                                                          (let [tag (scape-tag :droplet-channel caddr)]
                                                             (apply conj [tag] (let [type (ssu/get-channel-type caddr)]
                                                                                (apply conj
                                                                                       [(d/html (ssu/channel-icon-html cname type))]

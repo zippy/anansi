@@ -124,9 +124,14 @@ div#everything {
 
 /* --------------- scape styles ---------------*/
 
+p.active {
+   background: #fff;
+}
+
 #scape-panel {
   margin-top: 8px;
   margin-bottom: 32px;
+   background: -webkit-gradient(linear, left top, left bottom, from(#f8f8f8), to(#eee));
 }
 
 #scape-panel .section h4 {
