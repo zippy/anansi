@@ -231,6 +231,7 @@ img.twitter-avatar {
   margin: 0 16px 0 16px;
   border-top: 1px solid #DDD;
   padding-top: 2px;
+  clear: both;
 }
 .droplet-preview .preview-groove-specific  {
   font-weight: bold;
@@ -245,6 +246,10 @@ img.twitter-avatar {
   padding-bottom: 3px;
   position: relative;
   display: inline-block;
+}
+
+.droplet-preview .goog-menu-button {
+   float: right;
 }
 
 .preview-sent {

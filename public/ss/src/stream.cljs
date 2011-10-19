@@ -78,6 +78,10 @@
                                   (d/html (get-html-from-body (part (:content d)) (part (:envelope d))))]) grammar)]
     (ui/modal-dialog "full-droplet" (str (name channel-type) " droplet") parts)))
 
+(defn tag-droplet [droplet-address tag-scape]
+  (ssu/send-ss-signal {:aspect "scape" :signal "set"
+                       :params {:name tag-scape :key (js/parseInt (name droplet-address)) :address true}} ss.streamscapes/refresh-stream-callback))
+
 (defn render-preview [droplet-address droplet-channel-scape s]
     (let [d ((:receptors s) droplet-address)
           channel-address (droplet-channel-scape droplet-address)
@@ -87,11 +91,9 @@
           sent (droplet-date s d :delivery-scape)
           from (resolve-ident s (:from d))
           tag-name-map (into {} (map (fn [[sn tn]] [tn sn]) (:values (:tag-scapes-scape (:scapes s/*current-state*)))))
-          [ts ts-elem] (ui/make-select "tag" "Tag:" (keys tag-name-map)
-                                       (fn [e] (let [tag-scape (tag-name-map (. (. (.target e) (getSelectedItem)) (getValue)))]
-                                                (ssu/send-ss-signal {:aspect "scape" :signal "set"
-                                                                     :params {:name tag-scape :key (js/parseInt (name droplet-address)) :address true}} (fn [] nil))
-                                                )))
+          tag-menu-elem (ui/make-menu "Tags"
+                                      (into [] (map (fn [[sn tn]] [tn #(tag-droplet droplet-address tag-scape)])
+                                                    (:values (:tag-scapes-scape (:scapes s/*current-state*))))))
           tags (map #(name %) (ssu/get-droplet-tags droplet-address))
           preview-tag (if (empty? tags) :div.droplet-preview (keyword (str "div.droplet-preview_" (string/join "_" tags))))
           ]
@@ -100,8 +102,10 @@
        [:div.preview-from from]
        [:div.preview-groove-specific (groove-preview d channel-type s)]
        [:div.preview-sent sent]
-       (ui/make-click-link "Open" (fn [] (render-full d channel-type s)))
-       ts-elem
+       (ui/make-click-link "Open" #(do
+                                     (tag-droplet droplet-address :touched-tag)
+                                     (render-full d channel-type s)))
+       tag-menu-elem
        ]))
 
 (comment condp = channel-type
