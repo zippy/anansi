@@ -149,11 +149,14 @@ onto the linking value."
 
 (defn get-channel-buttons [type cname]
   (cond
-   (or (= type :email) (= type :twitter)) [(ui/make-button "Check" #(channel-check cname))]
-   (= type :irc) [(ui/make-button "Open" #(irc-open cname))
-                  (ui/make-button "Close" #(irc-close cname))
-                  (ui/make-button "Join" #(irc-join cname))]
-   true []))
+    (or (= type :email ) (= type :twitter ))
+    [(ui/make-menu "G" [["Check" #(channel-check cname)]])]
+    (= type :irc )
+    [(ui/make-menu "G"
+        [["Open", #(irc-open cname)]
+         ["Close", #(irc-close cname)]
+         ["Join", #(irc-join cname)]])]
+    true []))
 
 (defn render-scapes [s]
   (let [elem (d/get-element :scape-panel )

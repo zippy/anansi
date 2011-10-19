@@ -1,6 +1,7 @@
 (ns ss.ui
   (:require
    [clojure.browser.dom :as dom]
+   [ss.debug :as d]
    [goog.ui.LabelInput :as LabelInput]
    [goog.editor.Field :as field]
    [goog.ui.Button :as uiButton]
@@ -105,6 +106,7 @@
   )
 
 (defn make-menu [name items]
+  (ss.debug/jslog items)
   (let [elem (d/element :span )
         menu (doto (goog.ui.Menu.) (.setId (str name "Menu")))
         button (goog.ui.MenuButton. name menu)]
@@ -115,14 +117,8 @@
     (goog.events.listen button goog.ui.Component.EventType.ACTION
       (fn [event]
         (let [ selected-label (. (.target event) (getCaption))
-               foo (js/alert (u/clj->json items))]
-;               callback (second (first (filter
-;                                       #(do
-;                                          (debug/jslog selected-label (first %) )
-;                                          (= selected-label (first %)) items))))]
-          (js/alert (u/clj->json callback))
-         (callback)
-         )))
+               callback (second (first (filter #(= selected-label (first %)) items)))]
+         (callback))))
     elem))
 
 (defn modal-dialog [id buildelems]
