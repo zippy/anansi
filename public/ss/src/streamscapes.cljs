@@ -102,7 +102,7 @@
 
 (defn humanize-scape-name-for-list [sn]
   ;; way ugly but drops the ending "-scape"
-  (str "by " (string/join " " (reverse (rest (reverse (string/split (name sn) #"-"))))))
+  (string/join " " (reverse (rest  (rest (reverse (string/split (name sn) #"-"))))))
   )
 
 (defn get-groove-scapes []
