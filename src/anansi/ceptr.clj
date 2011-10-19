@@ -309,17 +309,19 @@ assumes that the scape has receptor addresses in the value of the map, unless fl
           s (_get-scape _r scape-name)
           offset (if (nil? o) 0 o)
           total (scape-size s)
-          pre-sorted (drop offset (sort-by-scape s (keys (:receptors state)) (:flip scape-order) (:descending scape-order)))
+          flip (:flip scape-order)
+          pre-sorted (drop offset (sort-by-scape s (keys (:receptors state)) flip (:descending scape-order)))
           sorted (if (nil? limit) pre-sorted (take limit pre-sorted))
           ;; this is cheat because I shouldn't be able to
           ;; look directly into the scape receptor here,
           ;; now should I!
           non-scape-receptors (if scape-receptors-only #{} (difference (set (keys (:receptors state))) (set (vals @(contents s :map)))))
-
+          items (map (fn [dt] (if (string? dt) (nth (re-find #"^(\d\d\d\d-\d\d-\d\d)" dt) 1) dt)) ((if flip vals keys) @(contents s :map)))
+          fstate (assoc state :frequencies (frequencies items))
           final-state (if (and (nil? limit) (= 0 offset) (not scape-receptors-only)) ;small optimization
-                        (assoc state :receptor-order sorted)
+                        (assoc fstate :receptor-order sorted)
                         (let [lset (set sorted)]
-                          (assoc state :receptor-order sorted :receptors (into {} (filter (fn [[k v]] (and (not= k :last-address) (or (lset k) (non-scape-receptors k)))) (:receptors state))))))
+                          (assoc fstate :receptor-order sorted :receptors (into {} (filter (fn [[k v]] (and (not= k :last-address) (or (lset k) (non-scape-receptors k)))) (:receptors state))))))
           ]
       [final-state total]
       ))

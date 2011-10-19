@@ -106,7 +106,6 @@
   )
 
 (defn make-menu [name items]
-  (ss.debug/jslog items)
   (let [elem (d/element :span )
         menu (doto (goog.ui.Menu.) (.setId (str name "Menu")))
         button (goog.ui.MenuButton. name menu)]
