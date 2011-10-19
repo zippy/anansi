@@ -107,6 +107,13 @@
            [(scape-tag scape true)
             (ui/make-click-link (humanize-scape-name-for-list sn) #(refresh-stream scape true))])) (ssu/get-matching-scapes #"-groove-scape$")))
 
+(defn get-tag-scapes []
+  (let [scapes (:scapes s/*current-state*)]
+    (map (fn [[scape-name tag-name]]
+           [(scape-tag scape-name true)
+            (ui/make-click-link tag-name #(refresh-stream scape-name true))])
+         (:values (:tag-scapes-scape scapes)))))
+
 (defn get-order-scapes []
   (map (fn [sn] [:p (humanize-scape-name-for-list sn)]) (ssu/get-matching-scapes-by-relationship-address #"droplet-address"))
   )
@@ -126,6 +133,7 @@ onto the linking value."
                   (map (fn [[cat-name v]] [:p (ui/make-click-link (name cat-name) #(refresh-stream (descapify address-scape) v))
                                           ]) (:values (name-scape scapes)))) ) category-scapes)
     ))
+;; This code is for showing all scapes that map droplet-addresses...
  (comment let [key-scapes (ssu/get-matching-scapes-by-relationship-key #"droplet-address")
         scapes (:scapes s)]
     (map (fn [sn] (apply conj [:div.key-scape [:h5 (humanize-scape-name-for-list sn)]] (map (fn [[_ v]] [:p (name v)]) (:values (sn scapes))))) key-scapes))
@@ -162,15 +170,13 @@ onto the linking value."
                                                                                       [(ui/make-click-link (name cname) #(refresh-stream :droplet-channel caddr))]
                                                                                       (get-channel-buttons type cname))))))
                                                         (:values (:channel-scape scapes))))
-                               (make-scape-section "groove scapes" (get-groove-scapes))
+                               (make-scape-section "grooves" (get-groove-scapes))
+                               (make-scape-section "tags" (get-tag-scapes))
 ;                               (make-scape-section "ordering scapes" (get-order-scapes))
-                               (make-scape-section "categorizing scapes" (get-category-scapes))
-;                               (ui/make-menu "bar"
-;                                 [["a" #(js/alert "abra")]
-;                                  ["b" #(js/alert "badabra")]])
-
+;                               (make-scape-section "categorizing scapes" (get-category-scapes))
                                ]))
-    (dom/append elem ())))
+;    (dom/append elem ())
+    ))
 
 ;; These are the functions for the debug rendering of the receptor
 

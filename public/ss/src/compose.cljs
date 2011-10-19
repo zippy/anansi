@@ -30,7 +30,15 @@
                                              [:p (str (name sn) ": " key-rel "->" value-rel " ")
                                               (ui/make-button "Add Scape Entry" #(set-scape sn key-rel value-rel :scape-work))
                                               ])) (keys (:values (:my-scapes-scape scapes)))))]
-                       [:div#scape-work {:style "display:none"} ""]]
+                       [:div#scape-work {:style "display:none"} ""]
+                       [:div [:h4 "Tags"]
+                        (ui/make-button "New Tag" #(make-tag :tag-work))
+;                        (into [:div.my-tags] (map (fn [[scape-name
+;                        tag-name]] [:span tag-name]) (:values
+;                        (:tag-scapes-scape scapes))))
+                        ]
+                       [:div#tag-work {:style "display:none"} ""]]
+                     
                      )))
 
 (defn do-make-scape [{scape-name :scape-name key-rel :key-rel val-rel :value-rel}]
@@ -51,6 +59,26 @@
                    {:field :key-rel :label "Key Relationship" :hint "dash-separated-type"}
                    {:field :value-rel :label "Value Relationship" :hint "dash-separated-type"}]
    do-make-scape)
+  )
+
+(defn do-make-tag [{tag-name :tag-name}]
+  (let [tag-scape-name (str (string/replace (string/replace (string/lower-case tag-name) #"\W"+ "-") #"[^a-zA-Z0-9_-]" "X") "-tag")]
+    (ceptr/start-chain
+     {:cleanup  sss/refresh-stream
+      :error (fn [result] (js/alert (str "Server reported error:" result)))
+      :chain [
+              (fn [result chain]
+                (ssu/send-ss-signal {:aspect "setup" :signal "new-scape"
+                                     :params {:name tag-scape-name :relationship {:key "droplet-address" :address "boolean"}}} (ceptr/nextc chain)))
+              (fn [result chain]
+                (ssu/send-ss-signal {:aspect "scape" :signal "set"
+                                     :params {:name :tag-scapes :key tag-scape-name :address tag-name}} (ceptr/nextc chain)))
+              ]})))
+
+(defn make-tag [parent-id]
+  (ui/make-dialog parent-id
+                  [{:field :tag-name :label "Tag Name"}]
+   do-make-tag)
   )
 
 (defn do-set-scape [scape-name {key :key-val val :value-val}]

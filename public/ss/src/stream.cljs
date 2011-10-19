@@ -89,6 +89,12 @@
           channel-icon (ssu/channel-icon-html channel-name channel-type)
           sent (droplet-date s d :delivery-scape)
           from (resolve-ident s (:from d))
+          tag-name-map (into {} (map (fn [[sn tn]] [tn sn]) (:values (:tag-scapes-scape (:scapes s/*current-state*)))))
+          [ts ts-elem] (ui/make-select "tag" "Tag:" (keys tag-name-map)
+                                       (fn [e] (let [tag-scape (tag-name-map (. (. (.target e) (getSelectedItem)) (getValue)))]
+                                                (ssu/send-ss-signal {:aspect "scape" :signal "set"
+                                                                     :params {:name tag-scape :key (js/parseInt (name droplet-address)) :address true}} (fn [] nil))
+                                                )))
           ]
       [:div.droplet-preview
        (d/html channel-icon)
@@ -96,6 +102,7 @@
        [:div.preview-groove-specific (groove-preview d channel-type s)]
        [:div.preview-sent sent]
        (ui/make-click-link "Open" (fn [] (render-full d channel-type s)))
+       ts-elem
        ]))
 
 (comment condp = channel-type
