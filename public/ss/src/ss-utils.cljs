@@ -80,3 +80,7 @@
 (defn channel-icon-html [channel-name channel-type]
   (str "<img class=\"droplet-type-icon\" src=\"images/" (name channel-type) ".png\" title=\"" (name channel-name) "\">")
   )
+
+(defn get-droplet-tags [droplet-address]
+  (let [scapes (:scapes s/*current-state*)]
+    (into [] (filter (fn [scape] (contains? (:values ((keyword (str scape "-scape")) scapes)) droplet-address)) (keys (:values (:tag-scapes-scape scapes)))))))

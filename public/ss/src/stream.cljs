@@ -95,8 +95,10 @@
                                                 (ssu/send-ss-signal {:aspect "scape" :signal "set"
                                                                      :params {:name tag-scape :key (js/parseInt (name droplet-address)) :address true}} (fn [] nil))
                                                 )))
+          tags (map #(name %) (ssu/get-droplet-tags droplet-address))
+          preview-tag (if (empty? tags) :div.droplet-preview (keyword (str "div.droplet-preview_" (string/join "_" tags))))
           ]
-      [:div.droplet-preview
+      [preview-tag
        (d/html channel-icon)
        [:div.preview-from from]
        [:div.preview-groove-specific (groove-preview d channel-type s)]

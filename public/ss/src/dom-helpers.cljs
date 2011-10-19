@@ -38,7 +38,10 @@
                      (apply hash-map (map #(cond (= % ".") :class
                                                  (= % "#") :id
                                                  :else %)
-                                          (rest parts)))]]
+                                          (rest parts)))]
+        attrs (if (contains? attrs :class) (assoc attrs :class (string/replace (:class attrs) "_" " ")) attrs)
+        ]
+    
     (if (map? (first args))
       [tag (merge attrs (first args)) (rest args)]
       [tag attrs args])))

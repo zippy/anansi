@@ -99,10 +99,10 @@
                                     :params {:name "tag-scapes" :relationship {:key "scape-name" :address "tag-name"}}} (ceptr/nextc chain)))
              (fn [result chain]
                (ssu/send-ss-signal {:aspect "setup" :signal "new-scape"
-                                    :params {:name "read-tag" :relationship {:key "droplet-address" :address "boolean"}}} (ceptr/nextc chain)))
+                                    :params {:name "touched-tag" :relationship {:key "droplet-address" :address "boolean"}}} (ceptr/nextc chain)))
              (fn [result chain]
                (ssu/send-ss-signal {:aspect "scape" :signal "set"
-                                    :params {:name :tag-scapes :key :read-tag :address "read"}} (ceptr/nextc chain)))
+                                    :params {:name :tag-scapes :key :touched-tag :address "touched"}} (ceptr/nextc chain)))
              ]}))
 
 (def new-user (goog.ui.Prompt. "New User" "User"
