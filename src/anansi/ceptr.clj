@@ -310,13 +310,17 @@ assumes that the scape has receptor addresses in the value of the map, unless fl
           offset (if (nil? o) 0 o)
           total (scape-size s)
           flip (:flip scape-order)
-          pre-sorted (drop offset (sort-by-scape s (keys (:receptors state)) flip (:descending scape-order)))
+          pre-offset (sort-by-scape s (keys (:receptors state)) flip (:descending scape-order))
+          pre-sorted (drop offset pre-offset)
           sorted (if (nil? limit) pre-sorted (take limit pre-sorted))
           ;; this is cheat because I shouldn't be able to
           ;; look directly into the scape receptor here,
           ;; now should I!
+          all-set (set pre-offset)
           non-scape-receptors (if scape-receptors-only #{} (difference (set (keys (:receptors state))) (set (vals @(contents s :map)))))
-          items (map (fn [dt] (if (string? dt) (nth (re-find #"^(\d\d\d\d-\d\d-\d\d)" dt) 1) dt)) ((if flip vals keys) @(contents s :map)))
+          items (map (fn [dt] (if (string? dt) (nth (re-find #"^(\d\d\d\d-\d\d-\d\d)" dt) 1) dt))
+                     ((if flip vals keys) (filter (fn [[k v]] (all-set (if flip k v)))
+                                                  @(contents s :map))))
           fstate (assoc state :frequencies (frequencies items))
           final-state (if (and (nil? limit) (= 0 offset) (not scape-receptors-only)) ;small optimization
                         (assoc fstate :receptor-order sorted)
