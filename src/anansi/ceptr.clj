@@ -327,11 +327,13 @@ assumes that the scape has receptor addresses in the value of the map, unless fl
                                                 dt))
                                     ((if flip vals keys) (filter (fn [[k v]] (all-set (if flip k v)))
                                                                  @(contents s :map))))
-                         freqs (frequencies items)
+                         freqs (into (sorted-map) (map identity (frequencies items)))
                          [start _] (first freqs)
                          [end _] (last freqs)
-                         filled-freqs (merge (into {} (map (fn [i] [(plus start (days i)) 0]) (range 0 (in-days (interval start end))))) freqs)
-                         
+                         filled-freqs (try
+                                        (merge (into {} (map (fn [i] [(plus start (days i)) 0]) (range 0 (in-days (interval start end))))) freqs)
+                                        (catch Exception e
+                                          freqs))
                          sorted-freqs (into [] (map (fn [[d f]] [(unparse (formatters :year-month-day) d) f]) (into (sorted-map) (map identity filled-freqs)) ))
                          ]
                      (assoc state :frequencies sorted-freqs))

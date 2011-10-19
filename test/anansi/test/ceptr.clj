@@ -120,7 +120,12 @@
     (--> key->set p (get-scape p :s1) "2000-01-03" s)
     (--> key->set p (get-scape p :s1) "2000-01-03" j)
     
-    (receptor-state p {:scape-order {:scape :s1 :frequencies true}})) => (contains {:frequencies [["2000-01-01" 1] ["2000-01-02" 0] ["2000-01-03" 1]]})
+    (receptor-state p {:scape-order {:scape :s1 :frequencies true}}) => (contains {:frequencies [["2000-01-01" 1] ["2000-01-02" 0] ["2000-01-03" 1]]})
+    (receptor-state p {:scape-order {:scape :s2 :frequencies true}}) => (contains {:frequencies []})
+    (--> key->set p (get-scape p :s2) "2000-01-03" j)
+    (receptor-state p {:scape-order {:scape :s2 :frequencies true}}) => (contains {:frequencies [["2000-01-03" 1]]})
+        
+    )
   )
 
 (facts "about querys on public access to receptor contents"
