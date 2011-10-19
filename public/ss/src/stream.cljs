@@ -56,7 +56,7 @@
                         (ui/make-button "Refresh" refresh-fun)
                         ]])
               (d/build [:div#flow-panel
-                        [:div.count (str "stream: " (count droplet-channel-scape)
+                        [:div.count (str "stream: " (count (:receptor-order s))
                               " of " (:receptor-total s))]])
               (d/build [:div#droplet-panel
                   (apply conj [:div.droplet-previews]
