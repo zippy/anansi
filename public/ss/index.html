@@ -37,12 +37,15 @@
   </style>
   <script type="text/javascript" src="out/goog/base.js"></script>
   <script type="text/javascript" src="ss.js"></script>
+  <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
   <script type="text/javascript">
     goog.require('ss.core');
+    google.load('visualization', '1.0', {'packages':['corechart']});
   </script>
 
 </head>
-<body onLoad="ss.core.on_load(); ">
+<body onLoad="ss.core.on_load();">
 
 <div id="everything">
   <div id="header">
@@ -59,7 +62,9 @@
         <div class="col1" id="stream-panel">
           <!-- Column 2 start -->
           <div id="stream-control"><h3>stream actions</h3></div>
-          <div id="flow-panel"><h3>flow</h3></div>
+          <div id="flow-panel">
+            <div id="visualization"></div>
+          </div>
           <div id="droplet  -panel"></div>
         </div>
         <!-- Column 2 end -->

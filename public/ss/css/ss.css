@@ -153,8 +153,34 @@ p.active {
 
 #scape-panel .section > p > span {
   vertical-align: top;
-  line-height: 20px;
+  line-height: 16px;
   padding-left: 3px;
+}
+
+/* cogs for left menu */
+#scape-panel .goog-menu-button {
+  float: right;
+  height: 18px;
+  background:  transparent;
+}
+#scape-panel .goog-menu-button-outer-box {
+  border:  0;
+}
+
+#scape-panel .goog-menu-button-inner-box {
+  border:  0;
+}
+#scape-panel .goog-menu-button-caption {
+  width: 16px;
+  background: url(/ss/images/cog1-16.png) no-repeat;
+  text-indent: -9999px;
+}
+#scape-panel .goog-menu-button-caption:hover {
+  background: url(/ss/images/cog1-blue-16.png) no-repeat;
+}
+
+#scape-panel .goog-menu-button-dropdown {
+  background:  transparent;
 }
 
 
@@ -186,6 +212,32 @@ div#stream-control {
 
 div#droplet-panel {
   clear: both;
+}
+
+/* lables for droplets */
+div#droplet-panel div.droplet-preview  .goog-menu-button {
+  float: right;
+  height: 18px;
+  background:  transparent;
+}
+div#droplet-panel div.droplet-preview  .goog-menu-button-outer-box {
+  border:  0;
+}
+
+div#droplet-panel div.droplet-preview  .goog-menu-button-inner-box {
+  border:  0;
+}
+div#droplet-panel div.droplet-preview  .goog-menu-button-caption {
+  width: 16px;
+  background: url(/ss/images/label1-gray-16.png) no-repeat;
+  text-indent: -9999px;
+}
+div#droplet-panel div.droplet-preview  .goog-menu-button-caption:hover {
+  background: url(/ss/images/label1.png) no-repeat;
+}
+
+div#droplet-panel div.droplet-preview  .goog-menu-button-dropdown {
+  background:  transparent;
 }
 
 /* ------------ authpane ------------------ */
@@ -254,6 +306,7 @@ img.twitter-avatar {
 
 .preview-sent {
   width: 120px;
+  float:right;
 }
 
 .preview-from {

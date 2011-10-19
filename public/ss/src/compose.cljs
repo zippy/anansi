@@ -33,9 +33,6 @@
                        [:div#scape-work {:style "display:none"} ""]
                        [:div [:h4 "Tags"]
                         (ui/make-button "New Tag" #(make-tag :tag-work))
-;                        (into [:div.my-tags] (map (fn [[scape-name
-;                        tag-name]] [:span tag-name]) (:values
-;                        (:tag-scapes-scape scapes))))
                         ]
                        [:div#tag-work {:style "display:none"} ""]]
                      

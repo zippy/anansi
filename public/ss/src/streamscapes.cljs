@@ -154,9 +154,10 @@ onto the linking value."
 (defn get-channel-buttons [type cname]
   (cond
     (or (= type :email ) (= type :twitter ))
-    [(ui/make-menu "G" [["Check" #(channel-check cname)]])]
+    [(ui/make-menu "Actions"
+       [["Check" #(channel-check cname)]])]
     (= type :irc )
-    [(ui/make-menu "G"
+    [(ui/make-menu "Actions"
         [["Open", #(irc-open cname)]
          ["Close", #(irc-close cname)]
          ["Join", #(irc-join cname)]])]

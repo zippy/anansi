@@ -41,28 +41,40 @@
       body
       (str "<pre>" body "</pre>"))))
 
+(defn visualize [data]
+  (let [
+        idv (map vector (iterate inc 0) data)
+        table (doto (google.visualization.DataTable.)
+                (.addColumn "string" "Date")
+                (.addColumn "number" "Flows")
+                (.addRows (count data)))
+         chart (google.visualization.AreaChart. (ss.dom-helpers/get-element :visualization ))
+       ]
+     (doseq [[idx [k v]] idv]
+      (.setCell table idx 0 k)
+      (.setCell table idx 1 v))
+    (.draw chart table nil)))
+
 
 (defn render [refresh-fun]
   (let [s s/*current-state*
-        elem (d/get-element :stream-panel)
+        elem (d/get-element :stream-panel )
         scapes (:scapes s)
         droplet-channel-scape (:values (:droplet-channel-scape scapes))
         ]
-    (d/remove-children :stream-panel)
+    (d/remove-children :stream-panel )
     (d/append elem
-              (d/build [:div#stream-control
-                        [:div#buttons
-                        (ui/make-button "Create Droplet" droplet/create)
-                        (ui/make-button "Refresh" refresh-fun)
-                        ]])
-              (d/build [:div#flow-panel
-                        [:div.count (str "stream: " (count (:receptor-order s))
-                                         " of " (:receptor-total s))]])
-              (d/build [:div#droplet-panel
-                  (apply conj [:div.droplet-previews]
-                    (map (fn [da] (render-preview (keyword da) droplet-channel-scape s))
-                      (:receptor-order s)))]))
-        ))
+      (d/build [:div#stream-control [:div#buttons (ui/make-button "Create Droplet" droplet/create)
+                                     (ui/make-button "Refresh" refresh-fun)
+                                     ]])
+      (d/build [:div#flow-panel [:div#visualization {:style "width:550px; height:150px"} ""]
+                [:div.count (str "stream: " (count (:receptor-order s))
+                  " of " (:receptor-total s))]])
+      (d/build [:div#droplet-panel (apply conj [:div.droplet-previews ]
+        (map (fn [da] (render-preview (keyword da) droplet-channel-scape s))
+          (:receptor-order s)))]))
+    (visualize (:frequencies s))
+    ))
 
 (defn get-sbmg-body [d]
   (let [body (:body (:content d))
@@ -101,11 +113,11 @@
        (d/html channel-icon)
        [:div.preview-from from]
        [:div.preview-groove-specific (groove-preview d channel-type s)]
-       [:div.preview-sent sent]
        (ui/make-click-link "Open" #(do
                                      (tag-droplet droplet-address :touched-tag)
                                      (render-full d channel-type s)))
        tag-menu-elem
+       [:div.preview-sent sent]
        ]))
 
 (comment condp = channel-type
