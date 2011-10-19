@@ -13,10 +13,14 @@
             ))
 
 (defn refresh-stream-callback
-  "a signal a callback for simply reloading the state from the severver"
+  "a signal a callback for simply reloading the state from the server"
   [e]
   (let [{status :status result :result} (ceptr/handle-xhr e)]
-    (refresh-stream)))
+    (refresh-current-stream)))
+
+(defn refresh-current-stream []
+  (let [[scape value] s/*scape-query*]
+    (refresh-stream scape value)))
 
 (defn refresh-stream
   ([] (refresh-stream nil nil))
