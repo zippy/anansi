@@ -89,7 +89,8 @@
     (def *channel-select* channel-select)
     (def *incorp-button* incorp-button)
     (ui/modal-dialog "droplet-create"
-                     [[:h3 "Create Droplet"]
+                     "Create Droplet"
+                     [
                       [:p [:label {:for "groove"} "Groove: "]
                        groove-select-element]
                       [:p [:label {:for "channel"} "Channel: "]
