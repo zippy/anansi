@@ -1,7 +1,7 @@
 (ns ss.debug
   (:require [ss.dom-helpers :as d]
             [ss.utils :as u]
-;            [goog.debug.DebugWindow :as debugw]                       
+;            [goog.debug.DebugWindow :as debugw]
             ))
 
 (defn log [txt]

@@ -93,8 +93,8 @@
       [:div.droplet-preview
        (d/html channel-icon)
        [:div.preview-from from]
-       [:div.preview-sent sent]
        [:div.preview-groove-specific (groove-preview d channel-type s)]
+       [:div.preview-sent sent]
        (ui/make-click-link "Open" (fn [] (render-full d channel-type s)))
        ]))
 

@@ -104,6 +104,27 @@
     )
   )
 
+(defn make-menu [name items]
+  (let [elem (d/element :span )
+        menu (doto (goog.ui.Menu.) (.setId (str name "Menu")))
+        button (goog.ui.MenuButton. name menu)]
+    (doseq [[label callback] items]
+      (.addItem menu (goog.ui.MenuItem. label)))
+    (.render button elem)
+
+    (goog.events.listen button goog.ui.Component.EventType.ACTION
+      (fn [event]
+        (let [ selected-label (. (.target event) (getCaption))
+               foo (js/alert (u/clj->json items))]
+;               callback (second (first (filter
+;                                       #(do
+;                                          (debug/jslog selected-label (first %) )
+;                                          (= selected-label (first %)) items))))]
+          (js/alert (u/clj->json callback))
+         (callback)
+         )))
+    elem))
+
 (defn modal-dialog [id buildelems]
   (let [cbe (make-button "Close" cancel-modal)
         x (apply conj

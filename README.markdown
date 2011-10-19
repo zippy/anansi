@@ -141,6 +141,26 @@ As well as listing on port 3333 for telnet connections, Anansi also runs a web-s
 
 Anansi also directly serves all files (and sub-directories) from the htdocs directory.  So, this is where to put UI code for your receptors.  See [the commons room](https://github.com/metacurrency/Commons-Room-UI)
 
+## Web Development aka How to set up a Browser Repl
+
+1. start the server: cd into a clojurescript checkout, run ./script/repl, and from there do
+
+        (require '[cljs.repl :as repl])
+        (require '[cljs.repl.browser :as browser])  ;; require the browser implementation of IJavaScriptEnv
+        (def env (browser/repl-env)) ;; create a new environment
+        (repl/repl env) ;; start the REPL
+
+2. connect from the client.  make sure that
+
+         (:require [clojure.browser.repl :as repl])
+
+is required in a ns file (currently core.cljs) and that:
+
+          (repl/connect "http://localhost:9000/repl")
+
+is called in the document load.
+
+
 ## Architecture
 
 The ceptr platform consists of a nested hierarchy of receptors, with no necessary top.

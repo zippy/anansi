@@ -96,14 +96,6 @@
   (ssu/send-ss-signal {:aspect "matrice" :signal "control-channel"
                        :params {:name c :command :close}}))
 
-(defn get-channel-buttons [type cname]
-  (cond
-   (or (= type :email) (= type :twitter)) [(ui/make-button "Check" #(channel-check cname))]
-   (= type :irc) [(ui/make-button "Open" #(irc-open cname))
-                  (ui/make-button "Close" #(irc-close cname))
-                  (ui/make-button "Join" #(irc-join cname))]
-   true []))
-
 (defn humanize-scape-name-for-list [sn]
   ;; way ugly but drops the ending "-scape"
   (str "by " (string/join " " (reverse (rest (reverse (string/split (name sn) #"-"))))))
@@ -147,6 +139,14 @@ onto the linking value."
   (let [[qscape qval] s/*scape-query*]
        (if (and (= qscape scape) (= qval value)) :p.active :p)))
 
+(defn get-channel-buttons [type cname]
+  (cond
+   (or (= type :email) (= type :twitter)) [(ui/make-button "Check" #(channel-check cname))]
+   (= type :irc) [(ui/make-button "Open" #(irc-open cname))
+                  (ui/make-button "Close" #(irc-close cname))
+                  (ui/make-button "Join" #(irc-join cname))]
+   true []))
+
 (defn render-scapes [s]
   (let [elem (d/get-element :scape-panel )
         scapes (:scapes s)
@@ -165,6 +165,10 @@ onto the linking value."
                                (make-scape-section "groove scapes" (get-groove-scapes))
 ;                               (make-scape-section "ordering scapes" (get-order-scapes))
                                (make-scape-section "categorizing scapes" (get-category-scapes))
+;                               (ui/make-menu "bar"
+;                                 [["a" #(js/alert "abra")]
+;                                  ["b" #(js/alert "badabra")]])
+
                                ]))
     (dom/append elem ())))
 
