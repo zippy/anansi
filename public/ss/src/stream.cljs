@@ -92,7 +92,7 @@
           from (resolve-ident s (:from d))
           tag-name-map (into {} (map (fn [[sn tn]] [tn sn]) (:values (:tag-scapes-scape (:scapes s/*current-state*)))))
           tag-menu-elem (ui/make-menu "Tags"
-                                      (into [] (map (fn [[sn tn]] [tn #(tag-droplet droplet-address tag-scape)])
+                                      (into [] (map (fn [[sn tn]] [tn #(tag-droplet droplet-address sn)])
                                                     (:values (:tag-scapes-scape (:scapes s/*current-state*))))))
           tags (map #(name %) (ssu/get-droplet-tags droplet-address))
           preview-tag (if (empty? tags) :div.droplet-preview (keyword (str "div.droplet-preview_" (string/join "_" tags))))
