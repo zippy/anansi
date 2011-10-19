@@ -57,7 +57,7 @@
                         ]])
               (d/build [:div#flow-panel
                         [:div.count (str "stream: " (count (:receptor-order s))
-                              " of " (:receptor-total s))]])
+                                         " of " (:receptor-total s))]])
               (d/build [:div#droplet-panel
                   (apply conj [:div.droplet-previews]
                     (map (fn [da] (render-preview (keyword da) droplet-channel-scape s))

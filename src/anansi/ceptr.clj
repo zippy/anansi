@@ -5,7 +5,9 @@
   (:use [anansi.map-utilities]
         [anansi.util]
         )
-  (:use [clojure.set :only [difference]]))
+  (:use [clojure.set :only [difference]]
+        [clj-time.core :only [date-time plus in-days interval days]]
+        [clj-time.format :only [unparse formatters]]))
 
 (declare *receptors*)
 
@@ -316,12 +318,25 @@ assumes that the scape has receptor addresses in the value of the map, unless fl
           ;; this is cheat because I shouldn't be able to
           ;; look directly into the scape receptor here,
           ;; now should I!
-          all-set (set pre-offset)
           non-scape-receptors (if scape-receptors-only #{} (difference (set (keys (:receptors state))) (set (vals @(contents s :map)))))
-          items (map (fn [dt] (if (string? dt) (nth (re-find #"^(\d\d\d\d-\d\d-\d\d)" dt) 1) dt))
-                     ((if flip vals keys) (filter (fn [[k v]] (all-set (if flip k v)))
-                                                  @(contents s :map))))
-          fstate (assoc state :frequencies (frequencies items))
+          fstate (if (:frequencies scape-order)
+                   (let [all-set (set pre-offset)
+                         items (map (fn [dt] (if (string? dt) (let [[_ y m d] (re-find #"^(\d\d\d\d)-(\d\d)-(\d\d)" dt)]
+                                                               (date-time (Integer. y) (Integer. m) (Integer. d))
+                                                               )
+                                                dt))
+                                    ((if flip vals keys) (filter (fn [[k v]] (all-set (if flip k v)))
+                                                                 @(contents s :map))))
+                         freqs (frequencies items)
+                         [start _] (first freqs)
+                         [end _] (last freqs)
+                         filled-freqs (merge (into {} (map (fn [i] [(plus start (days i)) 0]) (range 0 (in-days (interval start end))))) freqs)
+                         
+                         sorted-freqs (into [] (map (fn [[d f]] [(unparse (formatters :year-month-day) d) f]) (into (sorted-map) (map identity filled-freqs)) ))
+                         ]
+                     (assoc state :frequencies sorted-freqs))
+                   state
+                   )
           final-state (if (and (nil? limit) (= 0 offset) (not scape-receptors-only)) ;small optimization
                         (assoc fstate :receptor-order sorted)
                         (let [lset (set sorted)]

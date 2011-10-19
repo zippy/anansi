@@ -110,6 +110,19 @@
     )
   )
 
+(facts "about frequency calculations on queries"
+  (let [p (make-receptor r-def nil {:attributes {:x "parent"}})
+        z (address-of (make-receptor r-def p {:attributes {:x "zippy"}}))
+        s (address-of (make-receptor r-def p {:attributes {:x "sam"}}))
+        j (address-of (make-receptor r-def p {:attributes {:x "jane"}}))
+        ]
+    (--> key->set p (get-scape p :s1) "2000-01-01" z)
+    (--> key->set p (get-scape p :s1) "2000-01-03" s)
+    (--> key->set p (get-scape p :s1) "2000-01-03" j)
+    
+    (receptor-state p {:scape-order {:scape :s1 :frequencies true}})) => (contains {:frequencies [["2000-01-01" 1] ["2000-01-02" 0] ["2000-01-03" 1]]})
+  )
+
 (facts "about querys on public access to receptor contents"
   (let [p (make-receptor r-def nil {:attributes {:x "parent"}})
         x (address-of (make-receptor rsub-def p {}))

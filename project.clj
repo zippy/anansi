@@ -15,7 +15,7 @@
                  [net.cgrand/moustache "1.0.0"]
                  [compojure "0.6.3"]
                  [ring "0.3.7"]
-                 [clj-time "0.3.0"]
+                 [clj-time "0.3.1"]
                  [javax.mail/mail "1.4.4"
                   :exclusions [javax.activation/activation]]
                  ]

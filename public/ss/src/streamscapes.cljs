@@ -52,7 +52,7 @@
   "get the state of a streamscapes receptor and render it, possibly limmiting the receptors returned to those in a given scape"
   ([r] (get-state r nil nil))
   ([r scape value] 
-     (let [q {:scape-order {:scape :delivery :limit 40 :descending true}}
+     (let [q {:scape-order {:scape :delivery :limit 40 :descending true :frequencies true}}
            query (if (nil? scape) q (assoc q :scape-query {:scape scape  :query ["=" value] :flip true}))]
        (if (nil? scape)
          (s/clear-scape-query)
