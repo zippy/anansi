@@ -70,14 +70,16 @@
 
 (defn pull-messages [_r]
   (let [ props (java.util.Properties.)
-        session (doto (javax.mail.Session/getInstance
-                       (doto (java.util.Properties.)
-                         (.put "mail.pop3.host" (contents _r :host))
-                         (.put "mail.pop3.port" (contents _r :port))
-                         (.put "mail.pop3.user" (contents _r :account))
-                         (.put "mail.pop3.user" (contents _r :password)))
-                       )
-                  (.setDebug false))
+        bs (do
+              (.put props "mail.pop3.host" (contents _r :host))
+              (.put props "mail.pop3.port" (contents _r :port))
+              (.put props "mail.pop3.user" (contents _r :account))
+              (if (= (contents _r :port) 995)
+                (.put props "javax.mail.pop3.socketFactory.class"
+                "javax.net.ssl.SSLSocketFactory"))
+              (println "props = " props))
+         session (doto (javax.mail.Session/getInstance props)
+                    (.setDebug false))
         store (.getStore session (contents _r :protocol))]
     (.connect store (contents _r :account) (contents _r :password))
     (let [folder (. store getFolder "inbox")]

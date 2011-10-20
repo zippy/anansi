@@ -73,7 +73,7 @@
       (d/build [:div#droplet-panel (apply conj [:div.droplet-previews ]
         (map (fn [da] (render-preview (keyword da) droplet-channel-scape s))
           (:receptor-order s)))]))
-    (visualize (:frequencies s))
+;    (visualize (:frequencies s))
     ))
 
 (defn get-sbmg-body [d]

@@ -37,6 +37,10 @@ div#everything {
   cursor: pointer;
 }
 
+.menu-container {
+    display: inline-block;
+}
+
 /* -------------- header ----------------- */
 
 
@@ -206,6 +210,9 @@ p.active {
 }
 
 
+#scape-panel .menu-container {
+  float:right;
+}
 
 /* ------------- stream flow styles ------------ */
 

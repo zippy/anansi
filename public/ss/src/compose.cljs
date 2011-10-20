@@ -123,15 +123,15 @@
 (defn make-email-channel [parent-id]
   (ui/make-dialog parent-id
                   [{:field :channel-name :default "email" :label "Channel Name:"}
-                   {:field :in-host :default "mail.harris-braun.com" :label "Incoming Mail server host:"}
-                   {:field :in-account :default "eric@harris-braun.com" :label "Incoming Mail server account:"}
+                   {:field :in-host :default "pop.gmail.com" :label "Incoming Mail server host:"}
+                   {:field :in-account :default "lewis.hoffman@gmail.com" :label "Incoming Mail server account:"}
                    {:field :in-password :label "Incoming Mail sever password:"}
                    {:field :in-protocol :default "pop3" :label "Incoming Mail sever protocol:"}
-                   {:field :in-port :default 110 :label "Incoming Mail sever port:"}
-                   {:field :out-host :default "mail.harris-braun.com" :label "Outgoing Mail server host:"}
-                   {:field :out-account :default "eric@harris-braun.com" :label "Outgoing Mail server account:"}
+                   {:field :in-port :default 995 :label "Incoming Mail sever port:"}
+                   {:field :out-host :default "smtp.googleemail.com" :label "Outgoing Mail server host:"}
+                   {:field :out-account :default "lewis.hoffman@gmail.com" :label "Outgoing Mail server account:"}
                    {:field :out-password :label "Outogoing Mail sever password:"}
                    {:field :out-protocol :default "smtps" :label "Outgoing Mail sever protocol:"}
-                   {:field :out-port :default 25 :label "Outgoing Mail sever port:"}
+                   {:field :out-port :default 465 :label "Outgoing Mail sever port:"}
                    ]
                   make-email))
