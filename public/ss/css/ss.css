@@ -401,7 +401,7 @@ img.twitter-avatar {
 }
 
 .modal-content {
-   height: 100%;
+   height: 97%;
   overflow-x: hidden;
   overflow-y: scroll;
 }
@@ -473,6 +473,12 @@ of the div is centered vertically*/
 .channel-addresses .channel {
   float: left;
 }
+
+div#compose div.modal-content {
+  overflow-y: hidden;
+}
+
+
 
 /* --------------- Footer styles --------------- */
 #footer {
