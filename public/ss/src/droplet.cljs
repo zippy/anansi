@@ -19,11 +19,13 @@
 (defn make-groove-field
   "create the dom elments for the input field given a groove field spec"
   [field-name field-type]
-  (let [field-id (make-groove-field-id field-name)]
+  (let [field-id (make-groove-field-id field-name)
+        [_ enum] (re-find #"enumeration/(.*)" field-type )]
     (d/build
      [:p 
       [:label {:for field-id} (str (string/capitalize (name field-name)) ": ")]
       (cond
+       enum [:p enum] ;(ui/make-select "" nil (string/split enum #",") (fn [] nil))
        (= field-type "text/html") [(keyword (str "textarea#" field-id)) {:name field-id :rows 10 :cols 100}]
        true [(keyword (str "input#" field-id)) {:name field-id :size 100}]
        )])))

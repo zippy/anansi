@@ -31,6 +31,9 @@
                                                                                                    :twitter {:text "text/plain"}
                                                                                                    :irc {:message "text/plain"}}}})]
                                   (--> key->set _r grooves :simple-message (address-of groove)))
+                                (let [groove (make-receptor groove-def _r {:attributes {:grammars {:streamscapes {:poll-name "text/plain"
+                                                                                                                  :options "enumeration/yes,no,abstain"}}}})]
+                                  (--> key->set _r grooves :poll (address-of groove)))
                                 (let [groove
                                       (make-receptor
                                        groove-def _r
