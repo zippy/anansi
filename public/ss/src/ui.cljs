@@ -88,7 +88,7 @@
 
 (defn make-click-link
   [text click-fun]
-  (let [link-elem (d/build [:a {:href "#"} text])]
+  (let [link-elem (d/build [:a {:href "javascript:void(0)"} text])]
     (goog.events.listen link-elem goog.events.EventType.CLICK click-fun)
     link-elem))
 
