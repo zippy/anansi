@@ -337,47 +337,39 @@ img.twitter-avatar {
   height: 20px;
 }
 
-.droplet-preivews {
+.droplet-previews {
+  display: block;
 }
-
 .droplet-preview {
   margin: 0 16px 0 16px;
   border-top: 1px solid #DDD;
   padding-top: 2px;
   clear: both;
+  display: block;
 }
-.droplet-preview .preview-groove-specific  {
-  font-weight: bold;
-  width: 400px;
+
+.droplet-preview div.preview-channel-icon,
+.droplet-preview div.preview-from,
+.droplet-preview div.preview-groove-specific,
+.droplet-preview div.preview-tags,
+.droplet-preview div.preview-sent {
+  /*position: relative;*/
+  display: inline-block;
+  /*  float: left; */
 }
+
+.droplet-preview div.preview-channel-icon {}
+.droplet-preview div.preview-from { width: 160px; padding-left: 4px; }
+.droplet-preview div.preview-groove-specific { font-weight: bold; }
+.droplet-preview div.preview-tags { float: right;  }
+.droplet-preview div.preview-sent { float: right; width: 120px }
+
+
 .droplet-preview.touched-tag .preview-groove-specific {
   font-weight: normal;
 }
 
-.droplet-preview > div, .droplet-preview > span {
-  position: relative;
-  display: inline-block;
-}
 
-.droplet-preview .goog-menu-button {
-}
-
-.preview-sent {
-  width: 120px;
-}
-
-.preview-from {
-  width: 160px;
-  padding-left: 4px;
-
-}
-
-.preview-groove-specific {
-}
-
-.droplet-preview a {
-  float:right;
-}
 /*--------------- dialog styles ---------------*/
 
 #modalmask {
@@ -406,7 +398,7 @@ img.twitter-avatar {
 }
 
 .modal-content {
-   height: 93%;
+   height: 90%;
   overflow-x: hidden;
   overflow-y: scroll;
   padding: 5px 10px 0 10px;

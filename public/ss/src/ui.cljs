@@ -109,7 +109,7 @@
   )
 
 (defn make-menu [name items]
-  (let [elem (d/element :span )
+  (let [elem (d/element :div )
         menu (doto (goog.ui.Menu.) (.setId (str name "Menu")))
         button (goog.ui.MenuButton. name menu)]
     (doseq [[label callback] items]

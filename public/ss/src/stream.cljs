@@ -106,13 +106,13 @@
           preview-tag (if (empty? tags) :div.droplet-preview (keyword (str "div.droplet-preview_" (string/join "_" tags))))
           ]
       [preview-tag
-       (d/html channel-icon)
+       [:div.preview-channel-icon (d/html channel-icon)]
        [:div.preview-from from]
        (ui/add-click-fun (d/build [:div.preview-groove-specific (groove-preview d channel-type s)])
          #(do(ssu/tag-droplet droplet-address :touched-tag)
              (render-full droplet-address channel-type s)))
-       tag-menu-elem
        [:div.preview-sent sent]
+       [:div.preview-tags tag-menu-elem]
        ]))
 
 (comment condp = channel-type
