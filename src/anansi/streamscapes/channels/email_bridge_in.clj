@@ -11,7 +11,7 @@
 
 
 (def email-bridge-in-def (receptor-def "email-bridge-in"
-                          (attributes :host :account :password :protocol)))
+                          (attributes :host :account :password :protocol :port)))
 
 (defn convertMultiPartMessage [msg]
   (cond

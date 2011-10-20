@@ -115,7 +115,7 @@
 
 (defn make-email [p]
   (let [params {:type :email :name (:channel-name p)
-                :in {:host (:in-host p) :account (:in-account p) :password (:in-password p) :protocol (:in-protocol p)}
+                :in {:host (:in-host p) :account (:in-account p) :password (:in-password p) :protocol (:in-protocol p) :port (:in-port p)}
                 :out {:host (:out-host p) :account (:out-account p) :password (:out-password p) :protocol (:out-protocol p) :port (:out-port p)}}]
     (ssu/send-ss-signal {:aspect "setup" :signal "new-channel"
                   :params params} sss/refresh-stream-callback)))
@@ -127,6 +127,7 @@
                    {:field :in-account :default "eric@harris-braun.com" :label "Incoming Mail server account:"}
                    {:field :in-password :label "Incoming Mail sever password:"}
                    {:field :in-protocol :default "pop3" :label "Incoming Mail sever protocol:"}
+                   {:field :in-port :default 110 :label "Incoming Mail sever port:"}
                    {:field :out-host :default "mail.harris-braun.com" :label "Outgoing Mail server host:"}
                    {:field :out-account :default "eric@harris-braun.com" :label "Outgoing Mail server account:"}
                    {:field :out-password :label "Outogoing Mail sever password:"}
