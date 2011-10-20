@@ -84,15 +84,13 @@
 
 (defn render-full
   "renders the full droplet by pulling out the parts of the droplet that are specified by the groove grammar"
-  [d channel-type s]
-  (let [grammar (get-droplet-grammar d channel-type s)
+  [droplet-address channel-type s]
+  (let [d ((:receptors s) droplet-address)
+        grammar (get-droplet-grammar d channel-type s)
         parts (map (fn [[part _]] [:div.part [:h4 (name part)]
                                   (d/html (get-html-from-body (part (:content d)) (part (:envelope d))))]) grammar)]
-    (ui/modal-dialog "full-droplet" (str (name channel-type) " droplet") parts)))
-
-(defn tag-droplet [droplet-address tag-scape]
-  (ssu/send-ss-signal {:aspect "scape" :signal "set"
-                       :params {:name tag-scape :key (js/parseInt (name droplet-address)) :address true}} ss.streamscapes/refresh-stream-callback))
+    (ui/modal-dialog "full-droplet"
+                     [(str (name channel-type) " droplet") [:div.top-right-controls (ssu/make-tagging-button droplet-address)]] parts)))
 
 (defn render-preview [droplet-address droplet-channel-scape s]
     (let [d ((:receptors s) droplet-address)
@@ -103,9 +101,7 @@
           sent (droplet-date s d :delivery-scape)
           from (resolve-ident s (:from d))
           tag-name-map (into {} (map (fn [[sn tn]] [tn sn]) (:values (:tag-scapes-scape (:scapes s/*current-state*)))))
-          tag-menu-elem (ui/make-menu "Tags"
-                                      (into [] (map (fn [[sn tn]] [tn #(tag-droplet droplet-address sn)])
-                                                    (:values (:tag-scapes-scape (:scapes s/*current-state*))))))
+          tag-menu-elem (ssu/make-tagging-button droplet-address)
           tags (map #(name %) (ssu/get-droplet-tags droplet-address))
           preview-tag (if (empty? tags) :div.droplet-preview (keyword (str "div.droplet-preview_" (string/join "_" tags))))
           ]
@@ -113,8 +109,8 @@
        (d/html channel-icon)
        [:div.preview-from from]
        (ui/add-click-fun (d/build [:div.preview-groove-specific (groove-preview d channel-type s)])
-         #(do(tag-droplet droplet-address :touched-tag)
-             (render-full d channel-type s)))
+         #(do(ssu/tag-droplet droplet-address :touched-tag)
+             (render-full droplet-address channel-type s)))
        tag-menu-elem
        [:div.preview-sent sent]
        ]))

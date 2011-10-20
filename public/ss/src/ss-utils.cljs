@@ -3,6 +3,7 @@
             [ss.debug :as debug]
             [ss.ceptr :as ceptr]
             [ss.utils :as u]
+            [ss.ui :as ui]
             ))
 
 (defn send-signal
@@ -84,3 +85,12 @@
 (defn get-droplet-tags [droplet-address]
   (let [scapes (:scapes s/*current-state*)]
     (into [] (filter (fn [scape] (contains? (:values ((keyword (str scape "-scape")) scapes)) droplet-address)) (keys (:values (:tag-scapes-scape scapes)))))))
+
+(defn tag-droplet [droplet-address tag-scape]
+  (send-ss-signal {:aspect "scape" :signal "set"
+                       :params {:name tag-scape :key (js/parseInt (name droplet-address)) :address true}} ss.streamscapes/refresh-stream-callback))
+
+(defn make-tagging-button [droplet-address]
+  (ui/make-menu "Tags"
+                (into [] (map (fn [[sn tn]] [tn #(tag-droplet droplet-address sn)])
+                              (:values (:tag-scapes-scape (:scapes s/*current-state*)))))))
