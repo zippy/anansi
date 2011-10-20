@@ -65,11 +65,21 @@
       (first da)
       )))
 
+
+
+
 (defn pull-messages [_r]
-  (let [props (java.util.Properties.)
-        session (doto (javax.mail.Session/getInstance (java.util.Properties.)) (.setDebug false))
+  (let [ props (java.util.Properties.)
+        session (doto (javax.mail.Session/getInstance
+                       (doto (java.util.Properties.)
+                         (.put "mail.pop3.host" (contents _r :host))
+                         (.put "mail.pop3.port" (contents _r :port))
+                         (.put "mail.pop3.user" (contents _r :account))
+                         (.put "mail.pop3.user" (contents _r :password)))
+                       )
+                  (.setDebug false))
         store (.getStore session (contents _r :protocol))]
-    (.connect store (contents _r :host) (contents _r :account) (contents _r :password))
+    (.connect store (contents _r :account) (contents _r :password))
     (let [folder (. store getFolder "inbox")]
       (.open folder (javax.mail.Folder/READ_ONLY ))
       (let [messages (.getMessages folder)]
