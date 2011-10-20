@@ -33,6 +33,9 @@ div#everything {
   display: block;
 }
 
+.clickable {
+  cursor: pointer;
+}
 
 /* -------------- header ----------------- */
 
@@ -50,6 +53,7 @@ div#everything {
   color: #222;
   font-weight: normal;
   background: -webkit-gradient(linear, left top, left bottom, from(white), to(#f7f7f7));
+  background: -moz-linear-gradient(top, #ffffff, #f7f7f7);
 }
 
 #header #logged-in-as {
@@ -72,6 +76,8 @@ div#everything {
   border-bottom: 1px solid #ccc;
   -webkit-border-bottom-left-radius: 3px;
   background: -webkit-gradient(linear, left top, left bottom, from(#eee), to(#ccc));
+  background: -moz-linear-gradient(top, #eee, #ccc);
+
   border-bottom-left-radius: 3px 3px;
 }
 
@@ -118,7 +124,7 @@ div#everything {
   width: 250px;
   position: relative;
   right: 250px;
-  border-right: 1px solid #ddd
+  /*border-right: 1px solid #ddd*/
 }
 
 
@@ -131,7 +137,7 @@ p.active {
 #scape-panel {
   margin-top: 8px;
   margin-bottom: 32px;
-   background: -webkit-gradient(linear, left top, left bottom, from(#f8f8f8), to(#eee));
+   /*background: -webkit-gradient(linear, left top, left bottom, from(#f8f8f8), to(#eee));*/
 }
 
 #scape-panel .section h4 {
@@ -147,7 +153,23 @@ p.active {
 }
 
 #scape-panel .section p {
-  padding: 4px 16px;
+  padding: 4px 8px;
+  margin-left: 8px;
+}
+
+#scape-panel .section p,
+#scape-panel .section h5,
+#scape-panel .section h4,
+#scape-panel .category {
+  border-right:  1px solid #ddd;
+}
+
+#scape-panel .section > p.active {
+  border-top:  1px solid #ddd;
+  border-bottom:  1px solid #ddd;
+  border-left:  1px solid #ddd;
+  border-right: 0;
+
 }
 
 
@@ -214,6 +236,11 @@ div#droplet-panel {
   clear: both;
 }
 
+div#droplet-panel div.droplet-preview {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
 /* lables for droplets */
 div#droplet-panel div.droplet-preview  .goog-menu-button {
   float: right;
@@ -238,6 +265,40 @@ div#droplet-panel div.droplet-preview  .goog-menu-button-caption:hover {
 
 div#droplet-panel div.droplet-preview  .goog-menu-button-dropdown {
   background:  transparent;
+}
+
+div#droplet-panel div.droplet-preview div.preview-groove-specific {
+  overflow: hidden;
+  white-space: nowrap;
+  margin-right: 16px;
+}
+
+div#droplet-panel div.droplet-preview div.preview-groove-specific tr,
+div#droplet-panel div.droplet-preview div.preview-groove-specific td,
+div#droplet-panel div.droplet-preview div.preview-groove-specific p,
+div#droplet-panel div.droplet-preview div.preview-groove-specific h1,
+div#droplet-panel div.droplet-preview div.preview-groove-specific h2,
+div#droplet-panel div.droplet-preview div.preview-groove-specific h3,
+div#droplet-panel div.droplet-preview div.preview-groove-specific h4,
+div#droplet-panel div.droplet-preview div.preview-groove-specific h5,
+div#droplet-panel div.droplet-preview div.preview-groove-specific h6,
+div#droplet-panel div.droplet-preview div.preview-groove-specific ul,
+div#droplet-panel div.droplet-preview div.preview-groove-specific li,
+div#droplet-panel div.droplet-preview div.preview-groove-specific pre,
+div#droplet-panel div.droplet-preview div.preview-groove-specific ol,
+div#droplet-panel div.droplet-preview div.preview-groove-specific hr,
+div#droplet-panel div.droplet-preview div.preview-groove-specific .content div,
+div#droplet-panel div.droplet-preview div.preview-groove-specific .content span,
+div#droplet-panel div.droplet-preview div.preview-groove-specific .content,
+div#droplet-panel div.droplet-preview div.preview-groove-specific .workspace,
+div#droplet-panel div.droplet-preview div.preview-groove-specific .content a,
+div#droplet-panel div.droplet-preview div.preview-groove-specific blockquote {
+  display: inline;
+  margin: 0px 4px;
+  padding: 0px !important;
+  border: 0px !important;
+  white-space: nowrap;
+  float: none !important;
 }
 
 /* ------------ authpane ------------------ */
@@ -287,26 +348,22 @@ img.twitter-avatar {
 }
 .droplet-preview .preview-groove-specific  {
   font-weight: bold;
+  width: 400px;
 }
 .droplet-preview.touched-tag .preview-groove-specific {
   font-weight: normal;
 }
 
-.droplet-preview > div, .droplet-preview > a {
-  vertical-align: top;
-  padding-top: 4px;
-  padding-bottom: 3px;
+.droplet-preview > div, .droplet-preview > span {
   position: relative;
   display: inline-block;
 }
 
 .droplet-preview .goog-menu-button {
-   float: right;
 }
 
 .preview-sent {
   width: 120px;
-  float:right;
 }
 
 .preview-from {
@@ -422,6 +479,7 @@ of the div is centered vertically*/
   clear: both;
   float: left;
   width: 100%;
+  height: 100%;
   border-top: 1px solid #ddd;
   background:  #eee;
 }
@@ -429,7 +487,6 @@ of the div is centered vertically*/
 #footer p {
   padding: 10px;
   margin: 0;
-
 }
 
 .rbutton {
@@ -456,10 +513,12 @@ of the div is centered vertically*/
 
 div#controls {
   margin: 16px;
+  display: none;
 }
 
 div#the-receptor {
   margin:  16px;
+  display: none;
 }
 
 

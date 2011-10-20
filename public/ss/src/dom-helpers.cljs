@@ -127,3 +127,8 @@
 (defn hide
   "hide an element by id"
   [elem] (vis elem false))
+
+(defn add-class [element classname]
+  (let [new-class (str (.className element) " " classname)]
+    (goog.dom.setProperties element (.strobj {"class"  new-class }))
+    add-class))

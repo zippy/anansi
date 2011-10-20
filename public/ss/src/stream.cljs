@@ -112,10 +112,9 @@
       [preview-tag
        (d/html channel-icon)
        [:div.preview-from from]
-       [:div.preview-groove-specific (groove-preview d channel-type s)]
-       (ui/make-click-link "Open" #(do
-                                     (tag-droplet droplet-address :touched-tag)
-                                     (render-full d channel-type s)))
+       (ui/add-click-fun (d/build [:div.preview-groove-specific (groove-preview d channel-type s)])
+         #(do(tag-droplet droplet-address :touched-tag)
+             (render-full d channel-type s)))
        tag-menu-elem
        [:div.preview-sent sent]
        ]))

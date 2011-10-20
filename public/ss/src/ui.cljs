@@ -90,9 +90,12 @@
   [text click-fun]
   (let [link-elem (d/build [:a {:href "#"} text])]
     (goog.events.listen link-elem goog.events.EventType.CLICK click-fun)
-    link-elem
-    )
-  )
+    link-elem))
+
+(defn add-click-fun [element click-fun]
+  (goog.events.listen element goog.events.EventType.CLICK click-fun)
+  (d/add-class element "clickable")
+  element)
 
 (defn make-select [elem-id caption options select-fun]
   (let [select (goog.ui.Select. caption)
