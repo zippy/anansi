@@ -43,7 +43,10 @@
         (let [
               i-from (s-> matrice->identify r {:identifiers {:ss-address eric-ss-addr} :attributes {:name "Eric"}})
               i-to (s-> matrice->identify r {:identifiers {:ss-address zippy-ss-addr} :attributes {:name "Zippy"}})
+              receiver-ident-addr (s-> matrice->identify ru {:identifiers {:ss-address zippy-ss-addr} :attributes {:name "Zippy"}})
+              ru-ident-names (get-scape ru :ident-name)
               droplet-address (s-> matrice->incorporate r {:to i-to :from i-from :envelope {:subject "text/plain" :body "text/html"} :content {:subject "Hi there!" :body "<b>Hello world!</b>"}})
+              ru-ident-name-before-send (s-> key->resolve ru-ident-names receiver-ident-addr)
               result (s-> stream->send c-out {:droplet-address droplet-address })
               d (get-receptor r droplet-address)
               deliveries (get-scape r :delivery)
@@ -63,7 +66,15 @@
               (is (= (contents d :content) (contents zd :content)))
               (is (= (contents d :envelope) (contents zd :envelope)))
               (is (= (s-> key->resolve ss-addr-idents eric-ss-addr)  (contents zd :from) ))
+              (facts "about auto identifying on receive not overwriting existing identity names"
+                (let [zipster (get-receptor ru receiver-ident-addr)]
+                  (s-> key->resolve ss-addr-idents zippy-ss-addr) => (contents zd :to)
+                  (contents zipster :name) => "Zippy"
+                  ru-ident-name-before-send => "Zippy"
+                  (s-> key->resolve ru-ident-names receiver-ident-addr) => "Zippy")
+                  )
               )
+            
             (facts "about using deliver flag when incororating a droplet"
               (let [droplet-address2 (s-> matrice->incorporate r {:deliver :immediate :channel :local-stream :to i-to :from i-from :envelope {:subject "text/plain" :body "text/html"} :content {:subject "Another Droplet" :body "<b>Hello again world!</b>"}})]
                 (count (s-> key->all zippy-droplet-ids)) => 2

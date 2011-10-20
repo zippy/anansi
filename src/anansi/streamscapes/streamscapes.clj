@@ -103,13 +103,15 @@
   "add an identity receptor into the streamscape, scaping the identifiers and attributes appropriately"
   ([_r params] (do-identify _r params true))
   ([_r {identifiers :identifiers attrs :attributes} throw-if-exists]
-     (let [attrs1 (if (nil? attrs) {} attrs)
-           attributes (if (nil? (:name attrs1))
-                        (assoc attrs1 :name (make-default-name identifiers) )
-                        attrs1)
-           iaddrs (find-contacts _r identifiers)
+     (let [iaddrs (find-contacts _r identifiers)
            iaddr (first iaddrs)
-           exists (not (nil? iaddr))]
+           exists (not (nil? iaddr))
+           attributes (if exists nil
+                          (let [attrs1 (if (nil? attrs) {} attrs)]
+                            (if (nil? (:name attrs1))
+                              (assoc attrs1 :name (make-default-name identifiers) )
+                              attrs1)))
+           ]
        
        (if (and exists throw-if-exists) (throw (RuntimeException. (str "identity already exists for identifiers: " (join ", " (vals identifiers))))))
        (if (not (nil? (first (rest iaddrs))))

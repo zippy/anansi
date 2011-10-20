@@ -43,6 +43,8 @@
         (is (= {:subject "text/plain" :body "text/html"} (contents d :envelope)))
         (is (= {:subject "Hi there!" :body "<b>Hello world!</b>"} (contents d :content)))
         (is (= droplet-address (handle-message b message)))
+        (let [eric (get-receptor r eric-addr)]
+          (fact (contents eric :name) => "Eric"))
         )
       )
     ))

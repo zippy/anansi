@@ -31,13 +31,12 @@
   (let [h (make-receptor host-def nil {})
         m (make-receptor user-def h "eric")
         r (make-receptor streamscapes-def h {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
-        eric (make-receptor ident-def r {:attributes {:name "Eric"}})
+        eric-addr (s-> matrice->identify r {:identifiers {:email "eric@example.com"} :attributes {:name "Eric"}})
         cc-addr (s-> matrice->make-channel r {:name :email-stream})
         cc (get-receptor r cc-addr)
         b (make-receptor email-bridge-in-def cc {:attributes {:host "mail.example.com" :account "someuser" :password "pass" :protocol "pop3"}})
         email-idents (get-scape r :email-ident true)]
     (--> key->set r (get-scape r :channel-type) cc-addr :email)
-    (--> key->set b email-idents "eric@example.com" (address-of eric))
 
     (fact
       (receptor-state b false) => (contains {:host "mail.example.com" :account "someuser" :password "pass" :protocol "pop3"}))
@@ -61,7 +60,7 @@
             d (get-receptor r droplet-address)
             deliveries (get-scape r :delivery)
             ]
-        (is (= (address-of eric) (contents d :to) ))
+        (is (= eric-addr (contents d :to) ))
         (is (= "<1%example.com>" (contents d :id)))
         (is (= (s-> key->resolve email-idents "test@example.com")  (contents d :from) ))
         (is (= :email-stream  (contents d :channel) ))
@@ -74,7 +73,7 @@
           )
         )
       )
-    (fact (:scapes (receptor-state r false)) => (contains {:email-ident-scape {:values {"eric@example.com" 10, "test@example.com" 14}, :relationship {:key nil, :address nil}}, :ident-name-scape {:values {10 "name for (\"eric@example.com\")", 14 "Joe Blow"}, :relationship {:key :ident-address, :address :name-attribute}}}))
+    (fact (:scapes (receptor-state r false)) => (contains {:email-ident-scape {:values {"eric@example.com" 10, "test@example.com" 14}, :relationship {:key :email-identifier, :address :ident-address}}, :ident-name-scape {:values {10 "Eric", 14 "Joe Blow"}, :relationship {:key :ident-address, :address :name-attribute}}}))
     (facts "about content groove scaping (punkmoney)"
       (let [message (create-java-email-message {:sent (java.util.Date. "2011/01/02 12:41") :to "eric@example.com" :from "\"Joe Blow\" <test@example.com>" :subject "Punkmoney Promise" :body "I promise to pay eric@example.com, on demand, some squids. Expires in 1 year."})
             droplet-address (handle-message b message)

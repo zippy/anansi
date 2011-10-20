@@ -21,7 +21,7 @@
         b (make-receptor twitter-bridge-in-def cc {})
         twitter-idents (get-scape r :twitter-ident true)]
     (--> key->set r (get-scape r :channel-type) cc-addr :twitter)
-    (--> key->set b twitter-idents "@zippy314" (address-of eric))
+;;    (--> key->set b twitter-idents "@zippy314" (address-of eric))
     (--> key->set b twitter-idents "_twp_" (address-of twp))
 
     (fact
