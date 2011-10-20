@@ -124,8 +124,8 @@
     elem))
 
 (defn modal-dialog [id header-spec buildelems]
-  (let [[header-text other-header-items] (if (string? header-spec) [header-spec []] [(first header-spec) (rest header-spec)])
-        header-items (keep identity (apply conj other-header-items [[:div.top-right-controls (make-button "Close" cancel-modal)] [:h3 header-text]]))]
+  (let [[header-text other-header-items] (if (string? header-spec) [header-spec []] [(first header-spec) (into [] (rest header-spec))])
+        header-items (apply conj other-header-items [[:div.top-right-controls (make-button "Close" cancel-modal)] [:h3 header-text]])]
     (d/insert-at (d/get-element :everything)
                  (d/build [:div#modalmask.overlay-mask
                            [(keyword (str "div#" id ".standard-modal"))

@@ -392,18 +392,24 @@ img.twitter-avatar {
   background: #fff;
   margin-left: auto;
   margin-right: auto;
-  padding: 10px;
 }
 
 .modal-header {
   border-bottom: 1px solid #000;
   background: -webkit-gradient(linear, left top, left bottom, from(#f8f8f8), to(#eee));
+  height: 33px;
+  padding: 0 10px 0 10px;
+}
+.modal-header h3 {
+   font-size: 120%;
+   padding-top: 8px;
 }
 
 .modal-content {
-   height: 97%;
+   height: 93%;
   overflow-x: hidden;
   overflow-y: scroll;
+  padding: 5px 10px 0 10px;
 }
 
 #contacts span.address {
