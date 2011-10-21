@@ -50,19 +50,19 @@
         state => (receptor-state (receptor-restore state nil) true)
         ))
 
-  ; this test is commented out for regular runs since it actually connects to Google
-  ; and pulls mail down.
-;    (facts "about pull-messages"
-;      (let [b2 (make-receptor email-bridge-in-def cc
-;        {:attributes {:host "imap.gmail.com"
-;                      :account "<email>"
-;                      :password "<password>"
-;                      :protocol "imaps"
-;                      }})]
-;        (pull-messages b2)
-;
-;        )
-;       (println (str "Receiptscape" (get-scape r :receipt))))
+;  this test is commented out for regular runs since it actually connects to Google
+;  and pulls mail down.
+    (facts "about pull-messages"
+      (let [b2 (make-receptor email-bridge-in-def cc
+        {:attributes {:host "imap.gmail.com"
+                      :account "lewis.hoffman@gmail.com"
+                      :password "Fz9QPBnAtqCNt"
+                      :protocol "imaps"
+                      }})]
+        (pull-messages b2)
+
+        )
+       (println (str "Receiptscape" (get-scape r :receipt))))
 
 
     (testing "internal functions: handle-message"

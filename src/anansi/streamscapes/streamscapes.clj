@@ -301,12 +301,17 @@
                                  scape-name (keyword (str (name groove-name) "-groove"))
                                  groove-scape (get-scape ss scape-name {:key "droplet-address" :address "boolean"})
                                  ]
+                            (try
                              (if (grammar-match? grammar envelope content)
                                (do
                                  (s-> key->set groove-scape droplet-address true)
                                  groove-name)
-                               nil)))
+                               nil)
+                              (catch Exception e
+                                (println (str e)))
+                              )))
                          all)
+        foo (println "raw matches " raw-matches)
         matched-grooves (into [] (keep identity raw-matches))
         ]
     (let [dg-scape (get-scape ss :droplet-grooves)]

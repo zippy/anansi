@@ -46,8 +46,9 @@
     (if (empty? da)
       (let [recipients (.getRecipients message javax.mail.Message$RecipientType/TO)
             [to to-name] (parseInternetAddress (first recipients))
-            [from from-name] (parseInternetAddress (first (try (.getFrom message)
-                                                               (catch Exception e [(javax.mail.internet.InternetAddress. (str "\"" e "\" <_err_@unknown.err>"))]))))
+            [from from-name] (parseInternetAddress
+                      (first (try (.getFrom message)
+                         (catch Exception e [(javax.mail.internet.InternetAddress. (str "\"" e "\" <_err_@unknown.err>"))]))))
             to-id (do-identify ss {:identifiers {:email to} :attributes {:name to-name}} false)
             from-id (do-identify ss {:identifiers {:email from} :attributes {:name from-name}} false)
             jd (.getSentDate message)
@@ -74,21 +75,23 @@
         (.setProperty props "mail.pop3.port" (contents _r :port ))
         (.setProperty props "mail.pop3.user" (contents _r :account ))
         (if (= (contents _r :port ) 995)
-          (.setProperty props "javax.mail.pop3.socketFactory.class" "javax.net.ssl.SSLSocketFactory")))
+          (.setProperty props "javax.mail.pop3.socketFactory.class"
+            "javax.net.ssl.SSLSocketFactory")))
       (.setProperty props "mail.store.protocol", "imaps"))
     props))
 
 (defn pull-messages [_r]
   (let [ props (mail-properties _r)
-         session (doto (javax.mail.Session/getInstance props) (.setDebug false))
+         session (doto (javax.mail.Session/getInstance props) (.setDebug true))
          store (.getStore session (contents _r :protocol))]
+    (prn "HOST ----------> " (contents _r :host))
     (.connect store (contents _r :host ) (contents _r :account) (contents _r :password))
     (let [folder (. store getFolder "Inbox")]
       (println "opening folder")
       (.open folder (javax.mail.Folder/READ_ONLY ))
       (let [messages (.getMessages folder)]
         (println (str "retrieved" (count messages) " messages"))
-        (doseq [m (take 20 messages)] (handle-message _r m))
+        (doseq [m messages] (handle-message _r m))
         (.close store)
         ))))
 

@@ -157,8 +157,7 @@ p.active {
 }
 
 #scape-panel .section p {
-  padding: 4px 8px;
-  margin-left: 8px;
+  padding: 4px 16px;
 }
 
 #scape-panel .section p,
@@ -171,7 +170,9 @@ p.active {
 #scape-panel .section > p.active {
   border-top:  1px solid #ddd;
   border-bottom:  1px solid #ddd;
-  border-left:  1px solid #ddd;
+  background:  #f00;
+  background: -webkit-gradient(linear, left top, left bottom, from(#f8f8f8), to(#eee));
+
   border-right: 0;
 
 }

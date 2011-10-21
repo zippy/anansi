@@ -122,15 +122,15 @@
 
 (defn make-email-channel [parent-id]
   (ui/make-dialog parent-id
-                  [{:field :channel-name :default "email" :label "Channel Name:"}
-                   {:field :in-host :default "pop.gmail.com" :label "Incoming Mail server host:"}
-                   {:field :in-account :default "lewis.hoffman@gmail.com" :label "Incoming Mail server account:"}
-                   {:field :in-password :label "Incoming Mail sever password:"}
-                   {:field :in-protocol :default "pop3" :label "Incoming Mail sever protocol:"}
-                   {:field :in-port :default 995 :label "Incoming Mail sever port:"}
-                   {:field :out-host :default "smtp.googleemail.com" :label "Outgoing Mail server host:"}
-                   {:field :out-account :default "lewis.hoffman@gmail.com" :label "Outgoing Mail server account:"}
-                   {:field :out-password :label "Outogoing Mail sever password:"}
+                  [{:field :channel-name :default "gmail" :label "Channel Name:"}
+                   {:field :in-host :default "imap.gmail.com" :label "Incoming Mail server host:"}
+                   {:field :in-account :hint "<email address>" :label "Incoming Mail server account:"}
+                   {:field :in-password :label "password" :hint "<your password>"}
+                   {:field :in-protocol :default "imaps" :label "Incoming Mail sever protocol:"}
+                   {:field :in-port :default "" :label "Incoming Mail sever port:"}
+                   {:field :out-host :default "smtp.googlemail.com" :label "Outgoing Mail server host:"}
+                   {:field :out-account :default "<email>" :label "Outgoing Mail server account:"}
+                   {:field :out-password :label "password:" :hint "<password>"}
                    {:field :out-protocol :default "smtps" :label "Outgoing Mail sever protocol:"}
                    {:field :out-port :default 465 :label "Outgoing Mail sever port:"}
                    ]
