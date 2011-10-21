@@ -10,6 +10,41 @@
         [anansi.libs.sha :only [sha]])
   (:use [clj-time.core :only [now]]))
 
+
+(def compository
+     {:simple-message {:grammars {:streamscapes {:message "text/plain"}
+                                  :twitter {:text "text/plain"}
+                                  :irc {:message "text/plain"}}}
+      :subject-body-message {:grammars {:streamscapes {:subject "text/plain" :body "text/html"}
+                                        :email {:subject "text/plain" :body "text/html"}}}
+      :punkmoney {:grammars
+                  {:streamscapes {:promised-good "text/plain"
+                                  :expiration "text/plain"}
+                   :email {:subject {"text" ["Punkmoney Promise"]}
+                           :body {"text"
+                                  ["I promise to pay (.*), on demand, ([^.]+)\\. Expires in (.*)\\."
+                                   {:payee 1
+                                    :promised-good 2
+                                    :expiration 3}
+                                   ]}}
+                   :twitter {:text {"text"
+                                    ["^(@[^\\W]+) I promise to pay, on demand, ([^.]+)\\. Expires in (.*)\\. #punkmoney"
+                                     {:payee 1
+                                      :promised-good 2
+                                      :expiration 3}
+                                     ]}}}}
+      :poll {:grammars {:streamscapes {:poll-name "text/plain"
+                                       :options "enumeration/yes,no,abstain"}}}
+      :lazyweb-thanks {:grammars
+                       {:streamscapes {:thankee "text/plain"
+                                       :expiration "text/plain"}
+                        :twitter {:text {"text"
+                                         ["#lazyweb thanks (@[^\\W]+)"
+                                          {:thankee 1}
+                                          ]}}}}
+      
+      }
+     )
 (def host-def (receptor-def
                "host"
                (scapes
@@ -20,43 +55,11 @@
                 {:name :creator :relationship {:key "address" :address "creator-user-address"}}
                 {:name :session :relationship {:key "sha" :address "user_address_time_interface_map"}})
                (animate [_r reanimate]
-                        (if (not reanimate)
-                          (let [grooves (get-scape _r :groove)]
-                            (if (= 0 (scape-size grooves))
-                              (do 
-                                (let [groove (make-receptor groove-def _r {:attributes {:grammars {:streamscapes {:subject "text/plain" :body "text/html"}
-                                                                                                   :email {:subject "text/plain" :body "text/html"}}}})]
-                                  (--> key->set _r grooves :subject-body-message (address-of groove)))
-                                (let [groove (make-receptor groove-def _r {:attributes {:grammars {:streamscapes {:message "text/plain"}
-                                                                                                   :twitter {:text "text/plain"}
-                                                                                                   :irc {:message "text/plain"}}}})]
-                                  (--> key->set _r grooves :simple-message (address-of groove)))
-                                (let [groove (make-receptor groove-def _r {:attributes {:grammars {:streamscapes {:poll-name "text/plain"
-                                                                                                                  :options "enumeration/yes,no,abstain"}}}})]
-                                  (--> key->set _r grooves :poll (address-of groove)))
-                                (let [groove
-                                      (make-receptor
-                                       groove-def _r
-                                       {:attributes {:grammars
-                                                     {:streamscapes {:promised-good "text/plain"
-                                                                     :expiration "text/plain"}
-                                                      :email {:subject {"text" ["Punkmoney Promise"]}
-                                                              :body {"text"
-                                                                     ["I promise to pay (.*), on demand, ([^.]+)\\. Expires in (.*)\\."
-                                                                      {:payee 1
-                                                                       :promised-good 2
-                                                                       :expiration 3}
-                                                                      ]}}
-                                                      :twitter {:text {"text"
-                                                                       ["^(@[^\\W]+) I promise to pay, on demand, ([^.]+)\\. Expires in (.*)\\. #punkmoney"
-                                                                        {:payee 1
-                                                                         :promised-good 2
-                                                                         :expiration 3}
-                                                                        ]}}}}})
-                                      ]
-                                  (--> key->set _r grooves :punkmoney (address-of groove))))
-                              ))))
-               ))
+                        (let [grooves (get-scape _r :groove)]
+                          (doseq [[groove-name spec] compository]
+                            (if (nil? (--> key->resolve _r grooves groove-name))
+                              (let [groove (make-receptor groove-def _r {:attributes spec})]
+                                (--> key->set _r grooves groove-name (address-of groove)))))))))
 
 (defn resolve-name [_r user]
   "resolve a username to it's receptor address"

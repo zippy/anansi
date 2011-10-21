@@ -62,4 +62,12 @@
         (s-> key->resolve (get-scape r :droplet-grooves) droplet-address) => [:punkmoney :simple-message]
         )
       )
+    (facts "about content groove scaping (lazyweb)"
+      (let [message {:id_str "121470088291" :text "#lazyweb thanks @artbrock" :from_user "zippy314" :profile_image_url "http://someurl" :created_at "Wed Oct 04 09:31:40 +0000 2011"}
+            droplet-address (handle-message b message)
+            d (get-receptor r droplet-address)
+            ]
+        (s-> key->resolve (get-scape r :droplet-grooves) droplet-address) => [:lazyweb-thanks :simple-message]
+        )
+      )
     ))
