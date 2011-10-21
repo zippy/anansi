@@ -15,7 +15,7 @@
       r (make-receptor streamscapes-def nil {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
       eric (make-receptor ident-def r {:attributes {:name "Eric"}})
       channel-address (s-> setup->new-channel r {:type :email, :name :email,
-                                                 :in {:host "mail.harris-braun.com" :account "eric@harris-braun.com" :password "pass" :protocol "pop3"}
+                                                 :in {:host "mail.harris-braun.com" :account "eric@harris-braun.com" :password "pass" :protocol "pop3" :port 110}
                                                  })
       cc (get-receptor r channel-address)
       [controller-address control-signal] (get-controller cc)
