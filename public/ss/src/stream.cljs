@@ -86,7 +86,7 @@
   "renders the full droplet by pulling out the parts of the droplet that are specified by the groove grammar"
   [droplet-address channel-type s]
   (let [d ((:receptors s) droplet-address)
-        grammar (get-droplet-grammar d channel-type s)
+        [grammar actions] (get-droplet-grammar d channel-type s)
         parts (map (fn [[part _]] [:div.part [:h4 (name part)]
                                   (d/html (get-html-from-body (part (:content d)) (part (:envelope d))))]) grammar)]
     (ui/modal-dialog "full-droplet"
@@ -104,39 +104,45 @@
           tag-menu-elem (ssu/make-tagging-button droplet-address)
           tags (map #(name %) (ssu/get-droplet-tags droplet-address))
           preview-tag (if (empty? tags) :div.droplet-preview (keyword (str "div.droplet-preview_" (string/join "_" tags))))
+          [groove-specific actions] (groove-preview d channel-type s)
+          preview [preview-tag
+                   [:div.preview-channel-icon (d/html channel-icon)]
+                   [:div.preview-from from]
+                   (ui/add-click-fun (d/build [:div.preview-groove-specific groove-specific])
+                                     #(do(ssu/tag-droplet droplet-address :touched-tag)
+                                         (render-full droplet-address channel-type s)))
+                   [:div.preview-sent sent]
+                   [:div.preview-tags tag-menu-elem]
+                   ]
           ]
-      [preview-tag
-       [:div.preview-channel-icon (d/html channel-icon)]
-       [:div.preview-from from]
-       (ui/add-click-fun (d/build [:div.preview-groove-specific (groove-preview d channel-type s)])
-         #(do(ssu/tag-droplet droplet-address :touched-tag)
-             (render-full droplet-address channel-type s)))
-       [:div.preview-sent sent]
-       [:div.preview-tags tag-menu-elem]
-       ]))
+      (if ((set actions) "reply") (conj preview [:div.preview-actions
+                                                 (ui/make-click-link "Reply" #(droplet/create channel-type))])
+          preview)
+      ))
 
-(comment condp = channel-type
-            :streamscapes :subject-body-message
-            :email :subject-body-message
-            :twitter :simple-message
-            :irc :simple-message)
+
+
 (defn get-droplet-grammar [d channel-type s]
   (let [dg (:values (:droplet-grooves-scape (:scapes s)))
-        groove-name (first ((keyword (str (:address d))) dg ))
+        groove-name (keyword (first ((keyword (str (:address d))) dg )))
+        
         ]
-    (channel-type ((keyword groove-name) s/*grooves*))))
+    [(channel-type (groove-name s/*grooves*))
+     (channel-type (groove-name s/*groove-actions*))]))
 
 ;;TODO: groove droplets should be auto-detected by some appropriate
 ;;programmatic method, not by channel-type!
 (defn groove-preview [d channel-type s]
-  (let [grammar (get-droplet-grammar d channel-type s)]
-    (if (contains? grammar :subject )
-      (d/build
-        [:div.subject
-          (str (:subject (:content d)))])
-      [:div.content (str (if (nil? (:text (:content d)))
-                           (:message (:content d))
-                           (:text (:content d))))])))
+  (let [[grammar actions] (get-droplet-grammar d channel-type s)
+        p (if (contains? grammar :subject )
+            [:div.subject
+             (str (:subject (:content d)))]
+            [:div.content (str (if (nil? (:text (:content d)))
+                                 (:message (:content d))
+                                 (:text (:content d))))])
+        ]
+    [p actions]
+    ))
 
 ;; Actions
 

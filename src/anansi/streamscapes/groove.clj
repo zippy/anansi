@@ -6,4 +6,4 @@
         [anansi.receptor.scape]
         ))
 
-(def groove-def (receptor-def "groove" (attributes :grammars)))
+(def groove-def (receptor-def "groove" (attributes :grammars :actions)))

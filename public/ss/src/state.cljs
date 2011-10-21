@@ -27,6 +27,7 @@
 (defn clear-session []
   (def *current-state* nil)
   (def *grooves* nil)
+  (def *groove-actions* nil)
   (def *me* nil)
   (clear-scape-query)
   (.remove goog.net.cookies "ss-session")
@@ -42,6 +43,11 @@
   "set the current streamscapes grooves"
   [g]
   (def *grooves* g)
+  )
+(defn set-groove-actions
+  "set the current streamscapes groove actions"
+  [g]
+  (def *groove-actions* g)
   )
 (defn set-me
   "store my contact address"

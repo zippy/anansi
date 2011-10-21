@@ -10,14 +10,21 @@
         [anansi.libs.sha :only [sha]])
   (:use [clj-time.core :only [now]]))
 
-
+;;(when-carried-by :hash :subject-body-message {:match-fun (fn [hash params] (every? #(contains? hash %) params)) :match-params [:subject :body]})
+;;(def carrier-grammars     {:hash {:subject-body-message {:subject "text/plain" :body "text/html"}}})
 (def compository
-     {:simple-message {:grammars {:streamscapes {:message "text/plain"}
+     {:simple-message {:actions {:streamscapes [:create :reply]
+                                 :irc [:create :reply]}
+                       :grammars {:streamscapes {:message "text/plain"}
                                   :twitter {:text "text/plain"}
                                   :irc {:message "text/plain"}}}
-      :subject-body-message {:grammars {:streamscapes {:subject "text/plain" :body "text/html"}
+      :subject-body-message {:actions {:streamscapes [:create :reply]
+                                       :email [:create :reply]}
+                             :grammars {:streamscapes {:subject "text/plain" :body "text/html"}
                                         :email {:subject "text/plain" :body "text/html"}}}
-      :punkmoney {:grammars
+      :punkmoney {:actions {:streamscapes [:create]
+                            :email [:create :reply]}
+                  :grammars
                   {:streamscapes {:promised-good "text/plain"
                                   :expiration "text/plain"}
                    :email {:subject {"text" ["Punkmoney Promise"]}
@@ -33,9 +40,11 @@
                                       :promised-good 2
                                       :expiration 3}
                                      ]}}}}
-      :poll {:grammars {:streamscapes {:poll-name "text/plain"
+      :poll {:actions {:streamscapes [:create]}
+             :grammars {:streamscapes {:poll-name "text/plain"
                                        :options "enumeration/yes,no,abstain"}}}
-      :lazyweb-thanks {:grammars
+      :lazyweb-thanks {:actions {:streamscapes [:create]}
+                       :grammars
                        {:streamscapes {:thankee "text/plain"
                                        :expiration "text/plain"}
                         :twitter {:text {"text"

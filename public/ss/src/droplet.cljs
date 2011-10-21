@@ -86,7 +86,6 @@
                                                               setup-groove)
         [incorp-button incorp-button-element] (ui/make-button "Add to Stream" send :both)
         ]
-    (debug/alert s/*grooves*)
     (def *groove-select* groove-select)
     (def *channel-select* channel-select)
     (def *incorp-button* incorp-button)
@@ -102,6 +101,7 @@
                       ]
                      )
     (.setValue groove-select "subject-body-message")
+    (if (not (nil? channel)) (.setValue channel-select (name channel)))
     (setup-groove)
     ))
 
