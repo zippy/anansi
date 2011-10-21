@@ -65,17 +65,14 @@
       (first da)
       )))
 
-
-
-
 (defn pull-messages [_r]
   (let [ props (java.util.Properties.)
         bs (do
-              (.put props "mail.pop3.host" (contents _r :host))
-              (.put props "mail.pop3.port" (contents _r :port))
-              (.put props "mail.pop3.user" (contents _r :account))
+              (.setProperty props "mail.pop3.host" (contents _r :host))
+              (.setProperty props "mail.pop3.port" (contents _r :port))
+              (.setProperty props "mail.pop3.user" (contents _r :account))
               (if (= (contents _r :port) 995)
-                (.put props "javax.mail.pop3.socketFactory.class"
+                (.setProperty props "javax.mail.pop3.socketFactory.class"
                 "javax.net.ssl.SSLSocketFactory"))
               (println "props = " props))
          session (doto (javax.mail.Session/getInstance props)

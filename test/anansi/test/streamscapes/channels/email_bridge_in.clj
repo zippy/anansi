@@ -49,10 +49,18 @@
       (let [state (receptor-state b true)]
         state => (receptor-state (receptor-restore state nil) true)
         ))
-    
-    (testing "internal functionss: pull-messages"
-      ;; testing this requires spoofing an e-mail server for the java mail stuff, so it's not done.
-      )
+
+;    (facts "about pull-messages"
+;      (let [b2 (make-receptor email-bridge-in-def cc
+;        {:attributes {:host "pop.gmail.com"
+;                      :account "lewis.hoffman@gmail.com"
+;                      :password "tigger23"
+;                      :protocol "pop3"
+;                      :port 995}})]
+;        (pull-messages b2)
+;        )
+;      ;; testing this requires spoofing an e-mail server for the java mail stuff, so it's not done.
+;      )
     (testing "internal functions: handle-message"
       (let [sent-date (date-time 2011 01 02 12 21)
             message (create-java-email-message {:sent (java.util.Date. "2011/01/02 12:21") :to "eric@example.com" :from "\"Joe Blow\" <test@example.com>" :subject "Hi there!" :body "<b>Hello world!</b>"})
