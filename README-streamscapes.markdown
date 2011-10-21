@@ -1,7 +1,9 @@
 # streamscapes
-Streamscapes is a set of receptors that implement a communications workflow integration platform.  We are using streamscapes as a prototyping example as we build out the ceptr protocols, but also as a "eat-your-own-dog-food" example, to coordinate our communications, and solve the massive flow problems we experience with the currently available tools.
+Streamscapes is a set of receptors that implement a communications workflow integration platform.
+We are using streamscapes as a prototyping example as we build out the ceptr protocols, but also as a "eat-your-own-dog-food" example,
+to coordinate our communications, and solve the massive flow problems we experience with the currently available tools.
 
-This file documents the signals that defined in the streamscapes receptor complex.  There is currently no streamscapes UI.
+This file documents the signals that defined in the streamscapes receptor complex.
 
 ## Examples using the telnet access:
 
@@ -82,7 +84,7 @@ For a complete list of signals that streamscapes can receive see the API below.
 
     streamscapes->receive
         description:
-            a signal for streamscapes instances to send eachother streamscapes droplets
+            a signal for streamscapes instances to send each other streamscapes droplets
         params:
             aspect: <name of channel to which this signal is directed>
             from: <ceptr address of the streamscapes instance this signal is from>

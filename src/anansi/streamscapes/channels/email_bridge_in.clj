@@ -65,24 +65,31 @@
       (first da)
       )))
 
+
+(defn mail-properties [_r]
+  (let [props (java.util.Properties.)]
+    (if (= "pop3" (contents _r :protocol ))
+      (do
+        (.setProperty props "mail.pop3.host" (contents _r :host ))
+        (.setProperty props "mail.pop3.port" (contents _r :port ))
+        (.setProperty props "mail.pop3.user" (contents _r :account ))
+        (if (= (contents _r :port ) 995)
+          (.setProperty props "javax.mail.pop3.socketFactory.class" "javax.net.ssl.SSLSocketFactory")))
+      (.setProperty props "mail.store.protocol", "imaps"))
+    props))
+
 (defn pull-messages [_r]
-  (let [ props (java.util.Properties.)
-        bs (do
-              (.setProperty props "mail.pop3.host" (contents _r :host))
-              (.setProperty props "mail.pop3.port" (contents _r :port))
-              (.setProperty props "mail.pop3.user" (contents _r :account))
-              (if (= (contents _r :port) 995)
-                (.setProperty props "javax.mail.pop3.socketFactory.class"
-                "javax.net.ssl.SSLSocketFactory"))
-              (println "props = " props))
-         session (doto (javax.mail.Session/getInstance props)
-                    (.setDebug false))
-        store (.getStore session (contents _r :protocol))]
-    (.connect store (contents _r :account) (contents _r :password))
-    (let [folder (. store getFolder "inbox")]
+  (let [ props (mail-properties _r)
+         session (doto (javax.mail.Session/getInstance props) (.setDebug false))
+         store (.getStore session (contents _r :protocol))]
+    (.connect store (contents _r :host ) (contents _r :account) (contents _r :password))
+    (let [folder (. store getFolder "Inbox")]
+      (println "opening folder")
       (.open folder (javax.mail.Folder/READ_ONLY ))
       (let [messages (.getMessages folder)]
+        (println (str "retrieved" (count messages) " messages"))
         (doseq [m (take 20 messages)] (handle-message _r m))
         (.close store)
         ))))
+
 

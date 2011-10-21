@@ -50,17 +50,21 @@
         state => (receptor-state (receptor-restore state nil) true)
         ))
 
+  ; this test is commented out for regular runs since it actually connects to Google
+  ; and pulls mail down.
 ;    (facts "about pull-messages"
 ;      (let [b2 (make-receptor email-bridge-in-def cc
-;        {:attributes {:host "pop.gmail.com"
-;                      :account "lewis.hoffman@gmail.com"
-;                      :password "tigger23"
-;                      :protocol "pop3"
-;                      :port 995}})]
+;        {:attributes {:host "imap.gmail.com"
+;                      :account "<email>"
+;                      :password "<password>"
+;                      :protocol "imaps"
+;                      }})]
 ;        (pull-messages b2)
+;
 ;        )
-;      ;; testing this requires spoofing an e-mail server for the java mail stuff, so it's not done.
-;      )
+;       (println (str "Receiptscape" (get-scape r :receipt))))
+
+
     (testing "internal functions: handle-message"
       (let [sent-date (date-time 2011 01 02 12 21)
             message (create-java-email-message {:sent (java.util.Date. "2011/01/02 12:21") :to "eric@example.com" :from "\"Joe Blow\" <test@example.com>" :subject "Hi there!" :body "<b>Hello world!</b>"})
