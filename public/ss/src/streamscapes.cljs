@@ -68,8 +68,10 @@
                  (fn [e] (let [{status :status result :result} (ceptr/handle-xhr e)]
                           (if (= status "ok")
                             (let [receptors (:receptors result)
-                                  grooves (into {} (map (fn [[groove-name addr]] [groove-name (:grammars ((keyword addr) receptors))]) (-> result :scapes :groove-scape :values)))]
-                              (s/set-grooves grooves))
+                                  grooves (into {} (map (fn [[groove-name addr]] [groove-name (:grammars ((keyword addr) receptors))]) (-> result :scapes :groove-scape :values)))
+                                  actions (into {} (map (fn [[groove-name addr]] [groove-name (:actions ((keyword addr) receptors))]) (-> result :scapes :groove-scape :values)))]
+                              (s/set-grooves grooves)
+                              (s/set-groove-actions actions))
                             )
                           )) )
   )

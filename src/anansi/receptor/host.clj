@@ -23,7 +23,7 @@
                              :grammars {:streamscapes {:subject "text/plain" :body "text/html"}
                                         :email {:subject "text/plain" :body "text/html"}}}
       :punkmoney {:actions {:streamscapes [:create]
-                            :email [:create :reply]}
+                            :email {:create true :reply true}}
                   :grammars
                   {:streamscapes {:promised-good "text/plain"
                                   :expiration "text/plain"}
@@ -43,6 +43,9 @@
       :poll {:actions {:streamscapes [:create]}
              :grammars {:streamscapes {:poll-name "text/plain"
                                        :options "enumeration/yes,no,abstain"}}}
+      :bookmark {:actions {:streamscapes [:create]}
+                 :grammars {:streamscapes {:url "text/plain"
+                                           :subject "text/html"}}}
       :lazyweb-thanks {:actions {:streamscapes [:create]}
                        :grammars
                        {:streamscapes {:thankee "text/plain"

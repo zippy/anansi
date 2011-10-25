@@ -104,7 +104,8 @@
           tag-menu-elem (ssu/make-tagging-button droplet-address)
           tags (map #(name %) (ssu/get-droplet-tags droplet-address))
           preview-tag (if (empty? tags) :div.droplet-preview (keyword (str "div.droplet-preview_" (string/join "_" tags))))
-          [groove-specific actions] (groove-preview d channel-type s)
+          [groove-specific a] (groove-preview d channel-type s)
+          actions (if (map? a) (map #(name %) (keys a)) a)
           preview [preview-tag
                    [:div.preview-channel-icon (d/html channel-icon)]
                    [:div.preview-from from]
@@ -139,7 +140,9 @@
              (str (:subject (:content d)))]
             [:div.content (str (if (nil? (:text (:content d)))
                                  (:message (:content d))
-                                 (:text (:content d))))])
+                                 (if (nil? (:text (:content d)))
+                                   (:description (:content d))
+                                   (:text (:content d)))))])
         ]
     [p actions]
     ))
