@@ -53,16 +53,18 @@
             from-id (do-identify ss {:identifiers {:email from} :attributes {:name from-name}} false)
             jd (.getSentDate message)
             sent (if (nil? jd) nil (date-time-from-java-date jd))
+            subject (.getSubject message)
             ]
-        (--> stream->receive _r (parent-of _r)
-             {:id id
-              :to to-id
-              :from from-id
-              :sent (standard-date-string sent)
-              :envelope {:from "rfc-822-email" :subject "text/plain" :body (.getContentType message)}
-              :content {:from from
-                        :subject (.getSubject message)
-                        :body (convertMultiPartMessage (.getContent message))}}))
+        (if (not (nil? subject))
+          (--> stream->receive _r (parent-of _r)
+               {:id id
+                :to to-id
+                :from from-id
+                :sent (standard-date-string sent)
+                :envelope {:from "rfc-822-email" :subject "text/plain" :body (.getContentType message)}
+                :content {:from from
+                          :subject subject
+                          :body (convertMultiPartMessage (.getContent message))}})))
       (first da)
       )))
 
@@ -89,7 +91,8 @@
     (let [folder (. store getFolder "Inbox")]
       (println "opening folder")
       (.open folder (javax.mail.Folder/READ_ONLY ))
-      (let [messages (.getMessages folder)]
+      (let [message-count (.getMessageCount folder)
+            messages (.getMessages folder (- message-count 20) message-count)]
         (println (str "retrieved" (count messages) " messages"))
         (doseq [m messages] (handle-message _r m))
         (.close store)
