@@ -64,7 +64,7 @@
         ]
     (d/remove-children :stream-panel )
     (d/append elem
-      (d/build [:div#stream-control [:div#buttons (ui/make-button "Create Droplet" droplet/create)
+      (d/build [:div#stream-control [:div#buttons (ui/make-button "Create Droplet" #(droplet/create nil nil))
                                      (ui/make-button "Refresh" refresh-fun)
                                      ]])
       (d/build [:div#flow-panel [:div#visualization {:style "width:550px; height:150px"} ""]
@@ -90,7 +90,7 @@
         parts (map (fn [[part _]] [:div.part [:h4 (name part)]
                                   (d/html (get-html-from-body (part (:content d)) (part (:envelope d))))]) grammar)]
     (ui/modal-dialog "full-droplet"
-                     [(str (name channel-type) " droplet") [:div.top-right-controls (ssu/make-tagging-button droplet-address)]] parts)))
+                     [(str (name channel-type) " droplet (" (name groove) ")") [:div.top-right-controls (ssu/make-tagging-button droplet-address)]] parts)))
 
 (defn render-preview [droplet-address droplet-channel-scape s]
     (let [d ((:receptors s) droplet-address)

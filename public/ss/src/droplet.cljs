@@ -100,9 +100,20 @@
                       [:p incorp-button-element]
                       ]
                      )
-    
-    (if (not (nil? channel)) (.setValue channel-select (name channel)))
-    (.setValue groove-select (if (nil? groove) "subject-body-message" (name groove)))
+    (let [chan (if (nil? channel)
+                 "streamscapes"
+                 (name channel))
+          grv (if (nil? groove)
+                (let [[_ groove-match] (re-find #"(.*)-groove$" (if s/*scape-query* (first s/*scape-query*) ""))]
+                  (if groove-match groove-match "subject-body-message"))
+                (name groove)
+                )
+          
+          ]
+      (.setValue channel-select chan)
+      (.setValue groove-select grv)
+      )
+
     (setup-groove)
     ))
 
