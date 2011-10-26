@@ -86,7 +86,7 @@
   "renders the full droplet by pulling out the parts of the droplet that are specified by the groove grammar"
   [droplet-address channel-type s]
   (let [d ((:receptors s) droplet-address)
-        [grammar actions] (get-droplet-grammar d channel-type s)
+        [groove grammar actions] (get-droplet-grammar d channel-type s)
         parts (map (fn [[part _]] [:div.part [:h4 (name part)]
                                   (d/html (get-html-from-body (part (:content d)) (part (:envelope d))))]) grammar)]
     (ui/modal-dialog "full-droplet"
@@ -104,7 +104,7 @@
           tag-menu-elem (ssu/make-tagging-button droplet-address)
           tags (map #(name %) (ssu/get-droplet-tags droplet-address))
           preview-tag (if (empty? tags) :div.droplet-preview (keyword (str "div.droplet-preview_" (string/join "_" tags))))
-          [groove-specific a] (groove-preview d channel-type s)
+          [groove-specific a groove] (groove-preview d channel-type s)
           actions (if (map? a) (map #(name %) (keys a)) a)
           preview [preview-tag
                    [:div.preview-channel-icon (d/html channel-icon)]
@@ -117,7 +117,7 @@
                    ]
           ]
       (if ((set actions) "reply") (conj preview [:div.preview-actions
-                                                 (ui/make-click-link "Reply" #(droplet/create channel-type))])
+                                                 (ui/make-click-link "Reply" #(droplet/create channel-name groove))])  
           preview)
       ))
 
@@ -128,13 +128,14 @@
         groove-name (keyword (first ((keyword (str (:address d))) dg )))
         
         ]
-    [(channel-type (groove-name s/*grooves*))
+    [groove-name
+     (channel-type (groove-name s/*grooves*))
      (channel-type (groove-name s/*groove-actions*))]))
 
 ;;TODO: groove droplets should be auto-detected by some appropriate
 ;;programmatic method, not by channel-type!
 (defn groove-preview [d channel-type s]
-  (let [[grammar actions] (get-droplet-grammar d channel-type s)
+  (let [[groove grammar actions] (get-droplet-grammar d channel-type s)
         p (if (contains? grammar :subject )
             [:div.subject
              (str (:subject (:content d)))]
@@ -144,7 +145,7 @@
                                    (:description (:content d))
                                    (:text (:content d)))))])
         ]
-    [p actions]
+    [p actions groove]
     ))
 
 ;; Actions

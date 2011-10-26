@@ -76,7 +76,7 @@
 
 (defn create
   "creates and renders the droplet create dialog"
-  [channel]
+  [channel groove]
   (let [scapes (:scapes s/*current-state*)
         identity-names (:values (:ident-name-scape scapes))
         channel-address-identity-scape (:values (:ss-address-ident-scape scapes))
@@ -100,8 +100,9 @@
                       [:p incorp-button-element]
                       ]
                      )
-    (.setValue groove-select "subject-body-message")
+    
     (if (not (nil? channel)) (.setValue channel-select (name channel)))
+    (.setValue groove-select (if (nil? groove) "subject-body-message" (name groove)))
     (setup-groove)
     ))
 
