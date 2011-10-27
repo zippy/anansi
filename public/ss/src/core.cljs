@@ -12,6 +12,7 @@
             [ss.auth :as auth]
             [ss.ui :as ui]
             [ss.droplet :as droplet]
+            [ss.debug :as debug]
             ))
 
 
@@ -23,6 +24,8 @@
 
 (defn on-load []
   (auth/check_auth)
+  (debug/toggle-debug)
+  (d/append (d/get-element :footer) (ui/make-toggle-button "Debug" #(debug/toggle-debug)))
   (repl/connect "http://localhost:9000/repl")
   )
 

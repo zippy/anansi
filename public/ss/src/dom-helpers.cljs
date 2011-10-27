@@ -128,6 +128,10 @@
   "hide an element by id"
   [elem] (vis elem false))
 
+(defn visible? [elem]
+  (style/isElementShown (get-element elem))
+  )
+
 (defn add-class [element classname]
   (let [new-class (str (.className element) " " classname)]
     (goog.dom.setProperties element (.strobj {"class"  new-class }))

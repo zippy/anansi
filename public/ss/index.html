@@ -78,22 +78,24 @@
   </div>
   <div id="footer">
     <div id="footer-panel">brought to you by the <a href="http://metacurrency.org/">MetaCurrency Project</a>.</div>
-    <div id="controls">
+    <div id="debug">
+      <div id="controls">
 
-      <button onclick="ss.auth.do_auth()">Authenticate</button>
-      <button onclick="ss.auth.do_new_user()">New User</button>
-      <button onclick="alert(ss.s.get_session())"> Session?</button>
-      <button onclick="alert(ss.s.get_ss_addr())"> ss-address</button>
-      <button onclick="ss.ceptr.ping()"> Ping</button>
-      <button onclick="ss.core.make_ss()"> Make SS</button>
-
-      <div id="work"></div>
-
-      <div id="session"></div>
-
-      <div id="debug" class="goog-debug-panel"></div>
+        <button onclick="ss.auth.do_auth()">Authenticate</button>
+        <button onclick="ss.auth.do_new_user()">New User</button>
+        <button onclick="alert(ss.s.get_session())"> Session?</button>
+        <button onclick="alert(ss.s.get_ss_addr())"> ss-address</button>
+        <button onclick="ss.ceptr.ping()"> Ping</button>
+        <button onclick="ss.core.make_ss()"> Make SS</button>
+        
+        <div id="work"></div>
+        
+        <div id="session"></div>
+        
+        <div id="debug-log" class="goog-debug-panel"></div>
+      </div>
+      <div id="the-receptor"></div>
     </div>
-    <div id="the-receptor"></div>
   </div>
 </div>
 <!-- everything -->

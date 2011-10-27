@@ -5,7 +5,7 @@
             ))
 
 (defn log [txt]
-  (d/insert-at (d/get-element :debug) (d/build [:div#thelog.logdiv [:div.logmsg txt]]) 0)
+  (d/insert-at (d/get-element :debug-log) (d/build [:div#thelog.logdiv [:div.logmsg txt]]) 0)
   )
 
 (defn jslog [txt]
@@ -20,3 +20,7 @@
 (comment doto debug (.addLogRecord (goog.debug.LogRecord. goog.debug.Logger.Level.INFO "messge" "source"))
         (.setVisible true))
 
+(defn toggle-debug []
+  (if (d/visible? :debug)
+    (d/hide :debug)
+    (d/show :debug)) )

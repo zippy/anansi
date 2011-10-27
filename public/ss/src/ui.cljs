@@ -5,6 +5,7 @@
    [goog.ui.LabelInput :as LabelInput]
    [goog.editor.Field :as field]
    [goog.ui.Button :as uiButton]
+   [goog.ui.ToggleButton :as uiToggleButton]
    [goog.ui.CustomButton :as uiCustomButton]
    [goog.ui.ButtonRenderer :as uiButtonRenderer]
    [goog.ui.FlatButtonRenderer :as uiFlatButtonRenderer]
@@ -107,6 +108,17 @@
     [select select-elem]
     )
   )
+
+(defn make-toggle-button
+  ([text click-fun ]
+     (make-button text click-fun false))
+  ([text click-fun return-both]
+      (let [button (goog.ui.ToggleButton. text)
+            button-elem (d/element :span)
+            ]
+        (.render button button-elem)
+        (goog.events.listen button-elem goog.events.EventType.CLICK click-fun)
+        (if return-both [button button-elem] button-elem))))
 
 (defn make-menu [name items]
   (let [elem (d/element :div.menu-container )
