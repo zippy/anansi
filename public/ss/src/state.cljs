@@ -29,6 +29,7 @@
   (def *grooves* nil)
   (def *groove-actions* nil)
   (def *me* nil)
+  (def *page* 1)
   (clear-scape-query)
   (.remove goog.net.cookies "ss-session")
   (.remove goog.net.cookies "ss-address")
@@ -60,3 +61,13 @@
 
 (defn clear-scape-query []
   (def *scape-query* nil))
+
+(defn set-page [page]
+  (def *page* page)
+  )
+
+(def *items-per-page* 20)
+(def *page* 1)
+
+(defn get-offset []
+  (* *items-per-page* (- *page* 1)))

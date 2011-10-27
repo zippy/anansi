@@ -55,8 +55,42 @@
       (.setCell table idx 1 v))
     (.draw chart table nil)))
 
+(defn page-count [total]
+  (+ (quot total s/*items-per-page*) (if (> (mod total s/*items-per-page*) 0) 1 0)))
 
-(defn render [refresh-fun]
+(defn page-fun [fun]
+  (do 
+    (s/set-page (fun s/*page* 1))
+    (ss.streamscapes/refresh-current-stream)))
+
+(defn build-pager
+  "create the dom elments and html for droplet pager based on current items-per-page prefs"
+  [s]
+  (let [total (:receptor-total s)
+        items-per-page s/*items-per-page*
+        pager-items (if (< total items-per-page)
+                     [(str "stream: " total " droplets")]
+                     (let [offset (+ 1 (s/get-offset))
+                           pc (page-count total)]
+                       [(str "stream: " offset "-"
+                             (+ (if (> s/*page* (quot total s/*items-per-page*)) (- (mod total s/*items-per-page*) 1) s/*items-per-page*) offset)
+                             " of " total
+                             " (page " s/*page* " of " pc ")")
+                        (if (> s/*page* 1)
+                          [:span.left-arrow (ui/make-button "<"  #(page-fun -))]
+                          (d/html ""))
+                        (if (< s/*page* pc)
+                          [:span.right-arrow (ui/make-button ">" #(page-fun +) )]
+                          (d/html "")
+                          )
+
+                        ])
+                     )]
+    (apply conj [:div.pager] pager-items)))
+
+(defn render
+  "render the stream panel"
+  [refresh-fun]
   (let [s s/*current-state*
         elem (d/get-element :stream-panel )
         scapes (:scapes s)
@@ -68,8 +102,7 @@
                                      (ui/make-button "Refresh" refresh-fun)
                                      ]])
       (d/build [:div#flow-panel [:div#visualization {:style "width:550px; height:150px"} ""]
-                [:div.count (str "stream: " (count (:receptor-order s))
-                  " of " (:receptor-total s))]])
+                (build-pager s)])
       (d/build [:div#droplet-panel (apply conj [:div.droplet-previews ]
         (map (fn [da] (render-preview (keyword da) droplet-channel-scape s))
           (:receptor-order s)))]))

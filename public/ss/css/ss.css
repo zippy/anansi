@@ -222,16 +222,29 @@ div#flow-panel, div#stream-control {
   position: relative;
 }
 
-
 div#flow-panel {
   margin-right: 200px;
 }
 
-div#flow-panel .count {
-  color: #999;
+div#flow-panel .pager {
+  color: #666;
   padding-top: 12px;
   vertical-align: text-bottom;
   margin-right: 4px;
+}
+
+
+div#flow-panel .pager span.right-arrow .goog-custom-button {
+   width: 16px;
+   height: 16px;
+   background: url(/ss/images/right-arrow.png) no-repeat;
+   text-indent: -9999px;
+}
+div#flow-panel .pager span.left-arrow .goog-custom-button {
+   width: 16px;
+   height: 16px;
+   background: url(/ss/images/left-arrow.png) no-repeat;
+   text-indent: -9999px;
 }
 
 div#stream-control {
