@@ -58,7 +58,7 @@
 (defn get-channel-types
   "return a list of the current channel types"
   []
-  (map (fn [t] (keyword t)) (vals (:values (:channel-type-scape (:scapes s/*current-state*)))))
+  (distinct (map (fn [t] (keyword t)) (vals (:values (:channel-type-scape (:scapes s/*current-state*))))))
   )
 
 ;;TODO: really we should be able to get the ident-scape
