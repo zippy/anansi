@@ -16,7 +16,10 @@
   "a signal a callback for simply reloading the state from the server"
   [e]
   (let [{status :status result :result} (ceptr/handle-xhr e)]
-    (refresh-current-stream)))
+    (if (= status "ok")
+      (refresh-current-stream)
+      (js/alert (str "Server reported an error: " result))
+      )))
 
 (defn refresh-current-stream []
   (let [[scape value] s/*scape-query*]

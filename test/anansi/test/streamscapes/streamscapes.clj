@@ -157,8 +157,69 @@
         (is (= (rdef (get-receptor cc in-bridge-address) :fingerprint) :anansi.streamscapes.channels.irc-bridge-in.irc-bridge-in))
         (is (= #{:an-irc-channel, :email-stream, :freenode, :irc-stream, :email, :twitterx, :streamscapes, :some-channel} (set (keys (:map (receptor-state (get-scape r :channel) true)))))))
       
+      )
+    (facts "about update-channel"
+      (let [cc (find-channel-by-name r :twitterx)
+            [controller-address _] (get-controller cc)
+            db (get-receptor cc controller-address)
+            ]
+        (s-> setup->update-channel r {:channel-address (address-of cc) :name :twittery :search-query "#new-search"})
+        (= cc (find-channel-by-name r :twittery)) => true
+        (find-channel-by-name r :twitterx) => nil
+        (--> key->resolve r (get-scape r :channel) :twitterx) => nil
+        (--> key->resolve r (get-scape r :channel) :twittery) => (address-of cc)
+        (contents db :search-query) => "#new-search"
+        )
+      (let [cc (find-channel-by-name r :freenode)
+            [controller-address _] (get-controller cc)
+            db (get-receptor cc controller-address)
+            ]
+        (s-> setup->update-channel r {:channel-address (address-of cc) :name :twittery}) => (throws RuntimeException "channel name 'twittery' already exists")
+        (s-> setup->update-channel r {:channel-address (address-of cc) :name :new-irc-stream :host "newirc.freenode.net" :port 6669 :nick "newnick" :user "newuser"})
+        (= cc (find-channel-by-name r :new-irc-stream)) => true
+        (find-channel-by-name r :freenode) => nil
+        (--> key->resolve r (get-scape r :channel) :freenode) => nil
+        (--> key->resolve r (get-scape r :channel) :new-irc-stream) => (address-of cc)
+        (contents db :host) => "newirc.freenode.net"
+        (contents db :port) => 6669
+        (contents db :nick) => "newnick"
+        (contents db :user) => "newuser"
+        )
+      (let [cc (find-channel-by-name r :email)
+            [in-address _] (get-receiver-bridge cc)
+            [out-address _] (get-deliverer-bridge cc)
+            in (get-receptor cc in-address)
+            out (get-receptor cc out-address)
+            ]
+        (s-> setup->update-channel r {:channel-address (address-of cc) :name :new-email
+                                      :in {:host "mail1.example.com" :account "newuser" :port 88 :password "newpass" :protocol "newprot"}
+                                      :out {:host "mail1.example.com" :account "newuser" :port 88 :password "newpass" :protocol "newprot"}})
+        (= cc (find-channel-by-name r :new-email)) => true
+        (find-channel-by-name r :email) => nil
+        (contents in :host) => "mail1.example.com"
+        (contents in :account) => "newuser"
+        (contents in :password) => "newpass"
+        (contents in :protocol) => "newprot"
+        (contents in :port) => 88
+        (contents out :host) => "mail1.example.com"
+        (contents out :account) => "newuser"
+        (contents out :password) => "newpass"
+        (contents out :protocol) => "newprot"
+        (contents out :port) => 88
+        (s-> setup->update-channel r {:channel-address (address-of cc) :name :new-email
+                                      :in {:account "newuser2" :password ""}})
+        (contents in :host) => "mail1.example.com"
+        (contents in :account) => "newuser2"
+        (contents in :password) => "newpass"
+        (contents in :protocol) => "newprot"
+        (contents in :port) => 88
+        (contents out :host) => "mail1.example.com"
+        (contents out :account) => "newuser"
+        (contents out :password) => "newpass"
+        (contents out :protocol) => "newprot"
+        (contents out :port) => 88
+        )
       ))
-
   (facts "about new-channel"
     (s-> setup->new-channel r {:type :fish :name :fisher}) => (throws RuntimeException "channel type 'fish' not implemented")
     (str (s-> setup->new-channel r {:type "irc" :name :an-irc-channel})) =>  #"[0-9]+"

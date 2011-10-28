@@ -26,3 +26,5 @@
   "Utility function to return a list of all the keys in a map that have a given value"
   [the-map value]
   (into [] (keep (fn [[key val]] (if (= val value) key nil)) the-map)))
+
+(defn blank? [x] (or (= x nil) (= x "")))

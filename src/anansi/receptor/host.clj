@@ -18,7 +18,7 @@
                        :grammars {:streamscapes {:message "text/plain"}
                                   :twitter {:text "text/plain"}
                                   :irc {:message "text/plain"}}}
-      :subject-body-message {:actions {:streamscapes [:create :reply]
+      :subject-body-message {:actions {:streamscapes {:create true :reply true}
                                        :email [:create :reply]}
                              :grammars {:streamscapes {:subject "text/plain" :body "text/html"}
                                         :email {:subject "text/plain" :body "text/html"}}}
@@ -29,13 +29,13 @@
                                   :expiration "text/plain"}
                    :email {:subject {"text" ["Punkmoney Promise"]}
                            :body {"text"
-                                  ["I promise to pay (.*), on demand, ([^.]+)\\. Expires in (.*)\\."
+                                  ["I promise to pay (.*), on demand, ([^.]+)\\. Expires (.*)\\."
                                    {:payee 1
                                     :promised-good 2
                                     :expiration 3}
                                    ]}}
                    :twitter {:text {"text"
-                                    ["^(@[^\\W]+) I promise to pay, on demand, ([^.]+)\\. Expires in (.*)\\. #punkmoney"
+                                    ["^(@[^\\W]+) I promise to pay, on demand, ([^.]+)\\. Expires (.*)\\. #punkmoney"
                                      {:payee 1
                                       :promised-good 2
                                       :expiration 3}

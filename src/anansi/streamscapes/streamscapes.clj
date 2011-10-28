@@ -191,6 +191,25 @@
                                         ;  (keyword (str (name type) "-" (name n) "-stream"))
   n
   )
+(signal setup update-channel [_r _f params]
+        (rsync _r
+               (let [channel-address (:channel-address params)
+                     channel (get-receptor _r channel-address)
+                     type (--> key->resolve _r (get-scape _r :channel-type) channel-address)
+                     channel-scape (get-scape _r :channel)
+                     [current-name] (--> address->resolve _r channel-scape channel-address)
+                     new-name (:name params)
+                     ]
+                 (if (not= current-name new-name)
+                   (do
+                     (if (not (nil? (--> key->resolve _r channel-scape new-name)))
+                       (throw (RuntimeException. (str "channel name '" (name new-name) "' already exists" ))))
+                     (--> key->set _r channel-scape new-name channel-address)
+                     (--> key->delete _r channel-scape current-name)))
+                 (--> (get-signal-function "anansi.streamscapes.channel" "setup" "update-by-type") _r channel type params)
+
+                 ))
+        )
 (signal setup new-channel [_r _f params]
         (let [{raw-type :type n :name} params
               type (keyword (name raw-type))

@@ -186,7 +186,7 @@
   "resets the UI and the state to the basic non-logged in state"
   []
   (d/remove-children :the-receptor)
-  (d/remove-children :debug)
+  (d/remove-children :debug-log)
   (d/remove-children :header-top-right)
   (s/clear-session)
   (d/hide :container)

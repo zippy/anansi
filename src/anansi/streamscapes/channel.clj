@@ -66,7 +66,6 @@
                      (--> key->set _r deliveries (str (now)) droplet-address)
                      (prn "Delivery Errors: " errors))
                    errors))))
-(get-signal-function "anansi.streamscapes.channels.twitter-controller" "channel" "control")
 
 ; hand a message to the bridge to be received
 (signal bridge receive [_r _f message]
@@ -81,3 +80,32 @@
                )
              (--> (getsig namespace aspect signal) _r (get-receptor _r controller-address) params)))
 
+(defn blank? [x] (or (= x nil) (= x "")))
+
+;; TODO again more bogusness here around the types.  Also setting
+;; content of a receptor from outside that receptor is also bogus.
+(signal setup update-by-type [_r _f type params]
+        (do
+          (set-content _r :name (:name params))
+          (condp = type
+              :irc (let [[controller-address _] (get-controller _r)
+                         controller (get-receptor _r controller-address)]
+                     (doseq [key [:host :nick :port :user]]
+                       (if (not (blank? (key params))) (set-content controller key (key params))))
+                     )
+              :streamscapes nil
+              :twitter (let [[controller-address _] (get-controller _r)
+                             controller (get-receptor _r controller-address)]
+                         (doseq [key [:search-query]]
+                           (if (not (blank? (key params))) (set-content controller key (key params))))
+                         )
+              :email (let [[out-address _] (get-deliverer-bridge _r)
+                           [in-address _] (get-receiver-bridge _r)
+                           in (get-receptor _r in-address)
+                           out (get-receptor _r out-address)]
+                     (doseq [key [:host :account :password :protocol :port]]
+                       (if (and (contains? params :in) (not (blank? (key (:in params))))) (set-content in key (key (:in params))))
+                       (if (and (contains? params :out) (not (blank? (key (:out params))))) (set-content out key (key (:out params)))))
+                     )
+              ))
+        )

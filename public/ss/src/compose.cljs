@@ -17,10 +17,34 @@
     (ui/modal-dialog "compose" "SETUP"
                      [
                        [:div [:h4 "Channels"]
-                        (ui/make-button "New E-mail Channel" #(make-email-channel :compose-work))
-                        (ui/make-button "New Twitter Channel" #(make-twitter-channel :compose-work))
-                        (ui/make-button "New IRC Channel" #(make-irc-channel :compose-work))
+                        (ui/make-button "New E-mail Channel" #(email-form :compose-work nil make-email))
+                        (ui/make-button "New Twitter Channel" #(twitter-form :compose-work nil make-twitter))
+                        (ui/make-button "New IRC Channel" #(irc-form :compose-work nil make-irc))
                         ]
+                       (apply conj [:div.channels]
+                              (map (fn [[cname caddr]]
+                                     (let [type (ssu/get-channel-type caddr)
+                                           chan ((keyword caddr) (:receptors s/*current-state*))
+                                           ]
+                                       [:div.channel
+                                        (d/html (ssu/channel-icon-html cname type))
+                                        (ui/make-click-link (name cname)
+                                                            (fn [] (condp = type
+                                                                      :irc (irc-form :compose-work
+                                                                                     (assoc (get-vals-from-controller chan) :name (name cname))
+                                                                                     (fn [p] (update-channel caddr p)))
+                                                                      :email (email-form :compose-work
+                                                                                         (assoc (get-email-vals chan) :name (name cname))
+                                                                                         (fn [p] (update-email caddr p))
+                                                                                         )
+                                                                      :twitter (twitter-form :compose-work
+                                                                                             (assoc (get-vals-from-controller chan) :name (name cname))
+                                                                                             (fn [p] (update-channel caddr p)))
+                                                                    (js/alert "Updating not implemented for this channel!"))
+                                                              )
+                                                            )]))
+                                   (filter (fn [[n _]] (not= n :streamscapes)) (:values (:channel-scape scapes))))
+                              )
                        [:div#compose-work {:style "display:none"} ""]
                        [:div [:h4 "Scapes"]
                         (ui/make-button "New Scape" #(make-scape :scape-work))
@@ -37,6 +61,21 @@
                        [:div#tag-work {:style "display:none"} ""]]
                      
                      )))
+
+(defn get-vals-from-controller [chan]
+  (let [a (keyword (first (-> chan :scapes :controller-scape :values :controller)))]
+    (-> chan :receptors a)))
+
+(defn get-email-vals [chan]
+  (let [oa (keyword (first (-> chan :scapes :deliverer-scape :values :deliverer)))
+        ia (keyword (first (-> chan :scapes :receiver-scape :values :receiver)))
+        i (-> chan :receptors ia)
+        o (-> chan :receptors oa)
+        fs ["host" "account" "password" "protocol" "port"]
+        ]
+    (merge (into {} (map (fn [f] [(keyword (str "in-" f)) ((keyword f) i)]) fs))
+           (map (fn [f] [(keyword (str "out-" f)) ((keyword f) o)]) fs)
+           )))
 
 (defn do-make-scape [{scape-name :scape-name key-rel :key-rel val-rel :value-rel}]
   (ceptr/start-chain
@@ -90,48 +129,73 @@
 
 (defn make-twitter [p]
   (let [q (:search-query p)
-        params {:type :twitter :name (str "twitter-" q) :search-query q}]
+        params {:type :twitter
+                :name (if (u/blank? (:name p)) (str "twitter-" q) (:name p))
+                :search-query q}]
     (ssu/send-ss-signal {:aspect "setup" :signal "new-channel"
                   :params params} sss/refresh-stream-callback)))
 
-(defn make-twitter-channel [parent-id]
-  (ui/make-dialog parent-id
-   [{:field :search-query :default "#metacurrency" :label "Twitter search query"}]
-   make-twitter))
+(defn twitter-form [parent-id defs fun]
+  (let [defaults (if (nil? defs)
+                   {:search-query "metacurrency"}
+                   defs)]
+    (ui/make-dialog parent-id
+                    [{:field :name :default (:name defaults) :label "Channel Name:" :hint "<twitter search>"}
+                     {:field :search-query :default (:search-query defaults) :label "Twitter search query"}]
+                    fun)))
 
 (defn make-irc [params]
   (ssu/send-ss-signal {:aspect "setup" :signal "new-channel"
                       :params (merge {:type :irc} params)} sss/refresh-stream-callback))
 
-(defn make-irc-channel [parent-id]
-  (ui/make-dialog parent-id
-                  [{:field :name :default "irc-freenode" :label "Channel Name:"}
-                   {:field :host :default "irc.freenode.net" :label "IRC host:"}
-                   {:field :port :default 6667 :label "Port:"}
-                   {:field :user :default "Eric" :label "IRC User"}
-                   {:field :nick :default "erichb" :label "IRC Nick"}
-                   ]
-             make-irc))
+(defn update-channel [channel-address params]
+  (ssu/send-ss-signal {:aspect "setup" :signal "update-channel"
+                       :params (assoc  params :channel-address channel-address)} sss/refresh-stream-callback))
 
+(defn irc-form [parent-id defs fun]
+  (let [defaults (if (nil? defs)
+                   {:name "irc-freenode" :host "irc.freenode.net" :port 6667 :user "Eric" :nick "erichb"}
+                   defs
+                   ) ]
+    (ui/make-dialog parent-id
+                    [{:field :name :default (:name defaults) :label "Channel Name:"}
+                     {:field :host :default (:host defaults) :label "IRC host:"}
+                     {:field :port :default (:port defaults) :label "Port:"}
+                     {:field :user :default (:user defaults) :label "IRC User" :hint "<your user name>"}
+                     {:field :nick :default (:nick defaults) :label "IRC Nick" :hint "<your nick>"}
+                     ]
+                    fun
+                    )))
+
+(defn update-email [channel-address p]
+  (let [params {:in {:host (:in-host p) :account (:in-account p) :password (:in-password p) :protocol (:in-protocol p) :port (:in-port p)}
+                :out {:host (:out-host p) :account (:out-account p) :password (:out-password p) :protocol (:out-protocol p) :port (:out-port p)}}]
+    (ssu/send-ss-signal {:aspect "setup" :signal "update-channel"
+                         :params (assoc  params :channel-address channel-address :name (:name p))} sss/refresh-stream-callback)))
 (defn make-email [p]
-  (let [params {:type :email :name (:channel-name p)
+  (let [params {:type :email :name (:name p)
                 :in {:host (:in-host p) :account (:in-account p) :password (:in-password p) :protocol (:in-protocol p) :port (:in-port p)}
                 :out {:host (:out-host p) :account (:out-account p) :password (:out-password p) :protocol (:out-protocol p) :port (:out-port p)}}]
     (ssu/send-ss-signal {:aspect "setup" :signal "new-channel"
                   :params params} sss/refresh-stream-callback)))
 
-(defn make-email-channel [parent-id]
-  (ui/make-dialog parent-id
-                  [{:field :channel-name :default "gmail" :label "Channel Name:"}
-                   {:field :in-host :default "imap.gmail.com" :label "Incoming Mail server host:"}
-                   {:field :in-account :hint "<email address>" :label "Incoming Mail server account:"}
-                   {:field :in-password :label "password" :hint "<your password>"}
-                   {:field :in-protocol :default "imaps" :label "Incoming Mail sever protocol:"}
-                   {:field :in-port :default "" :label "Incoming Mail sever port:"}
-                   {:field :out-host :default "smtp.googlemail.com" :label "Outgoing Mail server host:"}
-                   {:field :out-account :default "<email>" :label "Outgoing Mail server account:"}
-                   {:field :out-password :label "password:" :hint "<password>"}
-                   {:field :out-protocol :default "smtps" :label "Outgoing Mail sever protocol:"}
-                   {:field :out-port :default 465 :label "Outgoing Mail sever port:"}
-                   ]
-                  make-email))
+(defn email-form [parent-id defs fun]
+  (let [defaults (if (nil? defs)
+                   {:name "gmail" :in-host "imap.gmail.com" :in-protocol "imaps" :in-port ""
+                    :out-host "smtp.googlemail.com" :out-protocol "smtps" :out-port 465}
+                   defs
+                   ) ]
+    (ui/make-dialog parent-id
+                    [{:field :name :default (:name defaults) :label "Channel Name:"}
+                     {:field :in-host :default (:in-host defaults) :label "Incoming Mail server host:"}
+                     {:field :in-account :default (:in-account defaults) :hint "<email address>" :label "Incoming Mail server account:"}
+                     {:field :in-password :hint "<your password>" :label "Password:"}
+                     {:field :in-protocol :default (:in-protocol defaults) :hint "<pop3 or imaps>" :label "Incoming Mail sever protocol:"}
+                     {:field :in-port :default (:in-port defaults) :label "Incoming Mail sever port:"}
+                     {:field :out-host :default (:out-host defaults) :label "Outgoing Mail server host:"}
+                     {:field :out-account :default (:out-account defaults) :hint "<email>" :label "Outgoing Mail server account:"}
+                     {:field :out-password :hint "<password>" :label "Password:"}
+                     {:field :out-protocol :default (:out-protocol defaults) :label "Outgoing Mail sever protocol:"}
+                     {:field :out-port :default (:in-port defaults) :label "Outgoing Mail sever port:"}
+                     ]
+                    fun)))
