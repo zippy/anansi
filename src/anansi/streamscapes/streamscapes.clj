@@ -330,7 +330,6 @@
                                 (println (str e)))
                               )))
                          all)
-        foo (println "raw matches " raw-matches)
         matched-grooves (into [] (keep identity raw-matches))
         ]
     (let [dg-scape (get-scape ss :droplet-grooves)]

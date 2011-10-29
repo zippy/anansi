@@ -55,6 +55,7 @@
             sent (if (nil? jd) nil (date-time-from-java-date jd))
             subject (.getSubject message)
             ]
+        (prn "Handling message with subject: " subject)
         (if (not (nil? subject))
           (--> stream->receive _r (parent-of _r)
                {:id id
@@ -84,7 +85,8 @@
 
 (defn pull-messages [_r]
   (let [ props (mail-properties _r)
-         session (doto (javax.mail.Session/getInstance props) (.setDebug true))
+         session (doto (javax.mail.Session/getInstance props) ;(.setDebug true)
+                   )
          store (.getStore session (contents _r :protocol))]
     (prn "HOST ----------> " (contents _r :host))
     (.connect store (contents _r :host ) (contents _r :account) (contents _r :password))
