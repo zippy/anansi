@@ -52,13 +52,14 @@
 
 ;  this test is commented out for regular runs since it actually connects to Google
 ;  and pulls mail down.
-    (facts "about pull-messages"
+    (comment facts "about pull-messages"
       (let [b2 (make-receptor email-bridge-in-def cc
-        {:attributes {:host "imap.gmail.com"
-                      :account "lewis.hoffman@gmail.com"
-                      :password "Fz9QPBnAtqCNt"
-                      :protocol "imaps"
-                      }})]
+                              {:attributes {:host "mail.harris-braun.com"
+                                            :account "eric@harris-braun.com"
+                                            :password "<put a real password here>"
+                                            :protocol "pop3"
+                                            :port "110"
+                                            }})]
         (pull-messages b2)
 
         )
