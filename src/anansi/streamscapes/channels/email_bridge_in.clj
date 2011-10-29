@@ -44,7 +44,9 @@
         ids (get-scape ss :id)
         da (s-> address->resolve ids id)]
     (if (empty? da)
-      (let [recipients (.getRecipients message javax.mail.Message$RecipientType/TO)
+      (let [recipients (try (.getRecipients message javax.mail.Message$RecipientType/TO)
+                            (catch Exception e [(javax.mail.internet.InternetAddress. (str "\"" e "\" <_err_@unknown.err>"))])
+                            )
             [to to-name] (parseInternetAddress (first recipients))
             [from from-name] (parseInternetAddress
                       (first (try (.getFrom message)
