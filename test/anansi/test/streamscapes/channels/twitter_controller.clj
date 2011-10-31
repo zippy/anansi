@@ -5,7 +5,7 @@
         [anansi.receptor.user :only [user-def]]
         [anansi.receptor.host :only [host-def]]
         [anansi.streamscapes.streamscapes]
-        [anansi.streamscapes.ident :only [ident-def]]
+        [anansi.streamscapes.contact :only [contact-def]]
         [anansi.streamscapes.channel]
 
         [anansi.streamscapes.channels.twitter-bridge-in :only [twitter-bridge-in-def]]
@@ -15,7 +15,7 @@
 (let [m (make-receptor user-def nil "eric")
       h (make-receptor host-def nil {})
       r (make-receptor streamscapes-def h {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
-      eric (make-receptor ident-def r {:attributes {:name "Eric"}})
+      eric (make-receptor contact-def r {:attributes {:name "Eric"}})
       channel-address (s-> setup->new-channel r {:type :twitter, :name :twitter, :search-query "#metacurrency"})
       cc (get-receptor r channel-address)
       [controller-address control-signal] (get-controller cc)

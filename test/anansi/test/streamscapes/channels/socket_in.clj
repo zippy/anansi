@@ -6,7 +6,7 @@
         [anansi.receptor.host :only [host-def]]
         [anansi.streamscapes.streamscapes]
         [anansi.streamscapes.channel :only [channel-def]]
-        [anansi.streamscapes.ident :only [ident-def]])
+        [anansi.streamscapes.contact :only [contact-def]])
   (:use [midje.sweet])
   (:use [clojure.test]))
 
@@ -14,13 +14,13 @@
   (let [m (make-receptor user-def nil "eric")
         h (make-receptor host-def nil {})
         r (make-receptor streamscapes-def h {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
-        eric (make-receptor ident-def r {:attributes {:name "Eric"}})
+        eric (make-receptor contact-def r {:attributes {:name "Eric"}})
         cc-addr (s-> matrice->make-channel r {:name :socket-stream})
         cc (get-receptor r cc-addr)
         b (make-receptor socket-in-def cc {})
-        ip-idents (get-scape r :ip-ident true)]
+        ip-contacts (get-scape r :ip-contact true)]
     (--> key->set r (get-scape r :channel-type) cc-addr :socket)
-    (--> key->set b ip-idents "127.0.0.0" (address-of eric))
+    (--> key->set b ip-contacts "127.0.0.0" (address-of eric))
 
     (facts "about restoring serialized receptor"
       (let [state (receptor-state b true)]
@@ -33,8 +33,8 @@
             d (get-receptor r droplet-address)
             ]
         (is (re-find #"^192.168.1.1-" (contents d :id)))
-        (is (= (s-> key->resolve ip-idents "192.168.1.1")  (contents d :from) ))
-        (is (= (s-> key->resolve ip-idents "127.0.0.1")  (contents d :to) ))
+        (is (= (s-> key->resolve ip-contacts "192.168.1.1")  (contents d :from) ))
+        (is (= (s-> key->resolve ip-contacts "127.0.0.1")  (contents d :to) ))
         (is (= :socket-stream  (contents d :channel) ))
         (is (= {:from "ip/address" :message "text/plain"} (contents d :envelope)))
         (is (= {:from "192.168.1.1" :to "127.0.0.1" :message "some message"} (contents d :content)))

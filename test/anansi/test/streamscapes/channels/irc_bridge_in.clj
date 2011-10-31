@@ -6,7 +6,7 @@
         [anansi.receptor.host :only [host-def]]
         [anansi.streamscapes.streamscapes]
         [anansi.streamscapes.channel :only [channel-def]]
-        [anansi.streamscapes.ident :only [ident-def]])
+        [anansi.streamscapes.contact :only [contact-def]])
   (:use [midje.sweet])
   (:use [clojure.test]))
 
@@ -14,17 +14,17 @@
   (let [m (make-receptor user-def nil "eric")
         h (make-receptor host-def nil {})
         r (make-receptor streamscapes-def h {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
-        eric (make-receptor ident-def r {:attributes {:name "Eric"}})
-        art (make-receptor ident-def r {:attributes {:name "Art"}})
-        ceptr-channel (make-receptor ident-def r {:attributes {:name "ceptr-channel"}})
+        eric (make-receptor contact-def r {:attributes {:name "Eric"}})
+        art (make-receptor contact-def r {:attributes {:name "Art"}})
+        ceptr-channel (make-receptor contact-def r {:attributes {:name "ceptr-channel"}})
         cc-addr (s-> matrice->make-channel r {:name :irc-stream})
         cc (get-receptor r cc-addr)
         b (make-receptor irc-bridge-in-def cc {})
-        irc-idents (get-scape r :irc-ident true)]
+        irc-contacts (get-scape r :irc-contact true)]
     (--> key->set r (get-scape r :channel-type) cc-addr :irc)
-    (--> key->set b irc-idents "zippy" (address-of eric))
-    (--> key->set b irc-idents "art" (address-of art))
-    (--> key->set b irc-idents "#ceptr" (address-of ceptr-channel))
+    (--> key->set b irc-contacts "zippy" (address-of eric))
+    (--> key->set b irc-contacts "art" (address-of art))
+    (--> key->set b irc-contacts "#ceptr" (address-of ceptr-channel))
 
     (fact
       (receptor-state b false) => (contains {:fingerprint :anansi.streamscapes.channels.irc-bridge-in.irc-bridge-in}))
@@ -40,8 +40,8 @@
             d (get-receptor r droplet-address)
             ]
         (is (re-find #"^zippy!zippy@72-13-84-243.somedomain.com-" (contents d :id)))
-        (is (= (s-> key->resolve irc-idents "zippy")  (contents d :from) ))
-        (is (= (s-> key->resolve irc-idents "#ceptr")  (contents d :to) ))
+        (is (= (s-> key->resolve irc-contacts "zippy")  (contents d :from) ))
+        (is (= (s-> key->resolve irc-contacts "#ceptr")  (contents d :to) ))
         (is (= :irc-stream  (contents d :channel) ))
         (is (= {:from "irc/from" :cmd "irc/command" :to "irc/channel" :message "text/plain"} (contents d :envelope)))
         (is (= {:from "zippy!zippy@72-13-84-243.somedomain.com" :cmd  "PRIVMSG"  :to "#ceptr" :message "This is a dumb question but..."} (contents d :content)))
@@ -54,8 +54,8 @@
             d (get-receptor r droplet-address)
             ]
         (is (re-find #"^zippy!zippy@72-13-84-243.somedomain.com-" (contents d :id)))
-        (is (= (s-> key->resolve irc-idents "zippy")  (contents d :from) ))
-        (is (= (s-> key->resolve irc-idents "art")  (contents d :to) ))
+        (is (= (s-> key->resolve irc-contacts "zippy")  (contents d :from) ))
+        (is (= (s-> key->resolve irc-contacts "art")  (contents d :to) ))
         (is (= :irc-stream  (contents d :channel) ))
         (is (= {:from "irc/from" :cmd "irc/command" :to "irc/user" :message "text/plain"} (contents d :envelope)))
         (is (= {:from "zippy!zippy@72-13-84-243.somedomain.com" :cmd  "PRIVMSG"  :to "art" :message "This is a dumb question but..."} (contents d :content)))

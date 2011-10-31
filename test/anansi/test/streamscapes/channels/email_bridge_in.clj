@@ -4,7 +4,7 @@
         [anansi.receptor.scape]
         [anansi.streamscapes.streamscapes]
         [anansi.streamscapes.channel :only [channel-def]]
-        [anansi.streamscapes.ident :only [ident-def]]
+        [anansi.streamscapes.contact :only [contact-def]]
         [anansi.receptor.user :only [user-def]]
         [anansi.receptor.host :only [host-def]])
   (:use [midje.sweet])
@@ -35,7 +35,7 @@
         cc-addr (s-> matrice->make-channel r {:name :email-stream})
         cc (get-receptor r cc-addr)
         b (make-receptor email-bridge-in-def cc {:attributes {:host "mail.example.com" :account "someuser" :password "pass" :protocol "pop3" :port 110}})
-        email-idents (get-scape r :email-ident true)]
+        email-contacts (get-scape r :email-contact true)]
     (--> key->set r (get-scape r :channel-type) cc-addr :email)
 
     (fact
@@ -75,7 +75,7 @@
             ]
         (is (= eric-addr (contents d :to) ))
         (is (= "<1%example.com>" (contents d :id)))
-        (is (= (s-> key->resolve email-idents "test@example.com")  (contents d :from) ))
+        (is (= (s-> key->resolve email-contacts "test@example.com")  (contents d :from) ))
         (is (= :email-stream  (contents d :channel) ))
         (is (= {:from "rfc-822-email" :subject "text/plain" :body "text/plain"} (contents d :envelope)))
         (is (= {:from "test@example.com" :subject "Hi there!" :body "<b>Hello world!</b>"} (contents d :content)))
@@ -86,8 +86,8 @@
           )
         )
       )
-    (fact (:scapes (receptor-state r false)) => (contains {:email-ident-scape {:values {"eric@example.com" 10, "test@example.com" 14}, :relationship {:key :email-identifier, :address :ident-address}
-                                                                               }, :ident-name-scape {:values {10 "Eric", 14 "Joe Blow"}, :relationship {:key :ident-address, :address :name-attribute}}}))
+    (fact (:scapes (receptor-state r false)) => (contains {:email-contact-scape {:values {"eric@example.com" 10, "test@example.com" 14}, :relationship {:key :email-identifier, :address :contact-address}
+                                                                               }, :contact-name-scape {:values {10 "Eric", 14 "Joe Blow"}, :relationship {:key :contact-address, :address :name-attribute}}}))
     (facts "about content groove scaping (punkmoney)"
       (let [message (create-java-email-message {:sent (java.util.Date. "2011/01/02 12:41") :to "eric@example.com" :from "\"Joe Blow\" <test@example.com>" :subject "Punkmoney Promise" :body "I promise to pay eric@example.com, on demand, some squids. Expires in 1 year."})
             droplet-address (handle-message b message)

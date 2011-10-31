@@ -4,7 +4,7 @@
         [anansi.receptor.scape]
                 [anansi.receptor.user :only [user-def]]
         [anansi.streamscapes.streamscapes]
-        [anansi.streamscapes.ident :only [ident-def]]
+        [anansi.streamscapes.contact :only [contact-def]]
         [anansi.streamscapes.channel]
         [anansi.streamscapes.channels.irc-bridge-out :only [irc-bridge-out-def]]
         [anansi.streamscapes.channels.irc-bridge-in :only [irc-bridge-in-def]]
@@ -15,7 +15,7 @@
 (deftest irc-controller
   (let [m (make-receptor user-def nil "eric")
         r (make-receptor streamscapes-def nil {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
-        eric (make-receptor ident-def r {:attributes {:name "Eric"}})
+        eric (make-receptor contact-def r {:attributes {:name "Eric"}})
         channel-address (s-> matrice->make-channel r {:name :irc-stream
                                                       :receptors {irc-bridge-in-def {:role :receiver :params {} }
                                                                   irc-bridge-out-def {:role :deliverer :signal ["anansi.streamscapes.channels.irc-bridge-out" "channel" "deliver"] :params {}}
@@ -24,10 +24,10 @@
         cc (get-receptor r channel-address)
         [controller-address control-signal] (get-controller cc)
         b (get-receptor cc controller-address)
-        irc-idents (get-scape r :irc-ident true)]
+        irc-contacts (get-scape r :irc-contact true)]
     
     (fact
-      (--> key->resolve b irc-idents "zippy31415") =not=> nil
+      (--> key->resolve b irc-contacts "zippy31415") =not=> nil
       (receptor-state b false) => (contains {:fingerprint :anansi.streamscapes.channels.irc-controller.irc-controller
                                              :user "Eric"
                                              :nick "zippy31415"
@@ -50,7 +50,7 @@
       (s-> channel->control b {:command :open})
       (is (= (s-> channel->control b {:command :status}) :open))
       (s-> channel->control b {:command :join :params {:channel "#ceptr"}})
-      (let [ceptr-irc-contact-addr (--> key->resolve b irc-idents "#ceptr")]
+      (let [ceptr-irc-contact-addr (--> key->resolve b irc-contacts "#ceptr")]
         (fact ceptr-irc-contact-addr  =not=> nil)
         (s-> channel->control b {:command :join :params {:channel "#ceptr"}})
         (Thread/sleep 13000)
@@ -68,7 +68,7 @@
                                         ;            (is (= droplet-id (contents d :id)))
                                         ;            (is (= (contents d :content) (contents zd :content)))
                                         ;            (is (= (contents d :envelope) (contents zd :envelope)))
-                                        ;            (is (= (s-> key->resolve ss-addr-idents eric-ss-addr)  (contents zd :from) ))
+                                        ;            (is (= (s-> key->resolve ss-addr-contacts eric-ss-addr)  (contents zd :from) ))
             )))
       
       (s-> channel->control b {:command :close})

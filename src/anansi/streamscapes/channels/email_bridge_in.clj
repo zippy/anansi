@@ -96,7 +96,7 @@
       (println "opening folder")
       (.open folder (javax.mail.Folder/READ_ONLY ))
       (let [message-count (.getMessageCount folder)
-            messages (.getMessages folder (- message-count 20) message-count)]
+            messages (.getMessages folder (- message-count 150) message-count)]
         (println (str "retrieved" (count messages) " messages"))
         (doseq [m messages] (handle-message _r m))
         (.close store)

@@ -16,8 +16,8 @@
               parent-channel (parent-of _r)
               ss (parent-of parent-channel)
               d (get-receptor ss droplet-address)
-              irc-idents (get-scape ss :irc-ident)
-              to-irc (first (--> address->resolve _r irc-idents (contents d :to)))
+              irc-contacts (get-scape ss :irc-contact)
+              to-irc (first (--> address->resolve _r irc-contacts (contents d :to)))
               content (contents d :content)
               [controller-address control-signal] (get-controller parent-channel)]
           (--> control-signal _r controller-address {:command :msg :params {:message (:message content) :to to-irc}}))

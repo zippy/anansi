@@ -4,7 +4,7 @@
         [anansi.receptor.scape]
         [anansi.receptor.user :only [user-def]]
         [anansi.streamscapes.streamscapes]
-        [anansi.streamscapes.ident :only [ident-def]]
+        [anansi.streamscapes.contact :only [contact-def]]
         [anansi.streamscapes.channel]
 
         [anansi.streamscapes.channels.email-bridge-in :only [email-bridge-in-def]]
@@ -13,9 +13,9 @@
 
 (let [m (make-receptor user-def nil "eric")
       r (make-receptor streamscapes-def nil {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
-      eric (make-receptor ident-def r {:attributes {:name "Eric"}})
+      eric (make-receptor contact-def r {:attributes {:name "Eric"}})
       channel-address (s-> setup->new-channel r {:type :email, :name :email,
-                                                 :in {:host "mail.harris-braun.com" :account "eric@harris-braun.com" :password "pass" :protocol "pop3" :port 110}
+                                                 :in {:host "mail.harris-braun.com" :account "eric@harris-braun.com" :password "pass" :protocol "pop3" :port "110"}
                                                  })
       cc (get-receptor r channel-address)
       [controller-address control-signal] (get-controller cc)

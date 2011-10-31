@@ -5,7 +5,7 @@
   (:use [anansi.ceptr]
         [anansi.receptor.scape]
         [anansi.streamscapes.droplet :only [droplet-def]]
-        [anansi.streamscapes.ident :only [ident-def]]
+        [anansi.streamscapes.contact :only [contact-def]]
         )
   (:use [clojure.string :only [join]])
   )
@@ -68,15 +68,15 @@
                ))
            addr)))
 
-(defn scape-identifier-key [identifier]
-  (keyword (str (name identifier) "-ident")))
-(defn scape-identifier-attribute-key [attribute]
-  (keyword (str "ident-"(name attribute))))
+(defn scape-contact-key [identifier]
+  (keyword (str (name identifier) "-contact")))
+(defn scape-contact-attribute-key [attribute]
+  (keyword (str "contact-"(name attribute))))
 
 (defn find-contact-by-identifier
   "given an identifier name and identifier value return the contact address if it exists"
   [_r identifier value]
-  (let [scape (_get-scape _r (scape-identifier-key identifier))]
+  (let [scape (_get-scape _r (scape-contact-key identifier))]
     (if (nil? scape) nil (--> key->resolve _r scape value)))
   )
 
@@ -90,10 +90,10 @@
   "scape a contact address according to a given a set of identifiers and attributes"
   [_r contact-address identifiers attributes]
   (do (if identifiers (doseq [[i v] identifiers
-                              :let [iscape (get-scape _r (scape-identifier-key i) {:key (keyword (str (name i) "-identifier")) :address :ident-address})]]
+                              :let [iscape (get-scape _r (scape-contact-key i) {:key (keyword (str (name i) "-identifier")) :address :contact-address})]]
                         (--> key->set _r iscape v contact-address)))
       (if attributes  (doseq [[a v] attributes
-                              :let [iscape (get-scape _r (scape-identifier-attribute-key a) {:key :ident-address :address (keyword (str (name a) "-attribute"))})]]
+                              :let [iscape (get-scape _r (scape-contact-attribute-key a) {:key :contact-address :address (keyword (str (name a) "-attribute"))})]]
                         (--> key->set _r iscape contact-address v))))
   )
 (defn- make-default-name [identifiers]
@@ -113,11 +113,11 @@
                               attrs1)))
            ]
        
-       (if (and exists throw-if-exists) (throw (RuntimeException. (str "identity already exists for identifiers: " (join ", " (vals identifiers))))))
+       (if (and exists throw-if-exists) (throw (RuntimeException. (str "contact already exists for identifiers: " (join ", " (vals identifiers))))))
        (if (not (nil? (first (rest iaddrs))))
          (into [] iaddrs)
          (rsync _r
-                (let [contact-address (if exists iaddr (address-of (make-receptor ident-def _r {:attributes {:name (:name attributes)}})))]
+                (let [contact-address (if exists iaddr (address-of (make-receptor contact-def _r {:attributes {:name (:name attributes)}})))]
                   (do-scape-contact _r contact-address identifiers attributes)
                   contact-address))))))
 
@@ -133,7 +133,7 @@
                 attributes (if (nil? (:name attrs1))
                              (assoc attrs1 :name (make-default-name identifiers))
                              attrs1)
-                contact-address (address-of (make-receptor ident-def _r {:attributes {:name (:name attributes)}}))
+                contact-address (address-of (make-receptor contact-def _r {:attributes {:name (:name attributes)}}))
                 ]
             (do-scape-contact _r contact-address identifiers attributes)
             contact-address
@@ -143,7 +143,7 @@
          ;; TODO add in authentication to make sure that _f is one of this
          ;; streamscape instance's channels
          (let [contact (get-receptor _r contact-address)]
-           (if (or (nil? contact) (not= (rdef contact :fingerprint) :anansi.streamscapes.ident.ident)) (throw (RuntimeException. (str "No such contact: "  contact-address))))
+           (if (or (nil? contact) (not= (rdef contact :fingerprint) :anansi.streamscapes.contact.contact)) (throw (RuntimeException. (str "No such contact: "  contact-address))))
            (do-scape-contact _r contact-address identifiers attributes)))
 
 (signal channel incorporate [_r _f params]

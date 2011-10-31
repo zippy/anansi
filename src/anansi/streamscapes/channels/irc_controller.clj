@@ -59,9 +59,9 @@
                    (animate [_r reanimate]
                             (if (not reanimate)
                               (let [ss (parent-of (parent-of _r))
-                                    irc-idents (get-scape ss :irc-ident true)
+                                    irc-contacts (get-scape ss :irc-contact true)
                                     nick (contents _r :nick)]
-                                (if (nil? (--> key->resolve _r irc-idents nick))
+                                (if (nil? (--> key->resolve _r irc-contacts nick))
                                   (--> matrice->identify _r ss {:identifiers {:irc nick} :attributes {:name (contents _r :name)}}))
                                 )))))
 
@@ -84,8 +84,8 @@
                       )
               :join (let [ss (parent-of (parent-of _r))
                           irc-channel (:channel params)
-                          irc-idents (get-scape ss :irc-ident true)]
-                      (if (nil? (--> key->resolve _r irc-idents irc-channel))
+                          irc-contacts (get-scape ss :irc-contact true)]
+                      (if (nil? (--> key->resolve _r irc-contacts irc-channel))
                         (--> matrice->identify _r ss {:identifiers {:irc irc-channel} :attributes {:name (str "IRC channel: " irc-channel)}}))
                       (write (:irc-connection @_r) (str "JOIN " irc-channel))
                         nil)

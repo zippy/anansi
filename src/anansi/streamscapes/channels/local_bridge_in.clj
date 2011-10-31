@@ -10,7 +10,7 @@
 (def local-bridge-in-def (receptor-def "local-bridge-in"))
 
 (defn handle-message [_r message]
-  "process a locally received message: do  look-up to see if we've already created a droplet for this id, and also map the streamscapes-id to/from addresses into identities."
+  "process a locally received message: do  look-up to see if we've already created a droplet for this id, and also map the streamscapes-id to/from addresses into contacts."
   (let [id (:id message)
         ss (parent-of (parent-of _r))
         ids (get-scape ss :id)

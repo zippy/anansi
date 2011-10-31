@@ -6,7 +6,7 @@
         [anansi.receptor.host :only [host-def]]
         [anansi.streamscapes.streamscapes]
         [anansi.streamscapes.channel :only [channel-def]]
-        [anansi.streamscapes.ident :only [ident-def]])
+        [anansi.streamscapes.contact :only [contact-def]])
   (:use [midje.sweet])
   (:use [clojure.test]))
 
@@ -14,15 +14,15 @@
   (let [h (make-receptor host-def nil {})
         m (make-receptor user-def h "eric")
         r (make-receptor streamscapes-def h {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
-        eric (make-receptor ident-def r {:attributes {:name "Eric"}})
-        twp (make-receptor ident-def r {:attributes {:name "Twitter Public"}})
+        eric (make-receptor contact-def r {:attributes {:name "Eric"}})
+        twp (make-receptor contact-def r {:attributes {:name "Twitter Public"}})
         cc-addr (s-> matrice->make-channel r {:name :twitter-stream})
         cc (get-receptor r cc-addr)
         b (make-receptor twitter-bridge-in-def cc {})
-        twitter-idents (get-scape r :twitter-ident true)]
+        twitter-contacts (get-scape r :twitter-contact true)]
     (--> key->set r (get-scape r :channel-type) cc-addr :twitter)
-;;    (--> key->set b twitter-idents "@zippy314" (address-of eric))
-    (--> key->set b twitter-idents "_twp_" (address-of twp))
+;;    (--> key->set b twitter-contacts "@zippy314" (address-of eric))
+    (--> key->set b twitter-contacts "_twp_" (address-of twp))
 
     (fact
       (receptor-state b false) => (contains {:fingerprint :anansi.streamscapes.channels.twitter-bridge-in.twitter-bridge-in}))
@@ -37,14 +37,14 @@
             droplet-address (handle-message b message)
             d (get-receptor r droplet-address)
             deliveries (get-scape r :delivery)
-            avatars (get-scape r :ident-twitter-avatar)
+            avatars (get-scape r :contact-twitter-avatar)
             ]
         (facts "about twitter droplet"
           (contents d :id) => "121470088258916352"
-          (contents d :from) => (s-> key->resolve twitter-idents "@zippy314")
-          (s-> key->resolve twitter-idents "@zippy314")
+          (contents d :from) => (s-> key->resolve twitter-contacts "@zippy314")
+          (s-> key->resolve twitter-contacts "@zippy314")
           (s-> key->resolve avatars (contents d :from)) => "http://someurl"
-          (contents d :to) => (s-> key->resolve twitter-idents "_twp_")
+          (contents d :to) => (s-> key->resolve twitter-contacts "_twp_")
           (contents d :envelope) => {:from "twitter/screen_name" :text "text/plain"}
           (contents d :content) => {:from "zippy314" :text "Some short tweet"}
           (s-> key->resolve (get-scape r :droplet-grooves) droplet-address) => [:simple-message]

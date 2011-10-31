@@ -43,10 +43,10 @@
         (let [
               i-from (s-> matrice->identify r {:identifiers {:ss-address eric-ss-addr} :attributes {:name "Eric"}})
               i-to (s-> matrice->identify r {:identifiers {:ss-address zippy-ss-addr} :attributes {:name "Zippy"}})
-              receiver-ident-addr (s-> matrice->identify ru {:identifiers {:ss-address zippy-ss-addr} :attributes {:name "Zippy"}})
-              ru-ident-names (get-scape ru :ident-name)
+              receiver-contact-addr (s-> matrice->identify ru {:identifiers {:ss-address zippy-ss-addr} :attributes {:name "Zippy"}})
+              ru-contact-names (get-scape ru :contact-name)
               droplet-address (s-> matrice->incorporate r {:to i-to :from i-from :envelope {:subject "text/plain" :body "text/html"} :content {:subject "Hi there!" :body "<b>Hello world!</b>"}})
-              ru-ident-name-before-send (s-> key->resolve ru-ident-names receiver-ident-addr)
+              ru-contact-name-before-send (s-> key->resolve ru-contact-names receiver-contact-addr)
               result (s-> stream->send c-out {:droplet-address droplet-address })
               d (get-receptor r droplet-address)
               deliveries (get-scape r :delivery)
@@ -59,19 +59,19 @@
             (let [droplet-id (first (s-> address->all zippy-droplet-ids))
                   zd-addr (first (s-> key->all zippy-droplet-ids))
                   zd (get-receptor ru zd-addr)
-                  ss-addr-idents (get-scape ru :ss-address-ident)
+                  ss-addr-contacts (get-scape ru :ss-address-contact)
                   ]
               (is (= (count (s-> key->all zippy-droplet-ids)) 1))
               (is (= droplet-id (contents d :id)))
               (is (= (contents d :content) (contents zd :content)))
               (is (= (contents d :envelope) (contents zd :envelope)))
-              (is (= (s-> key->resolve ss-addr-idents eric-ss-addr)  (contents zd :from) ))
-              (facts "about auto identifying on receive not overwriting existing identity names"
-                (let [zipster (get-receptor ru receiver-ident-addr)]
-                  (s-> key->resolve ss-addr-idents zippy-ss-addr) => (contents zd :to)
+              (is (= (s-> key->resolve ss-addr-contacts eric-ss-addr)  (contents zd :from) ))
+              (facts "about auto identifying on receive not overwriting existing contact names"
+                (let [zipster (get-receptor ru receiver-contact-addr)]
+                  (s-> key->resolve ss-addr-contacts zippy-ss-addr) => (contents zd :to)
                   (contents zipster :name) => "Zippy"
-                  ru-ident-name-before-send => "Zippy"
-                  (s-> key->resolve ru-ident-names receiver-ident-addr) => "Zippy")
+                  ru-contact-name-before-send => "Zippy"
+                  (s-> key->resolve ru-contact-names receiver-contact-addr) => "Zippy")
                   )
               )
             

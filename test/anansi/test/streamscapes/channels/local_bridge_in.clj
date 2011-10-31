@@ -23,7 +23,7 @@
         cc-addr (s-> matrice->make-channel r {:name :local-stream})
         cc (get-receptor r cc-addr)
         b (make-receptor local-bridge-in-def cc {})
-        ss-addr-idents (get-scape r :ss-address-ident)]
+        ss-addr-contacts (get-scape r :ss-address-contact)]
     (--> key->set r (get-scape r :channel-type) cc-addr :streamscapes)
     (facts "about restoring serialized receptor"
       (let [state (receptor-state b true)]
@@ -38,7 +38,7 @@
         (is (= "1.2" (contents d :id)))
         (is (= eric-addr (contents d :to)))
         (is (= zippy-addr (contents d :from) ))
-        (is (= (s-> key->resolve ss-addr-idents zippy-ss-addr)  (contents d :from) ))
+        (is (= (s-> key->resolve ss-addr-contacts zippy-ss-addr)  (contents d :from) ))
         (is (= :local-stream  (contents d :channel) ))
         (is (= {:subject "text/plain" :body "text/html"} (contents d :envelope)))
         (is (= {:subject "Hi there!" :body "<b>Hello world!</b>"} (contents d :content)))

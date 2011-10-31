@@ -5,7 +5,7 @@
         [anansi.receptor.user :only [user-def]]
         [anansi.streamscapes.streamscapes]
         [anansi.streamscapes.channel :only [channel-def stream->send]]
-        [anansi.streamscapes.ident :only [ident-def]]
+        [anansi.streamscapes.contact :only [contact-def]]
         )
   (:use [midje.sweet])
   (:use [clojure.test])
@@ -14,7 +14,7 @@
 (deftest email-bridge-out
   (let [m (make-receptor user-def nil "eric")
         r (make-receptor streamscapes-def nil {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
-        eric (make-receptor ident-def r {:attributes {:name "Eric"}})
+        eric (make-receptor contact-def r {:attributes {:name "Eric"}})
         cc-addr (s-> matrice->make-channel r {:name :email-stream})
         cc (get-receptor r cc-addr)
         b (make-receptor email-bridge-out-def cc {:attributes {:host "mail.harris-braun.com" :account "eric@harris-braun.com" :password "some-password" :protocol "smtps" :port 25}})

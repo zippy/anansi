@@ -6,7 +6,7 @@
         [anansi.receptor.host :only [host-def]]
         [anansi.streamscapes.channel]
         [anansi.streamscapes.streamscapes]
-        [anansi.streamscapes.ident :only [ident-def]]
+        [anansi.streamscapes.contact :only [contact-def]]
         [anansi.streamscapes.channels.socket-in :only [socket-in-def]]
         [anansi.test.helpers :only [write connect]])
   (:use [midje.sweet])
@@ -18,8 +18,8 @@
   (let [m (make-receptor user-def nil "eric")
         h (make-receptor host-def nil {})
         r (make-receptor streamscapes-def h {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
-        eric (make-receptor ident-def r {:attributes {:name "Eric"}})
-        house (make-receptor ident-def r {:attributes {:name "my-house"}})
+        eric (make-receptor contact-def r {:attributes {:name "Eric"}})
+        house (make-receptor contact-def r {:attributes {:name "my-house"}})
         channel-address (s-> matrice->make-channel r
                              {:name :socket-stream
                               :receptors {socket-in-def {:role :receiver :signal ["anansi.streamscapes.channels.socket-in" "controller" "receive"] :params {}}
@@ -28,10 +28,10 @@
         cc (get-receptor r channel-address)
         [controller-address control-signal] (get-controller cc)
         b (get-receptor cc controller-address)
-        ip-idents (get-scape r :ip-ident true)
+        ip-contacts (get-scape r :ip-contact true)
         droplet-ids (get-scape r :id)]
     (--> key->set r (get-scape r :channel-type) channel-address :socket)
-    (--> key->set b ip-idents "127.0.0.1" (address-of eric))
+    (--> key->set b ip-contacts "127.0.0.1" (address-of eric))
     
     (fact
       (receptor-state b false) => (contains {:port 3141 :input-function fn?}))
@@ -61,7 +61,7 @@
         (is (= droplet-id (contents d :id)))
         (is (= "test message 1" (:message content)))
         (is (= "127.0.0.1" (:from content)))
-        (is (= (s-> key->resolve ip-idents "127.0.0.1")  (contents d :from) ))
+        (is (= (s-> key->resolve ip-contacts "127.0.0.1")  (contents d :from) ))
         )
       
       (s-> channel->control b {:command :close})
