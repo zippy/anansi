@@ -28,11 +28,11 @@
         ]
     (humanize-ss-datetime t)))
 
-(defn resolve-ident [s ident]
-  ((keyword ident) (:values (:ident-name-scape (:scapes s)))))
+(defn resolve-contact [s contact]
+  ((keyword contact) (:values (:contact-name-scape (:scapes s)))))
 
-(defn resolve-twitter-avatar [s ident]
-  (str "<img class=\"twitter-avatar\" src=\"" ((keyword ident) (:values (:ident-twitter-avatar-scape (:scapes s)))) "\">")   )
+(defn resolve-twitter-avatar [s contact]
+  (str "<img class=\"twitter-avatar\" src=\"" ((keyword contact) (:values (:contact-twitter-avatar-scape (:scapes s)))) "\">")   )
 
 (defn get-html-from-body [body content-type]
   (if (re-find #"^multipart" content-type)
@@ -132,7 +132,7 @@
           channel-type (ssu/get-channel-type channel-address)
           channel-icon (ssu/channel-icon-html channel-name channel-type)
           sent (droplet-date s d :delivery-scape)
-          from (resolve-ident s (:from d))
+          from (resolve-contact s (:from d))
           tag-name-map (into {} (map (fn [[sn tn]] [tn sn]) (:values (:tag-scapes-scape (:scapes s/*current-state*)))))
           tag-menu-elem (ssu/make-tagging-button droplet-address)
           tags (map #(name %) (ssu/get-droplet-tags droplet-address))

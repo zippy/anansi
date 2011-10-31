@@ -11,15 +11,15 @@
             [ss.state :as s]
             ))
 
-(defn get-addresses-by-channel-identity-scape
-  [channel-ident-scape contact-address]
-  (map (fn [[addr _]] (name addr))  (filter (fn [[_ ia]] (= (keyword ia) contact-address)) channel-ident-scape))
+(defn get-addresses-by-channel-contact-scape
+  [channel-contact-scape contact-address]
+  (map (fn [[addr _]] (name addr))  (filter (fn [[_ ia]] (= (keyword ia) contact-address)) channel-contact-scape))
   )
 
 ;;TODO: ARG here it is again! see https://github.com/zippy/anansi/issues/7
-(defn get-channel-type-from-channel-identity-scape-name [channel-identity-scape-name]
+(defn get-channel-type-from-channel-contact-scape-name [channel-contact-scape-name]
   (condp = 
-      (str (first (string/split (name channel-identity-scape-name) #"-")))
+      (str (first (string/split (name channel-contact-scape-name) #"-")))
       "ss" :streamscapes
       "email" :email
       "twitter" :twitter
@@ -27,12 +27,12 @@
       )
   )
 
-(defn render-channel-addresses [channel-identity-scape-name ident-addr]
-  (let [scape (:values (channel-identity-scape-name (:scapes s/*current-state*)))
-        addresses (get-addresses-by-channel-identity-scape scape ident-addr)]
+(defn render-channel-addresses [channel-contact-scape-name contact-addr]
+  (let [scape (:values (channel-contact-scape-name (:scapes s/*current-state*)))
+        addresses (get-addresses-by-channel-contact-scape scape contact-addr)]
     (if (empty? addresses)
       nil
-      [:div.channel-addresses [:p.channel (str (name (get-channel-type-from-channel-identity-scape-name channel-identity-scape-name)) ": ") ]
+      [:div.channel-addresses [:p.channel (str (name (get-channel-type-from-channel-contact-scape-name channel-contact-scape-name)) ": ") ]
        (into [:p.addresses] (map (fn [addr] [:span.address addr]) addresses))])))
 
 ;;TODO: The channel type problem rears it's ugly head yet again!!!!
@@ -57,7 +57,7 @@
   )
 
 (defn get-contact-name [contact-addr]
-  ((keyword contact-addr) (:values (:ident-name-scape (:scapes s/*current-state*))))
+  ((keyword contact-addr) (:values (:contact-name-scape (:scapes s/*current-state*))))
   )
 
 (defn do-save-contact [contact-addr]
@@ -65,7 +65,7 @@
         new-contact-name (. (d/get-element :name) value)]
     (if (not= old-contact-name new-contact-name)
       (ssu/send-ss-signal {:aspect "scape" :signal "set"
-                           :params {:name :ident-name :key (js/parseInt (name contact-addr)) :address new-contact-name}} )
+                           :params {:name :contact-name :key (js/parseInt (name contact-addr)) :address new-contact-name}} )
       )
     (ssu/send-ss-signal {:aspect "matrice" :signal "scape-contact"
                            :params {:address (js/parseInt (name contact-addr)) :identifiers (get-addresses-from-form)}} )
@@ -78,8 +78,8 @@
 
 (defn get-contact-address
   [contact-address channel-type]
-  (first (get-addresses-by-channel-identity-scape
-          (ssu/get-channel-ident-scape-from-type channel-type)
+  (first (get-addresses-by-channel-contact-scape
+          (ssu/get-channel-contact-scape-from-type channel-type)
           contact-address)))
 
 (defn contact-form [ok-fun contact-addr contact-name]
@@ -99,8 +99,8 @@
 
 (defn open []
   (let [scapes (:scapes s/*current-state*)
-        contact-names (:values (:ident-name-scape scapes))
-        channel-identity-scapes (ssu/get-matching-scapes #"-ident-scape$")
+        contact-names (:values (:contact-name-scape scapes))
+        channel-contact-scapes (ssu/get-matching-scapes #"-contact-scape$")
         ]
     (ui/modal-dialog
      "contacts"
@@ -108,7 +108,7 @@
      [(into [:div#names] (map (fn [[caddr cname]] [:div.contact
                                                   [:div.contact-name  (ui/make-click-link cname #(contact-form (fn [] (do-save-contact caddr)) caddr cname))]
                                                   (into [:div.channel-addresses-container]
-                                                        (filter (fn [x] (not (nil? x))) (map (fn [cs] (render-channel-addresses cs caddr)) channel-identity-scapes)))
+                                                        (filter (fn [x] (not (nil? x))) (map (fn [cs] (render-channel-addresses cs caddr)) channel-contact-scapes)))
                                                   ]) contact-names))])
     )
   )

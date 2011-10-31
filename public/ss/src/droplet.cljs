@@ -33,14 +33,14 @@
 (defn render-groove
   "given a groove definition and an element id, renders the groove fields into it"
   [elem-id groove-spec]
-  (let [identity-names (:values (:ident-name-scape (:scapes s/*current-state*)))
+  (let [contact-names (:values (:contact-name-scape (:scapes s/*current-state*)))
         senders (set (map #(js/parseInt (name %)) (keys (:values (:sender-scape (:scapes s/*current-state*))))))
         channel-name (. *channel-select* (getValue))
-        channel-address-identity-scape (ssu/get-channel-ident-scape channel-name)
-;;        addr-select (map (fn [[ea ia]] [:option {:value (str ia)} (str ((keyword ia) identity-names) "<"(name ea) ">")]) channel-address-identity-scape)
-        to-addresses (map (fn [[a-name contact-id]] [(str ((keyword contact-id) identity-names) "<"(name a-name) ">") contact-id]) channel-address-identity-scape)
-        from-addresses (map (fn [[a-name contact-id]] [(str ((keyword contact-id) identity-names) "<"(name a-name) ">") contact-id])
-                          (filter (fn [[_ contact-id]] (senders contact-id)) channel-address-identity-scape))
+        channel-address-contact-scape (ssu/get-channel-contact-scape channel-name)
+;;        addr-select (map (fn [[ea ia]] [:option {:value (str ia)} (str ((keyword ia) contact-names) "<"(name ea) ">")]) channel-address-contact-scape)
+        to-addresses (map (fn [[a-name contact-id]] [(str ((keyword contact-id) contact-names) "<"(name a-name) ">") contact-id]) channel-address-contact-scape)
+        from-addresses (map (fn [[a-name contact-id]] [(str ((keyword contact-id) contact-names) "<"(name a-name) ">") contact-id])
+                          (filter (fn [[_ contact-id]] (senders contact-id)) channel-address-contact-scape))
         [to-select to-select-element] (ui/make-select "to" nil to-addresses (fn [] nil))
         [from-select from-select-element] (ui/make-select "from" nil from-addresses (fn [] nil))
         ]
@@ -78,8 +78,8 @@
   "creates and renders the droplet create dialog"
   [channel groove]
   (let [scapes (:scapes s/*current-state*)
-        identity-names (:values (:ident-name-scape scapes))
-        channel-address-identity-scape (:values (:ss-address-ident-scape scapes))
+        contact-names (:values (:contact-name-scape scapes))
+        channel-address-contact-scape (:values (:ss-address-contact-scape scapes))
         channel-names (sss/get-channel-names)
         [channel-select channel-select-element] (ui/make-select "channel" "Choose a channel:" channel-names setup-groove)
         [groove-select groove-select-element] (ui/make-select "groove" nil (map #(name %) (keys s/*grooves*))

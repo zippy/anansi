@@ -61,22 +61,22 @@
   (distinct (map (fn [t] (keyword t)) (vals (:values (:channel-type-scape (:scapes s/*current-state*))))))
   )
 
-;;TODO: really we should be able to get the ident-scape
+;;TODO: really we should be able to get the contact-scape
 ;;programmatically instead of manually like this.
-(defn get-channel-ident-scape-from-type
-  "Given a channel type, returns the identity scape for that channel type"
+(defn get-channel-contact-scape-from-type
+  "Given a channel type, returns the contact scape for that channel type"
   [chan-type]
   (:values ((condp = chan-type
-                  :streamscapes :ss-address-ident-scape
-                  :irc :irc-ident-scape
-                  :email :email-ident-scape
-                  :twitter :twitter-ident-scape
+                  :streamscapes :ss-address-contact-scape
+                  :irc :irc-contact-scape
+                  :email :email-contact-scape
+                  :twitter :twitter-contact-scape
                   ) (:scapes s/*current-state*))))
 
-(defn get-channel-ident-scape
-  "Given a channel name, returns the identity scape for that channel"
+(defn get-channel-contact-scape
+  "Given a channel name, returns the contact scape for that channel"
   [channel-name]
-  (get-channel-ident-scape-from-type (get-channel-type-from-name channel-name)))
+  (get-channel-contact-scape-from-type (get-channel-type-from-name channel-name)))
 
 (defn channel-icon-html [channel-name channel-type]
   (str "<img class=\"droplet-type-icon\" src=\"images/" (name channel-type) ".png\" title=\"" (name channel-name) "\">")
