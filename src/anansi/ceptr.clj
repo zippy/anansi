@@ -258,7 +258,7 @@
 
 (defn query-scape
   "returns a lazy sequence of the results of the qfun filtered against the scape values
-qfun must be a function of two arguments: key, address and must return a vector pair of a boolean value of weather to include an entry for this pair, plus the value to be returned for this pair, which may anything."
+qfun must be a function of two arguments: key, address and must return a vector pair of a boolean value of whether to include an entry for this pair, plus the value to be returned for this pair, which may be anything."
   [_r qfun]
    (map (fn [[_ result ]] result) (filter (fn [[b r]] b) (map (fn [[k a]] (qfun k a) ) @(contents _r :map)))))
 
@@ -284,23 +284,37 @@ assumes that the scape has receptor addresses in the value of the map, unless fl
 ;; They need to be made more efficient but that will have to
 ;; wait until we rebuild scaping into it's new form
 
+(defn build-query-function [query]
+  (let [{[qfn qv] :query flip :flip do-inverse :not} query
+        ifun (if do-inverse not identity)]
+    (condp = qfn
+        "<" (if flip (fn ([k v] [(ifun (< (compare v qv) 0)) k])) (fn ([k v] [(ifun (< (compare k qv) 0)) v])))
+        ">" (if flip (fn ([k v] [(ifun (> (compare v qv) 0)) k])) (fn ([k v] [(ifun (> (compare k qv) 0)) v])))
+        "=" (if flip (fn ([k v] [(ifun (= v qv)) k])) (fn ([k v] [(ifun (= k qv)) v])))
+        (throw (RuntimeException. (str "unknown query function:" qfn))))))
+
 (defn process-scape-query
   "returns state with receptors pruned to those that match the scape-query"
   [_r state scape-query]
-  (if (nil? scape-query)
-    [state nil]
-    (let [{scape-name :scape [qfn qv] :query flip :flip} scape-query
-          s (_get-scape _r (if (string? scape-name ) (keyword scape-name) scape-name))
-          qfun (condp = qfn
-                   "<" (if flip (fn ([k v] [(< (compare v qv) 0) k])) (fn ([k v] [(< (compare k qv) 0) v])))
-                   ">" (if flip (fn ([k v] [(> (compare v qv) 0) k])) (fn ([k v] [(> (compare k qv) 0) v])))
-                   "=" (if flip (fn ([k v] [(= v qv) k])) (fn ([k v] [(= k qv) v])))
-                   )
-          receptors (if (nil? s) #{} (set (query-scape s qfun)))
-          final-state (assoc state :receptors (filter (fn [[key _]] (receptors key)) (:receptors state)))
-          ]
-      [final-state (count (:receptors final-state))]
-      )))
+  (if (nil? scape-query) [state nil]
+      (let [queries (if (vector? scape-query) scape-query [scape-query])
+            results (map (fn [query]
+                           (let [{scape-name :scape [qfn _] :query flip :flip do-inverse :not} query
+                                 s (_get-scape _r (if (string? scape-name) (keyword scape-name) scape-name))]
+                             (if (= qfn "?")
+                               (let [h @(contents s :map)
+                                     droplets-in-scape (set ((if flip keys vals) h))]
+                                 (if do-inverse
+                                   (clojure.set/difference (set (filter #(not= :last-address %) (keys (:receptors state)))) droplets-in-scape)
+                                   droplets-in-scape
+                                   )) 
+                               (if (nil? s) #{} (set (query-scape s (build-query-function query)))))
+                             )) queries)
+            receptors (apply clojure.set/intersection results)
+            final-state (assoc state :receptors (filter (fn [[key _]] (receptors key)) (:receptors state)))
+            ]
+        [final-state (count (:receptors final-state))]
+        )))
 
 (defn process-scape-order
   "returns state with and added key :receptor-order that lists the addresses in order as specified by the order-scape"

@@ -134,6 +134,7 @@
         z (address-of (make-receptor r-def p {:attributes {:x "zippy"}}))
         s (address-of (make-receptor r-def p {:attributes {:x "sam"}}))
         j (address-of (make-receptor r-def p {:attributes {:x "jane"}}))
+        n (address-of (make-receptor r-def p {:attributes {:x "not-scaped"}}))
         ]
     (--> key->set p (get-scape p :s1) "zippy" z)
     (--> key->set p (get-scape p :s1) "sam" s)
@@ -148,6 +149,18 @@
     (set (keys (:receptors (receptor-state p {:scape-query {:scape :s2 :query ["<" "s"] :flip true}})))) => #{j}
     (set (keys (:receptors (receptor-state p {:scape-query {:scape :s1 :query ["=" "sam"]}})))) => #{s}
     (set (keys (:receptors (receptor-state p {:scape-query {:scape :s2 :query ["=" "sam"] :flip true}})))) => #{s}
+    (set (keys (:receptors (receptor-state p {:scape-query {:scape :s1 :query ["=" "sam"] :not true}})))) => #{j z}
+    (set (keys (:receptors (receptor-state p {:scape-query {:scape :s1 :query ["?" nil]}})))) => #{s j z}
+    (set (keys (:receptors (receptor-state p {:scape-query {:scape :s1 :query ["?" nil] :not true}})))) => #{n x}
+    (set (keys (:receptors (receptor-state p {:scape-query {:scape :s2 :query ["?" nil] :flip true}})))) => #{s j z}
+    (set (keys (:receptors (receptor-state p {:scape-query {:scape :s2 :query ["?" nil] :flip true :not true}})))) => #{n x}
+
+    ;; vector means anded queries
+    (set (keys (:receptors (receptor-state p {:scape-query
+                                              [{:scape :s1 :query ["=" "sam"] :not true}
+                                               {:scape :s2 :query [">" "s"] :flip true}
+                                               ]})))) => #{z} 
+    
     (:receptor-order (receptor-state p {:scape-order {:scape :s1}})) => [j s z]
     (:receptor-order (receptor-state p {:scape-order {:scape :s1 :descending true}})) => [z s j]
     (:receptor-order (receptor-state p {:scape-order {:flip true :scape :s2 :descending true}})) => [z s j]
@@ -158,15 +171,15 @@
     (let [state (receptor-state p {:receptor 0 :scape-order {:scape :s1 :limit 2}})]
       (:receptor-total state) => 3
       (:receptor-order state) => [j s]
-      (set (keys (:receptors state))) => #{j s x}
+      (set (keys (:receptors state))) => #{j s x n}
       )
     (let [state (receptor-state p {:scape-order {:scape :s1 :offset 1}})]
       (:receptor-order state) => [s z]
-      (set (keys (:receptors state))) => #{s z x}
+      (set (keys (:receptors state))) => #{s z x n}
       )
     (let [state (receptor-state p {:scape-order {:scape :s1 :limit 1 :offset 1}})]
       (:receptor-order state) => [s]
-      (set (keys (:receptors state))) => #{s x}
+      (set (keys (:receptors state))) => #{s x n}
       )
     (let [state (receptor-state p {:scape-order {:scape :s1 :limit 1 :offset 1 :scape-receptors-only true}})]
       (:receptor-order state) => [s]
