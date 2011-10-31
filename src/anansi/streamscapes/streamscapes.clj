@@ -139,12 +139,25 @@
             contact-address
             )))
 
-( signal matrice scape-contact [_r _f {contact-address :address identifiers :identifiers attributes :attributes}]
+(defn- get-contact [_r contact-address]
+  (let [contact (get-receptor _r contact-address)]
+    (if (or (nil? contact) (not= (rdef contact :fingerprint) :anansi.streamscapes.contact.contact)) (throw (RuntimeException. (str "No such contact: "  contact-address))))
+    contact
+    )
+  )
+
+(signal matrice scape-contact [_r _f {contact-address :address identifiers :identifiers attributes :attributes}]
          ;; TODO add in authentication to make sure that _f is one of this
          ;; streamscape instance's channels
-         (let [contact (get-receptor _r contact-address)]
-           (if (or (nil? contact) (not= (rdef contact :fingerprint) :anansi.streamscapes.contact.contact)) (throw (RuntimeException. (str "No such contact: "  contact-address))))
+         (let [contact (get-contact _r contact-address)]
            (do-scape-contact _r contact-address identifiers attributes)))
+
+(signal matrice delete-contact [_r _f {contact-address :address}]
+        (let [contact (get-contact _r contact-address)]
+          (rsync _r
+                 (destroy-receptor _r contact-address)
+                 (destroy-scape-entries _r :contact-address contact-address)
+                 )))
 
 (signal channel incorporate [_r _f params]
         ; TODO add in authentication to make sure that _f is one of this

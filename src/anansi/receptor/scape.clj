@@ -102,3 +102,15 @@
   "return the relationship information about the scape"
   [_r aspect]
   (aspect (contents _r :relationship)))
+
+(defn find-scapes-by-relationship [_r rel]
+  (find-receptors _r (fn [r] (and (= :anansi.receptor.scape.scape (rdef r :fingerprint)) (or (= (scape-relationship r :key) rel) (= (scape-relationship r :address) rel)))))
+  )
+  (set! *print-level* 10)
+
+(defn destroy-scape-entries
+  "given a scape relationship and a value for that relationship walk through all the scapes that have that relationship and delete the entries for which that relationship matches value"
+  [_r relationship value]
+  (let [scapes (find-scapes-by-relationship _r relationship)]
+    (doseq [s scapes]
+      (s-> (if (= relationship (scape-relationship s :key)) key->delete address->delete) s value))))

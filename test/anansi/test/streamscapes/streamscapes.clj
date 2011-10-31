@@ -94,6 +94,14 @@
           (s-> matrice->scape-contact r {:address contact-address1 :attributes {:name "Bugsy"}})
           (s-> key->resolve contact-names contact-address1) => "Bugsy"
           )
+        (facts "about deleting contacts"
+          (s-> matrice->delete-contact r {:address 999})  => (throws RuntimeException "No such contact: 999")
+          (s-> matrice->delete-contact r {:address (address-of contact-names)}) => (throws RuntimeException (str "No such contact: " (address-of contact-names)))
+          (s-> matrice->delete-contact r {:address contact-address1})
+          (get-receptor r contact-address1) => nil
+          (s-> address->resolve email-contacts contact-address1) => []
+          
+          )
         )
       )
     (facts "about scaping"

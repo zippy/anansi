@@ -73,11 +73,24 @@
     (keys (:map ss)) => (just #{:a-scape :b-scape})
     (receptor-state (get-receptor r (s-> key->resolve (:scapes-scape m) :a-scape)) true) => (contains {:relationship {:key :r1, :address :r2}, :map {}})
 ))
+  (set! *print-level* 6)
 
-(facts "relationship description"
-  (let [r (make-receptor scape-def nil :address :name)]
+(facts "about scape relationship"
+  (let [p (make-receptor t-def nil {})
+        r (make-receptor scape-def p :address :name)
+        r1 (make-receptor scape-def p :name :frog)
+        ]
     (scape-relationship r :key) => :address
     (scape-relationship r :address) => :name
+    (find-scapes-by-relationship p :frog) => [r1]
+    (s-> key->set r 1 "jose")
+    (s-> key->set r 2 "jose")
+    (s-> key->set r 3 "bill")
+    (s-> key->set r1 "jose" "bull")
+    (s-> key->set r1  "peter" "tree")
+    (destroy-scape-entries p :name "jose")
+    (s-> key->all r) => [3]
+    (s-> key->all r1) => ["peter"]
     ))
 
 (facts "about scape querying"
