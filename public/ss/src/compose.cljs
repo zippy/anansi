@@ -56,7 +56,9 @@
                                               ])) (keys (:values (:my-scapes-scape scapes)))))]
                        [:div#scape-work {:style "display:none"} ""]
                        [:div [:h4 "Tags"]
-                        (ui/make-button "New Tag" #(make-tag :tag-work))
+                        (ui/make-button "New Tag" #(tag-form :tag-work nil))
+                        (apply conj [:div.my-tags] (map (fn [tag-name] [:p.tag (ui/make-click-link tag-name #(tag-form :tag-work tag-name))])
+                                                        (filter #(not (= % "touched")) (vals (:values (:tag-scapes-scape scapes)))))) 
                         ]
                        [:div#tag-work {:style "display:none"} ""]]
                      
@@ -97,8 +99,12 @@
    do-make-scape)
   )
 
-(defn do-make-tag [{tag-name :tag-name}]
-  (let [tag-scape-name (str (string/replace (string/replace (string/lower-case tag-name) #"\W"+ "-") #"[^a-zA-Z0-9_-]" "X") "-tag")]
+(defn build-tag-scape-name [tag-name]
+  (str (string/replace (string/replace (string/lower-case tag-name) #"\W"+ "-") #"[^a-zA-Z0-9_-]" "X") "-tag")
+  )
+
+(defn make-tag [{tag-name :tag-name}]
+  (let [tag-scape-name (build-tag-scape-name tag-name)]
     (ceptr/start-chain
      {:cleanup  sss/refresh-stream
       :error (fn [result] (js/alert (str "Server reported error:" result)))
@@ -111,10 +117,29 @@
                                      :params {:name :tag-scapes :key tag-scape-name :address tag-name}} (ceptr/nextc chain)))
               ]})))
 
-(defn make-tag [parent-id]
+(defn update-tag [orig-name {tag-name :tag-name}]
+  (if (not (= orig-name tag-name))
+    (let [orig-tag-scape-name (build-tag-scape-name orig-name)
+          tag-scape-name (build-tag-scape-name tag-name)]
+      (ceptr/start-chain
+       {:cleanup  sss/refresh-stream
+        :error (fn [result] (js/alert (str "Server reported error:" result)))
+        :chain [
+                (fn [result chain]
+                  (ssu/send-ss-signal {:aspect "setup" :signal "rename-scape"
+                                       :params {:name orig-tag-scape-name :new-name tag-scape-name}} (ceptr/nextc chain)))
+                (fn [result chain]
+                  (ssu/send-ss-signal {:aspect "scape" :signal "delete"
+                                       :params {:name :tag-scapes :key orig-tag-scape-name}} (ceptr/nextc chain)))
+                (fn [result chain]
+                  (ssu/send-ss-signal {:aspect "scape" :signal "set"
+                                       :params {:name :tag-scapes :key tag-scape-name :address tag-name}} (ceptr/nextc chain)))
+                ]}))))
+
+(defn tag-form [parent-id name]
   (ui/make-dialog parent-id
-                  [{:field :tag-name :label "Tag Name"}]
-   do-make-tag)
+                  [{:field :tag-name :default name :label "Tag Name"}]
+   (if (nil? name) make-tag #(update-tag name %)))
   )
 
 (defn do-set-scape [scape-name {key :key-val val :value-val}]

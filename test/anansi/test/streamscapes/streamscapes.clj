@@ -105,11 +105,17 @@
         )
       )
     (facts "about scaping"
-      (class (s-> setup->new-scape r {:name :fish :relationship {:key :fish-name, :address :address}})) => java.lang.Integer
-      (scape-relationship (get-scape r :fish) :key) => :fish-name
-      (scape-relationship (get-scape r :fish) :address) => :address
-      (s-> scape->set r {:name :fish :key "trout" :address 2}) => nil
-      (s-> key->resolve (get-scape r :fish) "trout") => 2
+      (let [s-addr (s-> setup->new-scape r {:name :fish :relationship {:key :fish-name, :address :address}})]
+        (class s-addr) => java.lang.Integer
+        (scape-relationship (get-scape r :fish) :key) => :fish-name
+        (scape-relationship (get-scape r :fish) :address) => :address
+        (s-> scape->set r {:name :fish :key "trout" :address 2}) => nil
+        (s-> key->resolve (get-scape r :fish) "trout") => 2
+        (s-> scape->delete r {:name :fish :key "trout"}) => nil
+        (s-> key->resolve (get-scape r :fish) "trout") => nil
+        (s-> setup->rename-scape r {:name :fish :new-name :ichthoid})
+        (get-scape r :fish) => (throws RuntimeException ":fish scape doesn't exist")
+        (address-of (get-scape r :ichthoid)) => s-addr)
       )
     (testing "droplets"
       (let [sc (s-> matrice->make-channel r {:name :some-channel})

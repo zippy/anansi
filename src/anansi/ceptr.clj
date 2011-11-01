@@ -58,6 +58,14 @@
   "set the value of a manifest item"
   [receptor key value] (rsync receptor (_set-content receptor key value)))
 
+(defn _delete-content
+  [receptor key]
+  (alter (:contents @receptor) dissoc key))
+
+(defn delete-content
+  "remove the value of a manifest item"
+  [receptor key] (rsync receptor (_delete-content receptor key)))
+
 (defn restore-content
   "set the value of a manifest item without updating the changes count"
   [receptor key value] (dosync (_set-content receptor key value)))

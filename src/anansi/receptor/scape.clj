@@ -98,6 +98,22 @@
                s))
       (throw (RuntimeException. (str scape-name " scape already exists"))))))
 
+(defn rename-scape
+  "renames a scape"
+  [_r {name :name  new-name :new-name}]
+  (if (nil? (_get-scape _r new-name))
+    (rsync _r
+           (let [ss (get-scape _r :scapes)
+                 s (get-scape _r name)
+                 s-addr (address-of s)
+                 key (scapify new-name)]
+             (_delete-content _r (scapify name))
+             (_set-content _r key s)
+             (--> address->delete _r ss s-addr)
+             (--> key->set _r ss key s-addr)))
+    (throw (RuntimeException. (str new-name " scape already exists"))))
+  )
+
 (defn scape-relationship
   "return the relationship information about the scape"
   [_r aspect]

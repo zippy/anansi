@@ -55,6 +55,13 @@
         (is (= (scape-relationship s :key) :fish-name))
         (is (= (scape-relationship s :address) :address)) 
         ))
+    (facts "about renaming scapes"
+      (let [b (get-scape r :boink)]
+        (rename-scape r {:name :boink :new-name :boink}) => (throws RuntimeException ":boink scape already exists")
+        (rename-scape r {:name :boink :new-name :zippy})
+        (get-scape r :zippy) => b
+        )
+      )
     (testing "make-scapes"
       (let [m (make-scapes r {:x :y} :a :b)]
         (is (= #{:x :a-scape :b-scape :scapes-scape} (into #{} (keys m))))
