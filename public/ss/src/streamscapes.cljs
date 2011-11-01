@@ -56,9 +56,10 @@
   ([r] (get-state r nil nil nil))
   ([r scape value page] 
      (let [x (if (not (nil? page)) (s/set-page page))
+           qfn (if (= value true) "?" "=")
            scape-queries (cond (nil? scape) {:scape "touched-tag" :query ["?" nil] :flip true :not true}
                                (= scape :touched-tag) {:scape scape :query ["?" nil] :flip true}
-                               :else [{:scape scape :query ["?" nil] :flip true} {:scape "touched-tag" :query ["?" nil] :flip true :not true}]
+                               :else [{:scape scape :query [qfn value] :flip true} {:scape "touched-tag" :query ["?" nil] :flip true :not true}]
                              )
            query {:scape-order {:scape :delivery :limit s/*items-per-page* :offset (s/get-offset) :descending true :frequencies true}
               :scape-query scape-queries
