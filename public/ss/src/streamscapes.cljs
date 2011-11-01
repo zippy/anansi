@@ -23,14 +23,14 @@
 
 (defn refresh-current-stream []
   (let [[scape value] s/*scape-query*]
-    (refresh-stream scape value)))
+    (refresh-stream scape value nil)))
 
 (defn refresh-stream
-  ([] (refresh-stream nil nil))
-  ([scape value] (get-state (s/get-ss-addr) scape value)))
+  ([] (refresh-stream nil nil nil))
+  ([scape value page] (get-state (s/get-ss-addr) scape value page)))
 
 (defn render-ss []
-  (stream/render #(refresh-stream nil nil))
+  (stream/render #(refresh-stream nil nil nil))
   (render-scapes s/*current-state*)
   )
 
@@ -53,9 +53,10 @@
 
 (defn get-state
   "get the state of a streamscapes receptor and render it, possibly limmiting the receptors returned to those in a given scape"
-  ([r] (get-state r nil nil))
-  ([r scape value] 
-     (let [scape-queries (cond (nil? scape) {:scape "touched-tag" :query ["?" nil] :flip true :not true}
+  ([r] (get-state r nil nil nil))
+  ([r scape value page] 
+     (let [x (if (not (nil? page)) (s/set-page page))
+           scape-queries (cond (nil? scape) {:scape "touched-tag" :query ["?" nil] :flip true :not true}
                                (= scape :touched-tag) {:scape scape :query ["?" nil] :flip true}
                                :else [{:scape scape :query ["?" nil] :flip true} {:scape "touched-tag" :query ["?" nil] :flip true :not true}]
                              )
@@ -119,13 +120,13 @@
   (map (fn [sn]
          (let [scape (descapify sn)]
            [(scape-tag scape true)
-            (ui/make-click-link (humanize-scape-name-for-list sn) #(refresh-stream scape true))])) (ssu/get-matching-scapes #"-groove-scape$")))
+            (ui/make-click-link (humanize-scape-name-for-list sn) #(refresh-stream scape true 1))])) (ssu/get-matching-scapes #"-groove-scape$")))
 
 (defn get-tag-scapes []
   (let [scapes (:scapes s/*current-state*)]
     (map (fn [[scape-name tag-name]]
            [(scape-tag scape-name true)
-            (ui/make-click-link tag-name #(refresh-stream scape-name true))])
+            (ui/make-click-link tag-name #(refresh-stream scape-name true 1))])
          (:values (:tag-scapes-scape scapes)))))
 
 (defn get-order-scapes []
@@ -144,7 +145,7 @@ onto the linking value."
         ]
     (map (fn [[name-scape address-scape]]
            (apply conj [:div.category [:h5 (humanize-scape-name-for-list name-scape)]]
-                  (map (fn [[cat-name v]] [:p (ui/make-click-link (name cat-name) #(refresh-stream (descapify address-scape) v))
+                  (map (fn [[cat-name v]] [:p (ui/make-click-link (name cat-name) #(refresh-stream (descapify address-scape) v 1))
                                           ]) (:values (name-scape scapes)))) ) category-scapes)
     ))
 ;; This code is for showing all scapes that map droplet-addresses...
@@ -185,7 +186,7 @@ onto the linking value."
                                                             (apply conj [tag] (let [type (ssu/get-channel-type caddr)]
                                                                                (apply conj
                                                                                       [(d/html (ssu/channel-icon-html cname type))]
-                                                                                      [(ui/make-click-link (name cname) #(refresh-stream :droplet-channel caddr))]
+                                                                                      [(ui/make-click-link (name cname) #(refresh-stream :droplet-channel caddr 1))]
                                                                                       (get-channel-buttons type cname))))))
                                                         (:values (:channel-scape scapes))))
                                (make-scape-section "grooves" (get-groove-scapes))
