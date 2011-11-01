@@ -23,6 +23,7 @@ See the COPYING file for details.
   width: 475px;
   color: #000;
   outline: none;
+  z-index: 20;
 }
 
 .modal-dialog a,

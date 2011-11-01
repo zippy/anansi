@@ -106,7 +106,15 @@
      "contacts"
      ["CONTACTS" [:div.top-right-controls (ui/make-button "New" new-contact)] [:div#contact-form {:style "display:none"} ""] ]
      [(into [:div#names] (map (fn [[caddr cname]] [:div.contact
-                                                  [:div.contact-name  (ui/make-click-link cname #(contact-form (fn [] (do-save-contact caddr)) caddr cname))]
+                                                  [:div.contact-name
+                                                   (ui/make-click-link cname #(contact-form (fn [] (do-save-contact caddr)) caddr cname))
+                                                   ]
+                                                  [:div.delete-contact
+                                                   (ui/make-click-link "delete" #(ui/confirm-dialog (str "Are you sure you want to delete the contact: " cname)
+                                                                                               (fn [e] (if (= (.key e) "ok")
+                                                                                                        (ssu/send-ss-signal {:aspect "matrice" :signal "delete-contact"
+                                                                                                                             :params {:address (js/parseInt (name caddr))}} )
+                                                                                                        ))))]
                                                   (into [:div.channel-addresses-container]
                                                         (filter (fn [x] (not (nil? x))) (map (fn [cs] (render-channel-addresses cs caddr)) channel-contact-scapes)))
                                                   ]) contact-names))])

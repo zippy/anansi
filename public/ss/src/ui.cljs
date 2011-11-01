@@ -5,6 +5,9 @@
    [goog.ui.LabelInput :as LabelInput]
    [goog.editor.Field :as field]
    [goog.ui.Button :as uiButton]
+   [goog.ui.Dialog :as uiDialog]
+   [goog.ui.Dialog.ButtonSet :as uiDialogButtonSet]
+   [goog.ui.Dialog.EventType :as uiDialogEventType]
    [goog.ui.ToggleButton :as uiToggleButton]
    [goog.ui.CustomButton :as uiCustomButton]
    [goog.ui.ButtonRenderer :as uiButtonRenderer]
@@ -181,6 +184,21 @@
     (let [self
           (init (:title cont) (:content cont) node-container)]
       (make-zippy-dom self))))
+
+(defn make-confirm-dialog
+  "creates an Yes/No confirm dialog"
+  []
+  (let [d (doto (goog.ui.Dialog.)
+            (.setTitle "Please Confirm")
+            (.setButtonSet goog.ui.Dialog.ButtonSet.OK_CANCEL))]
+    d))
+
+(defn confirm-dialog [text fun]
+  (let [d (make-confirm-dialog)]
+    (doto d
+      (.setContent text)
+      (.setVisible true))
+    (goog.events.listen d goog.ui.Dialog.EventType.SELECT fun)))
 
 (defn reset
   "resets the UI and the state to the basic non-logged in state"

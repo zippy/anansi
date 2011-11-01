@@ -29,7 +29,8 @@
     (humanize-ss-datetime t)))
 
 (defn resolve-contact [s contact]
-  ((keyword contact) (:values (:contact-name-scape (:scapes s)))))
+  (let [c ((keyword contact) (:values (:contact-name-scape (:scapes s))))]
+    (if (nil? c) "[Unknown]" c)))
 
 (defn resolve-twitter-avatar [s contact]
   (str "<img class=\"twitter-avatar\" src=\"" ((keyword contact) (:values (:contact-twitter-avatar-scape (:scapes s)))) "\">")   )
