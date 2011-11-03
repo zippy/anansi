@@ -60,15 +60,15 @@
         groove-id (keyword groove-name)
         groove (groove-id s/*grooves*)
         selected-channel (. *channel-select* (getSelectedItem))
-        groove-spec ((ssu/get-channel-type-from-name (. selected-channel (getValue))) groove)]
+        grammar (s/get-groove-grammar groove-id)]
     (doseq [idx (range (. *channel-select* (getItemCount)))]
       (let [item (. *channel-select* (getItemAt idx))
             chan (. item (getValue))
-            valid (contains? groove (ssu/get-channel-type-from-name chan))]
+            valid (contains? (:carriers groove) (ssu/get-channel-type-from-name chan))]
         (. item (setEnabled valid))))
     (let [valid-channel (and selected-channel (. selected-channel (isEnabled)))]
       (if valid-channel
-        (render-groove :droplet-content groove-spec)
+        (render-groove :droplet-content grammar)
         (d/remove-children :droplet-content))
       (. *incorp-button* (setEnabled valid-channel)))
     )
@@ -135,15 +135,14 @@
 (defn send []
   (let [groove-name (. *groove-select* (getValue))
         groove-id (keyword groove-name)
-        groove (groove-id s/*grooves*)
         selected-channel (. *channel-select* (getSelectedItem))
         channel-name (. selected-channel (getValue))
-        groove-spec ((ssu/get-channel-type-from-name channel-name) groove)
+        grammar (s/get-groove-grammar groove-id)
         to (. *to-select* (getValue))
         from (. *from-select* (getValue))
         groove (get-selected-groove)]
     (ssu/send-ss-signal {:aspect "matrice" :signal "incorporate"
-                         :params {:deliver :immediate :to (js/parseInt to) :from (js/parseInt from) :channel channel-name :envelope groove-spec
-                                  :content (get-groove-content groove-spec)}}
+                         :params {:deliver :immediate :to (js/parseInt to) :from (js/parseInt from) :channel channel-name :envelope grammar
+                                  :content (get-groove-content grammar)}}
                         incorporate-callback)
     (ui/cancel-modal)))

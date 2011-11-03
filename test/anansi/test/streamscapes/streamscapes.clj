@@ -302,28 +302,4 @@
 
   )
 
-(facts "about grammar-match?"
-  (grammar-match? {:subject "text/plain" :body "text/html"} {:subject "text/plain" :body "text/plain"} {:subject "Hi there" :body "yo!"}) => true
-  (grammar-match? {:subject "text/plain" :body "text/html"} {:subject "text/plain"} {:subject "Hi there"}) => false
-  (grammar-match? {:message {"text" ["yo!"]}} {:message "text/plain"} {:message "yo!"}) => true
-  (grammar-match? {:message {"text" ["yo!"]}} {:message "text/plain"} {:message "boink"}) => false
-  (grammar-match? {:message {"text" ["yo!"]}} {:message "img/jpg"} {:message "yo!"}) => false
-  (let [punkmoney {:subject {"text" ["Punkmoney Promise"]}
-                   :body {"text"
-                          ["I promise to pay (.*), on demand, ([^.]+)\\. Expires in (.*)\\."
-                           {:payee 1
-                            :promised-good 2
-                            :expiration 3}]}}]
-    (grammar-match? punkmoney
-                    {:subject "text/plain" :body "text/plain"}
-                    {:subject "Punkmoney Promise" :body "I promise to pay eric@example.com, on demand, some squids. Expires in 1 year."}) => true
-    (grammar-match? punkmoney
-                    {:subject "text/plain" :body "text/plain"}
-                    {:subject "Punkmoney" :body "I promise to pay eric@example.com, on demand, some squids. Expires in 1 year."}) => false                
-                    )
-  
-
-;;  (grammar-match? {:subject "text/plain" :body [#"yo!"]} {:subject "text/plain" :body "text/plain"} {:subject "Hi there" :body "yo!"}) => true
-  )
-
 

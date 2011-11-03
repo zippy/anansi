@@ -29,7 +29,7 @@
                                                  :url (str "https://search.twitter.com/search.json?q=" (url-encode (contents _r :search-query)))
                                                  :auto-transform true
                                                  }
-                                                5000)
+                                                6000)
                              (catch Exception e
                                (do
                                  (.printStackTrace e *err*)

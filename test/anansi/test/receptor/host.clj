@@ -27,7 +27,7 @@
           g (get-receptor h (s-> key->resolve grooves :subject-body-message))]
       (-> (receptor-state h false) :scapes :groove-scape :values :subject-body-message ) => #(= java.lang.Integer (class %))
       (rdef g :fingerprint) => :anansi.streamscapes.groove.groove
-      (contents g :grammars) => {:streamscapes {:subject "text/plain", :body "text/html"} :email {:subject "text/plain", :body "text/html"}}
+      (contents g :name) => :subject-body-message
       ))
   (deftest host
     (testing "ping"
@@ -52,12 +52,12 @@
         (is (= (s-> key->all (get-scape r :matrice)) [1]))))
     
     (facts "about hosting grooves"
-      (let [addr (s-> self->host-groove h {:name "a-groove" :grammars {:streamscapes "some-grammar-spec" }})
+      (let [addr (s-> self->host-groove h {:name :simple-message})
             r (get-receptor h addr)
-            qn (keyword (str (address-of h) ".a-groove"))]
+            qn (keyword (str (address-of h) ".simple-message"))]
         (s-> key->resolve (get-scape h :groove) qn) => addr
-        (contents r :grammars) => {:streamscapes "some-grammar-spec"}
-        (s-> self->host-groove h {:name "a-groove"}) => (throws RuntimeException (str "A groove already exists with the name: " qn))
+        (contents r :name) => :1.simple-message
+        (s-> self->host-groove h {:name :simple-message}) => (throws RuntimeException (str "A groove already exists with the name: " qn))
         ))
     
     (testing "self->host-user"

@@ -6,6 +6,7 @@
         [anansi.receptor.scape]
         [anansi.streamscapes.droplet :only [droplet-def]]
         [anansi.streamscapes.contact :only [contact-def]]
+        [anansi.streamscapes.groove :only [grammar-match? compository]]
         )
   (:use [clojure.string :only [join]])
   )
@@ -54,8 +55,11 @@
                ids (get-scape _r :id)
                ]
            (if channel
-             (do
-               (match-grooves (--> key->resolve _r (get-scape _r :channel-type) (address-of c-out)) _r addr envelope content)
+             (let [matches (match-grooves (--> key->resolve _r (get-scape _r :channel-type) (address-of c-out)) _r addr envelope content)]
+               ;; if grooved matched a non-native encoding gotta add
+               ;; in the matched data into the droplet
+               (set-content d :matched-grooves  (into {} (filter (fn [[_ m]] (map? m)) matches)))
+               
                (--> key->set _r droplet-channels addr (address-of c-out))))
            ;; don't use the id from the params because it may have been nil in which
            ;; case the instantiation code will have created the id on the fly
@@ -307,56 +311,34 @@
           nil
           ))
 
-(defn grammar-match?
-  "returns whether or not a grammar matches the carrier and content of a particular signal"
-  [grammar carrier content]
-  (if (nil? grammar)
-    false
-    (every? (fn [[k sub-grammar]] (if (string? sub-grammar)
-                         
-                                   ;; if the grammar doesn't care about the content of the signal,
-                                   ;; then we have a match if just the keys in the carrier and the
-                                   ;; grammar match
-                                   (contains? carrier k)
-                           
-                                   ;; othewise we have have make sure the 
-                                   ;; content matches. 
-                                   ;; TODO: for now this assumes only one
-                                   ;; sub-grammar specification, "text" for
-                                   ;; which the pattern matching is regex.  This
-                                   ;; needs to be generalized
-                                   (let [[re field-match-map] (sub-grammar "text")]
-                                     (and (not (nil? re))
-                                          (let [content-type (k carrier)] (and (not (nil? content-type)) (re-find #"^text" content-type) )) 
-                                          (re-find (re-pattern re) (k content))))
-                                   )) grammar)
-      
-    ))
-
 (defn match-grooves
   "run through the defined grooves and create scape entries for all grooves that match this droplet"
   [channel-type ss droplet-address envelope content]
   (let [host (parent-of ss)
-        grooves (get-scape host :groove )
+        grooves (get-scape host :groove)
         all (s-> query->all grooves)
         raw-matches (map (fn [[groove-name groove-address]]
-                           (let [
-                                 grammar (channel-type (contents (get-receptor host groove-address) :grammars ))
-                                 scape-name (keyword (str (name groove-name) "-groove"))
-                                 groove-scape (get-scape ss scape-name {:key "droplet-address" :address "boolean"})
-                                 ]
-                            (try
-                             (if (grammar-match? grammar envelope content)
-                               (do
-                                 (s-> key->set groove-scape droplet-address true)
-                                 groove-name)
-                               nil)
-                              (catch Exception e
-                                (println (str e)))
-                              )))
+                           (let [groove (get-receptor host groove-address)
+                                 carriers (contents groove :carriers)]
+                             (if (contains? carriers channel-type)
+                               (let [carrier (channel-type carriers)
+                                     encoding (:encoding carrier)
+                                     grammar (if (nil? encoding) (contents groove :grammar) (-> compository groove-name :matchers encoding))]
+                                 (try
+                                   (let [match (grammar-match? grammar envelope content)]
+                                     (if match [groove-name match] nil))
+                                   (catch Exception e
+                                     (println (str e)))
+                                   )))))
                          all)
         matched-grooves (into [] (keep identity raw-matches))
         ]
+    (doseq [[groove-name match] matched-grooves]
+      (let [scape-name (keyword (str (name groove-name) "-groove"))
+            groove-scape (get-scape ss scape-name {:key "droplet-address" :address "boolean"})]
+        (s-> key->set groove-scape droplet-address true))
+      )
     (let [dg-scape (get-scape ss :droplet-grooves)]
-      (s-> key->set dg-scape  droplet-address matched-grooves))))
+      (s-> key->set dg-scape droplet-address (map (fn [[ g m]] g) matched-grooves)))
+    matched-grooves))
 

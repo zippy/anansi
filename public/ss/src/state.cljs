@@ -27,7 +27,6 @@
 (defn clear-session []
   (def *current-state* nil)
   (def *grooves* nil)
-  (def *groove-actions* nil)
   (def *me* nil)
   (def *page* 1)
   (clear-scape-query)
@@ -45,11 +44,19 @@
   [g]
   (def *grooves* g)
   )
-(defn set-groove-actions
-  "set the current streamscapes groove actions"
-  [g]
-  (def *groove-actions* g)
+
+(defn get-groove-grammar [groove]
+  (-> *grooves* groove :grammar)
   )
+
+(defn get-groove-preview [groove]
+  (-> *grooves* groove :preview)
+  )
+
+(defn get-groove-channel-actions [groove channel-type]
+  (-> *grooves* groove :carriers channel-type :actions)
+  )
+
 (defn set-me
   "store my contact address"
   [c]

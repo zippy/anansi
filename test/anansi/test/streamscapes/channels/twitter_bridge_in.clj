@@ -45,8 +45,8 @@
           (s-> key->resolve twitter-contacts "@zippy314")
           (s-> key->resolve avatars (contents d :from)) => "http://someurl"
           (contents d :to) => (s-> key->resolve twitter-contacts "_twp_")
-          (contents d :envelope) => {:from "twitter/screen_name" :text "text/plain"}
-          (contents d :content) => {:from "zippy314" :text "Some short tweet"}
+          (contents d :envelope) => {:from "twitter/screen_name" :message "text/plain"}
+          (contents d :content) => {:from "zippy314" :message "Some short tweet"}
           (s-> key->resolve (get-scape r :droplet-grooves) droplet-address) => [:simple-message]
           (let [[time] (s-> address->resolve deliveries droplet-address)]
             (fact "2011-10-04T03:21:40.000Z" => time)
@@ -60,9 +60,12 @@
             d (get-receptor r droplet-address)
             ]
         (s-> key->resolve (get-scape r :droplet-grooves) droplet-address) => [:punkmoney :simple-message]
+        (contents d :matched-grooves) => {:punkmoney {:promised-to "@artbrock"
+                                                      :promised-item "some squids"
+                                                      :expiration "in 1 year"}}
         )
       )
-    (facts "about content groove scaping (lazyweb)"
+    (comment facts "about content groove scaping (lazyweb)"
       (let [message {:id_str "121470088291" :text "#lazyweb thanks @artbrock" :from_user "zippy314" :profile_image_url "http://someurl" :created_at "Wed Oct 04 09:31:40 +0000 2011"}
             droplet-address (handle-message b message)
             d (get-receptor r droplet-address)

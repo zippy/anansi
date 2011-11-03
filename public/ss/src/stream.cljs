@@ -160,27 +160,21 @@
 (defn get-droplet-grammar [d channel-type s]
   (let [dg (:values (:droplet-grooves-scape (:scapes s)))
         groove-name (keyword (first ((keyword (str (:address d))) dg )))
-        
         ]
     [groove-name
-     (channel-type (groove-name s/*grooves*))
-     (channel-type (groove-name s/*groove-actions*))]))
+     (s/get-groove-grammar groove-name)
+     (s/get-groove-channel-actions groove-name channel-type)]))
 
 ;;TODO: groove droplets should be auto-detected by some appropriate
 ;;programmatic method, not by channel-type!
 (defn groove-preview [d channel-type s]
   (let [[groove grammar actions] (get-droplet-grammar d channel-type s)
-        p (if (contains? grammar :subject )
-            [:div.subject
-             (str (:subject (:content d)))]
-            [:div.content (str (if (nil? (:text (:content d)))
-                                 (:message (:content d))
-                                 (if (nil? (:text (:content d)))
-                                   (:description (:content d))
-                                   (:text (:content d)))))])
-        ]
-    [p actions groove]
-    ))
+        preview (s/get-groove-preview groove)
+        p (if (vector? preview)
+            [:div.content (apply str (map (fn [i] (if (vector? i) ((keyword (i 0)) (-> d :matched-grooves groove)) i)) preview))]
+            [:div.content ((keyword preview) (:content d))]
+            )]
+    [p actions groove]))
 
 ;; Actions
 

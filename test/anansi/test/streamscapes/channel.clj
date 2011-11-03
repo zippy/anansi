@@ -17,11 +17,6 @@
 (signal channel deliver [_r _f {droplet-address :droplet-address error :error}]  ;; use the error param to simulate errors or not
         error)
 
-(facts "about grammar-match?"
-  (grammar-match? {:subject "text/plain" :body "text/html"} {:subject "text/plain" :body "text/html"} {}) => true
-  (grammar-match? {:subject "text/plain" :body "text/html"} {:message "text/plain"} {}) => false
-  )
-
 (deftest channel
   (let [m (make-receptor user-def nil "eric")
         h (make-receptor host-def nil {})
@@ -55,8 +50,7 @@
           (s-> key->resolve (get-scape r :subject-body-message-groove) droplet-address) => true
           (s-> key->resolve (get-scape r :droplet-grooves) droplet-address) => [:subject-body-message]
           (s-> key->resolve (get-scape r :subject-body-message-groove) droplet2-address) => nil
-          (s-> key->resolve (get-scape r :simple-message-groove) droplet-address) => nil
-          (s-> key->resolve (get-scape r :simple-message-groove) droplet2-address) => nil
+          (s-> key->resolve (get-scape r :simple-message-groove) droplet-address) => (throws RuntimeException ":simple-message-groove scape doesn't exist")
           (scape-relationship (get-scape r :subject-body-message-groove) :key) => "droplet-address"
           (scape-relationship (get-scape r :subject-body-message-groove) :address) => "boolean"
           (s-> query->all (get-scape r :subject-body-message-groove)) => [[droplet-address true]]

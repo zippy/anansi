@@ -27,9 +27,9 @@
               :to to-id
               :sent (standard-date-string (:created_at msg))
               :from from-id
-              :envelope {:from "twitter/screen_name" :text "text/plain"}
+              :envelope {:from "twitter/screen_name" :message "text/plain"}
               :content {:from from-address
-                        :text text}}))
+                        :message text}}))
       (first da))))
 
 (signal controller receive [_r _f msg]

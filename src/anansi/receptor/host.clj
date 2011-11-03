@@ -6,57 +6,10 @@
         [anansi.receptor.user]
         [anansi.receptor.scape]
         [anansi.streamscapes.streamscapes]
-        [anansi.streamscapes.groove :only [groove-def]]
+        [anansi.streamscapes.groove :only [groove-def compository]]
         [anansi.libs.sha :only [sha]])
   (:use [clj-time.core :only [now]]))
 
-;;(when-carried-by :hash :subject-body-message {:match-fun (fn [hash params] (every? #(contains? hash %) params)) :match-params [:subject :body]})
-;;(def carrier-grammars     {:hash {:subject-body-message {:subject "text/plain" :body "text/html"}}})
-(def compository
-     {:simple-message {:actions {:streamscapes [:create :reply]
-                                 :irc [:create :reply]}
-                       :grammars {:streamscapes {:message "text/plain"}
-                                  :twitter {:text "text/plain"}
-                                  :irc {:message "text/plain"}}}
-      :subject-body-message {:actions {:streamscapes {:create true :reply true}
-                                       :email [:create :reply]}
-                             :grammars {:streamscapes {:subject "text/plain" :body "text/html"}
-                                        :email {:subject "text/plain" :body "text/html"}}}
-      :punkmoney {:actions {:streamscapes [:create]
-                            :email {:create true :reply true}}
-                  :grammars
-                  {:streamscapes {:promised-good "text/plain"
-                                  :expiration "text/plain"}
-                   :email {:subject {"text" ["Punkmoney Promise"]}
-                           :body {"text"
-                                  ["I promise to pay (.*), on demand, ([^.]+)\\. Expires (.*)\\."
-                                   {:payee 1
-                                    :promised-good 2
-                                    :expiration 3}
-                                   ]}}
-                   :twitter {:text {"text"
-                                    ["^(@[^\\W]+) I promise to pay, on demand, ([^.]+)\\. Expires (.*)\\. #punkmoney"
-                                     {:payee 1
-                                      :promised-good 2
-                                      :expiration 3}
-                                     ]}}}}
-      :poll {:actions {:streamscapes [:create]}
-             :grammars {:streamscapes {:poll-name "text/plain"
-                                       :options "enumeration/yes,no,abstain"}}}
-      :bookmark {:actions {:streamscapes [:create]}
-                 :grammars {:streamscapes {:url "text/plain"
-                                           :subject "text/html"}}}
-      :lazyweb-thanks {:actions {:streamscapes [:create]}
-                       :grammars
-                       {:streamscapes {:thankee "text/plain"
-                                       :expiration "text/plain"}
-                        :twitter {:text {"text"
-                                         ["#lazyweb thanks (@[^\\W]+)"
-                                          {:thankee 1}
-                                          ]}}}}
-      
-      }
-     )
 (def host-def (receptor-def
                "host"
                (scapes
@@ -70,7 +23,7 @@
                         (let [grooves (get-scape _r :groove)]
                           (doseq [[groove-name spec] compository]
                             (if (nil? (--> key->resolve _r grooves groove-name))
-                              (let [groove (make-receptor groove-def _r {:attributes spec})]
+                              (let [groove (make-receptor groove-def _r {:attributes {:name groove-name}})]
                                 (--> key->set _r grooves groove-name (address-of groove)))))))))
 
 (defn resolve-name [_r user]
@@ -113,11 +66,11 @@
 (signal self host-groove [_r _f {receptor-name :name grammars :grammars}]
         (rsync _r
                (let [names (get-scape _r :groove)
-                     qualified-name (keyword (str _f "." receptor-name))
+                     qualified-name (keyword (str _f "." (name receptor-name)))
                      existing-addr (--> key->resolve _r names qualified-name)
                      x (if existing-addr (throw (RuntimeException. (str "A groove already exists with the name: " qualified-name))))
                      creators (get-scape _r :creator)
-                     r (make-receptor groove-def _r {:attributes {:grammars grammars}})
+                     r (make-receptor groove-def _r {:attributes {:name qualified-name}})
                      addr (address-of r)]
                  (--> key->set _r names qualified-name addr)
                  (--> key->set _r creators addr _f)
