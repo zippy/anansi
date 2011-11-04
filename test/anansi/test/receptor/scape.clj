@@ -62,6 +62,11 @@
         (get-scape r :zippy) => b
         )
       )
+    (facts "aboout deleting scapes"
+      (delete-scape r {:name :asdf}) => (throws RuntimeException ":asdf scape doesn't exist")
+      (delete-scape r {:name :zippy})
+      (get-scape r :zippy) => (throws RuntimeException ":zippy scape doesn't exist")
+      )
     (testing "make-scapes"
       (let [m (make-scapes r {:x :y} :a :b)]
         (is (= #{:x :a-scape :b-scape :scapes-scape} (into #{} (keys m))))

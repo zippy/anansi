@@ -57,12 +57,29 @@
                        [:div#scape-work {:style "display:none"} ""]
                        [:div [:h4 "Tags"]
                         (ui/make-button "New Tag" #(tag-form :tag-work nil))
-                        (apply conj [:div.my-tags] (map (fn [tag-name] [:p.tag (ui/make-click-link tag-name #(tag-form :tag-work tag-name))])
+                        (apply conj [:div.my-tags] (map (fn [tag-name] [:p.tag (ui/make-click-link tag-name #(tag-form :tag-work tag-name))
+                                                                       [:p.delete (ui/make-click-link "delete"
+                                                                                                      #(delete-tag tag-name)) ]])
                                                         (filter #(not (= % "touched")) (vals (:values (:tag-scapes-scape scapes)))))) 
                         ]
                        [:div#tag-work {:style "display:none"} ""]]
                      
                      )))
+
+(defn delete-tag [tag-name]
+  (ui/confirm-dialog (str "Are you sure you want to delete the tag: " tag-name)
+                     (fn [e] (if (= (.key e) "ok")
+                              (let [tag-scape-name (build-tag-scape-name tag-name)]
+                                (ceptr/start-chain
+                                 {:cleanup  sss/refresh-stream
+                                  :error (fn [result] (js/alert (str "Server reported error:" result)))
+                                  :chain [
+                                          (fn [result chain]
+                                            (ssu/send-ss-signal {:aspect "setup" :signal "delete-scape"
+                                                                 :params {:name tag-scape-name :relationship {:key "droplet-address" :address "boolean"}}} (ceptr/nextc chain)))
+                                          (fn [result chain]
+                                            (ssu/send-ss-signal {:aspect "scape" :signal "delete"
+                                                                 :params {:name :tag-scapes :key tag-scape-name}} (ceptr/nextc chain)))]}))))))
 
 (defn get-vals-from-controller [chan]
   (let [a (keyword (first (-> chan :scapes :controller-scape :values :controller)))]

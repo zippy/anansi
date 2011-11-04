@@ -114,6 +114,16 @@
     (throw (RuntimeException. (str new-name " scape already exists"))))
   )
 
+(defn delete-scape
+  "deletes a scape"
+  [_r {name :name}]
+  (rsync _r
+         (let [ss (get-scape _r :scapes)
+               s (get-scape _r name)
+               s-addr (address-of s)]
+           (_delete-content _r (scapify name))
+           (--> address->delete _r ss s-addr))))
+
 (defn scape-relationship
   "return the relationship information about the scape"
   [_r aspect]

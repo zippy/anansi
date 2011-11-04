@@ -115,8 +115,10 @@
         (s-> key->resolve (get-scape r :fish) "trout") => nil
         (s-> setup->rename-scape r {:name :fish :new-name :ichthoid})
         (get-scape r :fish) => (throws RuntimeException ":fish scape doesn't exist")
-        (address-of (get-scape r :ichthoid)) => s-addr)
-      )
+        (address-of (get-scape r :ichthoid)) => s-addr
+        (s-> setup->delete-scape r {:name :ichthoid})
+        (get-scape r :ichthoid) => (throws RuntimeException ":ichthoid scape doesn't exist")
+        ))
     (testing "droplets"
       (let [sc (s-> matrice->make-channel r {:name :some-channel})
             x (--> key->set r (get-scape r :channel-type) sc :email)

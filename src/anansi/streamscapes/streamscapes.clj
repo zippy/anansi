@@ -297,6 +297,11 @@
         (rename-scape _r params)
         )
 
+(signal setup delete-scape [_r _f params]
+        ;; TODO should be doing a check on the from here ...
+        (delete-scape _r params)
+        )
+
 (signal scape set [_r _f {name :name key :key address :address}]
         ;; TODO should be doing a check on the from here ...
         (let [scape (get-scape _r name)]
