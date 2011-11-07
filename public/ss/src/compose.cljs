@@ -42,7 +42,9 @@
                                                                                              (fn [p] (update-channel caddr p)))
                                                                     (js/alert "Updating not implemented for this channel!"))
                                                               )
-                                                            )]))
+                                                            )
+                                        [:p.delete (ui/make-click-link "delete" #(delete-channel cname)) ]
+                                        ]))
                                    (filter (fn [[n _]] (not= n :streamscapes)) (:values (:channel-scape scapes))))
                               )
                        [:div#compose-work {:style "display:none"} ""]
@@ -65,6 +67,12 @@
                        [:div#tag-work {:style "display:none"} ""]]
                      
                      )))
+
+(defn delete-channel [cname]
+  (ui/confirm-dialog (str "All droplets associated with this channel will be deleted! Are you sure you want to delete the channel: " cname "?")
+                     (fn [e] (if (= (.key e) "ok")
+                              (ssu/send-ss-signal {:aspect "setup" :signal "delete-channel"
+                                                   :params {:name cname}} sss/refresh-stream-callback)))))
 
 (defn delete-tag [tag-name]
   (ui/confirm-dialog (str "Are you sure you want to delete the tag: " tag-name)
