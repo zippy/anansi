@@ -192,8 +192,10 @@
                  cc-addr)))
 
 (defn find-channel-by-name [_r name]
-  (first (find-receptors _r (fn [r] (and (= :anansi.streamscapes.channel.channel (rdef r :fingerprint)) (= (contents r :name) name)))))
-  )
+  (let [cc (first (find-receptors _r (fn [r] (and (= :anansi.streamscapes.channel.channel (rdef r :fingerprint)) (= (contents r :name) name)))))]
+    (if (nil? cc)
+      (throw (RuntimeException. (str "channel not found: " name))))
+    cc))
 
 (signal streamscapes receive [_r _f message]
         (let [name (:channel message)
@@ -283,10 +285,26 @@
 (signal matrice control-channel [_r _f {n :name cmd :command params :params}]
         ;; TODO should be doing a check on the from here ...
         (let [cc (find-channel-by-name _r (channel-name n))]
-          (if (nil? cc)
-            (throw (RuntimeException. (str "channel not found: " n))))
           (--> (get-signal-function "anansi.streamscapes.channel" "stream" "control") _r cc  {:command (keyword cmd) :params params})
           ))
+
+(defn destroy-droplet [_r daddr]
+  (do
+    (destroy-scape-entries _r "droplet-address" daddr)
+    (destroy-receptor _r daddr)))
+
+(signal setup delete-channel [_r _f {n :name}]
+        ;; TODO should be doing a check on the from here ...
+        (rsync _r
+               (let [cc (find-channel-by-name _r (channel-name n))
+                     caddr (address-of cc)
+                     droplet-channel (get-scape _r :droplet-channel)]
+                 (doseq [daddr (--> address->resolve _r droplet-channel caddr)]
+                   (destroy-droplet _r daddr))                 
+                 (destroy-scape-entries _r "channel-address" caddr)
+                 (destroy-receptor _r caddr)
+                 nil))
+        )
 
 (signal setup new-scape [_r _f params]
         ;; TODO should be doing a check on the from here ...
