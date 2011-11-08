@@ -72,6 +72,11 @@
                ))
            addr)))
 
+(defn destroy-droplet [_r daddr]
+  (do
+    (destroy-scape-entries _r "droplet-address" daddr)
+    (destroy-receptor _r daddr)))
+
 (defn scape-contact-key [identifier]
   (keyword (str (name identifier) "-contact")))
 (defn scape-contact-attribute-key [attribute]
@@ -171,6 +176,13 @@
 (signal matrice incorporate [_r _f params]
         ; TODO add in authentication to make sure that _f is a matrice
         (do-incorporate _r _f params))
+
+(signal matrice discorporate [_r _f {daddr :droplet-address}]
+        (if (s-> key->resolve (get-scape _r :id) daddr)
+          (rsync _r
+               (destroy-droplet _r daddr)
+               nil)
+          (throw (RuntimeException. (str "no such droplet: " daddr)))))
 
 (signal matrice identify [_r _f params]
         ; TODO add in authentication to make sure that _f is a matrice
@@ -287,11 +299,6 @@
         (let [cc (find-channel-by-name _r (channel-name n))]
           (--> (get-signal-function "anansi.streamscapes.channel" "stream" "control") _r cc  {:command (keyword cmd) :params params})
           ))
-
-(defn destroy-droplet [_r daddr]
-  (do
-    (destroy-scape-entries _r "droplet-address" daddr)
-    (destroy-receptor _r daddr)))
 
 (signal setup delete-channel [_r _f {n :name}]
         ;; TODO should be doing a check on the from here ...

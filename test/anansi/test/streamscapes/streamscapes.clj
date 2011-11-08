@@ -123,9 +123,10 @@
     (let [sc (s-> matrice->make-channel r {:name :some-channel})
           x (--> key->set r (get-scape r :channel-type) sc :email)
           droplet-address (s-> matrice->incorporate r {:id "some-unique-id" :from "from-addr" :to "to-addr" :channel :some-channel :envelope {:subject "text/plain" :body "text/html"} :content {:subject "subj content" :body "<b> hello! </b>"}})
-          d (get-receptor r droplet-address)]
+          d (get-receptor r droplet-address)
+          droplet-grooves (get-scape r :droplet-grooves)]
         
-      (s-> key->resolve (get-scape r :droplet-grooves) droplet-address) => [:subject-body-message] 
+      (s-> key->resolve droplet-grooves droplet-address) => [:subject-body-message] 
       (contents d :id) => "some-unique-id"
       (contents d :from) => "from-addr"
       (contents d :to) => "to-addr"
@@ -134,9 +135,17 @@
       (contents d :content) => {:subject "subj content" :body "<b> hello! </b>"}
       (address-of d) => droplet-address
       (s-> key->resolve droplet-channels droplet-address) => sc
-      "some-unique-id" => (s-> key->resolve ids droplet-address)
-      [droplet-address] => (s-> address->resolve droplet-channels sc)
-      [droplet-address] =>(s-> address->resolve ids "some-unique-id")
+      (s-> key->resolve ids droplet-address) => "some-unique-id"
+      (s-> address->resolve droplet-channels sc) => [droplet-address]
+      (s-> address->resolve ids "some-unique-id") => [droplet-address]
+
+      (s-> matrice->discorporate r {:droplet-address droplet-address}) => nil
+      (s-> key->resolve droplet-channels droplet-address) => nil
+      (s-> key->resolve ids droplet-address) => nil
+      (s-> address->resolve droplet-channels sc) => []
+      (s-> address->resolve ids "some-unique-id") => []
+      (get-receptor r droplet-address) => nil
+      (s-> matrice->discorporate r {:droplet-address 99}) => (throws RuntimeException "no such droplet: 99")
       ))
     
   (facts "abut streamscapes receive"
