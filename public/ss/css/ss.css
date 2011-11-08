@@ -378,6 +378,7 @@ img.twitter-avatar {
 .droplet-preview div.preview-from,
 .droplet-preview div.preview-groove-specific,
 .droplet-preview div.preview-tags,
+.droplet-preview div.preview-delete,
 .droplet-preview div.preview-sent {
   /*position: relative;*/
   display: inline-block;
@@ -388,6 +389,7 @@ img.twitter-avatar {
 .droplet-preview div.preview-from { width: 160px; padding-left: 4px; }
 .droplet-preview div.preview-groove-specific { font-weight: bold; }
 .droplet-preview div.preview-tags { float: right;  }
+.droplet-preview div.preview-delete { float: right;  }
 .droplet-preview div.preview-sent { float: right; width: 120px }
 
 

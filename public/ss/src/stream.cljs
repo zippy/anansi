@@ -124,7 +124,10 @@
         parts (map (fn [[part _]] [:div.part [:h4 (name part)]
                                   (d/html (get-html-from-body (part (:content d)) (part (:envelope d))))]) grammar)]
     (ui/modal-dialog "full-droplet"
-                     [(str (name channel-type) " droplet (" (name groove) ")") [:div.top-right-controls (ssu/make-tagging-button droplet-address)]] parts)))
+                     [(str (name channel-type) " droplet (" (name groove) ")")
+                      [:div.top-right-controls (ssu/make-tagging-button droplet-address)
+                       (ui/make-button "Delete" (fn [] (delete-droplet droplet-address #(ui/cancel-modal))))
+                       ]] parts))) ;;
 
 (defn render-preview [droplet-address droplet-channel-scape s]
     (let [d ((:receptors s) droplet-address)
@@ -146,6 +149,7 @@
                    (ui/add-click-fun (d/build [:div.preview-groove-specific groove-specific])
                                      #(do(ssu/tag-droplet droplet-address :touched-tag)
                                          (render-full droplet-address channel-type s)))
+                   [:div.preview-delete (ui/make-click-link "x" #(delete-droplet droplet-address (fn [] nil))) ]
                    [:div.preview-sent sent]
                    [:div.preview-tags tag-menu-elem]
                    ]
@@ -181,3 +185,12 @@
 (defn categorize [droplet-address scape-name]
   (ssu/send-ss-signal {:aspect "scape" :signal "set"
                        :params {:name (descapify scape-name) :key droplet-address :address true}} refresh-stream-callback))
+
+(defn delete-droplet [droplet-address ok-fun]
+  (ui/confirm-dialog "Are you sure you want to delete this droplet?"
+                     (fn [e] (if (= (.key e) "ok")
+                              (do (ssu/send-ss-signal {:aspect "matrice" :signal "discorporate"
+                                                       :params {:droplet-address  (js/parseInt (name droplet-address))}} ss.streamscapes.refresh-stream-callback)
+                                  (ok-fun))
+                              ))))
+
