@@ -88,6 +88,14 @@
         (do
           (set-content _r :name (:name params))
           (condp = type
+              :xmpp (let [[controller-address _] (get-controller _r)
+                         controller (get-receptor _r controller-address)]
+                      (doseq [key [:host :username :domain :password]]
+                        (let [value (key params)
+                              store-key (if (= key :password) :_password key)]
+                          (if (not (blank? value))
+                            (set-content controller store-key value)
+                            ))))
               :irc (let [[controller-address _] (get-controller _r)
                          controller (get-receptor _r controller-address)]
                      (doseq [key [:host :nick :port :user]]
@@ -109,3 +117,18 @@
                      )
               ))
         )
+
+(defn create-contact-on-animate
+  "helper function to add address to a contact when a channel is created.  Assumes that _r is a sub receptor of the channel and has a :contact-address attribute"
+  [_r channel-type address-key]
+  (let [ss (parent-of (parent-of _r))
+        contacts (get-scape ss (keyword (str (name channel-type) "-address-contact")) true)
+        addr (contents _r address-key)
+        ca (contents _r :contact-address)
+        attribute-type (keyword (str (name channel-type) "-address"))
+        ]
+    (if (nil? (--> key->resolve _r contacts addr))
+      (if ca
+        (--> matrice->scape-contact _r ss {:address ca :identifiers {attribute-type addr}})
+        (--> matrice->identify _r ss {:identifiers {attribute-type addr} :attributes {:name (str "\"" addr "\"")}})
+        ))))

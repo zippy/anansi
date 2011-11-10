@@ -259,7 +259,7 @@
                                                              (get-receptor-definition :anansi.streamscapes.channels.twitter-controller.twitter-controller)
                                                              {:role :controller :params {:attributes {:search-query search-query}}
                                                               :signal ["anansi.streamscapes.channels.twitter-controller" "channel" "control"]}})
-                                                 :irc (let [{host :host port :port user :user nick :nick} params]
+                                                 :irc (let [{host :host port :port user :user nick :nick contact-address :contact-address} params]
                                                         {(get-receptor-definition :anansi.streamscapes.channels.irc-bridge-in.irc-bridge-in)
                                                          {:role :receiver :params {} }
                                                          (get-receptor-definition :anansi.streamscapes.channels.irc-bridge-out.irc-bridge-out)
@@ -269,8 +269,8 @@
                                                          (get-receptor-definition :anansi.streamscapes.channels.irc-controller.irc-controller)
                                                          {:role :controller
                                                           :signal ["anansi.streamscapes.channels.irc-controller" "channel" "control"]
-                                                          :params {:attributes {:host host :port port :user user :nick nick}}}})
-                                                 :xmpp (let [{host :host domain :domain username :username pass :password} params]
+                                                          :params {:attributes {:host host :port port :user user :nick nick :contact-address contact-address}}}})
+                                                 :xmpp (let [{host :host domain :domain username :username pass :password contact-address :contact-address} params]
                                                         {(get-receptor-definition :anansi.streamscapes.channels.xmpp-bridge-in.xmpp-bridge-in)
                                                          {:role :receiver :params {} }
                                                          (get-receptor-definition :anansi.streamscapes.channels.xmpp-bridge-out.xmpp-bridge-out)
@@ -280,7 +280,7 @@
                                                          (get-receptor-definition :anansi.streamscapes.channels.xmpp-controller.xmpp-controller)
                                                          {:role :controller
                                                           :signal ["anansi.streamscapes.channels.xmpp-controller" "channel" "control"]
-                                                          :params {:attributes {:host host :domain domain :username username :_password pass}}}})
+                                                          :params {:attributes {:host host :domain domain :username username :_password pass :contact-address contact-address}}}})
                                                  :email (let [{in :in out :out} params
                                                               r1 (if (not (nil? in))
                                                                    {(get-receptor-definition :anansi.streamscapes.channels.email-bridge-in.email-bridge-in)

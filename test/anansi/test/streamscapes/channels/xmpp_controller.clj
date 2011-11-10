@@ -14,17 +14,18 @@
   (:use [clojure.test]))
 
 (facts "about the xmpp controller"
-  (let [m (make-receptor user-def nil "eric")
-        h (make-receptor host-def nil {})
+  (let [h (make-receptor host-def nil {})
+        m (make-receptor user-def h "eric")
         r (make-receptor streamscapes-def h {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
         eric (make-receptor contact-def r {:attributes {:name "Eric"}})
         eric-contact-addr (address-of eric)
         zippy (make-receptor contact-def r {:attributes {:name "Zippy"}})
+        zippy-contact-addr (address-of zippy)
         
         channel-address (s-> matrice->make-channel r {:name :xmpp-stream
                                                       :receptors {xmpp-bridge-in-def {:role :receiver :params {} }
                                                                   xmpp-bridge-out-def {:role :deliverer :signal ["anansi.streamscapes.channels.xmpp-bridge-out" "channel" "deliver"] :params {}}
-                                                                  xmpp-controller-def {:role :controller :signal ["anansi.streamscapes.channels.xmpp-controller" "channel" "control"] :params {:attributes {:host "jabber.org" :username "zippy314@jabber.org" :domain "jabber.org" :_password "somepass"}}}}
+                                                                  xmpp-controller-def {:role :controller :signal ["anansi.streamscapes.channels.xmpp-controller" "channel" "control"] :params {:attributes {:host "jabber.org" :username "zippy314@jabber.org" :domain "jabber.org" :_password "somepass" :contact-address zippy-contact-addr}}}}
                                                           })
         cc (get-receptor r channel-address)
         [controller-address control-signal] (get-controller cc)
@@ -34,8 +35,7 @@
         xmpp-contacts (get-scape r :xmpp-address-contact true)]
     (--> key->set r (get-scape r :channel-type) channel-address :xmpp)
     (--> key->set b xmpp-contacts "zippy.314.ehb@gmail.com" eric-contact-addr)
-;;    (--> key->set b xmpp-contacts "zippy314@jabber.org" (address-of zippy))
-    (--> key->resolve b xmpp-contacts "zippy314@jabber.org") =not=> nil
+    (--> key->resolve b xmpp-contacts "zippy314@jabber.org") => zippy-contact-addr
     (receptor-state b false) => (contains {:fingerprint :anansi.streamscapes.channels.xmpp-controller.xmpp-controller
                                            :username "zippy314@jabber.org"
                                            :domain "jabber.org"

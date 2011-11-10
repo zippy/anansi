@@ -60,8 +60,10 @@
 (defn set-me
   "store my contact address"
   [c]
-  (def *me* c)
-  )
+  (def *me* c))
+
+(defn get-my-contact-address []
+  (-> *current-state* :scapes :sender-scape :values keys first name js/parseInt))
 
 (defn set-scape-query [scape value]
   (def *scape-query* [scape value]))

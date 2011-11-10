@@ -34,7 +34,7 @@
                                                                       :irc (irc-form :compose-work
                                                                                      (assoc (get-vals-from-controller chan) :name (name cname))
                                                                                      (fn [p] (update-channel caddr p)))
-                                                                      :xmpp (irc-form :compose-work
+                                                                      :xmpp (xmpp-form :compose-work
                                                                                      (assoc (get-vals-from-controller chan) :name (name cname))
                                                                                      (fn [p] (update-channel caddr p)))
                                                                       :email (email-form :compose-work
@@ -200,11 +200,11 @@
 
 (defn make-irc [params]
   (ssu/send-ss-signal {:aspect "setup" :signal "new-channel"
-                       :params (merge {:type :irc} params)} sss/refresh-stream-callback))
+                       :params (merge {:type :irc :contact-address (s/get-my-contact-address)} params)} sss/refresh-stream-callback))
 
 (defn make-xmpp [params]
   (ssu/send-ss-signal {:aspect "setup" :signal "new-channel"
-                      :params (merge {:type :xmpp} params)} sss/refresh-stream-callback))
+                      :params (merge {:type :xmpp :contact-address (s/get-my-contact-address)} params)} sss/refresh-stream-callback))
 
 (defn update-channel [channel-address params]
   (ssu/send-ss-signal {:aspect "setup" :signal "update-channel"

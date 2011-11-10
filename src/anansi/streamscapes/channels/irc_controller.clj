@@ -55,15 +55,10 @@
 
 (def irc-controller-def
      (receptor-def "irc-controller"
-                   (attributes :host :port :user :nick)
+                   (attributes :host :port :user :nick :contact-address)
                    (animate [_r reanimate]
                             (if (not reanimate)
-                              (let [ss (parent-of (parent-of _r))
-                                    irc-contacts (get-scape ss :irc-address-contact true)
-                                    nick (contents _r :nick)]
-                                (if (nil? (--> key->resolve _r irc-contacts nick))
-                                  (--> matrice->identify _r ss {:identifiers {:irc-address nick} :attributes {:name (contents _r :name)}}))
-                                )))))
+                              (create-contact-on-animate _r :irc :nick)))))
 
 (defn get-status [_r]
      (let [conn (:irc-connection @_r)]

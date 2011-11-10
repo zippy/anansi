@@ -34,13 +34,13 @@
   "given a groove definition and an element id, renders the groove fields into it"
   [elem-id groove-spec]
   (let [contact-names (:values (:contact-name-scape (:scapes s/*current-state*)))
-        senders (set (map #(js/parseInt (name %)) (keys (:values (:sender-scape (:scapes s/*current-state*))))))
+        my-contact-address (s/get-my-contact-address)
         channel-name (. *channel-select* (getValue))
         channel-address-contact-scape (ssu/get-channel-contact-scape channel-name)
 ;;        addr-select (map (fn [[ea ia]] [:option {:value (str ia)} (str ((keyword ia) contact-names) "<"(name ea) ">")]) channel-address-contact-scape)
-        to-addresses (map (fn [[a-name contact-id]] [(str ((keyword contact-id) contact-names) "<"(name a-name) ">") contact-id]) channel-address-contact-scape)
-        from-addresses (map (fn [[a-name contact-id]] [(str ((keyword contact-id) contact-names) "<"(name a-name) ">") contact-id])
-                          (filter (fn [[_ contact-id]] (senders contact-id)) channel-address-contact-scape))
+        to-addresses (map (fn [[a-name contact-id]] [(str ((keyword contact-id) contact-names) " <"(name a-name) ">") contact-id]) channel-address-contact-scape)
+        from-addresses (map (fn [[a-name contact-id]] [(str ((keyword contact-id) contact-names) " <"(name a-name) ">") contact-id])
+                          (filter (fn [[_ ca]] (= my-contact-address ca)) channel-address-contact-scape))
         [to-select to-select-element] (ui/make-select "to" nil to-addresses (fn [] nil))
         [from-select from-select-element] (ui/make-select "from" nil from-addresses (fn [] nil))
         ]

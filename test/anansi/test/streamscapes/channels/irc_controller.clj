@@ -19,7 +19,7 @@
         channel-address (s-> matrice->make-channel r {:name :irc-stream
                                                       :receptors {irc-bridge-in-def {:role :receiver :params {} }
                                                                   irc-bridge-out-def {:role :deliverer :signal ["anansi.streamscapes.channels.irc-bridge-out" "channel" "deliver"] :params {}}
-                                                                  irc-controller-def {:role :controller :signal ["anansi.streamscapes.channels.irc-controller" "channel" "control"] :params {:attributes {:host "irc.freenode.net" :port 6667 :user "Eric" :nick "zippy31415"}}}}
+                                                                  irc-controller-def {:role :controller :signal ["anansi.streamscapes.channels.irc-controller" "channel" "control"] :params {:attributes {:host "irc.freenode.net" :port 6667 :user "Eric" :nick "zippy31415" :contact-address (address-of eric)}}}}
                                                           })
         cc (get-receptor r channel-address)
         [controller-address control-signal] (get-controller cc)
@@ -27,7 +27,7 @@
         irc-contacts (get-scape r :irc-address-contact true)]
     
     (fact
-      (--> key->resolve b irc-contacts "zippy31415") =not=> nil
+      (--> key->resolve b irc-contacts "zippy31415") => (address-of eric)
       (receptor-state b false) => (contains {:fingerprint :anansi.streamscapes.channels.irc-controller.irc-controller
                                              :user "Eric"
                                              :nick "zippy31415"

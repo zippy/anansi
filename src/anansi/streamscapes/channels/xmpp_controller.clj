@@ -93,15 +93,11 @@
 
 (def xmpp-controller-def
      (receptor-def "xmpp-controller"
-                   (attributes :host :domain :username :_password)
+                   (attributes :host :domain :username :_password :contact-address)
                    (animate [_r reanimate]
                             (if (not reanimate)
-                              (let [ss (parent-of (parent-of _r))
-                                    xmpp-contacts (get-scape ss :xmpp-address-contact true)
-                                    username (contents _r :username)]
-                                (if (nil? (--> key->resolve _r xmpp-contacts username))
-                                  (--> matrice->identify _r ss {:identifiers {:xmpp-address username} :attributes {:name (contents _r :username)}}))
-                                )))))
+                              (create-contact-on-animate _r :xmpp :username)
+                              ))))
 
 (defn get-status [_r]
      (let [conn (:xmpp-connection @_r)]
