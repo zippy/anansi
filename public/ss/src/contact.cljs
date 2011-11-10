@@ -91,22 +91,28 @@
   (let [scapes (:scapes s/*current-state*)
         contact-names (:values (:contact-name-scape scapes))
         channel-contact-scapes (ssu/get-matching-scapes #"-address-contact-scape$")
+        my-ca (s/get-my-contact-address)
         ]
     (ui/modal-dialog
      "contacts"
      ["CONTACTS" [:div.top-right-controls (ui/make-button "New" new-contact)] [:div#contact-form {:style "display:none"} ""] ]
-     [(into [:div#names] (map (fn [[caddr cname]] [:div.contact
-                                                  [:div.contact-name
-                                                   (ui/make-click-link cname #(contact-form (fn [] (do-save-contact caddr)) caddr cname))
-                                                   ]
-                                                  [:div.delete-contact
-                                                   (ui/make-click-link "delete" #(ui/confirm-dialog (str "Are you sure you want to delete the contact: " cname)
-                                                                                               (fn [e] (if (= (.key e) "ok")
-                                                                                                        (ssu/send-ss-signal {:aspect "matrice" :signal "delete-contact"
-                                                                                                                             :params {:address (js/parseInt (name caddr))}} )
-                                                                                                        ))))]
-                                                  (into [:div.channel-addresses-container]
-                                                        (filter (fn [x] (not (nil? x))) (map (fn [cs] (render-channel-addresses cs caddr)) channel-contact-scapes)))
-                                                  ]) contact-names))])
+     [(into [:div#names] (map (fn [[caddr cname]]
+                                (into [] (keep identity
+                                               [:div.contact
+
+                                                [:div.contact-name
+                                                 (ui/make-click-link cname #(contact-form (fn [] (do-save-contact caddr)) caddr cname))
+                                                 ]
+                                                (let [ca (js/parseInt (name caddr))]
+                                                  (if (= ca my-ca) nil 
+                                                      [:div.delete-contact
+                                                       (ui/make-click-link "delete" #(ui/confirm-dialog (str "Are you sure you want to delete the contact: " cname)
+                                                                                                        (fn [e] (if (= (.key e) "ok")
+                                                                                                                 (ssu/send-ss-signal {:aspect "matrice" :signal "delete-contact"
+                                                                                                                                      :params {:address ca}} )
+                                                                                                                 ))))]))
+                                                (into [:div.channel-addresses-container]
+                                                      (filter (fn [x] (not (nil? x))) (map (fn [cs] (render-channel-addresses cs caddr)) channel-contact-scapes)))
+                                                ]))) contact-names))])
     )
   )
