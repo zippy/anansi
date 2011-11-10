@@ -41,9 +41,9 @@
       (let [zippy-droplet-ids (get-scape ru :id)]
         (is (= (count (s-> key->all zippy-droplet-ids)) 0))
         (let [
-              i-from (s-> matrice->identify r {:identifiers {:ss-address eric-ss-addr} :attributes {:name "Eric"}})
-              i-to (s-> matrice->identify r {:identifiers {:ss-address zippy-ss-addr} :attributes {:name "Zippy"}})
-              receiver-contact-addr (s-> matrice->identify ru {:identifiers {:ss-address zippy-ss-addr} :attributes {:name "Zippy"}})
+              i-from (s-> matrice->identify r {:identifiers {:streamscapes-address eric-ss-addr} :attributes {:name "Eric"}})
+              i-to (s-> matrice->identify r {:identifiers {:streamscapes-address zippy-ss-addr} :attributes {:name "Zippy"}})
+              receiver-contact-addr (s-> matrice->identify ru {:identifiers {:streamscapes-address zippy-ss-addr} :attributes {:name "Zippy"}})
               ru-contact-names (get-scape ru :contact-name)
               droplet-address (s-> matrice->incorporate r {:to i-to :from i-from :envelope {:subject "text/plain" :body "text/html"} :content {:subject "Hi there!" :body "<b>Hello world!</b>"}})
               ru-contact-name-before-send (s-> key->resolve ru-contact-names receiver-contact-addr)
@@ -59,7 +59,7 @@
             (let [droplet-id (first (s-> address->all zippy-droplet-ids))
                   zd-addr (first (s-> key->all zippy-droplet-ids))
                   zd (get-receptor ru zd-addr)
-                  ss-addr-contacts (get-scape ru :ss-address-contact)
+                  ss-addr-contacts (get-scape ru :streamscapes-address-contact)
                   ]
               (is (= (count (s-> key->all zippy-droplet-ids)) 1))
               (is (= droplet-id (contents d :id)))

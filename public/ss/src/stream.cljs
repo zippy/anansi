@@ -124,7 +124,7 @@
         parts (map (fn [[part _]] [:div.part [:h4 (name part)]
                                   (d/html (get-html-from-body (part (:content d)) (part (:envelope d))))]) grammar)]
     (ui/modal-dialog "full-droplet"
-                     [(str (name channel-type) " droplet (" (name groove) ")")
+                     [(str (name channel-type) " droplet (" (if (nil? groove) "-no-groove-" (name groove)) ")")
                       [:div.top-right-controls (ssu/make-tagging-button droplet-address)
                        (ui/make-button "Delete" (fn [] (delete-droplet droplet-address #(ui/cancel-modal))))
                        ]] parts))) ;;
@@ -162,22 +162,36 @@
 
 
 (defn get-droplet-grammar [d channel-type s]
-  (let [dg (:values (:droplet-grooves-scape (:scapes s)))
-        groove-name (keyword (first ((keyword (str (:address d))) dg )))
+  (let [dgs (:values (:droplet-grooves-scape (:scapes s)))
+        dg ((keyword (str (:address d))) dgs )
+        groove-name (if (empty? dg) nil (keyword (first dg)))
         ]
-    [groove-name
-     (s/get-groove-grammar groove-name)
-     (s/get-groove-channel-actions groove-name channel-type)]))
+    (if (nil? groove-name)
+      [nil (:envelope d) {}]
+      [groove-name
+       (s/get-groove-grammar groove-name)
+       (s/get-groove-channel-actions groove-name channel-type)])))
 
 ;;TODO: groove droplets should be auto-detected by some appropriate
 ;;programmatic method, not by channel-type!
 (defn groove-preview [d channel-type s]
   (let [[groove grammar actions] (get-droplet-grammar d channel-type s)
         preview (s/get-groove-preview groove)
-        p (if (vector? preview)
-            [:div.content (apply str (map (fn [i] (if (vector? i) ((keyword (i 0)) (-> d :matched-grooves groove)) i)) preview))]
-            [:div.content ((keyword preview) (:content d))]
-            )]
+        c (:content d)
+        p (cond (vector? preview)
+                [:div.content (apply str (map (fn [i] (if (vector? i) ((keyword (i 0)) (-> d :matched-grooves groove)) i)) preview))]
+                (string? preview)
+                [:div.content (let [k (keyword preview)
+                                    val (k c)]
+                                (if (nil? val)
+                                  (k (-> d :matched-grooves groove))
+                                  val)
+                                ) ]
+                true
+                [:div.content (if (not (nil? (:subject c))) (:subject c)
+                                  (if (not (nil? (:body c))) (:body c)
+                                      (string/join "; " (map #(name %) (keys (:content d))))))] ;
+                )]
     [p actions groove]))
 
 ;; Actions

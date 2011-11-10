@@ -46,15 +46,15 @@
   )
 
 (defn get-groove-grammar [groove]
-  (-> *grooves* groove :grammar)
+  (if (nil? groove) nil (-> *grooves* groove :grammar))
   )
 
 (defn get-groove-preview [groove]
-  (-> *grooves* groove :preview)
+  (if (nil? groove) nil (-> *grooves* groove :preview))
   )
 
 (defn get-groove-channel-actions [groove channel-type]
-  (-> *grooves* groove :carriers channel-type :actions)
+  (if (nil? groove) nil (-> *grooves* groove :carriers channel-type :actions))
   )
 
 (defn set-me

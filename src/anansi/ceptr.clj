@@ -212,7 +212,7 @@
   "send a signal to a receptor"
   [signal from-receptor to & args]
   (let [to-receptor (if (instance? clojure.lang.Ref to) to (get-receptor (parent-of from-receptor) to))]
-    (apply signal to-receptor  (address-of from-receptor) args)))
+    (apply signal to-receptor (address-of from-receptor) args)))
 
 (defn s->
   "send a signal to yourself"

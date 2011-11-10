@@ -15,7 +15,7 @@
               d (get-receptor ss droplet-address)]
           (try
             (let [
-                  ss-addr-contacts (get-scape ss :ss-address-contact)
+                  ss-addr-contacts (get-scape ss :streamscapes-address-contact)
                   to-ss-addr (first (--> address->resolve _r ss-addr-contacts (contents d :to)))
                   from-ss-addr (first (--> address->resolve _r ss-addr-contacts (contents d :from)))
                   content (contents d :content)

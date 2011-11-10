@@ -20,6 +20,7 @@
                         (ui/make-button "New E-mail Channel" #(email-form :compose-work nil make-email))
                         (ui/make-button "New Twitter Channel" #(twitter-form :compose-work nil make-twitter))
                         (ui/make-button "New IRC Channel" #(irc-form :compose-work nil make-irc))
+                        (ui/make-button "New XMPP Channel" #(xmpp-form :compose-work nil make-xmpp))
                         ]
                        (apply conj [:div.channels]
                               (map (fn [[cname caddr]]
@@ -31,6 +32,9 @@
                                         (ui/make-click-link (name cname)
                                                             (fn [] (condp = type
                                                                       :irc (irc-form :compose-work
+                                                                                     (assoc (get-vals-from-controller chan) :name (name cname))
+                                                                                     (fn [p] (update-channel caddr p)))
+                                                                      :xmpp (irc-form :compose-work
                                                                                      (assoc (get-vals-from-controller chan) :name (name cname))
                                                                                      (fn [p] (update-channel caddr p)))
                                                                       :email (email-form :compose-work
@@ -196,7 +200,11 @@
 
 (defn make-irc [params]
   (ssu/send-ss-signal {:aspect "setup" :signal "new-channel"
-                      :params (merge {:type :irc} params)} sss/refresh-stream-callback))
+                       :params (merge {:type :irc} params)} sss/refresh-stream-callback))
+
+(defn make-xmpp [params]
+  (ssu/send-ss-signal {:aspect "setup" :signal "new-channel"
+                      :params (merge {:type :xmpp} params)} sss/refresh-stream-callback))
 
 (defn update-channel [channel-address params]
   (ssu/send-ss-signal {:aspect "setup" :signal "update-channel"
@@ -213,6 +221,21 @@
                      {:field :port :default (:port defaults) :label "Port:"}
                      {:field :user :default (:user defaults) :label "IRC User" :hint "<your user name>"}
                      {:field :nick :default (:nick defaults) :label "IRC Nick" :hint "<your nick>"}
+                     ]
+                    fun
+                    )))
+
+(defn xmpp-form [parent-id defs fun]
+  (let [defaults (if (nil? defs)
+                   {:name "jabber" :host "jabber.org" :domain "jabber.org"}
+                   defs
+                   ) ]
+    (ui/make-dialog parent-id
+                    [{:field :name :default (:name defaults) :label "Channel Name:"}
+                     {:field :host :default (:host defaults) :label "Jabber host:"}
+                     {:field :domain :default (:domain defaults) :label "Domain:"}
+                     {:field :username :default (:username defaults) :label "Username" :hint "<your jabber user name>"}
+                     {:field :password :default (:password defaults) :label "Password" :hint "<your password>"}
                      ]
                     fun
                     )))

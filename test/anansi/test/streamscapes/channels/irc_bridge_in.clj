@@ -20,7 +20,7 @@
         cc-addr (s-> matrice->make-channel r {:name :irc-stream})
         cc (get-receptor r cc-addr)
         b (make-receptor irc-bridge-in-def cc {})
-        irc-contacts (get-scape r :irc-contact true)]
+        irc-contacts (get-scape r :irc-address-contact true)]
     (--> key->set r (get-scape r :channel-type) cc-addr :irc)
     (--> key->set b irc-contacts "zippy" (address-of eric))
     (--> key->set b irc-contacts "art" (address-of art))

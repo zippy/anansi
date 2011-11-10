@@ -37,18 +37,20 @@
 (defn gs-callback [e]
   (let [{status :status result :result} (ceptr/handle-xhr e)]
     (s/set-current-state result)
-    (try
-      (if (= status "ok")
-        (do 
-          (d/remove-children :the-receptor)
-          (render-receptor s/*current-state* (d/get-element :the-receptor) "")
-          (render-ss))
-        (do 
-          (if (re-find #"unknown receptor:" result)
-            (ui/reset)
-            (js/alert (str "Server responded with " result)))))
-      (catch js/Object e (debug/jslog e))
-      (finally (ui/loading-end)))
+                                        ;try
+    (if (= status "ok")
+      (do 
+        (d/remove-children :the-receptor)
+        (render-receptor s/*current-state* (d/get-element :the-receptor) "")
+        (render-ss))
+      (do 
+        (if (re-find #"unknown receptor:" result)
+          (ui/reset)
+          (js/alert (str "Server responded with " result)))))
+                                        ;(catch js/Object e (debug/jslog e))
+                                        ;(finally (ui/loading-end))
+    (ui/loading-end)
+      
     ))
 
 (defn get-state
@@ -104,10 +106,10 @@
     (.setVisible p true)
     ))
 
-(defn irc-open [c]
+(defn channel-open [c]
   (ssu/send-ss-signal {:aspect "matrice" :signal "control-channel"
                 :params {:name c :command :open}}))
-(defn irc-close [c]
+(defn channel-close [c]
   (ssu/send-ss-signal {:aspect "matrice" :signal "control-channel"
                        :params {:name c :command :close}}))
 
@@ -169,9 +171,13 @@ onto the linking value."
        [["Check" #(channel-check cname)]])]
     (= type :irc )
     [(ui/make-menu "Actions"
-        [["Open", #(irc-open cname)]
-         ["Close", #(irc-close cname)]
+        [["Open", #(channel-open cname)]
+         ["Close", #(channel-close cname)]
          ["Join", #(irc-join cname)]])]
+    (= type :xmpp )
+    [(ui/make-menu "Actions"
+        [["Open", #(channel-open cname)]
+         ["Close", #(channel-close cname)]])]
     true []))
 
 (defn render-scapes [s]

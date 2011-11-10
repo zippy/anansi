@@ -51,8 +51,8 @@
             [from from-name] (parseInternetAddress
                       (first (try (.getFrom message)
                          (catch Exception e [(javax.mail.internet.InternetAddress. (str "\"" e "\" <_err_@unknown.err>"))]))))
-            to-id (do-identify ss {:identifiers {:email to} :attributes {:name to-name}} false)
-            from-id (do-identify ss {:identifiers {:email from} :attributes {:name from-name}} false)
+            to-id (do-identify ss {:identifiers {:email-address to} :attributes {:name to-name}} false)
+            from-id (do-identify ss {:identifiers {:email-address from} :attributes {:name from-name}} false)
             jd (.getSentDate message)
             sent (if (nil? jd) nil (date-time-from-java-date jd))
             subject (.getSubject message)

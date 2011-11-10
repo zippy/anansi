@@ -22,8 +22,8 @@
       (let [[_ irc-to message] (re-find #"([^ ]*) :(.*)" params)
             to-type (if (= \# (first irc-to)) "irc/channel" "irc/user")
             [_ nick user host] (re-find #"(.*)!(.*)@(.*)" from-address)
-            from-id (do-identify ss {:identifiers {:irc nick}} false)
-            to-id (do-identify ss {:identifiers {:irc irc-to}} false)]
+            from-id (do-identify ss {:identifiers {:irc-address nick}} false)
+            to-id (do-identify ss {:identifiers {:irc-address irc-to}} false)]
         (--> stream->receive _r (parent-of _r)
              {:id id
               :to to-id

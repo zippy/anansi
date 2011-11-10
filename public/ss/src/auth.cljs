@@ -83,7 +83,7 @@
                                     :params {:type :streamscapes :name "streamscapes"}})
                ;; as well as a default from identity
                (ssu/send-ss-signal {:aspect "matrice" :signal "identify"
-                                    :params {:identifiers {:ss-address sa} :attributes {:name *new-user*}}} (ceptr/nextc chain)))
+                                    :params {:identifiers {:streamscapes-address sa} :attributes {:name *new-user*}}} (ceptr/nextc chain)))
              (fn [my-contact-addr chain]
                (s/set-me my-contact-addr)
                (ssu/send-ss-signal {:aspect "setup" :signal "new-scape"

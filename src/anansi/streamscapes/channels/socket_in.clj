@@ -18,8 +18,8 @@
         ids (get-scape ss :id)
         da (s-> address->resolve ids id)]
     (if (empty? da)
-      (let [from-id (do-identify ss {:identifiers {:ip from-ip}} false)
-            to-id (do-identify ss {:identifiers {:ip to-ip}} false)]
+      (let [from-id (do-identify ss {:identifiers {:ip-address from-ip}} false)
+            to-id (do-identify ss {:identifiers {:ip-address to-ip}} false)]
         (--> stream->receive _r (parent-of _r)
              {:id id
               :to to-id

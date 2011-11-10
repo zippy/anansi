@@ -19,7 +19,7 @@
         cc-addr (s-> matrice->make-channel r {:name :twitter-stream})
         cc (get-receptor r cc-addr)
         b (make-receptor twitter-bridge-in-def cc {})
-        twitter-contacts (get-scape r :twitter-contact true)]
+        twitter-contacts (get-scape r :twitter-address-contact true)]
     (--> key->set r (get-scape r :channel-type) cc-addr :twitter)
 ;;    (--> key->set b twitter-contacts "@zippy314" (address-of eric))
     (--> key->set b twitter-contacts "_twp_" (address-of twp))

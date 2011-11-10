@@ -18,7 +18,7 @@
         cc-addr (s-> matrice->make-channel r {:name :socket-stream})
         cc (get-receptor r cc-addr)
         b (make-receptor socket-in-def cc {})
-        ip-contacts (get-scape r :ip-contact true)]
+        ip-contacts (get-scape r :ip-address-contact true)]
     (--> key->set r (get-scape r :channel-type) cc-addr :socket)
     (--> key->set b ip-contacts "127.0.0.0" (address-of eric))
 

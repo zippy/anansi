@@ -28,7 +28,7 @@
         cc (get-receptor r channel-address)
         [controller-address control-signal] (get-controller cc)
         b (get-receptor cc controller-address)
-        ip-contacts (get-scape r :ip-contact true)
+        ip-contacts (get-scape r :ip-address-contact true)
         droplet-ids (get-scape r :id)]
     (--> key->set r (get-scape r :channel-type) channel-address :socket)
     (--> key->set b ip-contacts "127.0.0.1" (address-of eric))

@@ -28,19 +28,26 @@
   (grammar-match? {:message {"text" [#"yo!"]}} {:message "text/plain"} {:message "hey yo!"}) => true
   (grammar-match? {:message {"text" [#"yo!"]}} {:message "text/plain"} {:message "boink"}) => false
   (grammar-match? {:message {"text" [#"yo!"]}} {:message "img/jpg"} {:message "yo!"}) => false
+  
+  (let [simple-message (-> compository :simple-message :matchers)]
+    (grammar-match? (:xmpp simple-message)
+                    {:body "text/plain"}
+                    {:body "test simple message"}
+                    ) => {:message "test simple message"}
+    )
   (let [punkmoney (-> compository :punkmoney :matchers)]
     (grammar-match? (:subject-body-message punkmoney)
                     {:subject "text/plain" :body "text/plain"}
-                    {:subject "Punkmoney Promise" :body "I promise to pay eric@example.com, on demand, some squids. Expires in 1 year."}) =>
-                    {:promised-to "eric@example.com" :promised-item "some squids" :expiration "in 1 year"}
+                    {:subject "Punkmoney Promise" :body "I promise to pay eric@example.com, on demand, some squids. Expires in 1 year."}
+                    ) => {:promised-to "eric@example.com" :promised-item "some squids" :expiration "in 1 year"}
     (grammar-match? (:subject-body-message punkmoney)
                     {:subject "text/plain" :body "text/plain"}
-                    {:subject "Punkmoney" :body "I promise to pay eric@example.com, on demand, some squids. Expires in 1 year."}) =>
-                    false
+                    {:subject "Punkmoney" :body "I promise to pay eric@example.com, on demand, some squids. Expires in 1 year."}
+                    ) => false
     (grammar-match? (:simple-message punkmoney)
                     {:message "text/plain"}
-                    {:message "@artbrock I promise to pay, on demand, some squids. Expires in 1 year. #punkmoney"}) =>
-                    {:promised-to "@artbrock" :promised-item "some squids" :expiration "in 1 year"}
+                    {:message "@artbrock I promise to pay, on demand, some squids. Expires in 1 year. #punkmoney"}
+                    ) => {:promised-to "@artbrock" :promised-item "some squids" :expiration "in 1 year"}
                     )
   
 

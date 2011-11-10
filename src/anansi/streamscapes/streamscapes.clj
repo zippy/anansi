@@ -270,6 +270,17 @@
                                                          {:role :controller
                                                           :signal ["anansi.streamscapes.channels.irc-controller" "channel" "control"]
                                                           :params {:attributes {:host host :port port :user user :nick nick}}}})
+                                                 :xmpp (let [{host :host domain :domain username :username pass :password} params]
+                                                        {(get-receptor-definition :anansi.streamscapes.channels.xmpp-bridge-in.xmpp-bridge-in)
+                                                         {:role :receiver :params {} }
+                                                         (get-receptor-definition :anansi.streamscapes.channels.xmpp-bridge-out.xmpp-bridge-out)
+                                                         {:role :deliverer
+                                                          :params {}
+                                                          :signal ["anansi.streamscapes.channels.xmpp-bridge-out" "channel" "deliver"] }
+                                                         (get-receptor-definition :anansi.streamscapes.channels.xmpp-controller.xmpp-controller)
+                                                         {:role :controller
+                                                          :signal ["anansi.streamscapes.channels.xmpp-controller" "channel" "control"]
+                                                          :params {:attributes {:host host :domain domain :username username :_password pass}}}})
                                                  :email (let [{in :in out :out} params
                                                               r1 (if (not (nil? in))
                                                                    {(get-receptor-definition :anansi.streamscapes.channels.email-bridge-in.email-bridge-in)
@@ -353,7 +364,8 @@
                              (if (contains? carriers channel-type)
                                (let [carrier (channel-type carriers)
                                      encoding (:encoding carrier)
-                                     grammar (if (nil? encoding) (contents groove :grammar) (-> compository groove-name :matchers encoding))]
+                                     grammar (cond (nil? encoding) (contents groove :grammar)
+                                                   (keyword? encoding) (-> compository groove-name :matchers encoding))]
                                  (try
                                    (let [match (grammar-match? grammar envelope content)]
                                      (if match [groove-name match] nil))

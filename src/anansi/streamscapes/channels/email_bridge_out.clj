@@ -32,7 +32,7 @@
                                     (contents _r :account) (contents _r :password))))
                   session (javax.mail.Session/getDefaultInstance props authenticator)
                   msg (javax.mail.internet.MimeMessage. session)
-                  email-contacts (get-scape ss :email-contact)
+                  email-contacts (get-scape ss :email-address-contact)
                   to-email (first (--> address->resolve _r email-contacts (contents d :to)))
                   from-email (first (--> address->resolve _r email-contacts (contents d :from)))
                   content (contents d :content)

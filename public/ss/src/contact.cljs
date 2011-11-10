@@ -13,19 +13,12 @@
 
 (defn get-addresses-by-channel-contact-scape
   [channel-contact-scape contact-address]
-  (map (fn [[addr _]] (name addr))  (filter (fn [[_ ia]] (= (keyword ia) contact-address)) channel-contact-scape))
-  )
+  (map (fn [[addr _]] (name addr))  (filter (fn [[_ ia]] (= (keyword ia) contact-address)) channel-contact-scape)))
 
-;;TODO: ARG here it is again! see https://github.com/zippy/anansi/issues/7
 (defn get-channel-type-from-channel-contact-scape-name [channel-contact-scape-name]
-  (condp = 
-      (str (first (string/split (name channel-contact-scape-name) #"-")))
-      "ss" :streamscapes
-      "email" :email
-      "twitter" :twitter
-      "irc" :irc
-      )
-  )
+  (let [[_ m] (re-find #"^(.*)-address-contact-scape$" (name channel-contact-scape-name))]
+    (if (nil? m) (throw (RuntimeException. (str "scape doesn't appear to be an address-contact-scape: " channel-contact-scape-name))))
+    m))
 
 (defn render-channel-addresses [channel-contact-scape-name contact-addr]
   (let [scape (:values (channel-contact-scape-name (:scapes s/*current-state*)))
@@ -37,19 +30,16 @@
 
 ;;TODO: The channel type problem rears it's ugly head yet again!!!!
 (defn get-addresses-from-form []
-  (let [address-type-ids (map (fn [ct] (keyword (str (name ct) "-addr"))) (ssu/get-channel-types))]
+  (let [address-type-ids (map (fn [ct] (keyword (str (name ct) "-address"))) (ssu/get-channel-types))]
     (into {} (keep identity (for [tid address-type-ids]
                                               (let [val (. (d/get-element tid) value)]
                                                 (if (and val (not= val ""))
                                                   (condp = tid
-                                                      :streamscapes-addr [:ss-address (js/parseInt val)]
-                                                      :email-addr [:email val]
-                                                      :twitter-addr [:twitter val]
-                                                      :irc-addr [:irc val])
+                                                      :streamscapes-address [tid (js/parseInt val)]
+                                                      [tid val])
                                                   nil)))))))
 (defn do-new-address []
-  (let [address-type-ids (map (fn [ct] (keyword (str (name ct) "-addr"))) (ssu/get-channel-types))
-        identifiers (get-addresses-from-form)]
+  (let [identifiers (get-addresses-from-form)]
     (ssu/send-ss-signal {:aspect "matrice" :signal "identify"
                          :params {:identifiers identifiers
                                   :attributes {:name (. (d/get-element :name) value)}}} sss/refresh-stream-callback)
@@ -86,7 +76,7 @@
   (d/append (d/get-element :contact-form)
             (d/build [:div
                       (ui/make-input "Name" "name" 80 contact-name)
-                      (d/build (into [:div.channels] (map (fn [ct] (let [tn (name ct)] (ui/make-input (str tn " Address") (str tn "-addr") 40 (get-contact-address contact-addr ct)))) (ssu/get-channel-types))))
+                      (d/build (into [:div.channels] (map (fn [ct] (let [tn (name ct)] (ui/make-input (str tn " Address") (str tn "-address") 40 (get-contact-address contact-addr ct)))) (ssu/get-channel-types))))
                       (ui/make-button "Cancel" close-contact-form)
                       (ui/make-button "OK" ok-fun)]))
   (d/show :contact-form)
@@ -100,7 +90,7 @@
 (defn open []
   (let [scapes (:scapes s/*current-state*)
         contact-names (:values (:contact-name-scape scapes))
-        channel-contact-scapes (ssu/get-matching-scapes #"-contact-scape$")
+        channel-contact-scapes (ssu/get-matching-scapes #"-address-contact-scape$")
         ]
     (ui/modal-dialog
      "contacts"

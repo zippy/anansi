@@ -61,17 +61,10 @@
   (distinct (map (fn [t] (keyword t)) (vals (:values (:channel-type-scape (:scapes s/*current-state*))))))
   )
 
-;;TODO: really we should be able to get the contact-scape
-;;programmatically instead of manually like this.
 (defn get-channel-contact-scape-from-type
   "Given a channel type, returns the contact scape for that channel type"
   [chan-type]
-  (:values ((condp = chan-type
-                  :streamscapes :ss-address-contact-scape
-                  :irc :irc-contact-scape
-                  :email :email-contact-scape
-                  :twitter :twitter-contact-scape
-                  ) (:scapes s/*current-state*))))
+  (:values ((keyword (str (name chan-type) "-address-contact-scape")) (:scapes s/*current-state*))))
 
 (defn get-channel-contact-scape
   "Given a channel name, returns the contact scape for that channel"

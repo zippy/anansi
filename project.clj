@@ -18,6 +18,7 @@
                  [clj-time "0.3.1"]
                  [javax.mail/mail "1.4.4"
                   :exclusions [javax.activation/activation]]
+                 [jivesoftware/smack "3.1.0"]
                  ]
   :dev-dependencies [[swank-clojure "1.2.1"]
                      [midje "1.3-alpha1"]

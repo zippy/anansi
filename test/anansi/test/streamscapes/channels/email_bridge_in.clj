@@ -31,11 +31,11 @@
   (let [h (make-receptor host-def nil {})
         m (make-receptor user-def h "eric")
         r (make-receptor streamscapes-def h {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
-        eric-addr (s-> matrice->identify r {:identifiers {:email "eric@example.com"} :attributes {:name "Eric"}})
+        eric-addr (s-> matrice->identify r {:identifiers {:email-address "eric@example.com"} :attributes {:name "Eric"}})
         cc-addr (s-> matrice->make-channel r {:name :email-stream})
         cc (get-receptor r cc-addr)
         b (make-receptor email-bridge-in-def cc {:attributes {:host "mail.example.com" :account "someuser" :password "pass" :protocol "pop3" :port 110}})
-        email-contacts (get-scape r :email-contact true)]
+        email-contacts (get-scape r :email-address-contact true)]
     (--> key->set r (get-scape r :channel-type) cc-addr :email)
 
     (fact
@@ -86,7 +86,7 @@
           )
         )
       )
-    (fact (:scapes (receptor-state r false)) => (contains {:email-contact-scape {:values {"eric@example.com" 10, "test@example.com" 14}, :relationship {:key :email-identifier, :address :contact-address}
+    (fact (:scapes (receptor-state r false)) => (contains {:email-address-contact-scape {:values {"eric@example.com" 10, "test@example.com" 14}, :relationship {:key :email-address-identifier, :address :contact-address}
                                                                                }, :contact-name-scape {:values {10 "Eric", 14 "Joe Blow"}, :relationship {:key :contact-address, :address :name-attribute}}}))
     (facts "about content groove scaping (punkmoney)"
       (let [message (create-java-email-message {:sent (java.util.Date. "2011/01/02 12:41") :to "eric@example.com" :from "\"Joe Blow\" <test@example.com>" :subject "Punkmoney Promise" :body "I promise to pay eric@example.com, on demand, some squids. Expires in 1 year."})

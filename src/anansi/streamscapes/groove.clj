@@ -28,7 +28,11 @@
                                   :irc {:encoding nil
                                         :actions {:create true :reply true}}
                                   :streamscapes {:encoding nil
-                                                 :actions {:create true :reply true}}}}
+                                                 :actions {:create true :reply true}}
+                                  :xmpp {:encoding :xmpp
+                                         :actions {:create true :reply true}}}
+                       :matchers {:xmpp
+                                  {:body :message}}}
       :punkmoney {:actions {:create true :reply true}
                   :grammar {:promised-to "address" :promised-item "text/plain" :expiration "text/plain"}
                   :preview ["I promise to pay " [:promised-to] ", on demand, " [:promised-item] ". Expires " [:expiration]]
@@ -55,33 +59,37 @@
   [grammar carrier content]
   (if (nil? grammar)
     false
-    (let [matches 
+    (let [
+          matches 
           (into [] (map (fn [[k sub-grammar]]
-                          (if (string? sub-grammar)
-                         
-                            ;; if the grammar doesn't care about the content of the signal,
-                            ;; then we have a match if just the keys in the carrier and the
-                            ;; grammar match
-                            (contains? carrier k)
+                          (cond
+                           ;; if the grammar doesn't care about the content of the signal,
+                           ;; then we have a match if just the keys in the carrier and the
+                           ;; grammar match
+                           (string? sub-grammar) (contains? carrier k)
+
+                           ;; grammar specifies that matches
+                           ;; are just mappings from a hash
+                           (keyword? sub-grammar) {sub-grammar (k content)}
                            
-                            ;; othewise we have have make sure the 
-                            ;; content matches. 
-                            ;; TODO: for now this assumes only one
-                            ;; sub-grammar specification, "text" for
-                            ;; which the pattern matching is regex.  This
-                            ;; needs to be generalized
-                            (let [[re field-match-map] (sub-grammar "text")]
-                              (if (and (not (nil? re))
-                                       (let [content-type (k carrier)] (and (not (nil? content-type)) (re-find #"^text" content-type) )))
-                                (let [match (re-find re (k content))]
-                                  (if match
-                                    (if (nil? field-match-map)
-                                      true
-                                      (into {} (map (fn [[field idx]] [field (match idx)]) field-match-map)))
-                                    false))
-                                false
-                                ))
-                            ))
+                           ;; othewise we have have make sure the 
+                           ;; content matches. 
+                           ;; TODO: for now this assumes only one
+                           ;; sub-grammar specification, "text" for
+                           ;; which the pattern matching is regex.  This
+                           ;; needs to be generalized
+                           true (let [[re field-match-map] (sub-grammar "text")]
+                                  (if (and (not (nil? re))
+                                           (let [content-type (k carrier)] (and (not (nil? content-type)) (re-find #"^text" content-type) )))
+                                    (let [match (re-find re (k content))]
+                                      (if match
+                                        (if (nil? field-match-map)
+                                          true
+                                          (into {} (map (fn [[field idx]] [field (match idx)]) field-match-map)))
+                                        false))
+                                    false
+                                    ))
+                           ))
                         grammar))]
       (if (every? identity matches)
         (let [m (into [] (filter #(map? %) matches))]

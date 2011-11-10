@@ -24,7 +24,7 @@
         cc (get-receptor r channel-address)
         [controller-address control-signal] (get-controller cc)
         b (get-receptor cc controller-address)
-        irc-contacts (get-scape r :irc-contact true)]
+        irc-contacts (get-scape r :irc-address-contact true)]
     
     (fact
       (--> key->resolve b irc-contacts "zippy31415") =not=> nil

@@ -14,16 +14,16 @@
   (let [m (make-receptor user-def nil "eric")
         h (make-receptor host-def nil {})
         r (make-receptor streamscapes-def h {:matrice-addr (address-of m) :attributes {:_password "password" :data {:datax "x"}}})
-        eric-addr (s-> matrice->identify r {:identifiers {:ss-address (address-of r)} :attributes {:name "Eric"}})
+        eric-addr (s-> matrice->identify r {:identifiers {:streamscapes-address (address-of r)} :attributes {:name "Eric"}})
         eric-ss-addr (address-of r)
         u (make-receptor user-def nil "zippy")
         ru (make-receptor streamscapes-def nil {:matrice-addr (address-of u) :attributes {:_password "password" :data {:datax "x"}}})
         zippy-ss-addr (address-of ru)
-        zippy-addr (s-> matrice->identify r {:identifiers {:ss-address (address-of ru)} :attributes {:name "Zippy"}})
+        zippy-addr (s-> matrice->identify r {:identifiers {:streamscapes-address (address-of ru)} :attributes {:name "Zippy"}})
         cc-addr (s-> matrice->make-channel r {:name :local-stream})
         cc (get-receptor r cc-addr)
         b (make-receptor local-bridge-in-def cc {})
-        ss-addr-contacts (get-scape r :ss-address-contact)]
+        ss-addr-contacts (get-scape r :streamscapes-address-contact)]
     (--> key->set r (get-scape r :channel-type) cc-addr :streamscapes)
     (facts "about restoring serialized receptor"
       (let [state (receptor-state b true)]

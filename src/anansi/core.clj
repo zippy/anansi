@@ -4,6 +4,9 @@
   anansi.core
   (:require anansi.streamscapes.channels.irc-controller)
   (:require anansi.streamscapes.channels.irc-bridge-out)
+  (:require anansi.streamscapes.channels.xmpp-controller)
+  (:require anansi.streamscapes.channels.xmpp-bridge-out)
+  (:require anansi.streamscapes.channels.xmpp-bridge-in)
   (:require anansi.streamscapes.channels.local-bridge-in)
   (:require anansi.streamscapes.channels.local-bridge-out)
   (:require anansi.streamscapes.channels.email-bridge-in)

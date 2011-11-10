@@ -47,36 +47,36 @@
     (contents r :data) => {:datax "x"}
     )
   (facts "about contacts"
-    (let [contact-address1 (s-> matrice->create-contact r {:identifiers {:email "eric@example.com" :ssn 987564321} :attributes {:name "Eric" :eye-color "blue"}})
-          contact-address2 (s-> matrice->create-contact r {:identifiers {:email "eric@otherexample.com" :ssn 123456789} :attributes {:name "Eric" :eye-color "green"}})
-          contact-address3 (s-> matrice->create-contact r {:identifiers {:email "eric@yetanotherotherexample.com"}})
+    (let [contact-address1 (s-> matrice->create-contact r {:identifiers {:email-address "eric@example.com" :ssn-address 987564321} :attributes {:name "Eric" :eye-color "blue"}})
+          contact-address2 (s-> matrice->create-contact r {:identifiers {:email-address "eric@otherexample.com" :ssn-address 123456789} :attributes {:name "Eric" :eye-color "green"}})
+          contact-address3 (s-> matrice->create-contact r {:identifiers {:email-address "eric@yetanotherotherexample.com"}})
           contact-names (get-scape r :contact-name)
-          email-contacts (get-scape r :email-contact)
-          ssn-contacts (get-scape r :ssn-contact)
+          email-contacts (get-scape r :email-address-contact)
+          ssn-contacts (get-scape r :ssn-address-contact)
           contact-eye-colors (get-scape r :contact-eye-color)
           ]
       (scape-relationship contact-names :key) => :contact-address
       (scape-relationship contact-names :address) => :name-attribute
-      (scape-relationship ssn-contacts :key) => :ssn-identifier
+      (scape-relationship ssn-contacts :key) => :ssn-address-identifier
       (scape-relationship ssn-contacts :address) => :contact-address
 
-      (into [] (find-contacts r {:email "eric@example.com"})) => [contact-address1]
+      (into [] (find-contacts r {:email-address "eric@example.com"})) => [contact-address1]
       (s-> key->resolve email-contacts "eric@example.com") => contact-address1
       (s-> key->resolve ssn-contacts 987564321) => contact-address1
       (s-> address->resolve contact-eye-colors "green") => [contact-address2]
       (s-> address->resolve contact-names "Eric") => [contact-address1 contact-address2]
       (s-> key->resolve email-contacts "eric@otherexample.com") = contact-address2
-      (s-> matrice->identify r {:identifiers {:email "eric@example.com"}}) => (throws RuntimeException "contact already exists for identifiers: eric@example.com")
-      (do-identify r {:identifiers {:email "eric@example.com" :ssn 123456789}} false) => [contact-address1 contact-address2]
-      (do-identify r {:identifiers {:email "eric@example.com"}} false) => contact-address1
-      (do-identify r {:identifiers {:email "eric@example.com" :irc "zippy314"}} false) => contact-address1
-      (do-identify r {:identifiers {:irc "zippy314"}} false) => contact-address1
+      (s-> matrice->identify r {:identifiers {:email-address "eric@example.com"}}) => (throws RuntimeException "contact already exists for identifiers: eric@example.com")
+      (do-identify r {:identifiers {:email-address "eric@example.com" :ssn-address 123456789}} false) => [contact-address1 contact-address2]
+      (do-identify r {:identifiers {:email-address "eric@example.com"}} false) => contact-address1
+      (do-identify r {:identifiers {:email-address "eric@example.com" :irc "zippy314"}} false) => contact-address1
+      (do-identify r {:identifiers {:irc-address "zippy314"}} false) => contact-address1
       (s-> key->resolve contact-names contact-address3) => "\"eric@yetanotherotherexample.com\""
 
       (facts "about creating contacts"
-        (s-> matrice->create-contact r {:identifiers {:email "eric@example.com"}}) => (throws RuntimeException "There are contacts already identified by one or more of: eric@example.com")
+        (s-> matrice->create-contact r {:identifiers {:email-address "eric@example.com"}}) => (throws RuntimeException "There are contacts already identified by one or more of: eric@example.com")
         (s-> address->resolve email-contacts contact-address1) => (just "eric@example.com")
-        (let [c (s-> matrice->create-contact r {:identifiers {:email "eric@example.com"} :override-uniquness-check true})]
+        (let [c (s-> matrice->create-contact r {:identifiers {:email-address "eric@example.com"} :override-uniquness-check true})]
           (class c) => java.lang.Integer
           (class contact-address1) => java.lang.Integer
           (= c contact-address1) => false
@@ -89,7 +89,7 @@
       (facts "about scaping contacts"
         (s-> matrice->scape-contact r {:address 999}) => (throws RuntimeException "No such contact: 999")
         (s-> matrice->scape-contact r {:address (address-of contact-names)}) => (throws RuntimeException (str "No such contact: " (address-of contact-names)))
-        (s-> matrice->scape-contact r {:address contact-address1 :identifiers {:email "eric@other-address.com"}})
+        (s-> matrice->scape-contact r {:address contact-address1 :identifiers {:email-address "eric@other-address.com"}})
         (s-> address->resolve email-contacts contact-address1) => (just "eric@other-address.com")
         (s-> matrice->scape-contact r {:address contact-address1 :attributes {:name "Bugsy"}})
         (s-> key->resolve contact-names contact-address1) => "Bugsy"

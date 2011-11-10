@@ -18,8 +18,8 @@
     (if (empty? da)
       (let [to (:to message)
             from (:from message)
-            to-id (do-identify ss {:identifiers {:ss-address to}} false)
-            from-id (do-identify ss {:identifiers {:ss-address from}} false)]
+            to-id (do-identify ss {:identifiers {:streamscapes-address to}} false)
+            from-id (do-identify ss {:identifiers {:streamscapes-address from}} false)]
         (--> stream->receive _r (parent-of _r)
              {:id id
               :to to-id
