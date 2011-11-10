@@ -184,7 +184,8 @@
                 [:div.content (let [k (keyword preview)
                                     val (k c)]
                                 (if (nil? val)
-                                  (k (-> d :matched-grooves groove))
+                                  (let [v (k (-> d :matched-grooves groove))]
+                                    (if (nil? v) "-blank-message-" v))
                                   val)
                                 ) ]
                 true

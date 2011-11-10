@@ -34,7 +34,8 @@
         xmpp-contacts (get-scape r :xmpp-address-contact true)]
     (--> key->set r (get-scape r :channel-type) channel-address :xmpp)
     (--> key->set b xmpp-contacts "zippy.314.ehb@gmail.com" eric-contact-addr)
-    (--> key->set b xmpp-contacts "zippy314@jabber.org" (address-of zippy))
+;;    (--> key->set b xmpp-contacts "zippy314@jabber.org" (address-of zippy))
+    (--> key->resolve b xmpp-contacts "zippy314@jabber.org") =not=> nil
     (receptor-state b false) => (contains {:fingerprint :anansi.streamscapes.channels.xmpp-controller.xmpp-controller
                                            :username "zippy314@jabber.org"
                                            :domain "jabber.org"
@@ -59,46 +60,26 @@
         (count (s-> key->all droplet-ids)) => 0
         
         (s-> channel->control b {:command :status}) => :closed
-        (s-> channel->control b {:command :open})
-        (s-> channel->control b {:command :status}) => :open
-        (s-> matrice->incorporate r {:deliver :immediate :channel :xmpp-stream :to eric-contact-addr :envelope {:from "address/xmpp" :to "address/xmpp" :body "text/plain" :subject "text/plain" :thread "thread/xmpp" :error "error/xmpp" :type "message-type/xmpp"}  :content {:body "This is a test message."}})
-        (Thread/sleep 10000)
-        (s-> channel->control b {:command :close})
-        (s-> channel->control b {:command :status}) => :closed
+        (if (= (contents b :_password) "somepass")
+          ;; test without valid password       
+          (do
+            (s-> channel->control b {:command :open}) => (throws RuntimeException "SASL authentication failed using mechanism DIGEST-MD5:")
+            (s-> channel->control b {:command :close}) => (throws RuntimeException "Channel not open")
+            )
+          ;; test with valid password
+          (do
+            (s-> channel->control b {:command :open})
+            (s-> channel->control b {:command :status}) => :open
+            (s-> matrice->incorporate r {:deliver :immediate :channel :xmpp-stream :to eric-contact-addr :envelope {:from "address/xmpp" :to "address/xmpp" :body "text/plain" :subject "text/plain" :thread "thread/xmpp" :error "error/xmpp" :type "message-type/xmpp"}  :content {:body "This is a test message."}})
+            ;;(Thread/sleep 10000)
+            (s-> channel->control b {:command :close})
+            (s-> channel->control b {:command :status}) => :closed
+            )
+          )
         
-      (Thread/sleep 10000)
-        (s-> controller->receive receiver {:body "boinkers", :subject nil, :thread nil, :from "zippy.314.ehb@gmail.com", :to "zippy314@jabber.org", :packet-id "BF64C760B1917AD8_6", :error nil, :type :chat})
-        (receptor-state (get-receptor r (first (s-> key->all droplet-ids))) false)) => (contains {:content {:body "boinkers", :subject nil, :thread nil, :from "zippy.314.ehb@gmail.com", :to "zippy314@jabber.org", :packet-id "BF64C760B1917AD8_6", :error nil, :type :chat}})
-      )
-    (comment ;THIS TESTING CODE IS DISABLED BECAUSE I DON"T WANT TO
-             ;RUN IT ALL THE TIME.
-     testing ""
-      (is (= (s-> channel->control b {:command :status}) :closed))
-      (s-> channel->control b {:command :open})
-      (is (= (s-> channel->control b {:command :status}) :open))
-      (s-> channel->control b {:command :join :params {:channel "#ceptr"}})
-      (let [ceptr-xmpp-contact-addr (--> key->resolve b xmpp-contacts "#ceptr")]
-        (fact ceptr-xmpp-contact-addr  =not=> nil)
-        (s-> channel->control b {:command :join :params {:channel "#ceptr"}})
-        (Thread/sleep 13000)
-        (let [droplet-ids (get-scape r :id)
-              droplet-address (s-> matrice->incorporate r {:deliver :immediate :channel :xmpp-stream :to ceptr-xmpp-contact-addr :envelope {:message "text/plain"} :content {:message "This is a test message."}})
-              sent-d (get-receptor r droplet-address)
-              ]
-          (is (= (count (s-> key->all droplet-ids)) 1))
-        
-      
-          (Thread/sleep 13000)
-
-          (let [x 1]
-            (is (= (count (s-> key->all droplet-ids)) 1))
-                                        ;            (is (= droplet-id (contents d :id)))
-                                        ;            (is (= (contents d :content) (contents zd :content)))
-                                        ;            (is (= (contents d :envelope) (contents zd :envelope)))
-                                        ;            (is (= (s-> key->resolve ss-addr-contacts eric-ss-addr)  (contents zd :from) ))
-            )))
-      
-      (s-> channel->control b {:command :close})
-      (is (= (s-> channel->control b {:command :status}) :closed))
-      )
-    ))
+        (let [d (s-> controller->receive receiver {:body "boinkers", :subject nil, :thread nil, :from "zippy.314.ehb@gmail.com", :to "zippy314@jabber.org", :packet-id "BF64C760B1917AD8_6", :error nil, :type :chat})
+              s (receptor-state (get-receptor r d) false)]
+          s => (contains {:from eric-contact-addr :matched-grooves {:simple-message {:message "boinkers"}}})
+          s => (contains {:content {:body "boinkers", :subject nil, :thread nil, :from "zippy.314.ehb@gmail.com", :to "zippy314@jabber.org", :packet-id "BF64C760B1917AD8_6", :error nil, :type :chat}})
+          )
+        ))))

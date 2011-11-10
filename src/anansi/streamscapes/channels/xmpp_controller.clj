@@ -85,7 +85,10 @@
 	 [PacketListener] 
 	 []
        (processPacket [packet]
-                      (s-> controller->receive receiver (mapify-message #^Message packet))
+                      (let [msg (mapify-message #^Message packet)]
+                        (if (and (:body msg) (:subject msg))
+                          (s-> controller->receive receiver )
+                          ))
                       )))
 
 (def xmpp-controller-def
@@ -113,7 +116,7 @@
                           [in-bridge-address receive-signal] (get-receiver-bridge parent-channel)
                           ib (get-receptor parent-channel in-bridge-address)
                           conn (connect (contents _r :host) (contents _r :domain) (contents _r :username) (contents _r :_password) ib)]
-                      (dosync (alter _r assoc :xmpp-connection conn))
+                      (rsync _r (alter _r assoc :xmpp-connection conn))
                       nil
                       )
               :join (comment let [ss (parent-of (parent-of _r))
@@ -126,7 +129,7 @@
               :close (do
                        (if (= :closed (get-status _r)) (throw (RuntimeException. "Channel not open")))
                        (.disconnect (:xmpp-connection @_r) *unavailable-presence*)
-                       (dosync (alter _r dissoc :xmpp-connection))
+                       (rsync _r (alter _r dissoc :xmpp-connection))
                        nil
                        )
               :send (do (send-message (:xmpp-connection @_r) params)
