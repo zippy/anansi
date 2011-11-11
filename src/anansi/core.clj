@@ -21,7 +21,7 @@
         [anansi.web-server :only [launch-web-server]]))
 (set! *print-level* 999)
 (defn -main
-  ([cl-port web-port verbose]
+  ([verbose web-port cl-port]
     (if (not (load-receptors))
       (let [h (make-receptor host-def nil {})]
         (make-receptor http-def h {:auto-start {:port web-port}})))
@@ -34,9 +34,7 @@
                           (dosync (ref-set x @*changes*))))
                     (Thread/sleep 1000)))))
 
-  ;       (while true (Thread/sleep 10000))
-  ;(launch-web-server web-port)
-  ;(launch-server cl-port)
-  ([verbose] (-main 3333 8080 verbose))
-  ([] (-main 3333 8080 false)))
+  ([verbose web-port] (-main verbose web-port 3333))
+  ([verbose] (-main verbose 8080 3333))
+  ([] (-main false 8080 3333)))
 

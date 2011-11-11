@@ -36,6 +36,12 @@ To run the server:
     $ lein run
     Starting web interface on port 8080
 
+You can run the server with options to specify ports and verbose
+logging too, like this:
+
+    $ lein run true             ; for verbose logging & default ports
+    $ lein run true 3141        ; for verbose logging and custom web port
+
 To access streamscapes UI point browser to http://localhost:8080/ss/index.html
 
 ### Telnet access
