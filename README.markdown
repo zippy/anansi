@@ -44,108 +44,19 @@ logging too, like this:
 
 To access streamscapes UI point browser to http://localhost:8080/ss/index.html
 
-### Telnet access
-
-Once the server is running you can connect to the server by telneting to port 3333
-
-Once connected, you will be asked to enter a user-name:
-    
-    Welcome to the Anansi server.
-
-    Enter your user name: zippy
-    {"status":"ok", "result":{"user-address":34, "host-address":0}}
-
-All server results are returned as a json object that is always of the form:
-
-    {"status:" "ok"|"error"
-     "result": <result-value>}
-
-Here are commands available to date:
-
-#### sp
-
-Set a prompt:
-
-    sp ">"
-    {"status":"ok", "result":">"}
-    >
-
-#### help
-
-Get a list of commands:
-
-    > help
-    {"status":"ok",
-     "result":
-     "exit: Terminate connection with the server\nrl: Request a list of all receptor specification on the server\ngs: Get state\nusers: Get a list of logged in users\nss: Send a signal to a receptor.\nsp: Set prompt\ngc: Get last changes count\nhelp: Show available commands and what they do."}
-    
-
-#### users
-
-Get a list of logged in users:
-
-    > users
-    {"status":"ok", "result":["zippy"]}
-
-#### ss
-
-Send a signal to a receptor.  The ss command which takes a single json object as a parameter which is always of this form:
-
-    {"to":<address-integer>, "signal":<signal-name>, "params":<signal-dependent-params>}
-
-for example:
-
-    > ss {"to":0, "signal":"self->host-room", "params": {"name": "the room", "password": "pass", "matrice-address":5, "data": {}}}
-    {"status":"ok", "result":35}
-
-#### gc
-
-Get the state changes count of a receptor (with no param returns the global changes count):
-
-    > gc {"addr":0}
-    {"status":"ok", "result":20}
-
-#### gs
-
-Get the state of a receptor: (you can set full to true for more detailed state info; with no argument returns state of host)
-
-    > gs {"addr":0}
-    {"status":"ok",
-     "result":
-     {"scapes":{"room-scape":{}, "user-scape":{"zippy":4}},
-      "receptors":
-        {"last-address":4, 
-         "4": {"name":"zippy", "type":"user", "address":4}},
-      "type":"host",
-      "address":1}}
-
-    > gs {"addr":0 "full":true}
-    {"status":"ok",
-     "result":
-     {"scapes-scape-addr":1,
-      "receptors": {"last-address":4,
-           "4":{"name":"zippy", "type":"user", "address":4},
-           "3":{"map":{"zippy":4}, "type":"scape", "address":3},
-           "2":{"map":{}, "type":"scape", "address":2},
-           "1":{"map":{"room-scape":2, "user-scape":3}, "type":"scape","address":1}},
-      "type":"host",
-      "address":1}}
-
-#### rl
-
-Get a list of receptors defined on the server:
-
-    > rl
-    ...
-
 ### HTTP access
 
-As well as listing on port 3333 for telnet connections, Anansi also runs a web-server on port 8080.  You can sent POST requests the "/cmd" url to execute a command.  For example:
+The main access to anansi is through an http api (though telnet access
+has also been implemented).  Anansi
+runs a web-server on port 8080.  You can send POST requests the "/api"
+url to execute a command.  All request are JSON encoded hashes, for example:
 
-    $ curl http://localhost:8080/cmd -d 'username=zippy&cmd=gc&data={"addr":5}'
-    {"status":"ok","result":315}
+    $ curl http://localhost:8080/api -d '{"cmd":"get-state","params":{"receptor":13}}'
+    {"status":"ok","result" ... }
 
-Anansi also directly serves all files (and sub-directories) from the htdocs directory.  So, this is where to put UI code for your receptors.  See [the commons room](https://github.com/metacurrency/Commons-Room-UI)
+Anansi also directly serves all files (and sub-directories) from the
+htdocs directory.  So, this is where to put UI code for your
+receptors.
 
 ## Web Development aka How to set up a Browser Repl
 
@@ -174,11 +85,12 @@ The ceptr platform consists of a nested hierarchy of receptors, with no necessar
 [Documentation](https://github.com/zippy/anansi/blob/master/README-ceptr-architecture.markdown)
  
 
-## Commons-room
+## Streamscapes
 
-For prototyping purposes, the anansi server also comes with a set of receptors that model a virtual room with a facilitator.
+As a test case for building out the ceptr platform, the anansi server
+includes a communications integration application called Streamscapes:
 
-[Documentation](https://github.com/zippy/anansi/blob/master/README-commons-room.markdown)
+[Documentation](https://github.com/zippy/anansi/blob/master/README-streamscapes.markdown)
 
 ## API Documentation
 
@@ -196,18 +108,18 @@ Run all the unit tests with
 
 ## Development
 
+[issue tracking](https://github.com/zippy/anansi/issue)
+
 [wiki](https://github.com/zippy/anansi/wiki)
-
-[issue tracking](https://secure.bettermeans.com/projects/1157)
-
 
 ## License
 
-Copyright (C) 2011
+Copyright (C) 2011, The MetaCurrencyProject (Eric Harris-Braun, et. al.)
 
 Distributed under the Eclipse Public License, the same as Clojure.
 
 ## Acknowledgements
 
-Thanks to technomancy for Mire (https://github.com/technomancy/mire)
-which got us our start on the server implementation
+Thanks to ztellman for aleph, technomancy for swank-clojure, and all
+the good folks on the #clojure freenode channel and mailing-list for
+being way helpful.
