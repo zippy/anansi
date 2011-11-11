@@ -19,7 +19,7 @@
         [anansi.receptor.host-interface.http :only [http-def]]
         [anansi.server :only [launch-server]]
         [anansi.web-server :only [launch-web-server]]))
-
+(set! *print-level* 999)
 (defn -main
   ([cl-port web-port]
     (if (not (load-receptors))

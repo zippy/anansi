@@ -427,7 +427,7 @@ assumes that the scape has receptor addresses in the value of the map, unless fl
 
 (defn serialize-receptors
   [receptors]
-  [(into {} (map (fn [[k v]] {k (state v true)}) (filter (fn [[k v]] (= (class k) java.lang.Integer)) @receptors))) (:last-address @receptors)])
+  [(into {} (map (fn [[k v]] {k (receptor-state v true)}) (filter (fn [[k v]] (= (class k) java.lang.Integer)) @receptors))) (:last-address @receptors)])
 
 (defn unserialize-receptors [[states last-address]]
   (let [r (ref {:last-address last-address})]
