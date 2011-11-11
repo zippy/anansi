@@ -20,8 +20,7 @@
                   :exclusions [javax.activation/activation]]
                  [jivesoftware/smack "3.1.0"]
                  ]
-  :dev-dependencies [[swank-clojure "1.2.1"]
-                     [midje "1.3-alpha1"]
+  :dev-dependencies [[midje "1.3-alpha1"]
                      [autodoc "0.7.1" :exclusions [org.clojure/clojure-contrib 
                                                     org.clojure/clojure]]
 ;;                      [org.clojars.mjul/lein-cuke "1.1.0"]
