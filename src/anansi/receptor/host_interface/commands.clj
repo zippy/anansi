@@ -24,7 +24,7 @@
             :result (str "Unknown command: '" command "'")
             :comment  "Try 'help' for a list of commands."}
            (let [r (command-function host iface params)]
-;             (prn "RESULT OF COMMAND WAS:" r)
+             (if (log-level-verbose) (prn "RESULT OF COMMAND WAS:" r))
              {:status :ok
               :result r})))
        (catch Exception e

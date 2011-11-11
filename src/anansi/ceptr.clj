@@ -12,6 +12,8 @@
 (declare *receptors*)
 
 (def *changes* (ref 0))
+(def *log-level* (ref :normal))
+(defn log-level-verbose [] (= @*log-level* :verbose))
 
 (defmacro rsync [r & body]
   `(dosync (alter *changes* + 1) (if (not (nil? ~r)) (alter ~r assoc :changes (+ 1 (:changes @~r)))) ~@body))

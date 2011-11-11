@@ -29,11 +29,11 @@
         (rsync _r
                (let [ss (parent-of _r)
                     
-                     xx (comment try (prn "INCORPORATING:" {:id id :from from :to to :sent sent :channel (contents _r :name) :envelope envelope :content content} )
-                             (catch Exception e
-                               (prn "ERROR " e)
-                               :err
-                               ))
+                     xx (if (log-level-verbose) ( try (prn "INCORPORATING:" {:id id :from from :to to :sent sent :channel (contents _r :name) :envelope envelope :content content} )
+                                                      (catch Exception e
+                                                        (prn "ERROR " e)
+                                                        :err
+                                                        )))
                      yy (comment if (= xx :err) (do
                                            (doseq [ [k v] content] (prn "Key: " k) (prn "Value: " v))
                                            (prn "XXX" {:id id :from from :to to :channel (contents _r :name) :envelope envelope :content content})
