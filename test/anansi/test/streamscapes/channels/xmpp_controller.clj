@@ -25,7 +25,7 @@
         channel-address (s-> matrice->make-channel r {:name :xmpp-stream
                                                       :receptors {xmpp-bridge-in-def {:role :receiver :params {} }
                                                                   xmpp-bridge-out-def {:role :deliverer :signal ["anansi.streamscapes.channels.xmpp-bridge-out" "channel" "deliver"] :params {}}
-                                                                  xmpp-controller-def {:role :controller :signal ["anansi.streamscapes.channels.xmpp-controller" "channel" "control"] :params {:attributes {:host "jabber.org" :username "zippy314@jabber.org" :domain "jabber.org" :_password "somepass" :contact-address zippy-contact-addr}}}}
+                                                                  xmpp-controller-def {:role :controller :signal ["anansi.streamscapes.channels.xmpp-controller" "channel" "control"] :params {:attributes {:host "jabber.org" :username "zippy314@jabber.org" :domain "jabber.org" :_password "fishfish" :contact-address zippy-contact-addr}}}}
                                                           })
         cc (get-receptor r channel-address)
         [controller-address control-signal] (get-controller cc)
@@ -56,8 +56,11 @@
     (s-> channel->control b {:command :fish}) => (throws RuntimeException "Unknown control command: :fish" )
 
     (facts "about logging into xmpp server and sending a message"
-      (let [droplet-ids (get-scape r :id)]
+      (let [droplet-ids (get-scape r :id)
+            deliveries (get-scape r :delivery)
+            ]
         (count (s-> key->all droplet-ids)) => 0
+        (count (s-> key->all deliveries)) => 0
         
         (s-> channel->control b {:command :status}) => :closed
         (if (= (contents b :_password) "somepass")
@@ -70,7 +73,19 @@
           (do
             (s-> channel->control b {:command :open})
             (s-> channel->control b {:command :status}) => :open
-            (s-> matrice->incorporate r {:deliver :immediate :channel :xmpp-stream :to eric-contact-addr :envelope {:from "address/xmpp" :to "address/xmpp" :body "text/plain" :subject "text/plain" :thread "thread/xmpp" :error "error/xmpp" :type "message-type/xmpp"}  :content {:body "This is a test message."}})
+            
+            (let [da (s-> matrice->incorporate r {:deliver :immediate :channel :xmpp-stream :to eric-contact-addr :envelope {:from "address/xmpp" :to "address/xmpp" :body "text/plain" :subject "text/plain" :thread "thread/xmpp" :error "error/xmpp" :type "message-type/xmpp"}  :content {:body "This is a test message."}})
+                  s (receptor-state (get-receptor r da) false)]
+              s => (contains {:to eric-contact-addr :matched-grooves {:simple-message {:message "This is a test message."}}})
+              )
+            (count (s-> key->all droplet-ids)) => 1
+            (count (s-> key->all deliveries)) => 1
+            (let [da (s-> matrice->incorporate r {:deliver :immediate :channel :xmpp-stream :to eric-contact-addr :groove :simple-message :content {:message "This is a simple message."}})
+                  s (receptor-state (get-receptor r da) false)]
+              s => (contains {:to eric-contact-addr :matched-grooves {:simple-message {:message "This is a simple message."}}})
+              )
+            (count (s-> key->all droplet-ids)) => 2
+            (count (s-> key->all deliveries)) => 2
             ;;(Thread/sleep 10000)
             (s-> channel->control b {:command :close})
             (s-> channel->control b {:command :status}) => :closed
