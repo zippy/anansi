@@ -18,19 +18,23 @@
 (defn execute
   "Execute a command."
   [host iface command params]
-  (try (let [command-function ((command-index) command)]
-         (if (nil? command-function)
-           {:status :error
-            :result (str "Unknown command: '" command "'")
-            :comment  "Try 'help' for a list of commands."}
-           (let [r (command-function host iface params)]
-             (if (log-level-verbose) (prn "RESULT OF COMMAND WAS:" r))
-             {:status :ok
-              :result r})))
-       (catch Exception e
-         (.printStackTrace e *err*)
-         {:status :error
-          :result (.getMessage e)})))
+  (time (try (let [start-time (now)
+                   command-function ((command-index) command)
+                   result (if (nil? command-function)
+                            {:status :error
+                             :result (str "Unknown command: '" command "'")
+                             :comment  "Try 'help' for a list of commands."}
+                            (let [r (command-function host iface params)]
+                              (if (log-level-verbose) (prn "RESULT OF COMMAND WAS:" r))
+                              {:status :ok
+                               :result r}))]
+               (println (str "Executing " command))
+               result
+               )
+             (catch Exception e
+               (.printStackTrace e *err*)
+               {:status :error
+                :result (.getMessage e)}))))
 
 (defn authenticate [host iface params]
   (--> command->authenticate iface host params)
