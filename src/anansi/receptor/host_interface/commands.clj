@@ -18,8 +18,7 @@
 (defn execute
   "Execute a command."
   [host iface command params]
-  (time (try (let [start-time (now)
-                   command-function ((command-index) command)
+  (time (try (let [command-function ((command-index) command)
                    result (if (nil? command-function)
                             {:status :error
                              :result (str "Unknown command: '" command "'")
