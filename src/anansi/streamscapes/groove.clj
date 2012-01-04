@@ -6,13 +6,7 @@
         [anansi.receptor.scape]
         ))
 (declare compository)
-(def groove-def (receptor-def "groove" (attributes :name :grammar :preview :carriers)
-                              (manifest [_r {{name :name} :attributes}]
-                                        {:name name
-                                         :grammar (-> compository name :grammar)
-                                         :preview (-> compository name :preview)
-                                         :carriers (-> compository name :carriers)
-                                         })))
+(def groove-def (receptor-def "groove" (attributes :name :grammar :preview :carriers :matchers)))
 
 (def compository
      {:subject-body-message {:grammar {:subject "text/plain" :body "text/html"}
@@ -40,15 +34,15 @@
                              :streamscapes {:encoding nil :actions {:create true}}
                              :email {:encoding :subject-body-message :actions {:create true}}}
                   :matchers {:subject-body-message
-                             {:subject {"text" [#"Punkmoney Promise"]}
+                             {:subject {"text" ["Punkmoney Promise"]}
                               :body {"text"
-                                     [#"I promise( to pay)* ([^\\W,]+)(, on demand)*,* ([^.]+)\. Expires (.*)\."
+                                     ["I promise( to pay)* ([^\\\\W,]+)(, on demand)*,* ([^.]+)\\.\\W+Expires (.*)\\."
                                       {:promised-to 2
                                        :promised-item 4
                                        :expiration 5}]}}
                              :simple-message
                              {:message {"text"
-                                        [#"^([^\\W]+) I promise( to pay)*(, on demand)*,* ([^.]+)\. Expires (.*)\.\W+#punkmoney"
+                                        ["^([^\\\\W]+) I promise( to pay)*(, on demand)*,* ([^.]+)\\. Expires (.*)\\.\\W+#punkmoney"
                                          {:promised-to 1
                                           :promised-item 4
                                           :expiration 5}
@@ -81,7 +75,7 @@
                            true (let [[re field-match-map] (sub-grammar "text")]
                                   (if (and (not (nil? re))
                                            (let [content-type (k carrier)] (and (not (nil? content-type)) (re-find #"^text" content-type) )))
-                                    (let [match (re-find re (k content))]
+                                    (let [match (re-find (re-pattern re) (k content))]
                                       (if match
                                         (if (nil? field-match-map)
                                           true

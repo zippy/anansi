@@ -23,7 +23,7 @@
                         (let [grooves (get-scape _r :groove)]
                           (doseq [[groove-name spec] compository]
                             (if (nil? (--> key->resolve _r grooves groove-name))
-                              (let [groove (make-receptor groove-def _r {:attributes {:name groove-name}})]
+                              (let [groove (make-receptor groove-def _r {:attributes (merge {:name groove-name} (groove-name compository))})]
                                 (--> key->set _r grooves groove-name (address-of groove)))))))))
 
 (defn resolve-name [_r user]

@@ -5,7 +5,7 @@
   (:use [clojure.test]))
 
 (facts "about groove receptors"
-  (let [g (make-receptor groove-def nil {:attributes {:name :subject-body-message}})]
+  (let [g (make-receptor groove-def nil {:attributes (merge {:name :subject-body-message} (:subject-body-message compository))})]
     ;; atributes
     (receptor-state g false) => (contains {:name :subject-body-message
                                            :grammar {:subject "text/plain" :body "text/html"}
