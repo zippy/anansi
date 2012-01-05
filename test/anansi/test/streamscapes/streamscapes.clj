@@ -17,7 +17,9 @@
         [anansi.streamscapes.channels.irc-bridge-out :only [irc-bridge-out-def]]
         [anansi.streamscapes.channels.irc-controller :only [irc-controller-def]]
         [anansi.streamscapes.channels.twitter-bridge-in :only [twitter-bridge-in-def]]
-        [anansi.streamscapes.channels.twitter-controller :only [twitter-controller-def]])
+        [anansi.streamscapes.channels.twitter-controller :only [twitter-controller-def]]
+        [anansi.streamscapes.channels.socket-in :only [socket-in-def]]
+        [anansi.streamscapes.channels.socket-controller :only [socket-controller-def]])
   (:use [midje.sweet])
   (:use [clojure.test])
 )
@@ -69,7 +71,7 @@
       (s-> matrice->identify r {:identifiers {:email-address "eric@example.com"}}) => (throws RuntimeException "contact already exists for identifiers: eric@example.com")
       (do-identify r {:identifiers {:email-address "eric@example.com" :ssn-address 123456789}} false) => [contact-address1 contact-address2]
       (do-identify r {:identifiers {:email-address "eric@example.com"}} false) => contact-address1
-      (do-identify r {:identifiers {:email-address "eric@example.com" :irc "zippy314"}} false) => contact-address1
+      (do-identify r {:identifiers {:email-address "eric@example.com" :irc-address "zippy314"}} false) => contact-address1
       (do-identify r {:identifiers {:irc-address "zippy314"}} false) => contact-address1
       (s-> key->resolve contact-names contact-address3) => "\"eric@yetanotherotherexample.com\""
 
@@ -191,6 +193,24 @@
       (find-channel-by-name r :twitterx) => cc
       (receptor-state (get-receptor cc controller-address) false) => (contains {:fingerprint :anansi.streamscapes.channels.twitter-controller.twitter-controller :search-query "@zippy314"})
       ))
+
+  (facts "about new socket channel"
+    (let [channel-address (s-> setup->new-channel r {:type :socket, :name :a-socket, :port 31415})
+          cc (get-receptor r channel-address)
+          [in-bridge-address receive-signal] (get-receiver-bridge cc)
+          [controller-address controller-signal] (get-controller cc)]
+      (receptor-state (get-receptor cc in-bridge-address) false) => (contains {:fingerprint :anansi.streamscapes.channels.socket-in.socket-in })
+      (find-channel-by-name r :a-socket) => cc
+      (receptor-state (get-receptor cc controller-address) false) => (contains {:fingerprint :anansi.streamscapes.channels.socket-controller.socket-controller :port 31415})
+      (s-> matrice->control-channel r {:name :a-socket :command :status}) => :closed
+      (s-> matrice->control-channel r {:name :a-socket :command :close}) => (throws RuntimeException "Channel not open")
+      (s-> matrice->control-channel r {:name :a-socket :command :open}) => nil
+      (s-> matrice->control-channel r {:name :a-socket :command :status}) => :open
+      (s-> matrice->control-channel r {:name :a-socket :command :close}) => nil
+      (s-> matrice->control-channel r {:name :a-socket :command :status}) => :closed
+
+      )
+    )
   
   (facts "about new-channel"
     (s-> setup->new-channel r {:type :fish :name :fisher}) => (throws RuntimeException "channel type 'fish' not implemented")

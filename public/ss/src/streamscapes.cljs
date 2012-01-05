@@ -178,6 +178,10 @@ onto the linking value."
     [(ui/make-menu "Actions"
         [["Open", #(channel-open cname)]
          ["Close", #(channel-close cname)]])]
+    (= type :socket )
+    [(ui/make-menu "Actions"
+        [["Open", #(channel-open cname)]
+         ["Close", #(channel-close cname)]])]
     true []))
 
 (defn render-scapes [s]

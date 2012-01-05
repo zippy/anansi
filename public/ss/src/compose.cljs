@@ -21,6 +21,7 @@
                         (ui/make-button "New Twitter Channel" #(twitter-form :compose-work nil make-twitter))
                         (ui/make-button "New IRC Channel" #(irc-form :compose-work nil make-irc))
                         (ui/make-button "New XMPP Channel" #(xmpp-form :compose-work nil make-xmpp))
+                        (ui/make-button "New Socket Channel" #(socket-form :compose-work nil make-socket))
                         ]
                        (apply conj [:div.channels]
                               (map (fn [[cname caddr]]
@@ -42,6 +43,9 @@
                                                                                          (fn [p] (update-email caddr p))
                                                                                          )
                                                                       :twitter (twitter-form :compose-work
+                                                                                             (assoc (get-vals-from-controller chan) :name (name cname))
+                                                                                             (fn [p] (update-channel caddr p)))
+                                                                      :socket (twitter-form :compose-work
                                                                                              (assoc (get-vals-from-controller chan) :name (name cname))
                                                                                              (fn [p] (update-channel caddr p)))
                                                                     (js/alert "Updating not implemented for this channel!"))
@@ -204,7 +208,11 @@
 
 (defn make-xmpp [params]
   (ssu/send-ss-signal {:aspect "setup" :signal "new-channel"
-                      :params (merge {:type :xmpp :contact-address (s/get-my-contact-address)} params)} sss/refresh-stream-callback))
+                       :params (merge {:type :xmpp :contact-address (s/get-my-contact-address)} params)} sss/refresh-stream-callback))
+
+(defn make-socket [params]
+  (ssu/send-ss-signal {:aspect "setup" :signal "new-channel"
+                      :params (merge {:type :socket} params)} sss/refresh-stream-callback))
 
 (defn update-channel [channel-address params]
   (ssu/send-ss-signal {:aspect "setup" :signal "update-channel"
@@ -236,6 +244,18 @@
                      {:field :domain :default (:domain defaults) :label "Domain:"}
                      {:field :username :default (:username defaults) :label "Username" :hint "<your jabber user name>"}
                      {:field :password :default (:password defaults) :label "Password" :hint "<your password>"}
+                     ]
+                    fun
+                    )))
+
+(defn socket-form [parent-id defs fun]
+  (let [defaults (if (nil? defs)
+                   {:name "a-socket" :port 31415}
+                   defs
+                   ) ]
+    (ui/make-dialog parent-id
+                    [{:field :name :default (:name defaults) :label "Channel Name:"}
+                     {:field :port :default (:port defaults) :label "Port:"}
                      ]
                     fun
                     )))

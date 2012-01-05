@@ -19,6 +19,7 @@
       :simple-message {:grammar {:message "text/plain"}
                        :preview :message
                        :carriers {:twitter {:encoding nil}
+                                  :socket {:encoding nil}
                                   :irc {:encoding nil
                                         :actions {:create true :reply true}}
                                   :streamscapes {:encoding nil

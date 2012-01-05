@@ -14,6 +14,8 @@
   (:require anansi.streamscapes.channels.email-controller)
   (:require anansi.streamscapes.channels.twitter-bridge-in)
   (:require anansi.streamscapes.channels.twitter-controller)
+  (:require anansi.streamscapes.channels.socket-in)
+  (:require anansi.streamscapes.channels.socket-controller)
   (:use [anansi.ceptr]
         [anansi.receptor.host]
         [anansi.receptor.host-interface.http :only [http-def]]

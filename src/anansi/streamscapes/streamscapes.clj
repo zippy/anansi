@@ -253,6 +253,12 @@
                                                                 (get-receptor-definition :anansi.streamscapes.channels.local-bridge-out.local-bridge-out)
                                                                 {:role :deliverer :params {}
                                                                  :signal ["anansi.streamscapes.channels.local-bridge-out" "channel" "deliver"]}}
+                                                 :socket (let [{port :port} params]
+                                                            {(get-receptor-definition :anansi.streamscapes.channels.socket-in.socket-in)
+                                                             {:role :receiver :signal ["anansi.streamscapes.channels.socket-in" "controller" "receive"] :params {}}
+                                                             (get-receptor-definition :anansi.streamscapes.channels.socket-controller.socket-controller)
+                                                             {:role :controller :params {:attributes {:port port}}
+                                                              :signal ["anansi.streamscapes.channels.socket-controller" "channel" "control"]}})
                                                  :twitter (let [{search-query :search-query} params]
                                                             {(get-receptor-definition :anansi.streamscapes.channels.twitter-bridge-in.twitter-bridge-in)
                                                              {:role :receiver :params {}}

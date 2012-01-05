@@ -47,8 +47,11 @@
       (is (= (s-> channel->control b {:command :status}) :open))
       (is (= (count (s-> key->all droplet-ids)) 0))
       (let [conn (connect "127.0.0.1" 3141)]
-        (write conn "test message 1")
+        (write conn "test message 1 line 1")
+        (write conn "test message 1 line 2")
+        (write conn ".")
         (write conn "test message 2")
+        
         )
 
       (while (< (count (s-> key->all droplet-ids)) 1) "idling")
@@ -59,7 +62,7 @@
             content (contents d :content)]
         
         (is (= droplet-id (contents d :id)))
-        (is (= "test message 1" (:message content)))
+        (is (= "test message 1 line 1\ntest message 1 line 2\n" (:message content)))
         (is (= "127.0.0.1" (:from content)))
         (is (= (s-> key->resolve ip-contacts "127.0.0.1")  (contents d :from) ))
         )

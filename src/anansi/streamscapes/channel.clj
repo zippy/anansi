@@ -107,6 +107,11 @@
                          (doseq [key [:search-query]]
                            (if (not (blank? (key params))) (set-content controller key (key params))))
                          )
+              :socket (let [[controller-address _] (get-controller _r)
+                             controller (get-receptor _r controller-address)]
+                         (doseq [key [:port]]
+                           (if (not (blank? (key params))) (set-content controller key (key params))))
+                         )
               :email (let [[out-address _] (get-deliverer-bridge _r)
                            [in-address _] (get-receiver-bridge _r)
                            in (get-receptor _r in-address)

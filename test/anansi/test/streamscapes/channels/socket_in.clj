@@ -33,11 +33,14 @@
             d (get-receptor r droplet-address)
             ]
         (is (re-find #"^192.168.1.1-" (contents d :id)))
-        (is (= (s-> key->resolve ip-contacts "192.168.1.1")  (contents d :from) ))
-        (is (= (s-> key->resolve ip-contacts "127.0.0.1")  (contents d :to) ))
-        (is (= :socket-stream  (contents d :channel) ))
-        (is (= {:from "ip/address" :message "text/plain"} (contents d :envelope)))
-        (is (= {:from "192.168.1.1" :to "127.0.0.1" :message "some message"} (contents d :content)))
+        (facts "about socket droplet"
+          (contents d :from)  => (s-> key->resolve ip-contacts "192.168.1.1")
+          (contents d :to) => (s-> key->resolve ip-contacts "127.0.0.1")
+          (contents d :channel) => :socket-stream 
+          (contents d :envelope) => {:from "ip/address" :message "text/plain"}
+          (contents d :content) => {:from "192.168.1.1" :to "127.0.0.1" :message "some message"}
+          (into [] (s-> key->resolve (get-scape r :droplet-grooves) droplet-address)) => [:simple-message]
+          )
         )
       )    
     ))

@@ -25,7 +25,7 @@
 
 (defn write [conn msg]
   (doto (:out @conn)
-    (.println (str msg "\n"))
+    (.print (str msg "\n"))
     (.flush)))
 
 (defn conn-handler [conn]
