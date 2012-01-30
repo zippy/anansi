@@ -43,18 +43,25 @@
       (str "<pre>" body "</pre>"))))
 
 (defn visualize [data]
-  (let [
+  (viz google.visualization.AreaChart {
+    :options {:title "Flow rate"} 
+    :labels [["Date" "datetime"] ["Flows" "number"]]
+    :data data
+    }))
+
+(defn viz [viz-type {options :options labels :labels data :data}]
+  (let [cols (count labels)
         idv (map vector (iterate inc 0) data)
-        table (doto (google.visualization.DataTable.)
-                (.addColumn "string" "Date")
-                (.addColumn "number" "Flows")
-                (.addRows (count data)))
-         chart (google.visualization.AreaChart. (ss.dom-helpers/get-element :visualization ))
+        table (google.visualization.DataTable.)
+        chart (viz-type. (ss.dom-helpers/get-element :visualization ))
+        [first-label first-type] (first labels)
+        d (if (or (= first-type "date") (= first-type "datetime")) 
+          (into [] (map (fn [[r & x]] (into [] (cons (js/Date. r) x))) data))
+          data)
        ]
-     (doseq [[idx [k v]] idv]
-      (.setCell table idx 0 k)
-      (.setCell table idx 1 v))
-    (.draw chart table nil)))
+       (doseq [[l t] labels] (.addColumn table t l))
+       (.addRows table (ss.utils.clj->js d))
+       (.draw chart table (ss.utils.clj->js options))))
 
 (defn page-count [total]
   (+ (quot total s/*items-per-page*) (if (> (mod total s/*items-per-page*) 0) 1 0)))

@@ -63,14 +63,15 @@
                  (--> key->set _r names receptor-name addr)
                  (--> key->set _r creators addr _f)
            addr)))
-(signal self host-groove [_r _f {receptor-name :name grammars :grammars}]
+(signal self host-groove [_r _f params]
         (rsync _r
-               (let [names (get-scape _r :groove)
+               (let [{receptor-name :name} params
+                     names (get-scape _r :groove)
                      qualified-name (keyword (str _f "." (name receptor-name)))
                      existing-addr (--> key->resolve _r names qualified-name)
                      x (if existing-addr (throw (RuntimeException. (str "A groove already exists with the name: " qualified-name))))
                      creators (get-scape _r :creator)
-                     r (make-receptor groove-def _r {:attributes {:name qualified-name}})
+                     r (make-receptor groove-def _r {:attributes (assoc params :name qualified-name)})
                      addr (address-of r)]
                  (--> key->set _r names qualified-name addr)
                  (--> key->set _r creators addr _f)
