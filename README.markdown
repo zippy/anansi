@@ -1,6 +1,6 @@
 # anansi
 
-A reference server for the ceptr platform
+A reference server for the ceptr platform. This project was replaced by [Ceptr](https://github.com/zippy/ceptr). Please view progress there.
 
 ## Installation
 
